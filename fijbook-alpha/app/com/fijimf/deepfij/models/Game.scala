@@ -6,7 +6,7 @@ import javax.inject.Inject
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
 
-case class Game(id: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int])
+case class Game(id: Long, seasonId:Long,  homeTeamId: Long, awayTeamId: Long, date: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int])
 
 class GameRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
@@ -19,6 +19,8 @@ class GameRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
   private class GamesTable(tag: Tag) extends Table[Game](tag, "GAME") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+
+    def seasonId = column[Long]("SEASON_ID")
 
     def homeTeamId = column[Long]("HOME_TEAM_ID")
 
@@ -34,7 +36,7 @@ class GameRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
 
     def awayTeamSeed = column[Option[Int]]("AWAY_TEAM_SEED")
 
-    def * = (id, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed) <>(Game.tupled, Game.unapply)
+    def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed) <>(Game.tupled, Game.unapply)
 
   }
 
