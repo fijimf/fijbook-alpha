@@ -2,7 +2,6 @@ package com.fijimf.deepfij.models
 
 import javax.inject.Inject
 
-import models.Project
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
 
