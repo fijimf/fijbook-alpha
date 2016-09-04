@@ -21,3 +21,4 @@ libraryDependencies ++= Seq(
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 fork in run := true
+fork in Test := false

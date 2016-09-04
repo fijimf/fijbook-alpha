@@ -39,6 +39,7 @@ class ConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
     }
     "prevent duplicate keys from being inverted" in new WithApplication(FakeApplication()) {
       private val g: Future[Long] = conferenceRepo.create("big-east", "Big East")
+      Await.result(g, Duration.Inf)
       private val v: Future[Long] = conferenceRepo.create("big-east", "Big Ten")
       ScalaFutures.whenReady(v.failed) { e =>
         e mustBe a [SQLException]
@@ -46,6 +47,7 @@ class ConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
     }
     "prevent duplicate names from being inverted" in new WithApplication(FakeApplication()) {
       private val g: Future[Long] = conferenceRepo.create("big-east", "Big East")
+      Await.result(g, Duration.Inf)
       private val v: Future[Long] = conferenceRepo.create("big-ten", "Big East")
       ScalaFutures.whenReady(v.failed) { e =>
         e mustBe a [SQLException]
