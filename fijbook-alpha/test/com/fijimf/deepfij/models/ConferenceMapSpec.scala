@@ -15,12 +15,12 @@ import scala.concurrent.{Await, Future}
 
 class ConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach {
 
-  val conferenceMapRepo = Injector.inject[ConferenceMapRepo]
+  val repo = Injector.inject[Repo]
   override def afterEach() = EvolutionHelper.clean()
 
   "ConferenceMaps " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      Await.result(conferenceMapRepo.all, Duration.Inf) mustBe List.empty
+      Await.result(repo.all(repo.conferenceMaps), Duration.Inf) mustBe List.empty
     }
   }
 }
