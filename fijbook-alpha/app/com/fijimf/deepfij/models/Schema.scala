@@ -4,9 +4,13 @@ import java.time.{ZoneOffset, LocalDateTime}
 import javax.inject.Inject
 
 import play.api.db.slick.DatabaseConfigProvider
+import slick.dbio.Effect.Read
 import slick.driver.JdbcProfile
 
 import scala.concurrent.Future
+
+
+case class Season(id:Long, year:Int)
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String])
 
@@ -21,12 +25,21 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long)
 
 class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
+
+
+
+
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
   import dbConfig.driver.api._
 
   def all(tableQuery: TableQuery[_]) = db.run(tableQuery.to[List].result)
+
+  def createSeason(year: Int): Future[Long] = {
+    val s = Season(0, year)
+    db.run(seasons returning seasons.map(_.id) += s)
+  }
 
   def createConference(key: String, name: String,
                        logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
@@ -41,6 +54,11 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
                  officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None): Future[Long] = {
     val t = Team(0, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook)
     db.run(teams returning teams.map(_.id) += t)
+  }
+
+  def mapTeam(seasonId: Long, teamId:Long, confId:Long): Future[Long] = {
+    val cm: ConferenceMap = ConferenceMap(0L, seasonId, confId, teamId)
+    conferenceMaps.filter(t => t.seasonId === seasonId && t.teamId === teamId).exists
   }
 
 
@@ -139,6 +157,16 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
     def * = (id, gameId, homeScore, awayScore, periods) <>(Result.tupled, Result.unapply)
 
   }
+  class SeasonsTable(tag: Tag) extends Table[Season](tag, "SEASON") {
+
+    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+
+    def year = column[Int]("YEAR")
+
+
+    def * = (id, year) <>(Season.tupled, Season.unapply)
+
+  }
 
    class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") {
 
@@ -160,14 +188,10 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
     long => LocalDateTime.ofEpochSecond(long, 0, ZoneOffset.UTC)
   )
 
+  lazy val seasons = TableQuery[SeasonsTable]
   lazy val games = TableQuery[GamesTable]
   lazy val results = TableQuery[ResultsTable]
   lazy val teams = TableQuery[TeamsTable]
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
 }
-
-
-//def all: Future[List[Conference]] = db.run(Conferences.to[List].result)
-//
-//def findById(id: Long): Future[Conference] = db.run(Conferences.filter(_.id === id).result.head)
