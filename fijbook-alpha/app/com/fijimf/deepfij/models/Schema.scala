@@ -4,10 +4,11 @@ import java.time.{ZoneOffset, LocalDateTime}
 import javax.inject.Inject
 
 import play.api.db.slick.DatabaseConfigProvider
-import slick.dbio.Effect.Read
+import slick.dbio
+import slick.dbio.Effect.{Transactional, Write, Read}
 import slick.driver.JdbcProfile
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 case class Season(id:Long, year:Int)
@@ -56,9 +57,15 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
     db.run(teams returning teams.map(_.id) += t)
   }
 
-  def mapTeam(seasonId: Long, teamId:Long, confId:Long): Future[Long] = {
-    val cm: ConferenceMap = ConferenceMap(0L, seasonId, confId, teamId)
-    conferenceMaps.filter(t => t.seasonId === seasonId && t.teamId === teamId).exists
+  def mapTeam(seasonId: Long, teamId: Long, confId: Long)(implicit ec: ExecutionContext): Future[Long] = {
+    val q = conferenceMaps.withFilter(cm => cm.seasonId === seasonId && cm.teamId === teamId)
+    val action = q.result.headOption.flatMap((cm: Option[ConferenceMap]) => {
+      cm match {
+        case Some(a) => q.map(_.conferenceId).update(confId).andThen(DBIO.successful(a.id))
+        case None => conferenceMaps returning conferenceMaps.map(_.id) += ConferenceMap(0L, seasonId, confId, teamId)
+      }
+    }).transactionally
+    db.run(action)
   }
 
 
