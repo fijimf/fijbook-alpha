@@ -114,7 +114,7 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach {
   }
 
   "ConferenceMaps " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       assert(Await.result(repo.all(repo.conferenceMaps), Duration.Inf).isEmpty)
     }
     "allow you to map a team to a conference for a season" in new WithApplication(FakeApplication()) {
@@ -122,7 +122,13 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach {
         seasonId <- repo.createSeason(2016);
         confId <- repo.createConference("big-east", "Big East");
         teamId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")) {
+        println("Season "+seasonId)
+        println("Conf "+confId)
+        println("Team "+teamId)
+        println("OK")
+        Thread.sleep(1000L)
         assert(Await.result(repo.mapTeam(seasonId, teamId, confId), Duration.Inf) > 0L)
+
       }
     }
     "ensure that a teams conference mappping is unique for a season" in new WithApplication(FakeApplication()) {
