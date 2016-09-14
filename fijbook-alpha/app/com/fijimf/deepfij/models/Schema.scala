@@ -143,9 +143,15 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def seasonId = column[Long]("SEASON_ID")
 
+    def season = foreignKey("FK_GAME_SEAS", seasonId, seasons) (_.id)
+
     def homeTeamId = column[Long]("HOME_TEAM_ID")
 
+    def homeTeam = foreignKey("FK_GAME_HTEAM", homeTeamId, teams)(_.id)
+
     def awayTeamId = column[Long]("AWAY_TEAM_ID")
+
+    def awayTeam = foreignKey("FK_GAME_ATEAM", awayTeamId, teams)(_.id)
 
     def date = column[LocalDateTime]("DATE")
 
@@ -166,6 +172,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
     def gameId = column[Long]("GAME_ID")
+
+    def game = foreignKey("FK_RES_GAME", gameId, games)(_.id)
 
     def homeScore = column[Int]("HOME_SCORE")
 
@@ -198,9 +206,15 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def seasonId = column[Long]("SEASON_ID")
 
+    def season = foreignKey("FK_CM_SEAS", seasonId, seasons)(_.id)
+
     def conferenceId = column[Long]("CONFERENCE_ID")
 
+    def conference = foreignKey("FK_CM_CONF", conferenceId, conferences)(_.id)
+
     def teamId = column[Long]("TEAM_ID")
+
+    def team = foreignKey("FK_CM_TEAM", teamId, teams)(_.id)
 
     def * = (id, seasonId, conferenceId, teamId) <>(ConferenceMap.tupled, ConferenceMap.unapply)
 
@@ -221,5 +235,5 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++  seasons.schema
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema
 }
