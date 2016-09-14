@@ -9,3 +9,7 @@ PUT     /projects/:id/:name                  controllers.Application.addTaskToPr
 PATCH   /tasks/:id                           controllers.Application.modifyTask(id: Long, color:Option[String] ?= None)
 
 DELETE  /projects/:name                      controllers.Application.delete(name: String)
+
+GET     /deepfij/admin/schema                controllers.SchemaHelper.dumpSchema
+GET     /deepfij/admin/createDb              controllers.SchemaHelper.createSchema
+GET     /deepfij/admin/dropDb                controllers.SchemaHelper.dropSchema

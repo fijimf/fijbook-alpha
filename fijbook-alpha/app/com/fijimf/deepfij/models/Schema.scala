@@ -4,14 +4,18 @@ import java.time.{ZoneOffset, LocalDateTime}
 import javax.inject.Inject
 
 import play.api.db.slick.DatabaseConfigProvider
+import slick.backend.DatabaseConfig
 import slick.dbio
 import slick.dbio.Effect.{Transactional, Write, Read}
-import slick.driver.JdbcProfile
+import slick.driver.{MySQLDriver, JdbcProfile}
+import slick.jdbc.JdbcBackend
+import slick.lifted.Rep
+import slick.profile.{RelationalProfile, BasicProfile}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Season(id:Long, year:Int)
+case class Season(id: Long, year: Int)
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String])
 
@@ -28,14 +32,26 @@ case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: L
 class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
 
-
-
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
   import dbConfig.driver.api._
 
+
+  def dumpSchema()(implicit ec: ExecutionContext) = {
+    Future((ddl.create.statements, ddl.drop.statements))
+  }
+
+  def createSchema() = {
+    db.run(ddl.create.transactionally)
+  }
+
+  def dropSchema() = {
+    db.run(ddl.drop.transactionally)
+  }
+
   def all(tableQuery: TableQuery[_]) = db.run(tableQuery.to[List].result)
+
 
   def createSeason(year: Int): Future[Long] = {
     val s = Season(0, year)
@@ -64,68 +80,74 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
         case Some(a) => q.map(_.conferenceId).update(confId).andThen(DBIO.successful(a.id))
         case None => conferenceMaps returning conferenceMaps.map(_.id) += ConferenceMap(0L, seasonId, confId, teamId)
       }
-    }).transactionally
+    })
     db.run(action)
   }
 
 
-   class TeamsTable(tag: Tag) extends Table[Team](tag, "TEAM") {
+  class TeamsTable(tag: Tag) extends Table[Team](tag, "TEAM") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
-    def key = column[String]("KEY")
+    def key = column[String]("KEY", O.Length(24))
 
-    def name = column[String]("NAME")
+    def name = column[String]("NAME", O.Length(64))
 
-    def longName = column[String]("LONG_NAME")
+    def longName = column[String]("LONG_NAME", O.Length(144))
 
-    def nickname = column[String]("NICKNAME")
+    def nickname = column[String]("NICKNAME", O.Length(64))
 
-    def logoLgUrl = column[Option[String]]("LOGO_LG_URL")
+    def logoLgUrl = column[Option[String]]("LOGO_LG_URL", O.Length(144))
 
-    def logoSmUrl = column[Option[String]]("LOGO_SM_URL")
+    def logoSmUrl = column[Option[String]]("LOGO_SM_URL", O.Length(144))
 
-    def primaryColor = column[Option[String]]("PRIMARY_COLOR")
+    def primaryColor = column[Option[String]]("PRIMARY_COLOR", O.Length(24))
 
-    def secondaryColor = column[Option[String]]("SECONDARY_COLOR")
+    def secondaryColor = column[Option[String]]("SECONDARY_COLOR", O.Length(24))
 
-    def officialUrl = column[Option[String]]("OFFICIAL_URL")
+    def officialUrl = column[Option[String]]("OFFICIAL_URL", O.Length(144))
 
-    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER")
+    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER", O.Length(64))
 
-    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK")
+    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK", O.Length(64))
 
     def * = (id, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook) <>(Team.tupled, Team.unapply)
 
+    def idx1 = index("team_idx1", key, unique = true)
+
+    def idx2 = index("team_idx2", name, unique = true)
   }
 
 
-   class ConferencesTable(tag: Tag) extends Table[Conference](tag, "CONFERENCE") {
+  class ConferencesTable(tag: Tag) extends Table[Conference](tag, "CONFERENCE") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
-    def key = column[String]("KEY")
+    def key = column[String]("KEY", O.Length(24))
 
-    def name = column[String]("NAME")
+    def name = column[String]("NAME", O.Length(64))
 
-    def longName = column[String]("LONG_NAME")
+    def longName = column[String]("LONG_NAME", O.Length(144))
 
-    def logoLgUrl = column[Option[String]]("LOGO_LG_URL")
+    def logoLgUrl = column[Option[String]]("LOGO_LG_URL", O.Length(144))
 
-    def logoSmUrl = column[Option[String]]("LOGO_SM_URL")
+    def logoSmUrl = column[Option[String]]("LOGO_SM_URL", O.Length(144))
 
-    def officialUrl = column[Option[String]]("OFFICIAL_URL")
+    def officialUrl = column[Option[String]]("OFFICIAL_URL", O.Length(144))
 
-    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER")
+    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER", O.Length(64))
 
-    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK")
+    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK", O.Length(64))
 
     def * = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook) <>(Conference.tupled, Conference.unapply)
 
+    def idx1 = index("conf_idx1", key, unique = true)
+
+    def idx2 = index("conf_idx2", name, unique = true)
   }
 
 
-   class GamesTable(tag: Tag) extends Table[Game](tag, "GAME") {
+  class GamesTable(tag: Tag) extends Table[Game](tag, "GAME") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
@@ -137,9 +159,9 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
     def date = column[LocalDateTime]("DATE")
 
-    def location = column[Option[String]]("LOCATION")
+    def location = column[Option[String]]("LOCATION", O.Length(144))
 
-    def tourneyKey = column[Option[String]]("TOURNEY_KEY")
+    def tourneyKey = column[Option[String]]("TOURNEY_KEY", O.Length(64))
 
     def homeTeamSeed = column[Option[Int]]("HOME_TEAM_SEED")
 
@@ -149,7 +171,7 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
   }
 
-   class ResultsTable(tag: Tag) extends Table[Result](tag, "RESULT") {
+  class ResultsTable(tag: Tag) extends Table[Result](tag, "RESULT") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
@@ -163,7 +185,10 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
     def * = (id, gameId, homeScore, awayScore, periods) <>(Result.tupled, Result.unapply)
 
+    def idx1 = index("result_idx1", gameId, unique = true)
+
   }
+
   class SeasonsTable(tag: Tag) extends Table[Season](tag, "SEASON") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
@@ -173,9 +198,11 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
     def * = (id, year) <>(Season.tupled, Season.unapply)
 
+    def idx1 = index("season_idx1", year, unique = true)
+
   }
 
-   class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") {
+  class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") with WithId[Long] {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
@@ -186,6 +213,8 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
     def teamId = column[Long]("TEAM_ID")
 
     def * = (id, seasonId, conferenceId, teamId) <>(ConferenceMap.tupled, ConferenceMap.unapply)
+
+    def idx1 = index("confmap_idx1", (seasonId, conferenceId, teamId), unique = true)
 
   }
 
@@ -201,4 +230,23 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   lazy val teams = TableQuery[TeamsTable]
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
+
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++  seasons.schema
 }
+
+trait WithId[R] {
+  def id: Rep[R]
+}
+
+//object ScriptHelper {
+//  def main(args: Array[String]) {
+////    import slick.jdbc.JdbcBackend._
+////    val db = Database.forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver="org.h2.Driver")
+//    val repo: Repo = new Repo(new DatabaseConfigProvider {
+//      override def get[P <: BasicProfile]: DatabaseConfig[RelationalProfile] = {
+//        DatabaseConfig.forConfig[RelationalProfile]("default")
+//      }
+//    })
+//    println(repo.toString)
+//  }
+//}
