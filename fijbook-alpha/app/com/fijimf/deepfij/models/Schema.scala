@@ -1,16 +1,10 @@
 package com.fijimf.deepfij.models
 
-import java.time.{ZoneOffset, LocalDateTime}
+import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.Inject
 
 import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabaseConfig
-import slick.dbio
-import slick.dbio.Effect.{Transactional, Write, Read}
-import slick.driver.{MySQLDriver, JdbcProfile}
-import slick.jdbc.JdbcBackend
-import slick.lifted.Rep
-import slick.profile.{RelationalProfile, BasicProfile}
+import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,14 +23,11 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long)
 
-class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
-
-
+class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
   import dbConfig.driver.api._
-
 
   def dumpSchema()(implicit ec: ExecutionContext) = {
     Future((ddl.create.statements, ddl.drop.statements))
@@ -51,7 +42,6 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   }
 
   def all(tableQuery: TableQuery[_]) = db.run(tableQuery.to[List].result)
-
 
   def createSeason(year: Int): Future[Long] = {
     val s = Season(0, year)
@@ -202,7 +192,7 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
   }
 
-  class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") with WithId[Long] {
+  class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") {
 
     def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
 
@@ -233,20 +223,3 @@ class Repo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
 
   lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++  seasons.schema
 }
-
-trait WithId[R] {
-  def id: Rep[R]
-}
-
-//object ScriptHelper {
-//  def main(args: Array[String]) {
-////    import slick.jdbc.JdbcBackend._
-////    val db = Database.forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver="org.h2.Driver")
-//    val repo: Repo = new Repo(new DatabaseConfigProvider {
-//      override def get[P <: BasicProfile]: DatabaseConfig[RelationalProfile] = {
-//        DatabaseConfig.forConfig[RelationalProfile]("default")
-//      }
-//    })
-//    println(repo.toString)
-//  }
-//}

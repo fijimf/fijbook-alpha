@@ -16,7 +16,7 @@ import scala.concurrent.{Await, Future}
 
 class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[Repo]
+  val repo = Injector.inject[ScheduleRepository]
 
   override def beforeEach() = {
     Await.result(repo.createSchema(), Duration.Inf)
