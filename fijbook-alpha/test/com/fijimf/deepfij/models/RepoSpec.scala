@@ -55,14 +55,12 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
       assert(Await.result(id, Duration.Inf) > 0L)
     }
     "allow multiple teams to be created" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")
-      private val v: Future[Long] = repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats")
-      for (gId <- g;
-           vId <- v) {
-        assert(gId > 0L)
-        assert(vId > 0L)
-        assert(gId != vId)
-      }
+      val (gg, vv) = Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas");
+                                       vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats"))
+        yield { (gId, vId)}, Duration.Inf)
+      assert(gg > 0L)
+      assert(vv > 0L)
+      assert(gg != vv)
     }
     "prevent duplicate keys from being inserted" in new WithApplication(FakeApplication()) {
       private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")
@@ -80,7 +78,18 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
         assert(e.isInstanceOf[SQLException])
       }
     }
+    "can retrieve all teams as a map" in new WithApplication(FakeApplication()) {
+      Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas");
+                        vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats"))
+        yield {
+          (gId, vId)
+        }, Duration.Inf)
+      private val teams: Map[String, Team] = Await.result(repo.getTeams, Duration.Inf)
+      assert(teams.get("villanova").map(_.longName).contains("Villanova University"))
+      assert(teams.get("syracuse").map(_.longName).isEmpty)
+    }
   }
+
 
   "Conferences " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
@@ -91,15 +100,16 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
       assert(Await.result(id, Duration.Inf) > 0L)
     }
     "allow multiple conferences to be created" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createConference("big-east", "Big East")
-      private val v: Future[Long] = repo.createConference("big-ten", "Big Ten")
-      for (gId <- g;
-           vId <- v) {
-        assert(gId > 0L)
-        assert(vId > 0L)
-        assert(gId != vId)
-      }
+      val (g,v) = Await.result(for (gId <- repo.createConference("big-east", "Big East");
+                                    vId <- repo.createConference("big-ten", "Big Ten"))
+        yield {
+          (gId, vId)
+        }, Duration.Inf)
+      assert(g > 0L)
+      assert(v > 0L)
+      assert(g != v)
     }
+
     "prevent duplicate keys from being inserted" in new WithApplication(FakeApplication()) {
       private val g: Future[Long] = repo.createConference("big-east", "Big East")
       Await.result(g, Duration.Inf)
