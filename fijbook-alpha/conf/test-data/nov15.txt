@@ -1,0 +1,3585 @@
+callbackWrapper({
+		    "scoreboard": [
+
+        {
+            "day":"Sunday, November 15, 2015",
+            "games":[
+
+		    			{
+		     "id":"1079918",
+
+		     "conference":"all-conf big-ten northeast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"12:00  ET",
+			 "startTimeEpoch":"1447606800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Value City Arena at the Jerome Schottenstein Center, Columbus, OH",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/mt-st-marys-ohio-st",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/o/ohio-st.70.png",
+		         "name":"<a href='/schools/ohio-st'>Ohio State</a>",
+                 "nameRaw":"Ohio State",
+                 "nameSeo":"ohio-st",
+		         "shortname":"OHIOST",
+		         "color":"#bb0000",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"Brutus_Buckeye","sport":"OhioStateHoops","conference":"bigtenconf"}}},
+		         "description":"",
+		         "currentScore":"76",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"34"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/mt-st-marys.70.png",
+		         "name":"<a href='/schools/mt-st-marys'>Mt. St. Mary's</a>",
+                 "nameRaw":"Mt. St. Mary's",
+                 "nameSeo":"mt-st-marys",
+		         "shortname":"MTSTMY",
+		      	 "color":"#00599a",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"MountAthletics","conference":"NECsports"}}},
+		         "description":"0-1",
+		         "currentScore":"54",
+		         "scoreBreakdown":[
+	   			"21",
+	   			"33"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/mt-st-marys-ohio-st/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/mt-st-marys-ohio-st/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/mt-st-marys-ohio-st/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/mt-st-marys-ohio-st/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081809",
+
+		     "conference":"all-conf big-ten mid-eastern",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"1:00  ET",
+			 "startTimeEpoch":"1447610400",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Louis Brown Athletic Center, Piscataway, NJ",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/howard-rutgers",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/r/rutgers.70.png",
+		         "name":"<a href='/schools/rutgers'>Rutgers</a>",
+                 "nameRaw":"Rutgers",
+                 "nameSeo":"rutgers",
+		         "shortname":"RUTGER",
+		         "color":"#d21034",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"RUAthletics","conference":"BigEastMBB"}}},
+		         "description":"1-0",
+		         "currentScore":"82",
+		         "scoreBreakdown":[
+	   			"35",
+	   			"47"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/h/howard.70.png",
+		         "name":"<a href='/schools/howard'>Howard</a>",
+                 "nameRaw":"Howard",
+                 "nameSeo":"howard",
+		         "shortname":"HOWARD",
+		      	 "color":"#ef3e43",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"HowardAthletics","conference":"MEAC1970"}}},
+		         "description":"0-1",
+		         "currentScore":"70",
+		         "scoreBreakdown":[
+	   			"27",
+	   			"43"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/howard-rutgers/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/howard-rutgers/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/howard-rutgers/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/howard-rutgers/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081136",
+
+		     "conference":"all-conf patriot atlantic-coast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"1:00  ET",
+			 "startTimeEpoch":"1447610400",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Sojka Pavilion, Lewisburg, PA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/wake-forest-bucknell",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/b/bucknell.70.png",
+		         "name":"<a href='/schools/bucknell'>Bucknell</a>",
+                 "nameRaw":"Bucknell",
+                 "nameSeo":"bucknell",
+		         "shortname":"BUCKNL",
+		         "color":"#ed7939",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"BisonSports","sport":"Bucknellhoops","conference":"PL_MBB"}}},
+		         "description":"1-0",
+		         "currentScore":"82",
+		         "scoreBreakdown":[
+	   			"48",
+	   			"34"],
+
+
+
+		         "winner":"false"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/wake-forest.70.png",
+		         "name":"<a href='/schools/wake-forest'>Wake Forest</a>",
+                 "nameRaw":"Wake Forest",
+                 "nameSeo":"wake-forest",
+		         "shortname":"WAKE",
+		      	 "color":"#9E7E38",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"WFUSports","sport":"TieDyeNation","conference":"accmbb"}}},
+		         "description":"1-0",
+		         "currentScore":"90",
+		         "scoreBreakdown":[
+	   			"37",
+	   			"53"],
+
+
+
+		         "winner":"true"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/wake-forest-bucknell/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wake-forest-bucknell/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wake-forest-bucknell/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wake-forest-bucknell/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081138",
+
+		     "conference":"all-conf big-east northeast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"1:30  ET",
+			 "startTimeEpoch":"1447612200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Walsh Gymnasium, South Orange, NJ",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/wagner-seton-hall",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/seton-hall.70.png",
+		         "name":"<a href='/schools/seton-hall'>Seton Hall</a>",
+                 "nameRaw":"Seton Hall",
+                 "nameSeo":"seton-hall",
+		         "shortname":"SETON",
+		         "color":"#004488",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SHUAthletics","conference":"BigEastMBB"}}},
+		         "description":"1-0",
+		         "currentScore":"69",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"27"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/wagner.70.png",
+		         "name":"<a href='/schools/wagner'>Wagner</a>",
+                 "nameRaw":"Wagner",
+                 "nameSeo":"wagner",
+		         "shortname":"WAGNER",
+		      	 "color":"#336356",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"WagnerAthletics","sport":"WagnerHoops","conference":"NECsports"}}},
+		         "description":"0-1",
+		         "currentScore":"59",
+		         "scoreBreakdown":[
+	   			"26",
+	   			"33"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/wagner-seton-hall/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wagner-seton-hall/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wagner-seton-hall/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wagner-seton-hall/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080187",
+
+		     "conference":"all-conf top-25 big-ten america-east",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Mackey Arena, West Lafayette, IN",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/vermont-purdue",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"23",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/p/purdue.70.png",
+		         "name":"<a href='/schools/purdue'>Purdue</a>",
+                 "nameRaw":"Purdue",
+                 "nameSeo":"purdue",
+		         "shortname":"PURDUE",
+		         "color":"#000000",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"PurdueSports","sport":"BoilerBall","conference":"bigtenconf"}}},
+		         "description":"1-0",
+		         "currentScore":"107",
+		         "scoreBreakdown":[
+	   			"60",
+	   			"47"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/v/vermont.70.png",
+		         "name":"<a href='/schools/vermont'>Vermont</a>",
+                 "nameRaw":"Vermont",
+                 "nameSeo":"vermont",
+		         "shortname":"VERMNT",
+		      	 "color":"#f6b504",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UVMAthletics","sport":"UVMmbb","conference":"AmericaEast"}}},
+		         "description":"0-1",
+		         "currentScore":"79",
+		         "scoreBreakdown":[
+	   			"45",
+	   			"34"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/vermont-purdue/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/vermont-purdue/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/vermont-purdue/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/vermont-purdue/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081181",
+
+		     "conference":"all-conf america-east patriot",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Binghamton University Events Center, Binghamton, NY",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/army-binghamton",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/b/binghamton.70.png",
+		         "name":"<a href='/schools/binghamton'>Binghamton</a>",
+                 "nameRaw":"Binghamton",
+                 "nameSeo":"binghamton",
+		         "shortname":"BINGHA",
+		         "color":"#006a4e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"BU_Bearcats","conference":"AmericaEast"}}},
+		         "description":"0-1",
+		         "currentScore":"60",
+		         "scoreBreakdown":[
+	   			"30",
+	   			"30"],
+
+
+
+		         "winner":"false"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/a/army.70.png",
+		         "name":"<a href='/schools/army'>Army West Point</a>",
+                 "nameRaw":"Army West Point",
+                 "nameSeo":"army",
+		         "shortname":"ARMY",
+		      	 "color":"#ccb284",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"ArmyAthletics","sport":"Army_MBB","conference":"PL_MBB"}}},
+		         "description":"1-0",
+		         "currentScore":"75",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"33"],
+
+
+
+		         "winner":"true"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/army-binghamton/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/army-binghamton/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082166",
+
+		     "conference":"all-conf atlantic-coast conference-usa",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Littlejohn Coliseum, Clemson, SC",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/utsa-clemson",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/clemson.70.png",
+		         "name":"<a href='/schools/clemson'>Clemson</a>",
+                 "nameRaw":"Clemson",
+                 "nameSeo":"clemson",
+		         "shortname":"CLEM",
+		         "color":"#e76c1f",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"CU_athletics","sport":"ClemsonMBB","conference":"accmbb"}}},
+		         "description":"1-0",
+		         "currentScore":"78",
+		         "scoreBreakdown":[
+	   			"48",
+	   			"30"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/utsa.70.png",
+		         "name":"<a href='/schools/utsa'>UTSA</a>",
+                 "nameRaw":"UTSA",
+                 "nameSeo":"utsa",
+		         "shortname":"UTSA",
+		      	 "color":"#fe7502",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UTSAAthletics","sport":"UTSAMBB","conference":"WACSports"}}},
+		         "description":"0-1",
+		         "currentScore":"45",
+		         "scoreBreakdown":[
+	   			"28",
+	   			"17"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/utsa-clemson/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/utsa-clemson/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/utsa-clemson/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/utsa-clemson/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082997",
+
+		     "conference":"all-conf patriot metro-atlantic",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final (OT)",
+		     "finalMessage":"Final (OT)",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Kirby Sports Center, Easton, PA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/st-peters-lafayette",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2",
+	   			"OT"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/l/lafayette.70.png",
+		         "name":"<a href='/schools/lafayette'>Lafayette</a>",
+                 "nameRaw":"Lafayette",
+                 "nameSeo":"lafayette",
+		         "shortname":"LAFAYE",
+		         "color":"#98002e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoLeopards","sport":"LafayetteHoops","conference":"PL_MBB"}}},
+		         "description":"0-1",
+		         "currentScore":"87",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"33",
+	   			"15"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/st-peters.70.png",
+		         "name":"<a href='/schools/st-peters'>St. Peter's</a>",
+                 "nameRaw":"St. Peter's",
+                 "nameSeo":"st-peters",
+		         "shortname":"ST PTR",
+		      	 "color":"#006bb6",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"PeacockNation","conference":"MAACSports"}}},
+		         "description":"1-0",
+		         "currentScore":"86",
+		         "scoreBreakdown":[
+	   			"34",
+	   			"38",
+	   			"14"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/st-peters-lafayette/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/st-peters-lafayette/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082743",
+
+		     "conference":"all-conf summit big-west",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"NIU Convocation Center, DeKalb, IL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/cal-st-northridge-south-dakota",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/south-dakota.70.png",
+		         "name":"<a href='/schools/south-dakota'>South Dakota</a>",
+                 "nameRaw":"South Dakota",
+                 "nameSeo":"south-dakota",
+		         "shortname":"SO DAK",
+		         "color":"#ff2310",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SDCoyotesSID","sport":"CoyotesMBB","conference":"SummitHoops"}}},
+		         "description":"0-2",
+		         "currentScore":"76",
+		         "scoreBreakdown":[
+	   			"33",
+	   			"43"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/cal-st-northridge.70.png",
+		         "name":"<a href='/schools/cal-st-northridge'>CSUN</a>",
+                 "nameRaw":"CSUN",
+                 "nameSeo":"cal-st-northridge",
+		         "shortname":"CSUN",
+		      	 "color":"#c70029",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoMatadors","conference":"BigWestSports"}}},
+		         "description":"1-1",
+		         "currentScore":"72",
+		         "scoreBreakdown":[
+	   			"30",
+	   			"42"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/cal-st-northridge-south-dakota/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/cal-st-northridge-south-dakota/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1078605",
+
+		     "conference":"all-conf american-athletic northeast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:00  ET",
+			 "startTimeEpoch":"1447614000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Fifth Third Arena, Cincinnati, OH",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/robert-morris-cincinnati",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/cincinnati.70.png",
+		         "name":"<a href='/schools/cincinnati'>Cincinnati</a>",
+                 "nameRaw":"Cincinnati",
+                 "nameSeo":"cincinnati",
+		         "shortname":"CINCY",
+		         "color":"#000000",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoBEARCATS","conference":"BigEastMBB"}}},
+		         "description":"1-0",
+		         "currentScore":"106",
+		         "scoreBreakdown":[
+	   			"51",
+	   			"55"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/r/robert-morris.70.png",
+		         "name":"<a href='/schools/robert-morris'>Robert Morris</a>",
+                 "nameRaw":"Robert Morris",
+                 "nameSeo":"robert-morris",
+		         "shortname":"ROBMOR",
+		      	 "color":"#16234a",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"RMUAthletics","sport":"RMUMBasketball","conference":"NECsports"}}},
+		         "description":"0-1",
+		         "currentScore":"44",
+		         "scoreBreakdown":[
+	   			"25",
+	   			"19"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/robert-morris-cincinnati/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/robert-morris-cincinnati/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/robert-morris-cincinnati/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/robert-morris-cincinnati/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082059",
+
+		     "conference":"all-conf horizon metro-atlantic",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"2:30  ET",
+			 "startTimeEpoch":"1447615800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Athletics-Recreation Center, Valparaiso, IN",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/iona-valparaiso",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/v/valparaiso.70.png",
+		         "name":"<a href='/schools/valparaiso'>Valparaiso</a>",
+                 "nameRaw":"Valparaiso",
+                 "nameSeo":"valparaiso",
+		         "shortname":"VALPO",
+		         "color":"#613318",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"valpoathletics","sport":"ValpoBasketball","conference":"HorizonLeague"}}},
+		         "description":"1-0",
+		         "currentScore":"83",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"41"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/i/iona.70.png",
+		         "name":"<a href='/schools/iona'>Iona</a>",
+                 "nameRaw":"Iona",
+                 "nameSeo":"iona",
+		         "shortname":"IONA",
+		      	 "color":"#702e3d",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"ICGaels","sport":"IonaMBB","conference":"MAACSports"}}},
+		         "description":"",
+		         "currentScore":"58",
+		         "scoreBreakdown":[
+	   			"25",
+	   			"33"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/iona-valparaiso/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/iona-valparaiso/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081106",
+
+		     "conference":"all-conf big-ten sun-belt",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Williams Arena, Minneapolis, MN",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/la-monroe-minnesota",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/minnesota.70.png",
+		         "name":"<a href='/schools/minnesota'>Minnesota</a>",
+                 "nameRaw":"Minnesota",
+                 "nameSeo":"minnesota",
+		         "shortname":"MINN",
+		         "color":"#872434",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GopherSports","sport":"GopherBBall","conference":"bigtenconf"}}},
+		         "description":"1-0",
+		         "currentScore":"67",
+		         "scoreBreakdown":[
+	   			"38",
+	   			"29"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/l/la-monroe.70.png",
+		         "name":"<a href='/schools/la-monroe'>La.-Monroe</a>",
+                 "nameRaw":"La.-Monroe",
+                 "nameSeo":"la-monroe",
+		         "shortname":"LA MON",
+		      	 "color":"#bc9131",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"ULMWarhawks","conference":"The_Sun_Belt"}}},
+		         "description":"1-0",
+		         "currentScore":"56",
+		         "scoreBreakdown":[
+	   			"25",
+	   			"31"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/la-monroe-minnesota/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/la-monroe-minnesota/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/la-monroe-minnesota/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/la-monroe-minnesota/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1083344",
+
+		     "conference":"all-conf atlantic-coast southland",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Donald L. Tucker Center, Tallahassee, FL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/nicholls-st-florida-st",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/f/florida-st.70.png",
+		         "name":"<a href='/schools/florida-st'>Florida State</a>",
+                 "nameRaw":"Florida State",
+                 "nameSeo":"florida-st",
+		         "shortname":"FSU",
+		         "color":"#540115",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"Seminoles_com","sport":"FSU_MBasketball","conference":"accmbb"}}},
+		         "description":"",
+		         "currentScore":"109",
+		         "scoreBreakdown":[
+	   			"60",
+	   			"49"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/nicholls-st.70.png",
+		         "name":"<a href='/schools/nicholls-st'>Nicholls State</a>",
+                 "nameRaw":"Nicholls State",
+                 "nameSeo":"nicholls-st",
+		         "shortname":"NICHST",
+		      	 "color":"#afb7ba",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"colonelsports","conference":"SouthlandSports"}}},
+		         "description":"",
+		         "currentScore":"62",
+		         "scoreBreakdown":[
+	   			"32",
+	   			"30"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/nicholls-st-florida-st/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/nicholls-st-florida-st/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/nicholls-st-florida-st/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/nicholls-st-florida-st/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079497",
+
+		     "conference":"all-conf big-ten summit",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Prairie Capital Convention Center, Springfield, IL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/north-dakota-st-illinois",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/i/illinois.70.png",
+		         "name":"<a href='/schools/illinois'>Illinois</a>",
+                 "nameRaw":"Illinois",
+                 "nameSeo":"illinois",
+		         "shortname":"ILL",
+		         "color":"#002058",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"IlliniAthletics","sport":"IlliniHoops","conference":"bigtenconf"}}},
+		         "description":"0-1",
+		         "currentScore":"80",
+		         "scoreBreakdown":[
+	   			"28",
+	   			"52"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/north-dakota-st.70.png",
+		         "name":"<a href='/schools/north-dakota-st'>North Dakota St.</a>",
+                 "nameRaw":"North Dakota St.",
+                 "nameSeo":"north-dakota-st",
+		         "shortname":"ND ST",
+		      	 "color":"#006633",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"NDSUAthletics","conference":"SummitHoops"}}},
+		         "description":"1-0",
+		         "currentScore":"74",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"35"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/north-dakota-st-illinois/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/north-dakota-st-illinois/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/north-dakota-st-illinois/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/north-dakota-st-illinois/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079021",
+
+		     "conference":"all-conf ovc siac",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Pete Mathews Coliseum, Jacksonville, AL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/fort-valley-st-jacksonville-st",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/j/jacksonville-st.70.png",
+		         "name":"<a href='/schools/jacksonville-st'>Jacksonville St.</a>",
+                 "nameRaw":"Jacksonville St.",
+                 "nameSeo":"jacksonville-st",
+		         "shortname":"JAX ST",
+		         "color":"#c61c1e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"JSUGamecocks","conference":"OVCSports"}}},
+		         "description":"0-1",
+		         "currentScore":"81",
+		         "scoreBreakdown":[
+	   			"38",
+	   			"43"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/f/fort-valley-st.70.png",
+		         "name":"<a href='/schools/fort-valley-st'>Fort Valley St.</a>",
+                 "nameRaw":"Fort Valley St.",
+                 "nameSeo":"fort-valley-st",
+		         "shortname":"FT VAL",
+		      	 "color":"#e6b001",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness"}}},
+		         "description":"",
+		         "currentScore":"68",
+		         "scoreBreakdown":[
+	   			"37",
+	   			"31"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/fort-valley-st-jacksonville-st/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/fort-valley-st-jacksonville-st/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079254",
+
+		     "conference":"all-conf sun-belt non-ncaa-org",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Trojan Arena, Troy, AL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/reinhardt-troy",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/t/troy.70.png",
+		         "name":"<a href='/schools/troy'>Troy</a>",
+                 "nameRaw":"Troy",
+                 "nameSeo":"troy",
+		         "shortname":"TROY",
+		         "color":"#961125",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"TroyAthletics","conference":"The_Sun_Belt"}}},
+		         "description":"1-0",
+		         "currentScore":"97",
+		         "scoreBreakdown":[
+	   			"47",
+	   			"50"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/r/reinhardt.70.png",
+		         "name":"<a href='/schools/reinhardt'>Reinhardt</a>",
+                 "nameRaw":"Reinhardt",
+                 "nameSeo":"reinhardt",
+		         "shortname":"REINHA",
+		      	 "color":"#021c37",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness"}}},
+		         "description":"",
+		         "currentScore":"82",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"40"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/reinhardt-troy/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/reinhardt-troy/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079214",
+
+		     "conference":"all-conf missouri-valley ovc",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Ford Center, Evansville, IN",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/southeast-mo-st-evansville",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/e/evansville.70.png",
+		         "name":"<a href='/schools/evansville'>Evansville</a>",
+                 "nameRaw":"Evansville",
+                 "nameSeo":"evansville",
+		         "shortname":"EVANS",
+		         "color":"#532380",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UEAthletics","conference":"ValleyHoops"}}},
+		         "description":"",
+		         "currentScore":"80",
+		         "scoreBreakdown":[
+	   			"44",
+	   			"36"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/southeast-mo-st.70.png",
+		         "name":"<a href='/schools/southeast-mo-st'>Southeast Mo. St.</a>",
+                 "nameRaw":"Southeast Mo. St.",
+                 "nameSeo":"southeast-mo-st",
+		         "shortname":"SEMO",
+		      	 "color":"#e03a3e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoSoutheast","conference":"OVCSports"}}},
+		         "description":"0-1",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"36",
+	   			"29"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/southeast-mo-st-evansville/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/southeast-mo-st-evansville/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/southeast-mo-st-evansville/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080358",
+
+		     "conference":"all-conf summit atlantic-sun",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"3:00  ET",
+			 "startTimeEpoch":"1447617600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Leavey Center, Santa Clara, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/lipscomb-denver",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/d/denver.70.png",
+		         "name":"<a href='/schools/denver'>Denver</a>",
+                 "nameRaw":"Denver",
+                 "nameSeo":"denver",
+		         "shortname":"DENVER",
+		         "color":"#b6a880",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"DU_Pioneers","sport":"DU_MHoops","conference":"WACSports"}}},
+		         "description":"1-1",
+		         "currentScore":"82",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"43"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/l/lipscomb.70.png",
+		         "name":"<a href='/schools/lipscomb'>Lipscomb</a>",
+                 "nameRaw":"Lipscomb",
+                 "nameSeo":"lipscomb",
+		         "shortname":"LIPSCO",
+		      	 "color":"#f4b53b",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"lipscombbisons","conference":"AtlanticSun"}}},
+		         "description":"1-1",
+		         "currentScore":"69",
+		         "scoreBreakdown":[
+	   			"26",
+	   			"43"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/lipscomb-denver/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/lipscomb-denver/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080101",
+
+		     "conference":"all-conf ivy northeast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:00  ET",
+			 "startTimeEpoch":"1447621200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Palestra, Philadelphia, PA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/central-conn-st-penn",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/p/penn.70.png",
+		         "name":"<a href='/schools/penn'>Penn</a>",
+                 "nameRaw":"Penn",
+                 "nameSeo":"penn",
+		         "shortname":"PENN",
+		         "color":"#ae223e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"pennathletics","sport":"PennBasketball","conference":"Ivy_Athletics"}}},
+		         "description":"1-0",
+		         "currentScore":"77",
+		         "scoreBreakdown":[
+	   			"29",
+	   			"48"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/central-conn-st.70.png",
+		         "name":"<a href='/schools/central-conn-st'>Cent. Conn. St.</a>",
+                 "nameRaw":"Cent. Conn. St.",
+                 "nameSeo":"central-conn-st",
+		         "shortname":"C CONN",
+		      	 "color":"#004385",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"CCSUBlueDevils","conference":"NECsports"}}},
+		         "description":"0-1",
+		         "currentScore":"61",
+		         "scoreBreakdown":[
+	   			"29",
+	   			"32"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/central-conn-st-penn/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/central-conn-st-penn/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082241",
+
+		     "conference":"all-conf big-south usa-south",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:00  ET",
+			 "startTimeEpoch":"1447621200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Millis Athletic Convocation Center, High Point, NC",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/nc-wesleyan-high-point",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/h/high-point.70.png",
+		         "name":"<a href='/schools/high-point'>High Point</a>",
+                 "nameRaw":"High Point",
+                 "nameSeo":"high-point",
+		         "shortname":"HIGHPT",
+		         "color":"#243a94",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"HighPointSports","sport":"HighPointUBball","conference":"BigSouthSports"}}},
+		         "description":"0-1",
+		         "currentScore":"93",
+		         "scoreBreakdown":[
+	   			"42",
+	   			"51"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/nc-wesleyan.70.png",
+		         "name":"<a href='/schools/nc-wesleyan'>N.C. Wesleyan</a>",
+                 "nameRaw":"N.C. Wesleyan",
+                 "nameSeo":"nc-wesleyan",
+		         "shortname":"NC WES",
+		      	 "color":"#d6bd4c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness"}}},
+		         "description":"",
+		         "currentScore":"69",
+		         "scoreBreakdown":[
+	   			"35",
+	   			"34"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/nc-wesleyan-high-point/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/nc-wesleyan-high-point/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080425",
+
+		     "conference":"all-conf missouri-valley mid-eastern",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:00  ET",
+			 "startTimeEpoch":"1447621200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"SIU Arena, Carbondale, IL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/florida-am-southern-ill",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/southern-ill.70.png",
+		         "name":"<a href='/schools/southern-ill'>Southern Ill.</a>",
+                 "nameRaw":"Southern Ill.",
+                 "nameSeo":"southern-ill",
+		         "shortname":"SIU",
+		         "color":"#872e3f",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SIUSalukis","sport":"SIU_Basketball","conference":"ValleyHoops"}}},
+		         "description":"1-0",
+		         "currentScore":"81",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"42"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/f/florida-am.70.png",
+		         "name":"<a href='/schools/florida-am'>Florida A&M</a>",
+                 "nameRaw":"Florida A&M",
+                 "nameSeo":"florida-am",
+		         "shortname":"FL A&M",
+		      	 "color":"#006b25",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"FAMUAthletics","conference":"MEAC1970"}}},
+		         "description":"1-0",
+		         "currentScore":"51",
+		         "scoreBreakdown":[
+	   			"26",
+	   			"25"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/florida-am-southern-ill/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/florida-am-southern-ill/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/florida-am-southern-ill/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1083446",
+
+		     "conference":"all-conf top-25 atlantic-coast metro-atlantic",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:00  ET",
+			 "startTimeEpoch":"1447621200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Dean Smith Center, Chapel Hill, NC",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/fairfield-north-carolina",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"1",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/north-carolina.70.png",
+		         "name":"<a href='/schools/north-carolina'>North Carolina</a>",
+                 "nameRaw":"North Carolina",
+                 "nameSeo":"north-carolina",
+		         "shortname":"UNC",
+		         "color":"#8db9e5",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoHeels","sport":"UNC_Basketball","conference":"accmbb"}}},
+		         "description":"1-0",
+		         "currentScore":"92",
+		         "scoreBreakdown":[
+	   			"40",
+	   			"52"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/f/fairfield.70.png",
+		         "name":"<a href='/schools/fairfield'>Fairfield</a>",
+                 "nameRaw":"Fairfield",
+                 "nameSeo":"fairfield",
+		         "shortname":"FAIR",
+		      	 "color":"#e93337",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"FairfieldStags","sport":"StagsMensBball","conference":"MAACSports"}}},
+		         "description":"0-1",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"32",
+	   			"33"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/fairfield-north-carolina/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/fairfield-north-carolina/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/fairfield-north-carolina/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/fairfield-north-carolina/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079915",
+
+		     "conference":"all-conf southern big-south",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:30  ET",
+			 "startTimeEpoch":"1447623000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Ramsey Center, Cullowhee, NC",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/unc-asheville-western-caro",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/western-caro.70.png",
+		         "name":"<a href='/schools/western-caro'>Western Caro.</a>",
+                 "nameRaw":"Western Caro.",
+                 "nameSeo":"western-caro",
+		         "shortname":"W CAR",
+		         "color":"#d5a977",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"Catamounts","conference":"SoConSports"}}},
+		         "description":"0-1",
+		         "currentScore":"90",
+		         "scoreBreakdown":[
+	   			"31",
+	   			"59"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/unc-asheville.70.png",
+		         "name":"<a href='/schools/unc-asheville'>UNC-Asheville</a>",
+                 "nameRaw":"UNC-Asheville",
+                 "nameSeo":"unc-asheville",
+		         "shortname":"UNC A",
+		      	 "color":"#006096",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"ashevilledogs","conference":"BigSouthSports"}}},
+		         "description":"0-1",
+		         "currentScore":"81",
+		         "scoreBreakdown":[
+	   			"34",
+	   			"47"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/unc-asheville-western-caro/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/unc-asheville-western-caro/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081440",
+
+		     "conference":"all-conf mid-american horizon",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"4:30  ET",
+			 "startTimeEpoch":"1447623000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"NIU Convocation Center, DeKalb, IL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/wright-st-northern-ill",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/northern-ill.70.png",
+		         "name":"<a href='/schools/northern-ill'>Northern Ill.</a>",
+                 "nameRaw":"Northern Ill.",
+                 "nameSeo":"northern-ill",
+		         "shortname":"NIU",
+		         "color":"#b42836",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"NIUAthletics","conference":"MACSports"}}},
+		         "description":"2-0",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"31",
+	   			"34"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/wright-st.70.png",
+		         "name":"<a href='/schools/wright-st'>Wright State</a>",
+                 "nameRaw":"Wright State",
+                 "nameSeo":"wright-st",
+		         "shortname":"WRIGHT",
+		      	 "color":"#efad00",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"WSURaiders","conference":"HorizonLeague"}}},
+		         "description":"1-1",
+		         "currentScore":"59",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"20"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/wright-st-northern-ill/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/wright-st-northern-ill/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082284",
+
+		     "conference":"all-conf atlantic-10 america-east",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:00  ET",
+			 "startTimeEpoch":"1447624800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Chaifetz Arena, St. Louis, MO",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/hartford-saint-louis",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/saint-louis.70.png",
+		         "name":"<a href='/schools/saint-louis'>Saint Louis</a>",
+                 "nameRaw":"Saint Louis",
+                 "nameSeo":"saint-louis",
+		         "shortname":"ST LOU",
+		         "color":"#00529c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SLU_Billikens","sport":"SaintLouisMBB","conference":"atlantic10"}}},
+		         "description":"",
+		         "currentScore":"85",
+		         "scoreBreakdown":[
+	   			"37",
+	   			"48"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/h/hartford.70.png",
+		         "name":"<a href='/schools/hartford'>Hartford</a>",
+                 "nameRaw":"Hartford",
+                 "nameSeo":"hartford",
+		         "shortname":"HRTFRD",
+		      	 "color":"#ec1a2c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"HartfordHawks","conference":"AmericaEast"}}},
+		         "description":"1-0",
+		         "currentScore":"68",
+		         "scoreBreakdown":[
+	   			"32",
+	   			"36"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/hartford-saint-louis/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/hartford-saint-louis/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/hartford-saint-louis/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082574",
+
+		     "conference":"all-conf western-athletic big-sky",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:00  ET",
+			 "startTimeEpoch":"1447624800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"KeyArena, Seattle, WA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/sacramento-st-seattle",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/seattle.70.png",
+		         "name":"<a href='/schools/seattle'>Seattle</a>",
+                 "nameRaw":"Seattle",
+                 "nameSeo":"seattle",
+		         "shortname":"SEATTL",
+		         "color":"#c3362e",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"su_athletics","conference":"WACSports"}}},
+		         "description":"0-1",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"27",
+	   			"38"],
+
+
+
+		         "winner":"false"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/sacramento-st.70.png",
+		         "name":"<a href='/schools/sacramento-st'>Sacramento St.</a>",
+                 "nameRaw":"Sacramento St.",
+                 "nameSeo":"sacramento-st",
+		         "shortname":"SAC ST",
+		      	 "color":"#005643",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","conference":"BigSkyConf"}}},
+		         "description":"1-0",
+		         "currentScore":"77",
+		         "scoreBreakdown":[
+	   			"25",
+	   			"52"],
+
+
+
+		         "winner":"true"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/sacramento-st-seattle/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/sacramento-st-seattle/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081268",
+
+		     "conference":"all-conf summit minn-intercol",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:00  ET",
+			 "startTimeEpoch":"1447624800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Baxter Arena, Omaha, NE",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/st-marys-mn-neb-omaha",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/neb-omaha.70.png",
+		         "name":"<a href='/schools/neb-omaha'>Omaha</a>",
+                 "nameRaw":"Omaha",
+                 "nameSeo":"neb-omaha",
+		         "shortname":"OMAHA",
+		         "color":"#163e68",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","sport":"UNO_Basketball","conference":"SummitHoops"}}},
+		         "description":"0-1",
+		         "currentScore":"104",
+		         "scoreBreakdown":[
+	   			"60",
+	   			"44"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/st-marys-mn.70.png",
+		         "name":"<a href='/schools/st-marys-mn'>St. Mary's (Minn.)</a>",
+                 "nameRaw":"St. Mary's (Minn.)",
+                 "nameSeo":"st-marys-mn",
+		         "shortname":"STMYMN",
+		      	 "color":"#e8250c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness"}}},
+		         "description":"",
+		         "currentScore":"58",
+		         "scoreBreakdown":[
+	   			"22",
+	   			"36"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/st-marys-mn-neb-omaha/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/st-marys-mn-neb-omaha/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+
+		    		,
+		    			{
+		     "id":"1083120",
+
+		     "conference":"all-conf big-ten mid-eastern",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:00  ET",
+			 "startTimeEpoch":"1447624800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Carver-Hawkeye Arena, Iowa City, IA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/coppin-st-iowa",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/i/iowa.70.png",
+		         "name":"<a href='/schools/iowa'>Iowa</a>",
+                 "nameRaw":"Iowa",
+                 "nameSeo":"iowa",
+		         "shortname":"IOWA",
+		         "color":"#000000",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"TheIowaHawkeyes","sport":"IowaHoops","conference":"bigtenconf"}}},
+		         "description":"1-0",
+		         "currentScore":"103",
+		         "scoreBreakdown":[
+	   			"52",
+	   			"51"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/coppin-st.70.png",
+		         "name":"<a href='/schools/coppin-st'>Coppin State</a>",
+                 "nameRaw":"Coppin State",
+                 "nameSeo":"coppin-st",
+		         "shortname":"COPPIN",
+		      	 "color":"#dfb100",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"coppinstsports","conference":"MEAC1970"}}},
+		         "description":"0-1",
+		         "currentScore":"68",
+		         "scoreBreakdown":[
+	   			"22",
+	   			"46"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/coppin-st-iowa/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/coppin-st-iowa/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/coppin-st-iowa/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/coppin-st-iowa/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080282",
+
+		     "conference":"all-conf atlantic-10 atlantic-sun",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:00  ET",
+			 "startTimeEpoch":"1447624800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Robins Center, Richmond, VA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/stetson-richmond",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/r/richmond.70.png",
+		         "name":"<a href='/schools/richmond'>Richmond</a>",
+                 "nameRaw":"Richmond",
+                 "nameSeo":"richmond",
+		         "shortname":"RICH",
+		         "color":"#000066",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SpiderAthletics","sport":"RichmondBball","conference":"atlantic10"}}},
+		         "description":"0-1",
+		         "currentScore":"108",
+		         "scoreBreakdown":[
+	   			"57",
+	   			"51"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/stetson.70.png",
+		         "name":"<a href='/schools/stetson'>Stetson</a>",
+                 "nameRaw":"Stetson",
+                 "nameSeo":"stetson",
+		         "shortname":"STETSN",
+		      	 "color":"#005737",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"StetsonHatters","sport":"StetsonMBB","conference":"AtlanticSun"}}},
+		         "description":"",
+		         "currentScore":"85",
+		         "scoreBreakdown":[
+	   			"33",
+	   			"52"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/stetson-richmond/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/stetson-richmond/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/stetson-richmond/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1078720",
+
+		     "conference":"all-conf west-coast horizon",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"5:30  ET",
+			 "startTimeEpoch":"1447626600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Leavey Center, Santa Clara, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/milwaukee-santa-clara",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/santa-clara.70.png",
+		         "name":"<a href='/schools/santa-clara'>Santa Clara</a>",
+                 "nameRaw":"Santa Clara",
+                 "nameSeo":"santa-clara",
+		         "shortname":"STCLAR",
+		         "color":"#720900",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SCUBroncos","sport":"SCUHoops","conference":"WCCsports"}}},
+		         "description":"0-2",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"32",
+	   			"33"],
+
+
+
+		         "winner":"false"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/milwaukee.70.png",
+		         "name":"<a href='/schools/milwaukee'>Milwaukee</a>",
+                 "nameRaw":"Milwaukee",
+                 "nameSeo":"milwaukee",
+		         "shortname":"MILWKE",
+		      	 "color":"#000000",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"MKEPanthers","conference":"HorizonLeague"}}},
+		         "description":"2-0",
+		         "currentScore":"71",
+		         "scoreBreakdown":[
+	   			"26",
+	   			"45"],
+
+
+
+		         "winner":"true"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/milwaukee-santa-clara/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/milwaukee-santa-clara/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/milwaukee-santa-clara/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081527",
+
+		     "conference":"all-conf summit non-ncaa-org",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"6:00  ET",
+			 "startTimeEpoch":"1447628400",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Western Hall, Macomb, IL",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/hannibal-la-grange-western-ill",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/western-ill.70.png",
+		         "name":"<a href='/schools/western-ill'>Western Illinois</a>",
+                 "nameRaw":"Western Illinois",
+                 "nameSeo":"western-ill",
+		         "shortname":"W ILL",
+		         "color":"#663399",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"WIUAthletics","conference":"SummitHoops"}}},
+		         "description":"1-0",
+		         "currentScore":"94",
+		         "scoreBreakdown":[
+	   			"50",
+	   			"44"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/h/hannibal-la-grange.70.png",
+		         "name":"<a href='/schools/hannibal-la-grange'>Hannibal-La Grange</a>",
+                 "nameRaw":"Hannibal-La Grange",
+                 "nameSeo":"hannibal-la-grange",
+		         "shortname":"HANNIB",
+		      	 "color":"#082767",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness"}}},
+		         "description":"",
+		         "currentScore":"57",
+		         "scoreBreakdown":[
+	   			"34",
+	   			"23"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/hannibal-la-grange-western-ill/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/hannibal-la-grange-western-ill/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1078455",
+
+		     "conference":"all-conf southeastern mid-eastern",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"6:00  ET",
+			 "startTimeEpoch":"1447628400",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Mizzou Arena, Columbia, MO",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/md-east-shore-missouri",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/missouri.70.png",
+		         "name":"<a href='/schools/missouri'>Missouri</a>",
+                 "nameRaw":"Missouri",
+                 "nameSeo":"missouri",
+		         "shortname":"MIZZOU",
+		         "color":"#F1B82D",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"mutigersdotcom","sport":"MizzouHoops","conference":"SECSportsUpdate"}}},
+		         "description":"1-0",
+		         "currentScore":"73",
+		         "scoreBreakdown":[
+	   			"34",
+	   			"39"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/md-east-shore.70.png",
+		         "name":"<a href='/schools/md-east-shore'>Md.-East. Shore</a>",
+                 "nameRaw":"Md.-East. Shore",
+                 "nameSeo":"md-east-shore",
+		         "shortname":"UMES",
+		      	 "color":"#8f2532",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UMESHarryTHawk","conference":"MEAC1970"}}},
+		         "description":"0-1",
+		         "currentScore":"55",
+		         "scoreBreakdown":[
+	   			"32",
+	   			"23"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/md-east-shore-missouri/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/md-east-shore-missouri/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/md-east-shore-missouri/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/md-east-shore-missouri/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1078450",
+
+		     "conference":"all-conf atlantic-coast sun-belt",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"6:00  ET",
+			 "startTimeEpoch":"1447628400",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"PNC Arena, Raleigh, NC",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/south-ala-north-carolina-st",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/north-carolina-st.70.png",
+		         "name":"<a href='/schools/north-carolina-st'>NC State</a>",
+                 "nameRaw":"NC State",
+                 "nameSeo":"north-carolina-st",
+		         "shortname":"NC ST",
+		         "color":"#cc092f",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"PackAthletics","sport":"PackMensBball","conference":"accmbb"}}},
+		         "description":"0-1",
+		         "currentScore":"88",
+		         "scoreBreakdown":[
+	   			"40",
+	   			"48"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/south-ala.70.png",
+		         "name":"<a href='/schools/south-ala'>South Alabama</a>",
+                 "nameRaw":"South Alabama",
+                 "nameSeo":"south-ala",
+		         "shortname":"S ALA",
+		      	 "color":"#eb1e00",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"USAJaguarSports","sport":"SouthAlaMBK","conference":"The_Sun_Belt"}}},
+		         "description":"1-0",
+		         "currentScore":"70",
+		         "scoreBreakdown":[
+	   			"34",
+	   			"36"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/south-ala-north-carolina-st/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/south-ala-north-carolina-st/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/south-ala-north-carolina-st/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/south-ala-north-carolina-st/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1088561",
+
+		     "conference":"all-conf big-sky ",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"6:30  ET",
+			 "startTimeEpoch":"1447630200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Reese Court, Cheney, WA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/-eastern-wash",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/e/eastern-wash.70.png",
+		         "name":"<a href='/schools/eastern-wash'>Eastern Wash.</a>",
+                 "nameRaw":"Eastern Wash.",
+                 "nameSeo":"eastern-wash",
+		         "shortname":"E WASH",
+		         "color":"#a10022",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"EWUAthletics","conference":"BigSkyConf"}}},
+		         "description":"1-1",
+		         "currentScore":"126",
+		         "scoreBreakdown":[
+	   			"56",
+	   			"70"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/d/default.70.png",
+		         "name":"",
+                 "nameRaw":"",
+                 "nameSeo":"",
+		         "shortname":"",
+		      	 "color":"",
+		         "social":{},
+		         "description":"0-1",
+		         "currentScore":"64",
+		         "scoreBreakdown":[
+	   			"26",
+	   			"38"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/-eastern-wash/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/-eastern-wash/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1083369",
+
+		     "conference":"all-conf western-athletic glvc",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"7:00  ET",
+			 "startTimeEpoch":"1447632000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Municipal Auditorium, Kansas City, MO",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/william-jewell-umkc",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/umkc.70.png",
+		         "name":"<a href='/schools/umkc'>UMKC</a>",
+                 "nameRaw":"UMKC",
+                 "nameSeo":"umkc",
+		         "shortname":"UMKC",
+		         "color":"#e0ae00",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"TheUMKCRoos","conference":"SummitHoops"}}},
+		         "description":"1-1",
+		         "currentScore":"73",
+		         "scoreBreakdown":[
+	   			"24",
+	   			"49"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/william-jewell.70.png",
+		         "name":"<a href='/schools/william-jewell'>William Jewell</a>",
+                 "nameRaw":"William Jewell",
+                 "nameSeo":"william-jewell",
+		         "shortname":"WILJEC",
+		      	 "color":"#cc0001",
+		         "social":{},
+		         "description":"0-1",
+		         "currentScore":"59",
+		         "scoreBreakdown":[
+	   			"29",
+	   			"30"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/william-jewell-umkc/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/william-jewell-umkc/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082009",
+
+		     "conference":"all-conf mountain-west big-sky",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"7:00  ET",
+			 "startTimeEpoch":"1447632000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Stan Sheriff Center, Honolulu, HI",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/montana-st-nevada",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/nevada.70.png",
+		         "name":"<a href='/schools/nevada'>Nevada</a>",
+                 "nameRaw":"Nevada",
+                 "nameSeo":"nevada",
+		         "shortname":"NEVADA",
+		         "color":"#002247",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"NevadaWolfPack","conference":"MW_Mhoops"}}},
+		         "description":"2-0",
+		         "currentScore":"83",
+		         "scoreBreakdown":[
+	   			"41",
+	   			"42"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/m/montana-st.70.png",
+		         "name":"<a href='/schools/montana-st'>Montana State</a>",
+                 "nameRaw":"Montana State",
+                 "nameSeo":"montana-st",
+		         "shortname":"MONTST ",
+		      	 "color":"#0077bc",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"msubobcats","conference":"BigSkyConf"}}},
+		         "description":"1-2",
+		         "currentScore":"62",
+		         "scoreBreakdown":[
+	   			"37",
+	   			"25"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/montana-st-nevada/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/montana-st-nevada/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/montana-st-nevada/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079873",
+
+		     "conference":"all-conf big-west west-coast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"7:00  ET",
+			 "startTimeEpoch":"1447632000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"The Pavilion, Davis, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/portland-uc-davis",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/uc-davis.70.png",
+		         "name":"<a href='/schools/uc-davis'>UC Davis</a>",
+                 "nameRaw":"UC Davis",
+                 "nameSeo":"uc-davis",
+		         "shortname":"UC DAV",
+		         "color":"#002855",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UCDavis_Aggies","conference":"BigWestSports"}}},
+		         "description":"1-1",
+		         "currentScore":"79",
+		         "scoreBreakdown":[
+	   			"41",
+	   			"38"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/p/portland.70.png",
+		         "name":"<a href='/schools/portland'>Portland</a>",
+                 "nameRaw":"Portland",
+                 "nameSeo":"portland",
+		         "shortname":"PORT",
+		      	 "color":"#351576",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"PortlandPilots","sport":"PilotHoops","conference":"WCCsports"}}},
+		         "description":"1-1",
+		         "currentScore":"66",
+		         "scoreBreakdown":[
+	   			"31",
+	   			"35"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/portland-uc-davis/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/portland-uc-davis/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/portland-uc-davis/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1082082",
+
+		     "conference":"all-conf top-25 big-ten metro-atlantic",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"8:00  ET",
+			 "startTimeEpoch":"1447635600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Kohl Center, Madison, WI",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/siena-wisconsin",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"17",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/w/wisconsin.70.png",
+		         "name":"<a href='/schools/wisconsin'>Wisconsin</a>",
+                 "nameRaw":"Wisconsin",
+                 "nameSeo":"wisconsin",
+		         "shortname":"WISC",
+		         "color":"#be0f34",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UWBadgersdotcom","sport":"BadgerMBB","conference":"bigtenconf"}}},
+		         "description":"1-1",
+		         "currentScore":"92",
+		         "scoreBreakdown":[
+	   			"43",
+	   			"49"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/siena.70.png",
+		         "name":"<a href='/schools/siena'>Siena</a>",
+                 "nameRaw":"Siena",
+                 "nameSeo":"siena",
+		         "shortname":"SIENA",
+		      	 "color":"#04523c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"SienaSaints","conference":"MAACSports"}}},
+		         "description":"0-2",
+		         "currentScore":"65",
+		         "scoreBreakdown":[
+	   			"28",
+	   			"37"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/siena-wisconsin/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/siena-wisconsin/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/siena-wisconsin/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/siena-wisconsin/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081449",
+
+		     "conference":"all-conf big-west west-coast",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"8:00  ET",
+			 "startTimeEpoch":"1447635600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Bren Events Center, Irvine, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/loyola-marymount-uc-irvine",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/uc-irvine.70.png",
+		         "name":"<a href='/schools/uc-irvine'>UC Irvine</a>",
+                 "nameRaw":"UC Irvine",
+                 "nameSeo":"uc-irvine",
+		         "shortname":"UC IRV",
+		         "color":"#002a5c",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UCIAthletics","sport":"UCIHOOPS","conference":"BigWestSports"}}},
+		         "description":"2-0",
+		         "currentScore":"77",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"38"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/l/loyola-marymount.70.png",
+		         "name":"<a href='/schools/loyola-marymount'>Loyola Marym't</a>",
+                 "nameRaw":"Loyola Marym't",
+                 "nameSeo":"loyola-marymount",
+		         "shortname":"LMU",
+		      	 "color":"#2e3d65",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"LMULions","sport":"LMUBASKETBALL","conference":"WCCsports"}}},
+		         "description":"1-1",
+		         "currentScore":"53",
+		         "scoreBreakdown":[
+	   			"25",
+	   			"28"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/loyola-marymount-uc-irvine/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/loyola-marymount-uc-irvine/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/loyola-marymount-uc-irvine/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080301",
+
+		     "conference":"all-conf pac-12 big-south",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"8:00  ET",
+			 "startTimeEpoch":"1447635600",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Maples Pavilion, Stanford, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/charleston-so-stanford",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/s/stanford.70.png",
+		         "name":"<a href='/schools/stanford'>Stanford</a>",
+                 "nameRaw":"Stanford",
+                 "nameSeo":"stanford",
+		         "shortname":"STAN",
+		         "color":"#a80532",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"suathletics","sport":"stanfordbball","conference":"pac12"}}},
+		         "description":"2-0",
+		         "currentScore":"93",
+		         "scoreBreakdown":[
+	   			"46",
+	   			"47"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/charleston-so.70.png",
+		         "name":"<a href='/schools/charleston-so'>Charleston So.</a>",
+                 "nameRaw":"Charleston So.",
+                 "nameSeo":"charleston-so",
+		         "shortname":"CHARSO",
+		      	 "color":"#11467b",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"csusports","conference":"BigSouthSports"}}},
+		         "description":"0-2",
+		         "currentScore":"59",
+		         "scoreBreakdown":[
+	   			"21",
+	   			"38"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/charleston-so-stanford/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/charleston-so-stanford/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/charleston-so-stanford/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/charleston-so-stanford/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1079910",
+
+		     "conference":"all-conf western-athletic mountain-west",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"9:00  ET",
+			 "startTimeEpoch":"1447639200",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Pan American Center, Las Cruces, NM",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/new-mexico-new-mexico-st",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/new-mexico-st.70.png",
+		         "name":"<a href='/schools/new-mexico-st'>New Mexico St.</a>",
+                 "nameRaw":"New Mexico St.",
+                 "nameSeo":"new-mexico-st",
+		         "shortname":"NM ST",
+		         "color":"#a30046",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"NMStateAggies","conference":"WACSports"}}},
+		         "description":"1-1",
+		         "currentScore":"74",
+		         "scoreBreakdown":[
+	   			"38",
+	   			"36"],
+
+
+
+		         "winner":"false"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/n/new-mexico.70.png",
+		         "name":"<a href='/schools/new-mexico'>New Mexico</a>",
+                 "nameRaw":"New Mexico",
+                 "nameSeo":"new-mexico",
+		         "shortname":"N MEX",
+		      	 "color":"#be0f34",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UNMLOBOS","conference":"MW_Mhoops"}}},
+		         "description":"2-0",
+		         "currentScore":"83",
+		         "scoreBreakdown":[
+	   			"39",
+	   			"44"],
+
+
+
+		         "winner":"true"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/new-mexico-new-mexico-st/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/new-mexico-new-mexico-st/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1081987",
+
+		     "conference":"all-conf big-west big-south",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"9:30  ET",
+			 "startTimeEpoch":"1447641000",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Stan Sheriff Center, Honolulu, HI",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/coastal-caro-hawaii",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/h/hawaii.70.png",
+		         "name":"<a href='/schools/hawaii'>Hawaii</a>",
+                 "nameRaw":"Hawaii",
+                 "nameSeo":"hawaii",
+		         "shortname":"HAWAII",
+		         "color":"#015838",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"HawaiiAthletics","conference":"BigWestSports"}}},
+		         "description":"2-0",
+		         "currentScore":"74",
+		         "scoreBreakdown":[
+	   			"41",
+	   			"33"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/coastal-caro.70.png",
+		         "name":"<a href='/schools/coastal-caro'>Coastal Caro.</a>",
+                 "nameRaw":"Coastal Caro.",
+                 "nameSeo":"coastal-caro",
+		         "shortname":"CO CAR",
+		      	 "color":"#007079",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"GoCCUsports","conference":"BigSouthSports"}}},
+		         "description":"0-2",
+		         "currentScore":"63",
+		         "scoreBreakdown":[
+	   			"33",
+	   			"30"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/coastal-caro-hawaii/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/coastal-caro-hawaii/boxscore.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+		    		,
+		    			{
+		     "id":"1080207",
+
+		     "conference":"all-conf pac-12 big-west",
+			 "gameState":"final",
+		     "startDate":"2015-11-15",
+			 "startDateDisplay":"Nov. 15",
+		     "startTime":"10:00  ET",
+			 "startTimeEpoch":"1447642800",
+		     "currentPeriod":"Final",
+		     "finalMessage":"Final",
+		     "gameStatus":"Final",
+		     "periodStatus":"In-Progress",
+		     "downToGo":"",
+		     "timeclock":"",
+		     "network_logo":"",
+		     "location":"Pauley Pavilion, Los Angeles, CA",
+		     "contestName":"",
+		     "url":"/game/basketball-men/d1/2015/11/15/cal-poly-ucla",
+		     "highlightsUrl":"",
+		     "liveAudioUrl":"",
+		     "gameCenterUrl":"",
+		     "champInfo": {  },
+
+		    "videos":[
+
+		     ],
+
+	         "scoreBreakdown":[
+	   			"1",
+	   			"2"],
+		     "home": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/u/ucla.70.png",
+		         "name":"<a href='/schools/ucla'>UCLA</a>",
+                 "nameRaw":"UCLA",
+                 "nameSeo":"ucla",
+		         "shortname":"UCLA",
+		         "color":"#00a5e5",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"UCLAAthletics","sport":"UCLAMBB","conference":"pac12"}}},
+		         "description":"1-1",
+		         "currentScore":"88",
+		         "scoreBreakdown":[
+	   			"47",
+	   			"41"],
+
+
+
+		         "winner":"true"
+
+		     },
+		     "away": {
+		         "teamRank":"0",
+
+		         "iconURL":"/sites/default/files/images/logos/schools/c/cal-poly.70.png",
+		         "name":"<a href='/schools/cal-poly'>Cal Poly</a>",
+                 "nameRaw":"Cal Poly",
+                 "nameSeo":"cal-poly",
+		         "shortname":"CALPLY",
+		      	 "color":"#005836",
+		         "social":{"twitter":{"keywords":[],"accounts":{"ncaa":"marchmadness","athleticDept":"CPMustangs","sport":"calpolymbb","conference":"BigWestSports"}}},
+		         "description":"0-2",
+		         "currentScore":"83",
+		         "scoreBreakdown":[
+	   			"37",
+	   			"46"],
+
+
+
+		         "winner":"false"
+
+		     },
+			     "tabs": "/sites/default/files/data//game/basketball-men/d1/2015/11/15/cal-poly-ucla/tabs.json",
+	    		 "tabsArray":  [[
+
+			{"type":"recap", "title":"Recap", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/cal-poly-ucla/recap.json"},
+			{"type":"boxscore", "title":"Box Score", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/cal-poly-ucla/boxscore.json"},
+			{"type":"play-by-play", "title":"Play-By-Play", "file":"/sites/default/files/data/game/basketball-men/d1/2015/11/15/cal-poly-ucla/pbp.json"}
+		]],
+	    		 "status": {},
+    			 "alerts": {}
+		}
+
+            ]
+        }
+
+		    ]
+		});

@@ -16,4 +16,29 @@ class HtmlUtilSpec extends FlatSpec {
       """.stripMargin)
     assert(maybeNode.isDefined)
   }
+  it should "load poorly formed HTML" in  {
+    assert(HtmlUtil.loadHtmlFromString(
+      """
+        |<html>
+        |<head/>
+        |<body><h1>Fridge Rules</body>
+        |</html>
+      """.stripMargin).isDefined)
+    assert(HtmlUtil.loadHtmlFromString(
+      """
+        |<head/>
+        |<body><h1>Fridge Rules</body>
+
+      """.stripMargin).isDefined)
+    assert(HtmlUtil.loadHtmlFromString(
+      """
+        |<body><h1>Fridge Rules</body>
+        |</html>
+      """.stripMargin).isDefined)
+    assert(HtmlUtil.loadHtmlFromString(
+      """
+        |<h1>Fridge Rules</h1>
+        |
+      """.stripMargin).isDefined)
+  }
 }
