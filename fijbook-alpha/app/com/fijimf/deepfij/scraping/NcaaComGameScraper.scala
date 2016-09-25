@@ -37,7 +37,7 @@ trait NcaaComGameScraper {
     case JsSuccess(value, _) => {
       val iconUrl = (value \ "iconURL").validate[String] match {
         case JsSuccess(icu, _) =>
-          val s1 = icu.substring(icu.lastIndexOf('/')+1)
+          val s1 = icu.substring(icu.lastIndexOf('/') + 1)
           val s2 = s1.substring(0, s1.indexOf('.'))
           Some(s2)
         case e: JsError =>
@@ -47,18 +47,26 @@ trait NcaaComGameScraper {
       }
       val schoolUrl = (value \ "name").validate[String] match {
         case JsSuccess(n, _) =>
-          val s1 = n.substring(n.indexOf('\'')+1)
-          val s2 = s1.substring(0, s1.indexOf('\''))
-          Some(s2.replace("/schools/", ""))
-        case e: JsError =>  val message: String = "Failed extracting schoolUrl Errors: " + JsError.toJson(e).toString()
+          if (n.length > 0) {
+            val s1 = n.substring(n.indexOf('\'') + 1)
+            val s2 = s1.substring(0, s1.indexOf('\''))
+            Some(s2.replace("/schools/", ""))
+          } else {
+            None
+          }
+        case e: JsError => val message: String = "Failed extracting schoolUrl Errors: " + JsError.toJson(e).toString()
           logger.warn(message)
           None
       }
       val schoolHtmlName = (value \ "name").validate[String] match {
         case JsSuccess(n, _) =>
-          val s1 = n.substring(n.indexOf('>')+1)
-          val s2 = s1.substring(0, s1.indexOf('<'))
-          Some(s2)
+          if (n.length > 0) {
+            val s1 = n.substring(n.indexOf('>') + 1)
+            val s2 = s1.substring(0, s1.indexOf('<'))
+            Some(s2)
+          } else {
+            None
+          }
         case e: JsError => None
       }
 
