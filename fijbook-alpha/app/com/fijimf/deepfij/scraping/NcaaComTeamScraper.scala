@@ -1,4 +1,4 @@
-package modules.scraping
+package com.fijimf.deepfij.scraping
 
 import play.api.Logger
 

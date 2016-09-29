@@ -1,14 +1,8 @@
 package com.fijimf.deepfij.scraping
 
-import java.time.LocalDateTime
-
-import modules.scraping.NcaaComTeamScraper
 import org.scalatest.FlatSpec
-import play.api.libs.json.{JsArray, JsValue, Json}
 
 import scala.io.Source
-import scala.util.Success
-import scala.xml.Node
 
 class NcaaComTeamScraperSpec extends FlatSpec {
   val isGeorgetown = classOf[NcaaComTeamScraperSpec].getResourceAsStream("/test-data/georgetown.html")
@@ -17,53 +11,77 @@ class NcaaComTeamScraperSpec extends FlatSpec {
 
   "NcaaComTeamScraper" should "parse the HTML in " in {
     HtmlUtil.loadHtmlFromString(georgetown.mkString) match {
-      case Some(n)=>assert(!n.isEmpty)
-      case None=> fail("Failed to parse sample HTML")
+      case Some(n) => assert(n.nonEmpty)
+      case None => fail("Failed to parse sample HTML")
     }
   }
 
   it should "extract an the school logo " in {
-    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n=>scraper.schoolLogo(n)) match {
-      case Some(logo)=>println(logo)
-      case None=> fail("Failed to parse sample HTML")
+    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolLogo(n)) match {
+      case Some(logo) => assert(logo=="http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/images/logos/schools/g/georgetown.40.png")
+      case None => fail("Failed to parse sample HTML")
     }
-
   }
-//
-//  it should "pull locations from games" in {
-//    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-//      case Success(js) => assert(js.value.flatMap(scraper.gameLocation) == locations)
-//      case _ => fail()
-//    }
-//  }
-//
-//  it should "pull start date time from games" in {
-//    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-//      case Success(js) => assert(js.value.flatMap(scraper.gameStartTime) == startTimes.map(LocalDateTime.parse(_)))
-//      case _ => fail()
-//    }
-//  }
-//
-//  it should "pull final status" in {
-//    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-//      case Success(js) => assert(js.value.forall(value => scraper.isGameFinal(value).getOrElse(false)))
-//      case _ => fail()
-//    }
-//  }
-//  it should "pull home team " in {
-//    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-//      case Success(js) =>
-//        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
-//      case _ => fail()
-//    }
-//  }
-//  it should "pull away team " in {
-//    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-//      case Success(js) =>
-//        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
-//      case _ => fail()
-//    }
-//  }
+  it should "extract an the school name " in {
+    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolName(n)) match {
+      case Some(logo) => assert(logo=="Georgetown University")
+      case None => fail("Failed to identify school name")
+    }
+  }
+
+  it should "extract an the school facebook " in {
+    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolOfficialFacebook(n)) match {
+      case Some(logo) => assert(logo=="http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/images/logos/schools/g/georgetown.40.png")
+      case None => fail("Failed to identify facebook")
+    }
+  }
+  it should "extract an the school twitter " in {
+    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolOfficialTwitter(n)) match {
+      case Some(logo) => assert(logo=="http://www.twitter.com/georgetownhoyas")
+      case None => fail("Failed to identify twitter")
+    }
+  }
+  it should "extract an the school website " in {
+    HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolOfficialWebsite(n)) match {
+      case Some(logo) => assert(logo=="http://guhoyas.com")
+      case None => fail("Failed to identify website")
+    }
+  }
+  //
+  //  it should "pull locations from games" in {
+  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+  //      case Success(js) => assert(js.value.flatMap(scraper.gameLocation) == locations)
+  //      case _ => fail()
+  //    }
+  //  }
+  //
+  //  it should "pull start date time from games" in {
+  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+  //      case Success(js) => assert(js.value.flatMap(scraper.gameStartTime) == startTimes.map(LocalDateTime.parse(_)))
+  //      case _ => fail()
+  //    }
+  //  }
+  //
+  //  it should "pull final status" in {
+  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+  //      case Success(js) => assert(js.value.forall(value => scraper.isGameFinal(value).getOrElse(false)))
+  //      case _ => fail()
+  //    }
+  //  }
+  //  it should "pull home team " in {
+  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+  //      case Success(js) =>
+  //        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
+  //      case _ => fail()
+  //    }
+  //  }
+  //  it should "pull away team " in {
+  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+  //      case Success(js) =>
+  //        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
+  //      case _ => fail()
+  //    }
+  //  }
 
   val startTimes: Seq[String] = Seq(
     "2015-11-15T12:00",
@@ -111,8 +129,8 @@ class NcaaComTeamScraperSpec extends FlatSpec {
     "2015-11-15T22:00"
   )
 
-  
-  val homeTeamCandidates:Seq[List[String]] = Seq(
+
+  val homeTeamCandidates: Seq[List[String]] = Seq(
     List("ohio-st", "ohio-st", "Ohio State", "ohio-st", "Ohio State", "OHIOST"),
     List("rutgers", "rutgers", "Rutgers", "rutgers", "Rutgers", "RUTGER"),
     List("bucknell", "bucknell", "Bucknell", "bucknell", "Bucknell", "BUCKNL"),
@@ -157,7 +175,7 @@ class NcaaComTeamScraperSpec extends FlatSpec {
     List("hawaii", "hawaii", "Hawaii", "hawaii", "Hawaii", "HAWAII"),
     List("ucla", "ucla", "UCLA", "ucla", "UCLA", "UCLA")
   )
-  val awayTeamCandidates=Seq(List("mt-st-marys", "mt-st-marys", "Mt. St. Mary's", "mt-st-marys", "Mt. St. Mary's", "MTSTMY"),
+  val awayTeamCandidates = Seq(List("mt-st-marys", "mt-st-marys", "Mt. St. Mary's", "mt-st-marys", "Mt. St. Mary's", "MTSTMY"),
     List("howard", "howard", "Howard", "howard", "Howard", "HOWARD"),
     List("wake-forest", "wake-forest", "Wake Forest", "wake-forest", "Wake Forest", "WAKE"),
     List("wagner", "wagner", "Wagner", "wagner", "Wagner", "WAGNER"),
