@@ -22,24 +22,24 @@ trait NcaaComTeamScraper {
   }
 
   def schoolName(n: Node): Option[String] = {
-    (n \\ "span").find(n => attrMatch(n, "class", "school-name")).map(_.text)
+    (n \\ "span").find(n => matchClass(n, "school-name")).map(_.text)
   }
 
   def schoolLogo(n: Node): Option[String] = {
-    (n \\ "span").find(n => attrMatch(n, "class", "school-logo")).map(_ \\ "img").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"src"))
+    (n \\ "span").find(n => matchClass(n, "school-logo")).map(_ \\ "img").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"src"))
   }
 
   def schoolPrimaryColor(n: Node): Option[String] = {
-    (n \\ "span").find(n => attrMatch(n, "class", "school-logo")).flatMap(nn=>attrValue(nn,"style")).map(_.replaceFirst("border-color:","").replace(";","").trim)
+    (n \\ "span").find(n => matchClass(n, "school-logo")).flatMap(nn=>attrValue(nn,"style")).map(_.replaceFirst("border-color:","").replace(";","").trim)
   }
   def schoolOfficialWebsite(n: Node): Option[String] = {
-    (n \\ "li").find(n => attrMatch(n, "class", "school-social-website")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
+    (n \\ "li").find(n => matchClass(n, "school-social-website")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
   }
   def schoolOfficialTwitter(n: Node): Option[String] = {
-    (n \\ "li").find(n => attrMatch(n, "class", "school-social-twitter")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
+    (n \\ "li").find(n => matchClass(n, "school-social-twitter")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
   }
   def schoolOfficialFacebook(n: Node): Option[String] = {
-    (n \\ "li").find(n => attrMatch(n, "class", "school-social-facebook")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
+    (n \\ "li").find(n => matchClass(n, "school-social-facebook")).map(_ \\ "a").flatMap(_.headOption).flatMap(nn=>attrValue(nn,"href"))
   }
 
   def schoolMetaInfo(n:Node):Map[String,String] = {
@@ -68,6 +68,13 @@ trait NcaaComTeamScraper {
   def attrMatch(n: Node, attr: String, value: String): Boolean = {
     n.attribute(attr) match {
       case Some(nodeStr) => nodeStr.exists(_.text == value)
+      case _ => false
+    }
+  }
+
+  def matchClass(n: Node, value: String): Boolean = {
+    n.attribute("class").map(_.text.split(' ').toList) match {
+      case Some(vals) => vals.contains(value)
       case _ => false
     }
   }

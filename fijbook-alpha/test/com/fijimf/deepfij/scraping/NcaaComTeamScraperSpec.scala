@@ -19,7 +19,7 @@ class NcaaComTeamScraperSpec extends FlatSpec {
   it should "extract an the school logo " in {
     HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolLogo(n)) match {
       case Some(logo) => assert(logo=="http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/images/logos/schools/g/georgetown.40.png")
-      case None => fail("Failed to parse sample HTML")
+      case None => fail("Failed to identify logo")
     }
   }
   it should "extract an the school name " in {
@@ -31,7 +31,7 @@ class NcaaComTeamScraperSpec extends FlatSpec {
 
   it should "extract an the school facebook " in {
     HtmlUtil.loadHtmlFromString(georgetown.mkString).flatMap(n => scraper.schoolOfficialFacebook(n)) match {
-      case Some(logo) => assert(logo=="http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/images/logos/schools/g/georgetown.40.png")
+      case Some(logo) => assert(logo=="http://www.facebook.com/WeAreGeorgetown")
       case None => fail("Failed to identify facebook")
     }
   }
