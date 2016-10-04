@@ -1,0 +1,34 @@
+625,3-pt Field Goal Attempts
+474,Assist Turnover Ratio
+216,Assists Per Game
+214,Blocked Shots Per Game
+859,Defensive Rebounds per Game
+642,Fewest Fouls
+640,Fewest Turnovers
+148,Field-Goal Percentage
+149,Field-Goal Percentage Defense
+267,Final Opp Points
+266,Final Points
+638,Free Throw Attempts
+633,Free Throws Made
+150,Free-Throw Percentage
+857,Offensive Rebounds Per Game
+286,Personal Fouls Per Game
+151,Rebound Margin
+146,Scoring Defense
+147,Scoring Margin
+145,Scoring Offense
+215,Steals Per Game
+518,Three Pt FG Defense
+153,Three-Point Field Goals Per Game
+152,Three-Point Field-Goal Percentage
+622,Total 3-point FGM
+606,Total Assists
+609,Total Blocks
+602,Total Rebounds
+932,Total Rebounds Per Game
+616,Total Steals
+519,Turnover Margin
+217,Turnovers Per Game
+168,Won-Lost Percentage
+

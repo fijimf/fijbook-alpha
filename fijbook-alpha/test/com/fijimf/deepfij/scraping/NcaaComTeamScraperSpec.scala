@@ -47,41 +47,6 @@ class NcaaComTeamScraperSpec extends FlatSpec {
       case None => fail("Failed to identify website")
     }
   }
-  //
-  //  it should "pull locations from games" in {
-  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-  //      case Success(js) => assert(js.value.flatMap(scraper.gameLocation) == locations)
-  //      case _ => fail()
-  //    }
-  //  }
-  //
-  //  it should "pull start date time from games" in {
-  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-  //      case Success(js) => assert(js.value.flatMap(scraper.gameStartTime) == startTimes.map(LocalDateTime.parse(_)))
-  //      case _ => fail()
-  //    }
-  //  }
-  //
-  //  it should "pull final status" in {
-  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-  //      case Success(js) => assert(js.value.forall(value => scraper.isGameFinal(value).getOrElse(false)))
-  //      case _ => fail()
-  //    }
-  //  }
-  //  it should "pull home team " in {
-  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-  //      case Success(js) =>
-  //        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
-  //      case _ => fail()
-  //    }
-  //  }
-  //  it should "pull away team " in {
-  //    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-  //      case Success(js) =>
-  //        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
-  //      case _ => fail()
-  //    }
-  //  }
 
   val startTimes: Seq[String] = Seq(
     "2015-11-15T12:00",
