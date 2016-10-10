@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
+  "org.webjars" %% "webjars-play" % "2.5.0",
+  "org.webjars" % "bootstrap" % "3.3.7-1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
   specs2 % Test
 )

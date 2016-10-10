@@ -6,6 +6,8 @@ import models.{ProjectRepo, TaskRepo}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.{Action, Controller}
 
+import scala.concurrent.Future
+
 class Application @Inject()( projectRepo: ProjectRepo, taskRepo: TaskRepo)
                            extends Controller {
 
@@ -26,6 +28,10 @@ class Application @Inject()( projectRepo: ProjectRepo, taskRepo: TaskRepo)
   def listProjects = Action.async { implicit rs =>
     projectRepo.all
       .map(projects => Ok(views.html.projects(projects)))
+  }
+
+  def landing = Action.async { implicit rs=>
+      Future { Ok(views.html.landing())}
   }
 
   def projects(id: Long) = Action.async { implicit rs =>

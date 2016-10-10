@@ -28,6 +28,10 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
 
   "Seasons " should {
 
+    "dump schema when asked" in new WithApplication(FakeApplication()) {
+      Await.result(repo.dumpSchema(), Duration.Inf)._1.foreach(s=>println(s+";"))
+    }
+
     "be empty initially" in new WithApplication(FakeApplication()) {
       assert(Await.result(repo.all(repo.seasons), Duration.Inf).isEmpty)
     }

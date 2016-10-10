@@ -1,7 +1,7 @@
 
 
 
-GET     /                                    controllers.Application.listProjects
+GET     /                                    controllers.Application.landing
 PUT     /projects/:name                      controllers.Application.createProject(name: String)
 GET     /projects/list                       controllers.Application.listProjects
 GET     /projects/:id                        controllers.Application.projects(id: Long)
@@ -13,3 +13,5 @@ DELETE  /projects/:name                      controllers.Application.delete(name
 GET     /deepfij/admin/schema                controllers.SchemaHelper.dumpSchema
 GET     /deepfij/admin/createDb              controllers.SchemaHelper.createSchema
 GET     /deepfij/admin/dropDb                controllers.SchemaHelper.dropSchema
+
+GET     /assets/*file                        controllers.Assets.at(path="/public", file)
