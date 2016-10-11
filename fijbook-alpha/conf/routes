@@ -1,7 +1,6 @@
 
-
-
-GET     /                                    controllers.Application.landing
+GET     /                                    controllers.Application.index
+GET     /index                               controllers.Application.index
 PUT     /projects/:name                      controllers.Application.createProject(name: String)
 GET     /projects/list                       controllers.Application.listProjects
 GET     /projects/:id                        controllers.Application.projects(id: Long)

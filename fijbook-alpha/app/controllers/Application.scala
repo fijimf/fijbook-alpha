@@ -30,8 +30,8 @@ class Application @Inject()( projectRepo: ProjectRepo, taskRepo: TaskRepo)
       .map(projects => Ok(views.html.projects(projects)))
   }
 
-  def landing = Action.async { implicit rs=>
-      Future { Ok(views.html.landing())}
+  def index = Action.async { implicit rs=>
+      Future { Ok(views.html.index())}
   }
 
   def projects(id: Long) = Action.async { implicit rs =>
