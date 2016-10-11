@@ -34,6 +34,10 @@ class Application @Inject()( projectRepo: ProjectRepo, taskRepo: TaskRepo)
       Future { Ok(views.html.index())}
   }
 
+  def admin = Action.async { implicit rs=>
+      Future { Ok(views.html.admin.index())}
+  }
+
   def projects(id: Long) = Action.async { implicit rs =>
     for {
       Some(project) <-  projectRepo.findById(id)
