@@ -1,5 +1,56 @@
 @import controllers.nav.StandardNavBar
 @()
 @main("deepfij","Admin", "", List(("Deep Fij","/"),("Admin", "/admin")), StandardNavBar.active("admin")) {
-<p>Lorem ipsur</p>
+    <div class="page-header">
+        <h1>Database</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p><button type="button" class="btn btn-xs btn-info">Show Database Schema</button></p>
+        </div>
+        <div class="col-sm-12">
+            <p><button type="button" class="btn btn-xs btn-danger">Drop/Create Database</button></p>
+        </div>
+
+    </div>
+    <div class="page-header">
+        <h1>Game Data</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2015</h3>
+                </div>
+                <div class="panel-body">
+                    <p># games: 5400</p>
+                    <p># results: 5400</p>
+                </div>
+            </div>
+        </div>
+            <!-- /.col-sm-4 -->
+        <div class="col-sm-4">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2016</h3>
+                </div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+        </div>
+            <!-- /.col-sm-4 -->
+        <div class="col-sm-4">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2017</h3>
+                </div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+        </div>
+            <!-- /.col-sm-4 -->
+            <!-- /.col-sm-4 -->
+    </div>
 }
