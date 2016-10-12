@@ -5,14 +5,14 @@ import javax.inject.Inject
 import com.fijimf.deepfij.models.ScheduleRepository
 import models.{ProjectRepo, TaskRepo}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Result, Results, Action, Controller}
+import play.api.mvc.{Action, Controller, Result, Results}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SchemaHelper @Inject()(repo: ScheduleRepository) extends Controller {
 
   def dumpSchema() = Action.async { implicit rs =>
-    repo.dumpSchema().map(tup=> tup._1.mkString("\n")+"\n==========\n"+tup._2.mkString("\n")).map(Ok (_))
+    repo.dumpSchema().map(tup =>Ok (views.html.admin.show_schema(tup)))
   }
   def createSchema() = Action.async { implicit rs =>
     repo.createSchema().map(unit => Ok("Schema created"))
