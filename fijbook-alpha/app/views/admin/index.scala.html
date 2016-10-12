@@ -1,6 +1,7 @@
 @import controllers.nav.StandardNavBar
+@import controllers.nav.Breadcrumbs
 @()
-@main("deepfij","Admin", "", List(("Deep Fij","/"),("Admin", "/admin")), StandardNavBar.active("admin")) {
+@main("deepfij","Admin", "", Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench")), StandardNavBar.active("admin")) {
     <div class="page-header">
         <h1>Database</h1>
     </div>

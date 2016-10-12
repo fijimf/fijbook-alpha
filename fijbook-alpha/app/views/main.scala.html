@@ -1,6 +1,7 @@
 @import controllers.nav.NavBar
 @import controllers.nav.StandardNavBar
-@(title: String, pageHead:String, pageSubHead:String="", breadCrumbs:List[(String,String)], navBar: NavBar=StandardNavBar.active())(content: Html)
+@import controllers.nav.Breadcrumbs
+@(title: String, pageHead:String, pageSubHead:String="", breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active())(content: Html)
 <!DOCTYPE html>
 <html lang="en">
 
@@ -205,18 +206,19 @@
                             </h1>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <ol class="breadcrumb">
-                                <li>
-                                    <i class="fa fa-dashboard"></i>  <a href="index.html">Dashboard</a>
-                                </li>
-                                <li class="active">
-                                    <i class="fa fa-file"></i> Blank Page
-                                </li>
-                            </ol>
-                        </div>
-                    </div>
+                    @breadcrumb_nav(breadcrumbs)
+                    @*<div class="row">*@
+                        @*<div class="col-lg-12">*@
+                            @*<ol class="breadcrumb">*@
+                                @*<li>*@
+                                    @*<i class="fa fa-dashboard"></i>  <a href="index.html">Dashboard</a>*@
+                                @*</li>*@
+                                @*<li class="active">*@
+                                    @*<i class="fa fa-file"></i> Blank Page*@
+                                @*</li>*@
+                            @*</ol>*@
+                        @*</div>*@
+                    @*</div>*@
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="alert alert-info alert-dismissable">
