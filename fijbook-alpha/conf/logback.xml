@@ -22,7 +22,7 @@
     <logger name="slick.jdbc.JdbcBackend.statement"  level="WARN" /> <!-- Will log all statements -->
     <logger name="akka.event.slf4j.Slf4jLogger"  level="WARN" /> <!-- Will log all statements -->
     <logger name="com.zaxxer.hikari"  level="WARN" /> <!-- Will log all statements -->
-
+    <logger name="schedule-repo" level="INFO" />
     <root level="INFO">
         <appender-ref ref="ASYNCSTDOUT" />
     </root>

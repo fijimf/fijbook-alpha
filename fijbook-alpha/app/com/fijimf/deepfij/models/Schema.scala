@@ -3,6 +3,7 @@ package com.fijimf.deepfij.models
 import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.Inject
 
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
 
@@ -24,6 +25,7 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
+  val log = Logger("schedule-repo")
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
@@ -34,10 +36,12 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
   def createSchema() = {
+    log.warn("Creating schema")
     db.run(ddl.create.transactionally)
   }
 
   def dropSchema() = {
+    log.warn("Dropping schema")
     db.run(ddl.drop.transactionally)
   }
 

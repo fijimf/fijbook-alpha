@@ -1,5 +1,5 @@
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@()
+@()(implicit flash: Flash)
 @main(
     "deepfij",
     "Admin",
@@ -29,7 +29,7 @@
                         <p>Are you sure?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" data-dismiss="modal" class="btn btn-danger" id="delete">Drop/Create</button>
+                        <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema">Drop/Create</a>
                         <button type="button" data-dismiss="modal" class="btn">Cancel</button>
                     </div>
                 </div>
