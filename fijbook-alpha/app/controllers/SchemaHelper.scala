@@ -23,4 +23,6 @@ class SchemaHelper @Inject()(repo: ScheduleRepository) extends Controller {
       Redirect("/deepfij/admin").flashing("level"->"info", "message"->"Schema was dropped and recreated")
     }
   }
+
+
 }
