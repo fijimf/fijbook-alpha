@@ -8,7 +8,9 @@ scalaVersion := "2.11.7"
 
 routesGenerator := InjectedRoutesGenerator
 
+resolvers += "Atlassian Releases" at "https://maven.atlassian.com/content/repositories/atlassian-public/"
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "2.0.0",
@@ -23,7 +25,15 @@ libraryDependencies ++= Seq(
   specs2 % Test
 )
 
-resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+libraryDependencies ++= Seq(
+  "com.mohiva" %% "play-silhouette" % "4.0.0",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "4.0.0",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "4.0.0",
+  "com.mohiva" %% "play-silhouette-persistence" % "4.0.0",
+  "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test"
+)
+
+
 
 fork in Test := true
 javaOptions in Test += "-Dconfig.resource=application-test.conf"

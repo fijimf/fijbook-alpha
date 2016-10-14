@@ -1,10 +1,12 @@
 
-GET     /                                    controllers.Application.index
-GET     /deepfij                             controllers.Application.index
-GET     /deepfij/index                       controllers.Application.index
+GET        /                                           controllers.Application.index
+GET        /deepfij                                    controllers.Application.index
+GET        /deepfij/index                              controllers.Application.index
 
-GET     /deepfij/admin                       controllers.Application.admin
-GET     /deepfij/admin/schema                controllers.SchemaHelper.dumpSchema
-GET     /deepfij/admin/dropCreateSchema              controllers.SchemaHelper.dropCreateSchema
+GET        /deepfij/admin                              controllers.Application.admin
+GET        /deepfij/admin/schema                       controllers.SchemaHelper.dumpSchema
+GET        /deepfij/admin/schema-user                  controllers.SchemaHelper.dumpUserSchema
+GET        /deepfij/admin/dropCreateSchema             controllers.SchemaHelper.dropCreateSchema
+GET        /deepfij/admin/dropCreateSchema-user        controllers.SchemaHelper.dropCreateUserSchema
 
-GET     /assets/*file                        controllers.Assets.at(path="/public", file)
+GET        /assets/*file                               controllers.Assets.at(path="/public", file)
