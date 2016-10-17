@@ -3,11 +3,11 @@ package com.fijimf.deepfij.models.book
 import com.fijimf.deepfij.models.Game
 
 
-case class User(id: Long, name: String, balance: Int)
+case class Userxxx(id: Long, name: String, balance: Int)
 
-case class Bet(id: Long, homeBettor: User, awayBettor: User, game: Game, doubleSpread: Int, amount: Int)
+case class Bet(id: Long, homeBettor: Userxxx, awayBettor: Userxxx, game: Game, doubleSpread: Int, amount: Int)
 
-case class Offer(id: Long, bettor: User, amount: Int)
+case class Offer(id: Long, bettor: Userxxx, amount: Int)
 
 case class Book(id: Long, game: Game, offers: List[Offer], bets: List[Bet])
 
