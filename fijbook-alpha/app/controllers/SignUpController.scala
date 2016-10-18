@@ -50,7 +50,7 @@ class SignUpController @Inject() (
     * @return The result to display.
     */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.silhouette.signUp(SignUpForm.form)))
+    Future.successful(Ok(views.html.silhouette.signUp(SignUpForm.form)))
   }
 
   /**
@@ -60,7 +60,7 @@ class SignUpController @Inject() (
     */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.signUp(form))),
+      form => Future.successful(BadRequest(views.html.silhouette.signUp(form))),
       data => {
         val result = Redirect(routes.SignUpController.view()).flashing("info" -> Messages("sign.up.email.sent", data.email))
         val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
@@ -71,8 +71,8 @@ class SignUpController @Inject() (
               subject = Messages("email.already.signed.up.subject"),
               from = Messages("email.from"),
               to = Seq(data.email),
-              bodyText = Some(views.silhouette.txt.emails.alreadySignedUp(user, url).body),
-              bodyHtml = Some(views.silhouette.html.emails.alreadySignedUp(user, url).body)
+              bodyText = Some(views.txt.silhouette.emails.alreadySignedUp(user, url).body),
+              bodyHtml = Some(views.html.silhouette.emails.alreadySignedUp(user, url).body)
             ))
 
             Future.successful(result)
@@ -99,8 +99,8 @@ class SignUpController @Inject() (
                 subject = Messages("email.sign.up.subject"),
                 from = Messages("email.from"),
                 to = Seq(data.email),
-                bodyText = Some(views.txt.emails.signUp(user, url).body),
-                bodyHtml = Some(views.html.emails.signUp(user, url).body)
+                bodyText = Some(views.txt.silhouette.emails.signUp(user, url).body),
+                bodyHtml = Some(views.html.silhouette.emails.signUp(user, url).body)
               ))
 
               silhouette.env.eventBus.publish(SignUpEvent(user, request))

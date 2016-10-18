@@ -1,7 +1,7 @@
 package modules
 
 import com.fijimf.deepfij.models.UserDAOImpl
-import com.fijimf.deepfij.models.models.daos.{PasswordInfoDAO, UserDAO}
+import com.fijimf.deepfij.models.models.daos._
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.services.models.services.UserServiceImpl
 import com.google.inject.name.Named
@@ -60,9 +60,9 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     // Replace this with the bindings to your concrete DAOs
     bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDAO]
-    bind[DelegableAuthInfoDAO[OAuth1Info]].to[OAuth1Info]
-    bind[DelegableAuthInfoDAO[OAuth2Info]].to[OAuth2Info]
-    bind[DelegableAuthInfoDAO[OpenIDInfo]].to[OpenIDInfo]
+    bind[DelegableAuthInfoDAO[OAuth1Info]].to[OAuth1InfoDAO]
+    bind[DelegableAuthInfoDAO[OAuth2Info]].to[OAuth2InfoDAO]
+    bind[DelegableAuthInfoDAO[OpenIDInfo]].to[OpenIDInfoDAO]
   }
 
   /**

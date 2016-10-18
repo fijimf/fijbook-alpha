@@ -100,7 +100,9 @@ class UserRepository @Inject()(protected val dbConfigProvider: DatabaseConfigPro
 
     def avatarURL = column[Option[String]]("avatarURL")
 
-    def * = (id, firstName, lastName, fullName, email, avatarURL) <> (DBUser.tupled, DBUser.unapply)
+    def activated = column[Boolean]("activated")
+
+    def * = (id, firstName, lastName, fullName, email, avatarURL, activated) <> (DBUser.tupled, DBUser.unapply)
   }
 
 

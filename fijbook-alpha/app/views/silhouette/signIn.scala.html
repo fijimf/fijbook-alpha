@@ -3,7 +3,7 @@
 @import com.mohiva.play.silhouette.impl.providers.oauth2.ClefProvider
 @import b3.inline.fieldConstructor
 
-@main(Messages("sign.in.title")) {
+@silhouette.main(Messages("sign.in.title")) {
     <fieldset class="col-md-6 col-md-offset-3">
         <legend>@Messages("sign.in.credentials")</legend>
         @helper.form(action = routes.SignInController.submit()) {
