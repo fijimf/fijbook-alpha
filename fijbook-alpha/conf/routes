@@ -10,3 +10,23 @@ GET        /deepfij/admin/dropCreateSchema             controllers.SchemaHelper.
 GET        /deepfij/admin/dropCreateSchema-user        controllers.SchemaHelper.dropCreateUserSchema
 
 GET        /assets/*file                               controllers.Assets.at(path="/public", file)
+
+GET         /deepfij/signOut                         controllers.SignOutController.signOut
+GET         /deepfij/authenticate/:provider          controllers.SocialAuthController.authenticate(provider)
+
+GET         /deepfij/signUp                          controllers.SignUpController.view
+POST        /deepfij/signUp                          controllers.SignUpController.submit
+
+GET         /deepfij/signIn                          controllers.SignInController.view
+POST        /deepfij/signIn                          controllers.SignInController.submit
+
+GET         /deepfij/password/forgot                 controllers.ForgotPasswordController.view
+POST        /deepfij/password/forgot                 controllers.ForgotPasswordController.submit
+GET         /deepfij/password/reset/:token           controllers.ResetPasswordController.view(token: java.util.UUID)
+POST        /deepfij/password/reset/:token           controllers.ResetPasswordController.submit(token: java.util.UUID)
+GET         /deepfij/password/change                 controllers.ChangePasswordController.view
+POST        /deepfij/password/change                 controllers.ChangePasswordController.submit
+
+GET         /deepfij/account/email/:email            controllers.ActivateAccountController.send(email: String)
+GET         /deepfij/account/activate/:token         controllers.ActivateAccountController.activate(token: java.util.UUID)
+

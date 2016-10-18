@@ -1,0 +1,8 @@
+@(user: com.fijimf.deepfij.models.User, url: String)(implicit messages: Messages)
+
+<html>
+    <body>
+        <p>@messages("email.activate.account.hello", user.fullName.getOrElse("user"))</p>
+        <p>@Html(messages("email.activate.account.html.text", url))</p>
+    </body>
+</html>

@@ -16,7 +16,8 @@ case class DBUser(
                    lastName: Option[String],
                    fullName: Option[String],
                    email: Option[String],
-                   avatarURL: Option[String]
+                   avatarURL: Option[String],
+                   activated:Boolean
                  )
 
 case class DBLoginInfo(
