@@ -2,7 +2,7 @@ package modules
 
 import com.fijimf.deepfij.models.UserDAOImpl
 import com.fijimf.deepfij.models.models.daos._
-import com.fijimf.deepfij.models.services.UserService
+import com.fijimf.deepfij.models.services.{AuthTokenService, AuthTokenServiceImpl, UserService}
 import com.fijimf.deepfij.models.services.models.services.UserServiceImpl
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
@@ -49,6 +49,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
+    bind[AuthTokenService].to[AuthTokenServiceImpl]
     bind[UserService].to[UserServiceImpl]
     bind[UserDAO].to[UserDAOImpl]
     bind[CacheLayer].to[PlayCacheLayer]
