@@ -17,6 +17,7 @@
     </appender>
 
     <logger name="play" level="INFO" />
+    <logger name="play.api.libs.mailer" level="DEBUG" />
     <logger name="application" level="WARN" />
 
     <logger name="slick.jdbc.JdbcBackend.statement"  level="WARN" /> <!-- Will log all statements -->
