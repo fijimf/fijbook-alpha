@@ -1,11 +1,13 @@
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(statements: (Iterable[String], Iterable[String]))(implicit flash: Flash)
+@import com.fijimf.deepfij.models.User
+@(statements: (Iterable[String], Iterable[String]),user:Option[User])(implicit flash: Flash)
 @main(
     "deepfij",
     "Database",
     "Show Schema",
     Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench").appendChild("Show Schema", "/schema")),
-    StandardNavBar.active("admin")
+    StandardNavBar.active("admin"),
+    user
 ) {
     <div class="row">
         <div class="col-sm-12">

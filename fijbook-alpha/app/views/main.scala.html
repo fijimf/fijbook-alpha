@@ -1,10 +1,10 @@
 @import controllers.nav.NavBar
 @import controllers.nav.StandardNavBar
 @import controllers.nav.Breadcrumbs
-@(title: String, pageHead:String, pageSubHead:String="", breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active())(content: Html)(implicit flash: Flash)
+@import com.fijimf.deepfij.models.User
+@(title: String, pageHead:String, pageSubHead:String="", breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None)(content: Html)(implicit flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
 
         <meta charset="utf-8">
@@ -130,22 +130,23 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                            </li>
-                            <li>
-                                <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                            </li>
-                            <li>
-                                <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
-                            </li>
-                        </ul>
+                        @if(user.isDefined) {
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i>
+                                @user.get.name <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="/deepfij/signOut"><i class="fa fa-fw fa-power-off"></i> Sign Out</a>
+                                </li>
+                            </ul>
+                        } else {
+                            <a href="/deepfij/signIn" ><i class="fa fa-user"></i>
+                                Sign In </a>
+
+                        }
                     </li>
                 </ul>
                     <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
@@ -169,19 +170,7 @@
                         </div>
                     </div>
                     @breadcrumb_nav(breadcrumbs)
-    @*This is weher we should flash messages*@
-                    @if(flash.data.contains("message")){
-                            <div class="row">
-                            <div class="col-lg-12">
-                            <div class="alert alert-@flash.get("level").getOrElse("info") alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <i class="fa fa-info-circle"></i>  @flash.get("message")
-                            </div>
-                            </div>
-                            </div>
-                    }
-                        <!-- /.row -->
-
+                    @flash_message(flash)
                     <div class="row">
                         @content
                     </div>

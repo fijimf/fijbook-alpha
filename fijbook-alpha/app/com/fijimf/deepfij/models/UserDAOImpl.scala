@@ -29,7 +29,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   def find(loginInfo: LoginInfo) = {
     val userQuery = for {
       dbLoginInfo <- userRepo.loginInfoQuery(loginInfo)
-      dbUserLoginInfo <- userRepo.userLoginInfos.filter(_.loginInfoId === dbLoginInfo.id)
+      dbUserLoginInfo <- userRepo.userLoginInfos.filter(_.loginInfoID === dbLoginInfo.id)
       dbUser <- userRepo.users.filter(_.id === dbUserLoginInfo.userID)
     } yield dbUser
     db.run(userQuery.result.headOption).map { dbUserOption =>
@@ -49,7 +49,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     val query = for {
       dbUser <- userRepo.users.filter(_.id === userID.toString)
       dbUserLoginInfo <- userRepo.userLoginInfos.filter(_.userID === dbUser.id)
-      dbLoginInfo <- userRepo.loginInfos.filter(_.id === dbUserLoginInfo.loginInfoId)
+      dbLoginInfo <- userRepo.loginInfos.filter(_.id === dbUserLoginInfo.loginInfoID)
     } yield (dbUser, dbLoginInfo)
     db.run(query.result.headOption).map { resultOption =>
       resultOption.map {
@@ -93,9 +93,26 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     val actions = (for {
       _ <- userRepo.users.insertOrUpdate(dbUser)
       loginInfo <- loginInfoAction
-      _ <- userRepo.userLoginInfos += DBUserLoginInfo(dbUser.userID, loginInfo.id.get)
+      _ <- userRepo.userLoginInfos.insertOrUpdate(DBUserLoginInfo(dbUser.userID, loginInfo.id.get))
     } yield ()).transactionally
     // run actions and return user afterwards
     db.run(actions).map(_ => user)
+  }
+
+  override def list: Future[List[User]] = {
+    val userQuery = for {
+      dbUser <- userRepo.users;
+      dbUserLoginInfo <- userRepo.userLoginInfos.filter(_.userID === dbUser.id)
+      dbLoginInfo <- userRepo.loginInfos.filter(_.id===dbUserLoginInfo.loginInfoID)
+    } yield {
+      (dbUser, dbLoginInfo)
+    }
+    db.run(userQuery.result).map(_.map{case (user: DBUser, info: DBLoginInfo) =>
+      User(
+        UUID.fromString(user.userID),
+        LoginInfo(info.providerID, info.providerKey),
+        user.firstName, user.lastName, user.fullName, user.email, user.avatarURL, user.activated
+      )
+    }.toList)
   }
 }

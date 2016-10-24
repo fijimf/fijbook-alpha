@@ -88,7 +88,7 @@ class UserRepository @Inject()(protected val dbConfigProvider: DatabaseConfigPro
 
 
   class Users(tag: Tag) extends Table[DBUser](tag, "user") {
-    def id = column[String]("userID", O.PrimaryKey)
+    def id = column[String]("userID", O.PrimaryKey, O.Length(144))
 
     def firstName = column[Option[String]]("firstName")
 
@@ -96,32 +96,42 @@ class UserRepository @Inject()(protected val dbConfigProvider: DatabaseConfigPro
 
     def fullName = column[Option[String]]("fullName")
 
-    def email = column[Option[String]]("email")
+    def email = column[Option[String]]("email",O.Length(144))
 
     def avatarURL = column[Option[String]]("avatarURL")
 
     def activated = column[Boolean]("activated")
 
     def * = (id, firstName, lastName, fullName, email, avatarURL, activated) <> (DBUser.tupled, DBUser.unapply)
+
+    def idx1 = index("user_idx1", email, unique = true)
   }
 
 
   class LoginInfos(tag: Tag) extends Table[DBLoginInfo](tag, "logininfo") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
-    def providerID = column[String]("providerID")
+    def providerID = column[String]("providerID",O.Length(144))
 
-    def providerKey = column[String]("providerKey")
+    def providerKey = column[String]("providerKey",O.Length(144))
 
     def * = (id.?, providerID, providerKey) <> (DBLoginInfo.tupled, DBLoginInfo.unapply)
+
+    def idx1 = index("logininfos_idx1", (providerID, providerKey), unique = true)
+
   }
 
   class UserLoginInfos(tag: Tag) extends Table[DBUserLoginInfo](tag, "userlogininfo") {
-    def userID = column[String]("userID")
+    def userID = column[String]("userID",O.Length(144))
 
-    def loginInfoId = column[Long]("loginInfoId")
+    def loginInfoID = column[Long]("loginInfoID")
 
-    def * = (userID, loginInfoId) <> (DBUserLoginInfo.tupled, DBUserLoginInfo.unapply)
+    def * = (userID, loginInfoID) <> (DBUserLoginInfo.tupled, DBUserLoginInfo.unapply)
+
+    def idx1 = index("ulijoin_idx1", userID, unique = true)
+
+    def idx2 = index("ulijoin_idx2", loginInfoID, unique = true)
+
   }
 
 

@@ -5,7 +5,9 @@ import javax.inject.Inject
 
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
+import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
+import slick.profile.BasicProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -81,31 +83,31 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  class TeamsTable(tag: Tag) extends Table[Team](tag, "TEAM") {
+  class TeamsTable(tag: Tag) extends Table[Team](tag, "team") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def key = column[String]("KEY", O.Length(24))
+    def key = column[String]("key", O.Length(24))
 
-    def name = column[String]("NAME", O.Length(64))
+    def name = column[String]("name", O.Length(64))
 
-    def longName = column[String]("LONG_NAME", O.Length(144))
+    def longName = column[String]("long_name", O.Length(144))
 
-    def nickname = column[String]("NICKNAME", O.Length(64))
+    def nickname = column[String]("nickname", O.Length(64))
 
-    def logoLgUrl = column[Option[String]]("LOGO_LG_URL", O.Length(144))
+    def logoLgUrl = column[Option[String]]("logo_lg_url", O.Length(144))
 
-    def logoSmUrl = column[Option[String]]("LOGO_SM_URL", O.Length(144))
+    def logoSmUrl = column[Option[String]]("logo_sm_url", O.Length(144))
 
-    def primaryColor = column[Option[String]]("PRIMARY_COLOR", O.Length(24))
+    def primaryColor = column[Option[String]]("primary_color", O.Length(24))
 
-    def secondaryColor = column[Option[String]]("SECONDARY_COLOR", O.Length(24))
+    def secondaryColor = column[Option[String]]("secondary_color", O.Length(24))
 
-    def officialUrl = column[Option[String]]("OFFICIAL_URL", O.Length(144))
+    def officialUrl = column[Option[String]]("official_url", O.Length(144))
 
-    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER", O.Length(64))
+    def officialTwitter = column[Option[String]]("official_twitter", O.Length(64))
 
-    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK", O.Length(64))
+    def officialFacebook = column[Option[String]]("official_facebook", O.Length(64))
 
     def * = (id, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook) <>(Team.tupled, Team.unapply)
 
@@ -115,25 +117,25 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  class ConferencesTable(tag: Tag) extends Table[Conference](tag, "CONFERENCE") {
+  class ConferencesTable(tag: Tag) extends Table[Conference](tag, "conference") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def key = column[String]("KEY", O.Length(24))
+    def key = column[String]("key", O.Length(24))
 
-    def name = column[String]("NAME", O.Length(64))
+    def name = column[String]("name", O.Length(64))
 
-    def longName = column[String]("LONG_NAME", O.Length(144))
+    def longName = column[String]("long_name", O.Length(144))
 
-    def logoLgUrl = column[Option[String]]("LOGO_LG_URL", O.Length(144))
+    def logoLgUrl = column[Option[String]]("logo_lg_url", O.Length(144))
 
-    def logoSmUrl = column[Option[String]]("LOGO_SM_URL", O.Length(144))
+    def logoSmUrl = column[Option[String]]("logo_sm_url", O.Length(144))
 
-    def officialUrl = column[Option[String]]("OFFICIAL_URL", O.Length(144))
+    def officialUrl = column[Option[String]]("official_url", O.Length(144))
 
-    def officialTwitter = column[Option[String]]("OFFICIAL_TWITTER", O.Length(64))
+    def officialTwitter = column[Option[String]]("official_twitter", O.Length(64))
 
-    def officialFacebook = column[Option[String]]("OFFICIAL_FACEBOOK", O.Length(64))
+    def officialFacebook = column[Option[String]]("official_facebook", O.Length(64))
 
     def * = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook) <>(Conference.tupled, Conference.unapply)
 
@@ -143,49 +145,49 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  class GamesTable(tag: Tag) extends Table[Game](tag, "GAME") {
+  class GamesTable(tag: Tag) extends Table[Game](tag, "game") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def seasonId = column[Long]("SEASON_ID")
+    def seasonId = column[Long]("season_id")
 
-    def season = foreignKey("FK_GAME_SEAS", seasonId, seasons) (_.id)
+    def season = foreignKey("fk_game_seas", seasonId, seasons) (_.id)
 
-    def homeTeamId = column[Long]("HOME_TEAM_ID")
+    def homeTeamId = column[Long]("home_team_id")
 
-    def homeTeam = foreignKey("FK_GAME_HTEAM", homeTeamId, teams)(_.id)
+    def homeTeam = foreignKey("fk_game_hteam", homeTeamId, teams)(_.id)
 
-    def awayTeamId = column[Long]("AWAY_TEAM_ID")
+    def awayTeamId = column[Long]("away_team_id")
 
-    def awayTeam = foreignKey("FK_GAME_ATEAM", awayTeamId, teams)(_.id)
+    def awayTeam = foreignKey("fk_game_ateam", awayTeamId, teams)(_.id)
 
-    def date = column[LocalDateTime]("DATE")
+    def date = column[LocalDateTime]("date")
 
-    def location = column[Option[String]]("LOCATION", O.Length(144))
+    def location = column[Option[String]]("location", O.Length(144))
 
-    def tourneyKey = column[Option[String]]("TOURNEY_KEY", O.Length(64))
+    def tourneyKey = column[Option[String]]("tourney_key", O.Length(64))
 
-    def homeTeamSeed = column[Option[Int]]("HOME_TEAM_SEED")
+    def homeTeamSeed = column[Option[Int]]("home_team_seed")
 
-    def awayTeamSeed = column[Option[Int]]("AWAY_TEAM_SEED")
+    def awayTeamSeed = column[Option[Int]]("away_team_seed")
 
     def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed) <>(Game.tupled, Game.unapply)
 
   }
 
-  class ResultsTable(tag: Tag) extends Table[Result](tag, "RESULT") {
+  class ResultsTable(tag: Tag) extends Table[Result](tag, "result") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def gameId = column[Long]("GAME_ID")
+    def gameId = column[Long]("game_id")
 
-    def game = foreignKey("FK_RES_GAME", gameId, games)(_.id)
+    def game = foreignKey("fk_res_game", gameId, games)(_.id)
 
-    def homeScore = column[Int]("HOME_SCORE")
+    def homeScore = column[Int]("home_score")
 
-    def awayScore = column[Int]("AWAY_SCORE")
+    def awayScore = column[Int]("away_score")
 
-    def periods = column[Int]("PERIODS")
+    def periods = column[Int]("periods")
 
     def * = (id, gameId, homeScore, awayScore, periods) <>(Result.tupled, Result.unapply)
 
@@ -193,11 +195,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  class SeasonsTable(tag: Tag) extends Table[Season](tag, "SEASON") {
+  class SeasonsTable(tag: Tag) extends Table[Season](tag, "season") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def year = column[Int]("YEAR")
+    def year = column[Int]("year")
 
 
     def * = (id, year) <>(Season.tupled, Season.unapply)
@@ -206,21 +208,21 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "CONFERENCE_MAP") {
+  class ConferenceMapsTable(tag: Tag) extends Table[ConferenceMap](tag, "conference_map") {
 
-    def id = column[Long]("ID", O.AutoInc, O.PrimaryKey)
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def seasonId = column[Long]("SEASON_ID")
+    def seasonId = column[Long]("season_id")
 
-    def season = foreignKey("FK_CM_SEAS", seasonId, seasons)(_.id)
+    def season = foreignKey("fk_cm_seas", seasonId, seasons)(_.id)
 
-    def conferenceId = column[Long]("CONFERENCE_ID")
+    def conferenceId = column[Long]("conference_id")
 
-    def conference = foreignKey("FK_CM_CONF", conferenceId, conferences)(_.id)
+    def conference = foreignKey("fk_cm_conf", conferenceId, conferences)(_.id)
 
-    def teamId = column[Long]("TEAM_ID")
+    def teamId = column[Long]("team_id")
 
-    def team = foreignKey("FK_CM_TEAM", teamId, teams)(_.id)
+    def team = foreignKey("fk_cm_team", teamId, teams)(_.id)
 
     def * = (id, seasonId, conferenceId, teamId) <>(ConferenceMap.tupled, ConferenceMap.unapply)
 

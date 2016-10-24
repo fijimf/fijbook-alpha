@@ -1,5 +1,7 @@
 @import controllers.nav.Breadcrumbs
-@()(implicit flash: Flash)
-@main("deepfij","Deep Fij", "October 10, 2016", Some(Breadcrumbs.base)) {
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@(user:Option[User])(implicit flash: Flash)
+@main("deepfij","Deep Fij", "October 10, 2016", Some(Breadcrumbs.base),StandardNavBar.active("no-active"), user) {
 <p>Lorem ipsur</p>
 }

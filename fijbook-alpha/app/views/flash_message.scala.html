@@ -1,0 +1,62 @@
+@(flash: Flash)
+
+@if(flash.data.contains("success")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-success alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-check-circle"></i>  @flash.get("success")
+            </div>
+        </div>
+    </div>
+}
+@if(flash.data.contains("info")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-info alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-info-circle"></i>  @flash.get("info")
+            </div>
+        </div>
+    </div>
+}
+@if(flash.data.contains("message")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-info alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-info-circle"></i>  @flash.get("message")
+            </div>
+        </div>
+    </div>
+}
+@if(flash.data.contains("warning")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-warning alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-exclamation-circle"></i>  @flash.get("warning")
+            </div>
+        </div>
+    </div>
+}
+@if(flash.data.contains("warn")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-warning alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-exclamation-circle"></i>  @flash.get("warning")
+            </div>
+        </div>
+    </div>
+}
+@if(flash.data.contains("error")){
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="fa fa-exclamation-circle"></i>  @flash.get("error")
+            </div>
+        </div>
+    </div>
+}

@@ -1,11 +1,13 @@
-@import controllers.nav.{Breadcrumbs, StandardNavBar}
-@()(implicit flash: Flash)
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@(user:Option[User],userList:List[User])(implicit flash: Flash)
 @main(
     "deepfij",
     "Admin",
     "",
     Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench")),
-    StandardNavBar.active("admin")
+    StandardNavBar.active("admin"), user
 ) {
     <div class="page-header">
         <h1>Database</h1>
@@ -63,6 +65,31 @@
     </div>
     <div class="page-header">
         <h1>Users</h1>
+        <div class="col-sm-12">
+            <table class="table table-condensed table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Last</th>
+                        <th>First</th>
+                        <th>Email</th>
+                        <th>Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for(u<-userList) {
+                    <tr>
+                        <td>@u.lastName.getOrElse("")</td>
+                        <td>@u.firstName.getOrElse("")</td>
+                        <td>@u.email.getOrElse("")</td>
+                        <td>
+                            <a href="/deepfij/userProfile/@u.userID.toString/">@u.userID.toString</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+        </div>
     </div>
     <div class="page-header">
         <h1>Team Data</h1>

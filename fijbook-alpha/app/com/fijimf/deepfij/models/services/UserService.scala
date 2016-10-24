@@ -40,5 +40,7 @@ trait UserService extends IdentityService[User] {
     * @return The retrieved user or None if no user could be retrieved for the given ID.
     */
   def retrieve(id: UUID):Future[Option[User]]
+
+  def list:Future[List[User]]
 }
 

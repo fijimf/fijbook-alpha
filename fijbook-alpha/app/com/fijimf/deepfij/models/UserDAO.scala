@@ -12,6 +12,7 @@ import scala.concurrent.Future
   */
 trait UserDAO {
 
+
   /**
     * Finds a user by its login info.
     *
@@ -35,4 +36,7 @@ trait UserDAO {
     * @return The saved user.
     */
   def save(user: User): Future[User]
+
+
+  def list: Future[List[User]]
 }
