@@ -116,7 +116,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedAt = column[LocalDateTime]("updated_at")
 
-    def updatedBy = column[String]("updated_by")
+    def updatedBy = column[String]("updated_by", O.Length(64))
 
     def * = (id, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Team.tupled, Team.unapply)
 
@@ -164,7 +164,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedAt = column[LocalDateTime]("updated_at")
 
-    def updatedBy = column[String]("updated_by")
+    def updatedBy = column[String]("updated_by", O.Length(64))
 
     def * = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
 
@@ -204,7 +204,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedAt = column[LocalDateTime]("updated_at")
 
-    def updatedBy = column[String]("updated_by")
+    def updatedBy = column[String]("updated_by", O.Length(64))
 
     def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
@@ -228,7 +228,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedAt = column[LocalDateTime]("updated_at")
 
-    def updatedBy = column[String]("updated_by")
+    def updatedBy = column[String]("updated_by", O.Length(64))
 
     def * = (id, gameId, homeScore, awayScore, periods, lockRecord, updatedAt, updatedBy) <> (Result.tupled, Result.unapply)
 
@@ -269,7 +269,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedAt = column[LocalDateTime]("updated_at")
 
-    def updatedBy = column[String]("updated_by")
+    def updatedBy = column[String]("updated_by", O.Length(64))
 
     def * = (id, seasonId, conferenceId, teamId, lockRecord, updatedAt, updatedBy) <> (ConferenceMap.tupled, ConferenceMap.unapply)
 
