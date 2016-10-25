@@ -12,13 +12,15 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import akka.pattern.ask
 import akka.util.Timeout
+import com.mohiva.play.silhouette.api.Silhouette
+import utils.DefaultEnv
 
-class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef) extends Controller {
+class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val silhouette: Silhouette[DefaultEnv]) extends Controller {
   import scala.concurrent.ExecutionContext.Implicits.global
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-  def scrape() = Action.async {
+  def scrape() = silhouette.SecuredAction.async { implicit rs=>
     logger.info("Loading preliminary team keys.")
     val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
 
@@ -27,7 +29,7 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef) 
     val teamMaster: Future[List[Team]] = teamShortNames.map((tsn: Map[String, String]) => {
       tsn.keys.grouped(4).map((is: Iterable[String]) => {
         Await.result(Future.sequence(is.map((k: String) => {
-          (teamLoad ? TeamDetail(k, tsn(k))).mapTo[Team]
+          (teamLoad ? TeamDetail(k, tsn(k),"Scraper["+rs.identity.userID.toString+"]")).mapTo[Team]
         })), 600.seconds)
       }).flatten.toList
     })

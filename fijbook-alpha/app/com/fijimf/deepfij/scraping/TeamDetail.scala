@@ -3,11 +3,13 @@ package com.fijimf.deepfij.scraping
 package modules.scraping.requests
 
 
+import java.time.LocalDateTime
+
 import com.fijimf.deepfij.models.Team
 
 import scala.xml.Node
 
-case class TeamDetail(key: String, shortName:String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
+case class TeamDetail(key: String, shortName:String, user:String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
   override def url = "http://www.ncaa.com/schools/" + key+"/"
 
   override def scrape(n: Node) = {
@@ -34,7 +36,10 @@ case class TeamDetail(key: String, shortName:String) extends HtmlScrapeRequest[T
       secondaryColor,
       officialUrl,
       officialTwitter,
-      officialFacebook
+      officialFacebook,
+      false,
+      LocalDateTime.now(),
+      user
     )
   }
 }

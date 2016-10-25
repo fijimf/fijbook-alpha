@@ -55,36 +55,36 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
       assert(Await.result(repo.all(repo.teams), Duration.Inf).isEmpty)
     }
     "allow teams to be created" in new WithApplication(FakeApplication()) {
-      private val id: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")
+      private val id: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER")
       assert(Await.result(id, Duration.Inf) > 0L)
     }
     "allow multiple teams to be created" in new WithApplication(FakeApplication()) {
-      val (gg, vv) = Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas");
-                                       vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats"))
+      val (gg, vv) = Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER");
+                                       vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats", updatedBy="TESTUSER"))
         yield { (gId, vId)}, Duration.Inf)
       assert(gg > 0L)
       assert(vv > 0L)
       assert(gg != vv)
     }
     "prevent duplicate keys from being inserted" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")
+      private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER")
       Await.result(g, Duration.Inf)
-      private val v: Future[Long] = repo.createTeam("georgetown", "Villanova", "Villanova University", "Wildcats")
+      private val v: Future[Long] = repo.createTeam("georgetown", "Villanova", "Villanova University", "Wildcats", updatedBy="TESTUSER")
       whenReady(v.failed) { e =>
         assert(e.isInstanceOf[SQLException])
       }
     }
     "prevent duplicate names from being inserted" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")
+      private val g: Future[Long] = repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER")
       Await.result(g, Duration.Inf)
-      private val v: Future[Long] = repo.createTeam("villanova", "Georgetown", "Villanova University", "Wildcats")
+      private val v: Future[Long] = repo.createTeam("villanova", "Georgetown", "Villanova University", "Wildcats", updatedBy="TESTUSER")
       whenReady(v.failed) { e =>
         assert(e.isInstanceOf[SQLException])
       }
     }
     "can retrieve all teams as a map" in new WithApplication(FakeApplication()) {
-      Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas");
-                        vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats"))
+      Await.result(for (gId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER");
+                        vId <- repo.createTeam("villanova", "Villanova", "Villanova University", "Wildcats", updatedBy="TESTUSER"))
         yield {
           (gId, vId)
         }, Duration.Inf)
@@ -100,12 +100,12 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
       assert(Await.result(repo.all(repo.conferences), Duration.Inf).isEmpty)
     }
     "allow conferences to be created" in new WithApplication(FakeApplication()) {
-      private val id: Future[Long] = repo.createConference("big-east", "Big East")
+      private val id: Future[Long] = repo.createConference("big-east", "Big East", updatedBy="TESTUSER")
       assert(Await.result(id, Duration.Inf) > 0L)
     }
     "allow multiple conferences to be created" in new WithApplication(FakeApplication()) {
-      val (g,v) = Await.result(for (gId <- repo.createConference("big-east", "Big East");
-                                    vId <- repo.createConference("big-ten", "Big Ten"))
+      val (g,v) = Await.result(for (gId <- repo.createConference("big-east", "Big East", updatedBy="TESTUSER");
+                                    vId <- repo.createConference("big-ten", "Big Ten", updatedBy="TESTUSER"))
         yield {
           (gId, vId)
         }, Duration.Inf)
@@ -115,17 +115,17 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
     }
 
     "prevent duplicate keys from being inserted" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createConference("big-east", "Big East")
+      private val g: Future[Long] = repo.createConference("big-east", "Big East", updatedBy="TESTUSER")
       Await.result(g, Duration.Inf)
-      private val v: Future[Long] = repo.createConference("big-east", "Big Ten")
+      private val v: Future[Long] = repo.createConference("big-east", "Big Ten", updatedBy="TESTUSER")
       whenReady(v.failed) { e =>
         assert(e.isInstanceOf[SQLException])
       }
     }
     "prevent duplicate names from being inserted" in new WithApplication(FakeApplication()) {
-      private val g: Future[Long] = repo.createConference("big-east", "Big East")
+      private val g: Future[Long] = repo.createConference("big-east", "Big East", updatedBy="TESTUSER")
       Await.result(g, Duration.Inf)
-      private val v: Future[Long] = repo.createConference("big-ten", "Big East")
+      private val v: Future[Long] = repo.createConference("big-ten", "Big East", updatedBy="TESTUSER")
       whenReady(v.failed) { e =>
         assert(e.isInstanceOf[SQLException])
       }
@@ -139,26 +139,26 @@ class RepoSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with 
     "allow you to map a team to a conference for a season" in new WithApplication(FakeApplication()) {
       assert(Await.result(for (
         seasonId <- repo.createSeason(2016);
-        confId <- repo.createConference("big-east", "Big East");
-        teamId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas");
-        cmId <- repo.mapTeam(seasonId, teamId, confId)) yield {
+        confId <- repo.createConference("big-east", "Big East", updatedBy="TESTUSER");
+        teamId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER");
+        cmId <- repo.mapTeam(seasonId, teamId, confId, updatedBy="TESTUSER")) yield {
         cmId
       }, Duration.Inf) > 0L)
     }
     "ensure that a teams conference mappping is unique for a season" in new WithApplication(FakeApplication()) {
       val (s, c1, c2, t) = Await.result(for (
         seasonId <- repo.createSeason(2016);
-        confId1 <- repo.createConference("big-east", "Big East");
-        confId2 <- repo.createConference("a10", "Atlantic 10");
-        teamId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas")) yield {
+        confId1 <- repo.createConference("big-east", "Big East", updatedBy="TESTUSER");
+        confId2 <- repo.createConference("a10", "Atlantic 10", updatedBy="TESTUSER");
+        teamId <- repo.createTeam("georgetown", "Georgetown", "Georgetown University", "Hoyas", updatedBy="TESTUSER")) yield {
         (seasonId, confId1, confId2, teamId)
       }, Duration.Inf)
 
 
-      val cmId1 = Await.result(repo.mapTeam(s, t, c1), Duration.Inf)
+      val cmId1 = Await.result(repo.mapTeam(s, t, c1, updatedBy="TESTUSER"), Duration.Inf)
       assert(cmId1 > 0L)
 
-      val cmId2 = Await.result(repo.mapTeam(s, t, c2), Duration.Inf)
+      val cmId2 = Await.result(repo.mapTeam(s, t, c2, updatedBy="TESTUSER"), Duration.Inf)
       assert(cmId2 > 0L)
       assert(cmId1 == cmId2)
 

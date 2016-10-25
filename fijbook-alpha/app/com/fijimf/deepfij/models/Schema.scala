@@ -5,26 +5,28 @@ import javax.inject.Inject
 
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
-import slick.profile.BasicProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
 case class Season(id: Long, year: Int)
 
-case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String])
+case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int])
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Team(id: Long, key: String, name: String, longName: String, nickname: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String])
+case class Team(id: Long, key: String, name: String, longName: String, nickname: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int) {
+case class Alias(id: Long, alias: String, key: String)
+
+case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
   def margin = Math.abs(homeScore - awayScore)
 }
 
-case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long)
+case class Qotd(id: Long, quotes: String, source: Option[String], url: Option[String])
+
+case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
@@ -56,27 +58,28 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   def createConference(key: String, name: String,
                        logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
-                       officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None): Future[Long] = {
-    val t = Conference(0, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook)
+                       officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy:String): Future[Long] = {
+    val t = Conference(0, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
     db.run(conferences returning conferences.map(_.id) += t)
   }
 
   def createTeam(key: String, name: String, longName: String, nickname: String,
                  logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
                  primaryColor: Option[String] = None, secondaryColor: Option[String] = None,
-                 officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None): Future[Long] = {
-    val t = Team(0, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook)
+                 officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy:String): Future[Long] = {
+    val t = Team(0, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
     db.run(teams returning teams.map(_.id) += t)
   }
-  def getTeams(implicit ec: ExecutionContext)= db.run(teams.to[List].map(t=>t.key->t).result).map(_.toMap)
+
+  def getTeams(implicit ec: ExecutionContext) = db.run(teams.to[List].map(t => t.key -> t).result).map(_.toMap)
 
 
-  def mapTeam(seasonId: Long, teamId: Long, confId: Long)(implicit ec: ExecutionContext): Future[Long] = {
+  def mapTeam(seasonId: Long, teamId: Long, confId: Long, updatedBy:String)(implicit ec: ExecutionContext): Future[Long] = {
     val q = conferenceMaps.withFilter(cm => cm.seasonId === seasonId && cm.teamId === teamId)
     val action = q.result.headOption.flatMap((cm: Option[ConferenceMap]) => {
       cm match {
         case Some(a) => q.map(_.conferenceId).update(confId).andThen(DBIO.successful(a.id))
-        case None => conferenceMaps returning conferenceMaps.map(_.id) += ConferenceMap(0L, seasonId, confId, teamId)
+        case None => conferenceMaps returning conferenceMaps.map(_.id) += ConferenceMap(0L, seasonId, confId, teamId, false, LocalDateTime.now(), updatedBy)
       }
     })
     db.run(action)
@@ -109,11 +112,31 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def officialFacebook = column[Option[String]]("official_facebook", O.Length(64))
 
-    def * = (id, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook) <>(Team.tupled, Team.unapply)
+    def lockRecord = column[Boolean]("lock_record")
+
+    def updatedAt = column[LocalDateTime]("updated_at")
+
+    def updatedBy = column[String]("updated_by")
+
+    def * = (id, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Team.tupled, Team.unapply)
 
     def idx1 = index("team_idx1", key, unique = true)
 
     def idx2 = index("team_idx2", name, unique = true)
+  }
+
+  class AliasesTable(tag: Tag) extends Table[Alias](tag, "alias") {
+
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def alias = column[String]("alias", O.Length(64))
+
+    def key = column[String]("key", O.Length(24))
+
+    def * = (id, alias, key) <> (Alias.tupled, Alias.unapply)
+
+    def idx1 = index("alias_idx1", alias, unique = true)
+
   }
 
 
@@ -137,7 +160,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def officialFacebook = column[Option[String]]("official_facebook", O.Length(64))
 
-    def * = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook) <>(Conference.tupled, Conference.unapply)
+    def lockRecord = column[Boolean]("lock_record")
+
+    def updatedAt = column[LocalDateTime]("updated_at")
+
+    def updatedBy = column[String]("updated_by")
+
+    def * = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
 
     def idx1 = index("conf_idx1", key, unique = true)
 
@@ -151,7 +180,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def seasonId = column[Long]("season_id")
 
-    def season = foreignKey("fk_game_seas", seasonId, seasons) (_.id)
+    def season = foreignKey("fk_game_seas", seasonId, seasons)(_.id)
 
     def homeTeamId = column[Long]("home_team_id")
 
@@ -171,7 +200,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def awayTeamSeed = column[Option[Int]]("away_team_seed")
 
-    def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed) <>(Game.tupled, Game.unapply)
+    def lockRecord = column[Boolean]("lock_record")
+
+    def updatedAt = column[LocalDateTime]("updated_at")
+
+    def updatedBy = column[String]("updated_by")
+
+    def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
   }
 
@@ -189,7 +224,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def periods = column[Int]("periods")
 
-    def * = (id, gameId, homeScore, awayScore, periods) <>(Result.tupled, Result.unapply)
+    def lockRecord = column[Boolean]("lock_record")
+
+    def updatedAt = column[LocalDateTime]("updated_at")
+
+    def updatedBy = column[String]("updated_by")
+
+    def * = (id, gameId, homeScore, awayScore, periods, lockRecord, updatedAt, updatedBy) <> (Result.tupled, Result.unapply)
 
     def idx1 = index("result_idx1", gameId, unique = true)
 
@@ -202,7 +243,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def year = column[Int]("year")
 
 
-    def * = (id, year) <>(Season.tupled, Season.unapply)
+    def * = (id, year) <> (Season.tupled, Season.unapply)
 
     def idx1 = index("season_idx1", year, unique = true)
 
@@ -224,9 +265,29 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def team = foreignKey("fk_cm_team", teamId, teams)(_.id)
 
-    def * = (id, seasonId, conferenceId, teamId) <>(ConferenceMap.tupled, ConferenceMap.unapply)
+    def lockRecord = column[Boolean]("lock_record")
+
+    def updatedAt = column[LocalDateTime]("updated_at")
+
+    def updatedBy = column[String]("updated_by")
+
+    def * = (id, seasonId, conferenceId, teamId, lockRecord, updatedAt, updatedBy) <> (ConferenceMap.tupled, ConferenceMap.unapply)
 
     def idx1 = index("confmap_idx1", (seasonId, conferenceId, teamId), unique = true)
+
+  }
+
+  class QotdTable(tag: Tag) extends Table[Qotd](tag, "qotd") {
+
+    def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def quote = column[String]("quote")
+
+    def source = column[Option[String]]("source")
+
+    def url = column[Option[String]]("url")
+
+    def * = (id, quote, source, url) <> (Qotd.tupled, Qotd.unapply)
 
   }
 
