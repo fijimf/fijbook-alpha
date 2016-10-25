@@ -7,7 +7,7 @@ import scala.xml.Node
 class HtmlUtilSpec extends FlatSpec {
   "HtmlUtil" should
     "load well formed HTML" in {
-    val maybeNode: Option[Node] = HtmlUtil.loadHtmlFromString(
+    val maybeNode: Option[Node] = HtmlUtil.loadOptFromString(
       """
         |<html>
         |<head/>
@@ -17,25 +17,25 @@ class HtmlUtilSpec extends FlatSpec {
     assert(maybeNode.isDefined)
   }
   it should "load poorly formed HTML" in  {
-    assert(HtmlUtil.loadHtmlFromString(
+    assert(HtmlUtil.loadOptFromString(
       """
         |<html>
         |<head/>
         |<body><h1>Fridge Rules</body>
         |</html>
       """.stripMargin).isDefined)
-    assert(HtmlUtil.loadHtmlFromString(
+    assert(HtmlUtil.loadOptFromString(
       """
         |<head/>
         |<body><h1>Fridge Rules</body>
 
       """.stripMargin).isDefined)
-    assert(HtmlUtil.loadHtmlFromString(
+    assert(HtmlUtil.loadOptFromString(
       """
         |<body><h1>Fridge Rules</body>
         |</html>
       """.stripMargin).isDefined)
-    assert(HtmlUtil.loadHtmlFromString(
+    assert(HtmlUtil.loadOptFromString(
       """
         |<h1>Fridge Rules</h1>
         |

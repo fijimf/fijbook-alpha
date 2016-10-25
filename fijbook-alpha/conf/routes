@@ -8,6 +8,7 @@ GET        /deepfij/admin/schema                       controllers.SchemaHelper.
 GET        /deepfij/admin/schema-user                  controllers.SchemaHelper.dumpUserSchema
 GET        /deepfij/admin/dropCreateSchema             controllers.SchemaHelper.dropCreateSchema
 GET        /deepfij/admin/dropCreateSchema-user        controllers.SchemaHelper.dropCreateUserSchema
+GET        /deepfij/admin/scrapeTeams                  controllers.ScraperController.scrape
 
 GET        /assets/*file                               controllers.Assets.at(path="/public", file)
 

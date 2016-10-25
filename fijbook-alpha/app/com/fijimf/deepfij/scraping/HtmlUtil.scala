@@ -3,21 +3,33 @@ package com.fijimf.deepfij.scraping
 import xml.Node
 import org.xml.sax.InputSource
 import java.io.{InputStream, Reader, StringReader}
+
 import scala.util.control.Exception._
 import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
+
 import xml.parsing.NoBindingFactoryAdapter
 import java.net.URL
+
+import scala.util.Try
 
 
 object HtmlUtil {
 
-  def loadHtmlFromReader(r: Reader): Option[Node] = {
+  def loadOptFromReader(r: Reader): Option[Node] = {
     catching(classOf[Exception]).opt {
       new NoBindingFactoryAdapter().loadXML(new InputSource(r), new SAXFactoryImpl().newSAXParser())
     }
   }
 
-  def loadHtmlFromString(s: String): Option[Node] =  loadHtmlFromReader(new StringReader(s))
+  def loadOptFromString(s: String): Option[Node] =  loadOptFromReader(new StringReader(s))
+
+  def loadFromReader(r: Reader): Try[Node] = {
+    Try {
+      new NoBindingFactoryAdapter().loadXML(new InputSource(r), new SAXFactoryImpl().newSAXParser())
+    }
+  }
+
+  def loadFromString(s: String): Try[Node] =  loadFromReader(new StringReader(s))
 
   def attrValue(n: Node, attr: String): Option[String] = {
     n.attribute(attr).flatMap(_.headOption).map(_.text)

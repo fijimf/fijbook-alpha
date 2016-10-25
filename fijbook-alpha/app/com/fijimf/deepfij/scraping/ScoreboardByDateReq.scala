@@ -1,10 +1,10 @@
-package com.fijimf.deepfij.scraping
-
-import org.joda.time.LocalDate
-import play.api.libs.json.JsValue
-
-import scala.util.{Failure, Success}
-
+//package com.fijimf.deepfij.scraping
+//
+//import org.joda.time.LocalDate
+//import play.api.libs.json.JsValue
+//
+//import scala.util.{Failure, Success}
+//
 //case class ScoreboardByDateReq(date:LocalDate) extends JsonScrapeRequest[List[GameData]] with NcaaComGameScraper {
 //  override def url = "http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html".format(date.getYear, date.getMonthOfYear ,date.getDayOfMonth )
 //  override def preProcessBody(s:String) = stripCallbackWrapper(s)
