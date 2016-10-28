@@ -35,8 +35,8 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    override def save(team: Team /*, isAutoUpdate:Boolean */):Future[Int] = {
      log.info("Saving team "+team)
      val ft: Future[Option[Team]] = find(team.key)
-     val ot = Await.result(ft, Duration.Inf)
-     //ft.flatMap(ot=>{
+     //val ot = Await.result(ft, Duration.Inf)
+     ft.flatMap(ot=>{
        val v:DBIO[Int]=ot match {
         case Some(t) => {
           log.info("Updating teamId="+t.id)
@@ -54,7 +54,7 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
        }
        Future(1)
-     //})
+     })
   }
 
   override def list: Future[List[Team]] = {
