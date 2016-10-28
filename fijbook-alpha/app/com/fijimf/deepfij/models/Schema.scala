@@ -90,7 +90,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def key = column[String]("key", O.Length(24))
+    def key = column[String]("key", O.Length(36))
 
     def name = column[String]("name", O.Length(64))
 
@@ -102,15 +102,15 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def logoSmUrl = column[Option[String]]("logo_sm_url", O.Length(144))
 
-    def primaryColor = column[Option[String]]("primary_color", O.Length(24))
+    def primaryColor = column[Option[String]]("primary_color", O.Length(64))
 
-    def secondaryColor = column[Option[String]]("secondary_color", O.Length(24))
+    def secondaryColor = column[Option[String]]("secondary_color", O.Length(64))
 
     def officialUrl = column[Option[String]]("official_url", O.Length(144))
 
-    def officialTwitter = column[Option[String]]("official_twitter", O.Length(64))
+    def officialTwitter = column[Option[String]]("official_twitter", O.Length(144))
 
-    def officialFacebook = column[Option[String]]("official_facebook", O.Length(64))
+    def officialFacebook = column[Option[String]]("official_facebook", O.Length(144))
 
     def lockRecord = column[Boolean]("lock_record")
 

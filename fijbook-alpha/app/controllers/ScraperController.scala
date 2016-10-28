@@ -1,7 +1,7 @@
 package controllers
 
 import akka.actor.ActorRef
-import com.fijimf.deepfij.models.Team
+import com.fijimf.deepfij.models.{ScheduleRepository, Team, TeamDAO}
 import com.fijimf.deepfij.scraping.modules.scraping.requests.{ShortNameAndKeyByStatAndPage, TeamDetail}
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -15,12 +15,12 @@ import akka.util.Timeout
 import com.mohiva.play.silhouette.api.Silhouette
 import utils.DefaultEnv
 
-class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val silhouette: Silhouette[DefaultEnv]) extends Controller {
+class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao:TeamDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
   import scala.concurrent.ExecutionContext.Implicits.global
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-  def scrape() = silhouette.SecuredAction.async { implicit rs=>
+  def scrapeTeams() = silhouette.SecuredAction.async { implicit rs=>
     logger.info("Loading preliminary team keys.")
     val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
 
@@ -33,7 +33,19 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, 
         })), 600.seconds)
       }).flatten.toList
     })
-    teamMaster.map(tl=>Ok(tl.mkString("\n")))
+
+    teamMaster.flatMap(lst=>{
+      val (good, bad) = lst.partition(t=>t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
+      good.foreach(t=>{
+      logger.info("Saving "+t.key)
+        teamDao.save(t)
+      })
+      Future{
+        val badTeamlist: String = bad.map(_.key).mkString("\n")
+        logger.info(badTeamlist)
+        Ok(badTeamlist)}
+    })
+
   }
 
   def masterShortName(pagination: List[Int], stat: Int): Future[Map[String, String]] = {
