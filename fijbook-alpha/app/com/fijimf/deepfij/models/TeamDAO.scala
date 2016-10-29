@@ -1,9 +1,5 @@
 package com.fijimf.deepfij.models
 
-import java.util.UUID
-
-import com.mohiva.play.silhouette.api.LoginInfo
-
 import scala.concurrent.Future
 
 /**
@@ -16,6 +12,10 @@ trait TeamDAO {
   def find(id: Long): Future[Option[Team]]
 
   def save(team: Team): Future[Int]
+
+  def unlock(key: String): Future[Int]
+
+  def lock(key: String): Future[Int]
 
   def list: Future[List[Team]]
 }

@@ -53,5 +53,8 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     db.run(repo.teams.to[List].result)
   }
 
+  override def unlock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
+
+  override def lock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
 }
