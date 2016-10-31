@@ -9,6 +9,9 @@ GET        /deepfij/admin/schema-user                  controllers.SchemaHelper.
 GET        /deepfij/admin/dropCreateSchema             controllers.SchemaHelper.dropCreateSchema
 GET        /deepfij/admin/dropCreateSchema-user        controllers.SchemaHelper.dropCreateUserSchema
 GET        /deepfij/admin/scrapeTeams                  controllers.ScraperController.scrapeTeams
+GET        /deepfij/admin/browseTeams                  controllers.EditController.browseTeams
+GET        /deepfij/admin/editTeam/:id                 controllers.EditController.editTeam(id:Long)
+POST       /deepfij/admin/saveTeam                     controllers.EditController.saveTeam
 
 GET        /assets/*file                               controllers.Assets.at(path="/public", file)
 

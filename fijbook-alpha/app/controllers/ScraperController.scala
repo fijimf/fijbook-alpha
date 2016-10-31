@@ -42,7 +42,7 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, 
       })
       Future{
         val badTeamlist: String = bad.map(_.key).mkString("\n")
-        logger.info(badTeamlist)
+        logger.info("The following teams were bad:\n"+badTeamlist)
         Ok(badTeamlist)}
     })
 

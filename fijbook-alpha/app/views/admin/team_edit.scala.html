@@ -1,0 +1,21 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@(user:User,team:Option[Team])(implicit flash: Flash)
+@main(
+    "deepfij",
+    "Edit Team",
+    "",
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Edit Team","fa-wrench","editTeam")),
+    StandardNavBar.active("admin"), Some(user)
+) {
+    <div class="page-header">
+        <h1>Edit Team</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <p>@team.map(_.id).getOrElse(-1)</p>
+        </div>
+    </div>
+}
