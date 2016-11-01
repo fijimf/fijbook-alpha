@@ -1,5 +1,7 @@
 package controllers
 
+import java.time.LocalDateTime
+
 import com.fijimf.deepfij.models.{Team, TeamDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
@@ -26,7 +28,23 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
         })
       },
       data => {
-        Future.successful(Redirect(routes.EditController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
+        val t = Team(
+          data.id,
+          data.key,
+          data.name,
+          data.longName,
+          data.nickname,
+          data.logoLgUrl,
+          data.logoSmUrl,
+          data.primaryColor,
+          data.secondaryColor,
+          data.officialUrl,
+          data.officialTwitter,
+          data.officialUrl,
+          true,
+          LocalDateTime.now(),
+          request.identity.userID.toString)
+        teamDao.save(t).map(i=>Redirect(routes.EditController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
       }
     )
   }

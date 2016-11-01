@@ -2,25 +2,24 @@
 @import controllers.nav.StandardNavBar
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
+@import helper._
 
-@(user:User,team:Team, teamForm: Form[forms.EditTeamForm.Data])(implicit flash: Flash, messages: Messages)
+@(user:User,team:Team, teamForm: Form[forms.EditTeamForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
 @main(
     "deepfij",
-    "Editing "+team.name,
+    team.name,
     "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Edit "+team.name,"fa-edit","editTeam")),
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Teams","fa-eyeball","browseTeams").appendChild(team.name,"fa-edit","editTeam")),
     StandardNavBar.active("admin"), Some(user)
 ) {
-    <div class="page-header">
-        <h1>Edit Team</h1>
-    </div>
     <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.EditController.saveTeam()) {
-                @b3.hidden( teamForm("id"), '_label -> "ID" )
+                @CSRF.formField
+                @b3.hidden( "id", teamForm("id").value.getOrElse(""), '_label -> "ID" )
                 @b3.text( teamForm("key"), '_label -> "Key" )
                 @b3.text( teamForm("name"), '_label -> "Name" )
                 @b3.text( teamForm("longName"), '_label->"Long Name" )
