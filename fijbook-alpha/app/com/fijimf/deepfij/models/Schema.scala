@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models
 
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 import javax.inject.Inject
 
 import play.api.Logger
@@ -10,7 +10,11 @@ import slick.driver.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Season(id: Long, year: Int)
+case class Season(id: Long, year: Int) {
+  val startDate = new LocalDate(year, 11,1)
+  val endDate = new LocalDate(year+1, 5,1)
+  val dates = Iterator.iterate(startDate) { _.plusDays(1) }.takeWhile(_.isBefore(endDate))
+}
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 

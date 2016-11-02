@@ -1,0 +1,38 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@import helper._
+
+@(user:User,team:Team, teamForm: Form[forms.EditTeamForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+@main(
+    "deepfij",
+    team.name,
+    "",
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Teams","fa-eyeball","browseTeams").appendChild(team.name,"fa-edit","editTeam")),
+    StandardNavBar.active("admin"), Some(user)
+) {
+    <div class="row">
+        <div class="col-sm-8">
+            @b3.form(routes.EditController.saveTeam()) {
+                @CSRF.formField
+                @b3.hidden( "id", teamForm("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( teamForm("key"), '_label -> "Key" )
+                @b3.text( teamForm("name"), '_label -> "Name" )
+                @b3.text( teamForm("longName"), '_label->"Long Name" )
+                @b3.text( teamForm("nickname"), '_label->"Nickname" )
+                @b3.text( teamForm("logoSmUrl"), '_label->"Small Logo" )
+                @b3.text( teamForm("logoLgUrl"), '_label->"Large Logo" )
+                @b3.text(teamForm("primaryColor"), '_label -> "Color #1")
+                @b3.text(teamForm("secondaryColor"), '_label -> "Color #2")
+                @b3.text( teamForm("officialUrl"), '_label->"Official URL" )
+                @b3.text( teamForm("officialTwitter"), '_label->"Twitter" )
+                @b3.text( teamForm("officialFacebook"), '_label->"Facebook" )
+                @b3.submit('class -> "btn btn-default"){ Submit }
+            }
+        </div>
+    </div>
+}
