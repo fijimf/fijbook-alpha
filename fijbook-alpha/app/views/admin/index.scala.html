@@ -9,15 +9,15 @@
     Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench")),
     StandardNavBar.active("admin"), user
 ) {
-    <div class="page-header">
-        <h1>Database</h1>
+    <div class="page-header-condensed">
+        <h4>Database Ops</h4>
     </div>
     <div class="row">
-        <div class="col-sm-6">
-            <p><a type="button" class="btn btn-xs btn-info" href="/deepfij/admin/schema">Show Schedule Database Schema</a></p>
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/schema">Show Schedule Database Schema</a></p>
         </div>
-        <div class="col-sm-6">
-            <p><button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#confirm-schedule-drop-create">Drop/Create Schedule Database</button></p>
+        <div class="col-sm-3">
+            <p><button type="button" class="btn btn-small btn-block btn-danger" data-toggle="modal" data-target="#confirm-schedule-drop-create">Drop/Create Schedule Database</button></p>
         </div>
         <div id="confirm-schedule-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
             <div class="modal-dialog" role="document">
@@ -37,11 +37,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
-            <p><a type="button" class="btn btn-xs btn-info" href="/deepfij/admin/schema-user">Show User Database Schema</a></p>
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/schema-user">Show User Database Schema</a></p>
         </div>
-        <div class="col-sm-6">
-            <p><button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#confirm-user-drop-create">Drop/Create User Database</button></p>
+        <div class="col-sm-3">
+            <p><button type="button" class="btn btn-small btn-block btn-danger" data-toggle="modal" data-target="#confirm-user-drop-create">Drop/Create User Database</button></p>
         </div>
         <div id="confirm-user-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
             <div class="modal-dialog" role="document">
@@ -63,8 +63,10 @@
         </div>
 
     </div>
-    <div class="page-header">
-        <h1>Users</h1>
+    <div class="page-header-condensed">
+        <h4>User List</h4>
+        </div>
+    <div class="row">
         <div class="col-sm-12">
             <table class="table table-condensed table-bordered table-striped">
                 <thead>
@@ -90,26 +92,31 @@
             </table>
 
         </div>
+
     </div>
-    <div class="page-header">
-        <h1>Team Data</h1>
+    <div class="page-header-condensed">
+        <h4>Team Data</h4>
     </div>
-    <div class="col-sm-6">
-        <p><a type="button" class="btn btn-xs btn-info" href="/deepfij/admin/browseTeams">Browse Team Data</a></p>
+    <div class="row">
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/browseTeams">Browse Team Data</a></p>
+        </div>
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeTeams">Scrape Team Data</a></p>
+        </div>
     </div>
-    <div class="col-sm-6">
-        <p><a type="button" class="btn btn-xs btn-danger" href="/deepfij/admin/scrapeTeams">Scrape Team Data</a></p>
+    <div class="page-header-condensed">
+        <h4>Seasons</h4>
     </div>
-    <div class="page-header">
-        <h1>Game Data</h1>
-    </div>
-    <div class="col-sm-6">
-        <p><a type="button" class="btn btn-xs btn-info" href="/deepfij/admin/browseGames">Browse Game Data</a></p>
-    </div>
-    <div class="col-sm-6">
-        <p><a type="button" class="btn btn-xs btn-danger" href="/deepfij/admin/scrapeGames">Scrape Game Data</a></p>
-        <p><a type="button" class="btn btn-xs btn-danger" href="/deepfij/admin/createSeason">Create Season</a></p>
-        <p><a type="button" class="btn btn-xs btn-danger" href="/deepfij/admin/scrapeGames">Drop Season</a></p>
+    <div class="row">
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/browseGames">Browse Game Data</a></p>
+        </div>
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeGames">Scrape Game Data</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/createSeason">Create Season</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeGames">Drop Season</a></p>
+        </div>
     </div>
     <div class="row">
         <div class="col-sm-4">
