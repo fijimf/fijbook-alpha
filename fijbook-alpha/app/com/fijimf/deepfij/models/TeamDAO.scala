@@ -12,6 +12,7 @@ trait TeamDAO {
   def find(id: Long): Future[Option[Team]]
 
   def save(team: Team): Future[Int]
+  def saveSeason(season: Season): Future[Int]
 
   def unlock(key: String): Future[Int]
 

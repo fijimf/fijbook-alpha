@@ -2,16 +2,17 @@ package controllers
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Team, TeamDAO}
+import com.fijimf.deepfij.models.{Season, Team, TeamDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{EditTeamForm, SignUpForm}
+import forms.{CreateSeasonForm, EditTeamForm, SignUpForm}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
 import utils.DefaultEnv
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[DefaultEnv],  val messagesApi: MessagesApi) extends Controller with I18nSupport {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -64,4 +65,27 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
     teamDao.list.map(ot=>Ok(views.html.admin.team_browse(rs.identity,ot.sortBy(_.name))))
   }
 
+  def createSeason() = silhouette.SecuredAction.async{ implicit rs=>
+    Future.successful(Ok(views.html.admin.create_season(rs.identity, CreateSeasonForm.form)))
+
+  }
+
+  def saveSeason() = silhouette.SecuredAction.async { implicit request =>
+    logger.info("Savu=ing!!!!")
+    CreateSeasonForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+          Future.successful(BadRequest(views.html.admin.create_season(request.identity, form)))
+      },
+      data => {
+        val s = Season(data.id, data.year)
+        val future: Future[Int] = teamDao.saveSeason(s)
+        future.onComplete{
+          case Success(i)=> logger.info("Hooray")
+          case Failure(thr)=> logger.error("Boo", thr)
+        }
+        future.map(i=>Redirect(routes.Application.admin()).flashing("info" -> ("Created empty season for " + data.year)))
+      }
+    )
+  }
 }

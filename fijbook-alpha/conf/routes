@@ -12,6 +12,8 @@ GET        /deepfij/admin/scrapeTeams                  controllers.ScraperContro
 GET        /deepfij/admin/browseTeams                  controllers.EditController.browseTeams
 GET        /deepfij/admin/editTeam/:id                 controllers.EditController.editTeam(id:Long)
 POST       /deepfij/admin/saveTeam                     controllers.EditController.saveTeam
+GET       /deepfij/admin/createSeason                     controllers.EditController.createSeason
+POST       /deepfij/admin/saveSeason                     controllers.EditController.saveSeason
 
 GET        /assets/*file                               controllers.Assets.at(path="/public", file)
 

@@ -11,8 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 case class Season(id: Long, year: Int) {
-  val startDate = new LocalDate(year, 11,1)
-  val endDate = new LocalDate(year+1, 5,1)
+  val startDate =  LocalDate.of(year, 11,1)
+  val endDate =  LocalDate.of(year+1, 5,1)
   val dates = Iterator.iterate(startDate) { _.plusDays(1) }.takeWhile(_.isBefore(endDate))
 }
 

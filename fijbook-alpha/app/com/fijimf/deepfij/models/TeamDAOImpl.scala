@@ -57,4 +57,9 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
   override def lock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
+  override def saveSeason(s:Season):Future[Int] = {
+    log.info("Hello!!!!!")
+    db.run(repo.seasons.insertOrUpdate(s))
+  }
+
 }
