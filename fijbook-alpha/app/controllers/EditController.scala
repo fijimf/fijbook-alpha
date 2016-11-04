@@ -2,10 +2,10 @@ package controllers
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Season, Team, TeamDAO}
+import com.fijimf.deepfij.models.{Qotd, Season, Team, TeamDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{CreateSeasonForm, EditTeamForm, SignUpForm}
+import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm, SignUpForm}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
@@ -66,16 +66,15 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
   }
 
   def createSeason() = silhouette.SecuredAction.async{ implicit rs=>
-    Future.successful(Ok(views.html.admin.create_season(rs.identity, CreateSeasonForm.form)))
+    Future.successful(Ok(views.html.admin.season_create(rs.identity, CreateSeasonForm.form)))
 
   }
 
   def saveSeason() = silhouette.SecuredAction.async { implicit request =>
-    logger.info("Savu=ing!!!!")
     CreateSeasonForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-          Future.successful(BadRequest(views.html.admin.create_season(request.identity, form)))
+          Future.successful(BadRequest(views.html.admin.season_create(request.identity, form)))
       },
       data => {
         val s = Season(data.id, data.year)
@@ -85,6 +84,28 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
           case Failure(thr)=> logger.error("Boo", thr)
         }
         future.map(i=>Redirect(routes.Application.admin()).flashing("info" -> ("Created empty season for " + data.year)))
+      }
+    )
+  }
+
+  def createQuote() = silhouette.SecuredAction.async{ implicit rs=>
+    Future.successful(Ok(views.html.admin.qotd_create(rs.identity, CreateQuoteForm.form)))
+  }
+
+  def saveQuote() = silhouette.SecuredAction.async { implicit request =>
+    CreateQuoteForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+          Future.successful(BadRequest(views.html.admin.qotd_create (request.identity, form)))
+      },
+      data => {
+        val q = Qotd(data.id, data.quote, data.source, data.url)
+        val future: Future[Int] = teamDao.saveQuote(q)
+        future.onComplete{
+          case Success(i)=> logger.info("Hooray")
+          case Failure(thr)=> logger.error("Boo", thr)
+        }
+        future.map(i=>Redirect(routes.Application.admin()).flashing("info" -> ("Created " + data.quote)))
       }
     )
   }

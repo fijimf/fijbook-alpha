@@ -14,6 +14,8 @@ GET        /deepfij/admin/editTeam/:id                 controllers.EditControlle
 POST       /deepfij/admin/saveTeam                     controllers.EditController.saveTeam
 GET       /deepfij/admin/createSeason                     controllers.EditController.createSeason
 POST       /deepfij/admin/saveSeason                     controllers.EditController.saveSeason
+GET       /deepfij/admin/createQuote                     controllers.EditController.createQuote
+POST       /deepfij/admin/saveQuote                     controllers.EditController.saveQuote
 
 GET        /assets/*file                               controllers.Assets.at(path="/public", file)
 

@@ -28,7 +28,7 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   def margin = Math.abs(homeScore - awayScore)
 }
 
-case class Qotd(id: Long, quotes: String, source: Option[String], url: Option[String])
+case class Qotd(id: Long, quote: String, source: Option[String], url: Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -307,6 +307,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val teams = TableQuery[TeamsTable]
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
+  lazy val qotd = TableQuery[QotdTable]
 
   lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema
 }

@@ -61,5 +61,8 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     log.info("Hello!!!!!")
     db.run(repo.seasons.insertOrUpdate(s))
   }
+  override def saveQuote(q:Qotd):Future[Int] = {
+    db.run(repo.qotd.insertOrUpdate(q))
+  }
 
 }

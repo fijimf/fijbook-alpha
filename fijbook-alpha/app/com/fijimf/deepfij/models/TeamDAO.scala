@@ -6,6 +6,8 @@ import scala.concurrent.Future
   * Give access to the user object.
   */
 trait TeamDAO {
+  def saveQuote(q: Qotd): Future[Int]
+
 
   def find(key: String): Future[Option[Team]]
 
