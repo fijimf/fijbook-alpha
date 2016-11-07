@@ -86,4 +86,6 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
     db.run(q.result.headOption)
   }
+
+  override def aliasList: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 }

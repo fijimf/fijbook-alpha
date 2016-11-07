@@ -8,6 +8,8 @@ import scala.concurrent.Future
   * Give access to the user object.
   */
 trait TeamDAO {
+  def aliasList: Future[List[Alias]]
+
   def saveGame(gt: (Game, Option[Result])):Future[Long]
 
   def saveQuote(q: Qotd): Future[Int]

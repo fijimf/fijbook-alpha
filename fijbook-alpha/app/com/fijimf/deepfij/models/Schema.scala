@@ -305,6 +305,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val games = TableQuery[GamesTable]
   lazy val results = TableQuery[ResultsTable]
   lazy val teams = TableQuery[TeamsTable]
+  lazy val aliases = TableQuery[AliasesTable]
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
   lazy val qotd = TableQuery[QotdTable]
