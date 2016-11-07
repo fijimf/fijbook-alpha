@@ -18,7 +18,7 @@ import scala.util.{Failure, Success, Try}
 class SchemaController @Inject()(val silhouette: Silhouette[DefaultEnv],repo: ScheduleRepository, userRepo: UserRepository) extends Controller {
 
   def dumpSchema() = silhouette.UserAwareAction.async { implicit rs =>
-    repo.dumpSchema().map(tup =>Ok (views.html.admin.show_schema(tup,rs.identity)))
+    repo.dumpSchema().map(tup =>Ok (views.html.admin.showSchema(tup,rs.identity)))
   }
 
   def dropCreateSchema() = silhouette.SecuredAction.async { implicit rs =>
@@ -35,7 +35,7 @@ class SchemaController @Inject()(val silhouette: Silhouette[DefaultEnv],repo: Sc
   }
 
   def dumpUserSchema() = silhouette.UserAwareAction.async { implicit rs =>
-    userRepo.dumpSchema().map(tup =>Ok (views.html.admin.show_schema(tup, rs.identity)))
+    userRepo.dumpSchema().map(tup =>Ok (views.html.admin.showSchema(tup, rs.identity)))
   }
 
   def dropCreateUserSchema() = silhouette.SecuredAction.async { implicit rs =>

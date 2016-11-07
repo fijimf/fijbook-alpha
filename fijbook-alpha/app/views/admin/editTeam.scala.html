@@ -17,7 +17,7 @@
 ) {
     <div class="row">
         <div class="col-sm-8">
-            @b3.form(routes.EditController.saveTeam()) {
+            @b3.form(routes.DataController.saveTeam()) {
                 @CSRF.formField
                 @b3.hidden( "id", teamForm("id").value.getOrElse(""), '_label -> "ID" )
                 @b3.text( teamForm("key"), '_label -> "Key" )

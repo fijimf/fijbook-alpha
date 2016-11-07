@@ -2,7 +2,7 @@ package controllers
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Qotd, Season, Team, TeamDAO}
+import com.fijimf.deepfij.models.{Qotd, Season, Team, ScheduleDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm}
@@ -14,7 +14,7 @@ import utils.DefaultEnv
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[DefaultEnv],  val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
   import scala.concurrent.ExecutionContext.Implicits.global
   val logger = Logger(getClass)
 
@@ -24,8 +24,8 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
         val formId: Int = form("id").value.getOrElse("0").toInt
         val fot: Future[Option[Team]] = teamDao.find(formId)
         fot.map(ot=> ot match {
-          case Some(t) => BadRequest(views.html.admin.team_edit(request.identity, t, form))
-          case None => Redirect(routes.EditController.browseTeams()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
+          case Some(t) => BadRequest(views.html.admin.editTeam(request.identity, t, form))
+          case None => Redirect(routes.DataController.browseTeams()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
         })
       },
       data => {
@@ -45,7 +45,7 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
           true,
           LocalDateTime.now(),
           request.identity.userID.toString)
-        teamDao.save(t).map(i=>Redirect(routes.EditController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
+        teamDao.save(t).map(i=>Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
       }
     )
   }
@@ -54,19 +54,19 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
     logger.info("Loading preliminary team keys.")
 
     teamDao.find(id).map{
-      case Some(t)=> Ok(views.html.admin.team_edit(rs.identity,t,EditTeamForm.form.fill(EditTeamForm.team2Data(t))))
-      case None=>Redirect(routes.EditController.browseTeams()).flashing("warn"->("No team found with id "+id))
+      case Some(t)=> Ok(views.html.admin.editTeam(rs.identity,t,EditTeamForm.form.fill(EditTeamForm.team2Data(t))))
+      case None=>Redirect(routes.DataController.browseTeams()).flashing("warn"->("No team found with id "+id))
     }
    }
 
   def browseTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading preliminary team keys.")
 
-    teamDao.list.map(ot=>Ok(views.html.admin.team_browse(rs.identity,ot.sortBy(_.name))))
+    teamDao.list.map(ot=>Ok(views.html.admin.browseTeams(rs.identity,ot.sortBy(_.name))))
   }
 
   def createSeason() = silhouette.SecuredAction.async{ implicit rs=>
-    Future.successful(Ok(views.html.admin.season_create(rs.identity, CreateSeasonForm.form)))
+    Future.successful(Ok(views.html.admin.createSeason(rs.identity, CreateSeasonForm.form)))
 
   }
 
@@ -74,7 +74,7 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
     CreateSeasonForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-          Future.successful(BadRequest(views.html.admin.season_create(request.identity, form)))
+          Future.successful(BadRequest(views.html.admin.createSeason(request.identity, form)))
       },
       data => {
         val s = Season(data.id, data.year)
@@ -89,14 +89,14 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
   }
 
   def createQuote() = silhouette.SecuredAction.async{ implicit rs=>
-    Future.successful(Ok(views.html.admin.qotd_create(rs.identity, CreateQuoteForm.form)))
+    Future.successful(Ok(views.html.admin.createQotd(rs.identity, CreateQuoteForm.form)))
   }
 
   def saveQuote() = silhouette.SecuredAction.async { implicit request =>
     CreateQuoteForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-          Future.successful(BadRequest(views.html.admin.qotd_create (request.identity, form)))
+          Future.successful(BadRequest(views.html.admin.createQotd (request.identity, form)))
       },
       data => {
         val q = Qotd(data.id, data.quote, data.source, data.url)

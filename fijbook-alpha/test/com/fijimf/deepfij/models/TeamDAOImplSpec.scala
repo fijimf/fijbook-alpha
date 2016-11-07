@@ -16,7 +16,7 @@ import scala.concurrent.duration.Duration
 class TeamDAOImplSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
   val repo = Injector.inject[ScheduleRepository]
-  val teamDao = Injector.inject[TeamDAOImpl]
+  val teamDao = Injector.inject[ScheduleDAOImpl]
 
   override def beforeEach() = {
     Await.result(repo.createSchema(), Duration.Inf)

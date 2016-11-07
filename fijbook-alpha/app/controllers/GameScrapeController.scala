@@ -20,7 +20,7 @@ import utils.DefaultEnv
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: TeamDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -16,15 +16,15 @@ GET         /deepfij/admin/dropCreateSchema             controllers.SchemaContro
 GET         /deepfij/admin/dropCreateSchema-user        controllers.SchemaController.dropCreateUserSchema
 
 GET         /deepfij/admin/scrapeTeams                  controllers.TeamScrapeController.scrapeTeams
-GET         /deepfij/admin/browseTeams                  controllers.EditController.browseTeams
-GET         /deepfij/admin/editTeam/:id                 controllers.EditController.editTeam(id:Long)
-POST        /deepfij/admin/saveTeam                     controllers.EditController.saveTeam
-GET         /deepfij/admin/createSeason                 controllers.EditController.createSeason
+GET         /deepfij/admin/browseTeams                  controllers.DataController.browseTeams
+GET         /deepfij/admin/editTeam/:id                 controllers.DataController.editTeam(id:Long)
+POST        /deepfij/admin/saveTeam                     controllers.DataController.saveTeam
+GET         /deepfij/admin/createSeason                 controllers.DataController.createSeason
 GET         /deepfij/admin/scrapeSeason/:id             controllers.GameScrapeController.scrapeSeason(id:Long)
 GET         /deepfij/admin/scrapeOneDay/:id/:y/:m/:d    controllers.GameScrapeController.scrapeOneDay(id:Long, y:Int, m:Int, d:Int)
-POST        /deepfij/admin/saveSeason                   controllers.EditController.saveSeason
-GET         /deepfij/admin/createQuote                  controllers.EditController.createQuote
-POST        /deepfij/admin/saveQuote                    controllers.EditController.saveQuote
+POST        /deepfij/admin/saveSeason                   controllers.DataController.saveSeason
+GET         /deepfij/admin/createQuote                  controllers.DataController.createQuote
+POST        /deepfij/admin/saveQuote                    controllers.DataController.saveQuote
 
 ############ SILHOUETTE
 GET         /deepfij/signOut                            controllers.SignOutController.signOut

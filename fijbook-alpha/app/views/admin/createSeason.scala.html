@@ -17,7 +17,7 @@
 ) {
     <div class="row">
         <div class="col-sm-8">
-            @b3.form(routes.EditController.saveSeason()) {
+            @b3.form(routes.DataController.saveSeason()) {
                 @CSRF.formField
                 @b3.hidden( "id", seasonForm("id").value.getOrElse(""), '_label -> "ID" )
                 @b3.text( seasonForm("year"), '_label -> "Year" )

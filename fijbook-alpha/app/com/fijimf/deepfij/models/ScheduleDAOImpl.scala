@@ -9,10 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-/**
-  * Give access to the user object using Slick
-  */
-class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends TeamDAO with DAOSlick {
+class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick {
   val log = Logger(getClass)
 
   import dbConfig.driver.api._
