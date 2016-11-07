@@ -20,51 +20,12 @@ import utils.DefaultEnv
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: TeamDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: TeamDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
-
-  def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
-    logger.info("Loading preliminary team keys.")
-    val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
-
-    logger.info("Loading team detail")
-
-    val teamMaster: Future[List[Team]] = teamShortNames.map((tsn: Map[String, String]) => {
-      tsn.keys.grouped(4).map((is: Iterable[String]) => {
-        Await.result(Future.sequence(is.map((k: String) => {
-          (teamLoad ? TeamDetail(k, tsn(k), "Scraper[" + rs.identity.userID.toString + "]")).mapTo[Team]
-        })), 600.seconds)
-      }).flatten.toList
-    })
-
-    teamMaster.flatMap(lst => {
-      val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
-      good.foreach(t => {
-        logger.info("Saving " + t.key)
-        teamDao.save(t)
-      })
-      Future {
-        val badTeamlist: String = bad.map(_.key).mkString("\n")
-        logger.info("The following teams were bad:\n" + badTeamlist)
-        Ok(badTeamlist)
-      }
-    })
-
-  }
-
-  def masterShortName(pagination: List[Int], stat: Int): Future[Map[String, String]] = {
-    pagination.foldLeft(Future.successful(Seq.empty[(String, String)]))((data: Future[Seq[(String, String)]], p: Int) => {
-      for (
-        t0 <- data;
-        t1 <- (teamLoad ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Seq[(String, String)]]
-      ) yield t0 ++ t1
-    }).map(_.toMap)
-  }
-
 
 //  def scrapeDate = silhouette.SecuredAction.async {
 //    implicit rs =>
@@ -88,7 +49,7 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, 
           scrape(seasonId,updatedBy,teams,date)
         })
       }}
-    Future.successful(Redirect(routes.Application.admin()))
+    Future.successful(Redirect(routes.AdminController.index()))
   }
 
   def scrapeOneDay(seasonId:Long, year:Int, month:Int, day:Int) = scrapeLocalDate(seasonId, LocalDate.of(year,month,day))
@@ -107,9 +68,9 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, 
           val dates: List[LocalDate] = season.dates.toList
           dates.map(d => scrape(seasonId, updatedBy, teams, d))
         })
-        Redirect(routes.Application.index())
+        Redirect(routes.AdminController.index())
       }
-      case None => Redirect(routes.Application.admin()).flashing("error" -> "Season was not found.  Unable to scrape")
+      case None => Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found.  Unable to scrape")
     }
   }
 
@@ -150,7 +111,7 @@ class ScraperController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, 
         updatedBy))
       )
     } else {
-      logger.info("Faled to map game "+gd)
+      logger.info("Failed to map game "+gd)
       None
     }
   }

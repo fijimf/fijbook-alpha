@@ -15,7 +15,7 @@ import utils._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class SchemaHelper @Inject()(val silhouette: Silhouette[DefaultEnv],repo: ScheduleRepository, userRepo: UserRepository) extends Controller {
+class SchemaController @Inject()(val silhouette: Silhouette[DefaultEnv],repo: ScheduleRepository, userRepo: UserRepository) extends Controller {
 
   def dumpSchema() = silhouette.UserAwareAction.async { implicit rs =>
     repo.dumpSchema().map(tup =>Ok (views.html.admin.show_schema(tup,rs.identity)))

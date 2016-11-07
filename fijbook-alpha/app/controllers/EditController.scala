@@ -83,7 +83,7 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
           case Success(i)=> logger.info("Hooray")
           case Failure(thr)=> logger.error("Boo", thr)
         }
-        future.map(i=>Redirect(routes.Application.admin()).flashing("info" -> ("Created empty season for " + data.year)))
+        future.map(i=>Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
       }
     )
   }
@@ -105,7 +105,7 @@ class EditController @Inject()(val teamDao:TeamDAO, silhouette: Silhouette[Defau
           case Success(i)=> logger.info("Hooray")
           case Failure(thr)=> logger.error("Boo", thr)
         }
-        future.map(i=>Redirect(routes.Application.admin()).flashing("info" -> ("Created " + data.quote)))
+        future.map(i=>Redirect(routes.AdminController.index()).flashing("info" -> ("Created " + data.quote)))
       }
     )
   }

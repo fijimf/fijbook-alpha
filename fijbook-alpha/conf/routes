@@ -1,26 +1,32 @@
+########### INDEX
+GET         /                                           controllers.IndexController.redirect
+GET         /deepfij                                    controllers.IndexController.redirect
+GET         /deepfij/index                              controllers.IndexController.index
 
-GET         /                                           controllers.Application.index
-GET         /deepfij                                    controllers.Application.index
-GET         /deepfij/index                              controllers.Application.index
+########### ASSETS
 
-GET         /deepfij/admin                              controllers.Application.admin
-GET         /deepfij/admin/schema                       controllers.SchemaHelper.dumpSchema
-GET         /deepfij/admin/schema-user                  controllers.SchemaHelper.dumpUserSchema
-GET         /deepfij/admin/dropCreateSchema             controllers.SchemaHelper.dropCreateSchema
-GET         /deepfij/admin/dropCreateSchema-user        controllers.SchemaHelper.dropCreateUserSchema
-GET         /deepfij/admin/scrapeTeams                  controllers.ScraperController.scrapeTeams
+GET         /assets/*file                               controllers.Assets.at(path="/public", file)
+
+########### ADMIN
+GET         /deepfij/admin                              controllers.AdminController.index
+
+GET         /deepfij/admin/schema                       controllers.SchemaController.dumpSchema
+GET         /deepfij/admin/schema-user                  controllers.SchemaController.dumpUserSchema
+GET         /deepfij/admin/dropCreateSchema             controllers.SchemaController.dropCreateSchema
+GET         /deepfij/admin/dropCreateSchema-user        controllers.SchemaController.dropCreateUserSchema
+
+GET         /deepfij/admin/scrapeTeams                  controllers.TeamScrapeController.scrapeTeams
 GET         /deepfij/admin/browseTeams                  controllers.EditController.browseTeams
 GET         /deepfij/admin/editTeam/:id                 controllers.EditController.editTeam(id:Long)
 POST        /deepfij/admin/saveTeam                     controllers.EditController.saveTeam
 GET         /deepfij/admin/createSeason                 controllers.EditController.createSeason
-GET         /deepfij/admin/scrapeSeason/:id             controllers.ScraperController.scrapeSeason(id:Long)
-GET         /deepfij/admin/scrapeOneDay/:id/:y/:m/:d    controllers.ScraperController.scrapeOneDay(id:Long, y:Int, m:Int, d:Int)
+GET         /deepfij/admin/scrapeSeason/:id             controllers.GameScrapeController.scrapeSeason(id:Long)
+GET         /deepfij/admin/scrapeOneDay/:id/:y/:m/:d    controllers.GameScrapeController.scrapeOneDay(id:Long, y:Int, m:Int, d:Int)
 POST        /deepfij/admin/saveSeason                   controllers.EditController.saveSeason
 GET         /deepfij/admin/createQuote                  controllers.EditController.createQuote
 POST        /deepfij/admin/saveQuote                    controllers.EditController.saveQuote
 
-GET         /assets/*file                               controllers.Assets.at(path="/public", file)
-
+############ SILHOUETTE
 GET         /deepfij/signOut                            controllers.SignOutController.signOut
 GET         /deepfij/authenticate/:provider             controllers.SocialAuthController.authenticate(provider)
 
