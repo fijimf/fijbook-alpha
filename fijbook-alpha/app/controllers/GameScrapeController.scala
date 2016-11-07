@@ -41,10 +41,10 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     logger.info("Scraping date "+ date)
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
-    teamDao.findSeason(seasonId).map {
+    teamDao.findSeasonById(seasonId).map {
       case Some(season) => {
         logger.info("Found sesaon " + season)
-        teamDao.list.map(teams => {
+        teamDao.listTeams.map(teams => {
           logger.info("Loaded team dictionary")
           scrape(seasonId,updatedBy,teams,date)
         })
@@ -59,10 +59,10 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     logger.info("Scraping season")
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
-    teamDao.findSeason(seasonId).map {
+    teamDao.findSeasonById(seasonId).map {
       case Some(season) => {
         logger.info("Found sesaon "+season)
-        teamDao.list.map(teams => {
+        teamDao.listTeams.map(teams => {
           logger.info("Loaded team dictionary")
 
           val dates: List[LocalDate] = season.dates.toList

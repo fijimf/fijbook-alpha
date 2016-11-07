@@ -15,17 +15,17 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   import dbConfig.driver.api._
 
 
-  override def find(key: String) = {
+  override def findTeamByKey(key: String) = {
     val q: Query[repo.TeamsTable, Team, Seq] = repo.teams.filter(team => team.key === key)
     db.run(q.result.headOption)
   }
 
-  override def find(id: Long) = {
+  override def findTeamById(id: Long) = {
     val q: Query[repo.TeamsTable, Team, Seq] = repo.teams.filter(team => team.id === id)
     db.run(q.result.headOption)
   }
 
-  override def save(team: Team /*, isAutoUpdate:Boolean */): Future[Int] = {
+  override def saveTeam(team: Team /*, isAutoUpdate:Boolean */): Future[Int] = {
     log.info("Saving team " + team.key)
 
     val rowsAffected: Future[Int] = db.run(repo.teams.filter(t => t.key === team.key).result.flatMap(ts =>
@@ -46,13 +46,13 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     rowsAffected
   }
 
-  override def list: Future[List[Team]] = {
+  override def listTeams: Future[List[Team]] = {
     db.run(repo.teams.to[List].result)
   }
 
-  override def unlock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
+  override def unlockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
 
-  override def lock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
+  override def lockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
   override def saveSeason(s: Season): Future[Int] = {
     db.run(repo.seasons.insertOrUpdate(s))
@@ -79,10 +79,10 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   }
 
 
-  override def findSeason(id: Long): Future[Option[Season]] = {
+  override def findSeasonById(id: Long): Future[Option[Season]] = {
     val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
     db.run(q.result.headOption)
   }
 
-  override def aliasList: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
+  override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 }

@@ -24,7 +24,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
   def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading aliases from database")
-    val aliasMap = Await.result(teamDao.aliasList.map(_.map(alias=>alias.alias->alias.key)),600.seconds)
+    val aliasMap = Await.result(teamDao.listAliases.map(_.map(alias=>alias.alias->alias.key)),600.seconds)
 
     logger.info("Loading preliminary team keys.")
     val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
@@ -41,7 +41,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
       good.foreach(t => {
         logger.info("Saving " + t.key)
-        teamDao.save(t)
+        teamDao.saveTeam(t)
       })
       Future {
         val badTeamlist: String = bad.map(_.key).mkString("\n")

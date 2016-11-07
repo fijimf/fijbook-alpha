@@ -22,7 +22,7 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
     EditTeamForm.form.bindFromRequest.fold(
       form => {
         val formId: Int = form("id").value.getOrElse("0").toInt
-        val fot: Future[Option[Team]] = teamDao.find(formId)
+        val fot: Future[Option[Team]] = teamDao.findTeamById(formId)
         fot.map(ot=> ot match {
           case Some(t) => BadRequest(views.html.admin.editTeam(request.identity, t, form))
           case None => Redirect(routes.DataController.browseTeams()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
@@ -45,7 +45,7 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
           true,
           LocalDateTime.now(),
           request.identity.userID.toString)
-        teamDao.save(t).map(i=>Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
+        teamDao.saveTeam(t).map(i=>Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
       }
     )
   }
@@ -53,7 +53,7 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
   def editTeam(id:Long) = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading preliminary team keys.")
 
-    teamDao.find(id).map{
+    teamDao.findTeamById(id).map{
       case Some(t)=> Ok(views.html.admin.editTeam(rs.identity,t,EditTeamForm.form.fill(EditTeamForm.team2Data(t))))
       case None=>Redirect(routes.DataController.browseTeams()).flashing("warn"->("No team found with id "+id))
     }
@@ -62,7 +62,7 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
   def browseTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading preliminary team keys.")
 
-    teamDao.list.map(ot=>Ok(views.html.admin.browseTeams(rs.identity,ot.sortBy(_.name))))
+    teamDao.listTeams.map(ot=>Ok(views.html.admin.browseTeams(rs.identity,ot.sortBy(_.name))))
   }
 
   def createSeason() = silhouette.SecuredAction.async{ implicit rs=>

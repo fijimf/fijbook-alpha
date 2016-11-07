@@ -8,24 +8,24 @@ import scala.concurrent.Future
   * Give access to the user object.
   */
 trait ScheduleDAO {
-  def aliasList: Future[List[Alias]]
+  def listAliases: Future[List[Alias]]
 
   def saveGame(gt: (Game, Option[Result])):Future[Long]
 
   def saveQuote(q: Qotd): Future[Int]
 
 
-  def find(key: String): Future[Option[Team]]
+  def findTeamByKey(key: String): Future[Option[Team]]
 
-  def find(id: Long): Future[Option[Team]]
+  def findTeamById(id: Long): Future[Option[Team]]
 
-  def save(team: Team): Future[Int]
+  def saveTeam(team: Team): Future[Int]
   def saveSeason(season: Season): Future[Int]
-  def findSeason(id:Long): Future[Option[Season]]
+  def findSeasonById(id:Long): Future[Option[Season]]
 
-  def unlock(key: String): Future[Int]
+  def unlockTeam(key: String): Future[Int]
 
-  def lock(key: String): Future[Int]
+  def lockTeam(key: String): Future[Int]
 
-  def list: Future[List[Team]]
+  def listTeams: Future[List[Team]]
 }
