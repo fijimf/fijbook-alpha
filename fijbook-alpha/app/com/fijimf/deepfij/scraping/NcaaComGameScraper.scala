@@ -3,6 +3,8 @@ package com.fijimf.deepfij.scraping
 import java.time._
 import java.util.TimeZone
 import java.util.spi.TimeZoneNameProvider
+
+import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, Result, TourneyInfo}
 import play.api.Logger
 import play.api.libs.json._
 
@@ -115,36 +117,37 @@ trait NcaaComGameScraper {
   }
 
 
-  //  def getGameData(v: JsValue): Option[GameData] = {
-  //    val optResult = for (
-  //      gs <- (v \ "gameState").asOpt[String] if gs.equalsIgnoreCase("final");
-  //      ps <- (v \ "scoreBreakdown").asOpt[JsArray];
-  //      hs <- (v \ "home" \ "currentScore").asOpt[String];
-  //      as <- (v \ "away" \ "currentScore").asOpt[String]
-  //    ) yield {
-  //      Result(hs.toInt, as.toInt, ps.value.size)
-  //    }
-  //
-  //    val optTourneyInfo = for (
-  //      ti <- (v \ "tournament_d").asOpt[String];
-  //      rg <- (v \ "bracket_region").asOpt[String];
-  //      hs <- (v \ "home" \ "team_seed").asOpt[String];
-  //      as <- (v \ "away" \ "team_seed").asOpt[String]
-  //    ) yield {
-  //      TourneyInfo(rg, hs.toInt, as.toInt)
-  //    }
-  //
-  //    for (
-  //      sd <- (v \ "startDate").asOpt[String];
-  //      cn <- (v \ "conference").asOpt[String];
-  //      ht <- (v \ "home" \ "name").asOpt[String];
-  //      hk <- pullKeyFromLink(ht);
-  //      at <- (v \ "away" \ "name").asOpt[String];
-  //      ak <- pullKeyFromLink(at)
-  //    ) yield {
-  //      GameData(new LocalDate(sd), hk, ak, optResult, (v \ "location").asOpt[String], optTourneyInfo, cn)
-  //    }
-  //  }
+    def getGameData(v: JsValue): Option[GameData] = {
+      val optResult = for (
+        gs <- (v \ "gameState").asOpt[String] if gs.equalsIgnoreCase("final");
+        ps <- (v \ "scoreBreakdown").asOpt[JsArray];
+        hs <- (v \ "home" \ "currentScore").asOpt[String];
+        as <- (v \ "away" \ "currentScore").asOpt[String]
+      ) yield {
+        Result(hs.toInt, as.toInt, ps.value.size)
+      }
+
+      val optTourneyInfo = for (
+        ti <- (v \ "tournament_d").asOpt[String];
+        rg <- (v \ "bracket_region").asOpt[String];
+        hs <- (v \ "home" \ "team_seed").asOpt[String];
+        as <- (v \ "away" \ "team_seed").asOpt[String]
+      ) yield {
+        TourneyInfo(rg, hs.toInt, as.toInt)
+      }
+
+      for (
+        sd <- gameStartTime(v);
+        cn <- (v \ "conference").asOpt[String];
+        ht <- (v \ "home" \ "name").asOpt[String];
+        hk <- pullKeyFromLink(ht);
+        at <- (v \ "away" \ "name").asOpt[String];
+        ak <- pullKeyFromLink(at)
+      ) yield {
+
+        GameData(sd, hk, ak, optResult, (v \ "location").asOpt[String], optTourneyInfo, cn)
+      }
+    }
 
   def pullKeyFromLink(s: String): Option[String] = {
     val regex = """'/schools/([\w\-]+)'""".r.unanchored

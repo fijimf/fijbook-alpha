@@ -57,12 +57,33 @@ class TeamDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
   override def lock(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
-  override def saveSeason(s:Season):Future[Int] = {
-    log.info("Hello!!!!!")
+  override def saveSeason(s: Season): Future[Int] = {
     db.run(repo.seasons.insertOrUpdate(s))
   }
-  override def saveQuote(q:Qotd):Future[Int] = {
+
+  override def saveQuote(q: Qotd): Future[Int] = {
     db.run(repo.qotd.insertOrUpdate(q))
   }
 
+  override def saveGame(gt: (Game, Option[Result])) = {
+    val (game, optResult) = gt
+
+    db.run(optResult match {
+      case Some(result) =>
+        (for (
+          qid <- (repo.games returning repo.games.map(_.id)) += game;
+          rid <- repo.results returning repo.results.map(_.id) += result.copy(gameId = qid)
+        ) yield qid).transactionally
+      case None =>
+        (for (
+          qid <- (repo.games returning repo.games.map(_.id)) += game
+        ) yield qid).transactionally
+    })
+  }
+
+
+  override def findSeason(id: Long): Future[Option[Season]] = {
+    val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
+    db.run(q.result.headOption)
+  }
 }

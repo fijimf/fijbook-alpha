@@ -12,8 +12,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class Season(id: Long, year: Int) {
   val startDate =  LocalDate.of(year, 11,1)
-  val endDate =  LocalDate.of(year+1, 5,1)
-  val dates = Iterator.iterate(startDate) { _.plusDays(1) }.takeWhile(_.isBefore(endDate))
+  val endDate =  LocalDate.of(year, 12,1)
+  val dates = Iterator.iterate(startDate) { _.plusDays(1) }.takeWhile(_.isBefore(endDate)).toList
 }
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)

@@ -1,73 +1,222 @@
-@import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
 @import com.fijimf.deepfij.models.User
-@(user:Option[User],userList:List[User])(implicit flash: Flash)
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@import helper._
+@(user: Option[User], userList: List[User])(implicit flash: Flash)
 @main(
     "deepfij",
     "Admin",
     "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench")),
+    Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench")),
     StandardNavBar.active("admin"), user
 ) {
-    <div class="page-header-condensed">
-        <h4>Database Ops</h4>
-    </div>
+
     <div class="row">
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/schema">Show Schedule Database Schema</a></p>
-        </div>
-        <div class="col-sm-3">
-            <p><button type="button" class="btn btn-small btn-block btn-danger" data-toggle="modal" data-target="#confirm-schedule-drop-create">Drop/Create Schedule Database</button></p>
-        </div>
-        <div id="confirm-schedule-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title">Confirm</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>This will drop and recreate the schedule database.  This cannot be undone.</p>
-                        <p>Are you sure?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema">Drop/Create</a>
-                        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+            <div class="page-header-condensed">
+                <h4>Database Ops</h4>
+            </div>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/schema">
+                Show Schedule Schema</a></p>
+            <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-schedule-drop-create">
+                Drop/Create Schedule DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"> </i></button></p>
+
+            <div id="confirm-schedule-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3 class="modal-title">Confirm</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>This will drop and recreate the schedule database.  This cannot be undone.</p>
+                            <p>Are you sure?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema">
+                                Drop/Create</a>
+                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/schema-user">Show User Database Schema</a></p>
-        </div>
-        <div class="col-sm-3">
-            <p><button type="button" class="btn btn-small btn-block btn-danger" data-toggle="modal" data-target="#confirm-user-drop-create">Drop/Create User Database</button></p>
-        </div>
-        <div id="confirm-user-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title">Confirm</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>This will drop and recreate the user database.  This cannot be undone.</p>
-                        <p>Are you sure?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema-user">Drop/Create</a>
-                        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/schema-user">
+                Show User Schema</a></p>
+            <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-user-drop-create">
+                Drop/Create User DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></button></p>
+
+            <div id="confirm-user-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3 class="modal-title">Confirm</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>This will drop and recreate the user database.  This cannot be undone.</p>
+                            <p>Are you sure?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema-user">
+                                Drop/Create</a>
+                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+        </div>
+        <div class="col-sm-3 col-sm-offset-1">
+            <div class="page-header-condensed">
+                <h4>Teams</h4>
+            </div>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseTeams">
+                Browse Teams</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/scrapeTeams">
+                Scrape Team Data</a></p>
+            <div class="page-header-condensed">
+                <h4>Aliases</h4>
+            </div>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseQuotes">
+                Browse Aliases</a></p>
+        </div>
+        <div class="col-sm-3 col-sm-offset-1">
+            <div class="page-header-condensed">
+                <h4>Conferences</h4>
+            </div>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseConferences">
+                Browse Conferences</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/scrapeConferences">
+                Scrape Conferences</a></p>
+            <div class="page-header-condensed">
+                <h4>Quotes</h4>
+            </div>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseQuotes">
+                Browse Quotes</a></p>
+
         </div>
 
     </div>
-    <div class="page-header-condensed">
-        <h4>User List</h4>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="page-header-condensed">
+                <h4>Seasons</h4>
+            </div>
+            <p>
+                <a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/createSeason"> Create Season</a>
+            </p>
         </div>
+        <div class="col-sm-3 col-sm-offset-1">
+            <div class="page-header-condensed">
+                <h4>&nbsp;</h4> <!-- Placeholder for vertical align-->
+            </div>
+            <p>
+                <a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/createSeason">Scrape Games for Dates</a>
+            </p>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2017&nbsp;<i class="fa fa-unlock"></i></h3>
+                </div>
+                <div class="panel-body">
+
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Conference Map</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Scrape Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Lock Results</a></p>
+                    <table class="table table-bordered table-condensed">
+                        <thead/>
+                        <tbody>
+                            <tr><td>Games</td><td>5400</td></tr>
+                            <tr><td>First game</td><td>11/1/2015</td></tr>
+                            <tr><td>First game</td><td>4/1/2016</td></tr>
+                            <tr><td>Results</td><td>5400</td></tr>
+                            <tr><td>First result</td><td>11/1/2015</td></tr>
+                            <tr><td>First result</td><td>4/1/2016</td></tr>
+                            <tr><td>Teams mapped</td><td>345</td></tr>
+                        </tbody>
+                    </table>
+                </div></div>
+        </div>
+            <!-- /.col-sm-4 -->
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2016&nbsp;<i class="fa fa-lock"></i></h3>
+                </div>
+                <div class="panel-body">
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Conference Map</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Scrape Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Unlock Results</a></p>
+                    <table class="table table-bordered table-condensed">
+                        <thead/>
+                        <tbody>
+                            <tr><td>Games</td><td>5400</td></tr>
+                            <tr><td>First game</td><td>11/1/2015</td></tr>
+                            <tr><td>First game</td><td>4/1/2016</td></tr>
+                            <tr><td>Results</td><td>5400</td></tr>
+                            <tr><td>First result</td><td>11/1/2015</td></tr>
+                            <tr><td>First result</td><td>4/1/2016</td></tr>
+                            <tr><td>Teams mapped</td><td>345</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+            <!-- /.col-sm-4 -->
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">2015&nbsp;<i class="fa fa-lock"></i></h3>
+                </div>
+                <div class="panel-body">
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Conference Map</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Scrape Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Browse Games</a></p>
+                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
+                        Unlock Results</a></p>
+                    <table class="table table-bordered table-condensed">
+                        <thead/>
+                        <tbody>
+                            <tr><td>Games</td><td>5400</td></tr>
+                            <tr><td>First game</td><td>11/1/2015</td></tr>
+                            <tr><td>First game</td><td>4/1/2016</td></tr>
+                            <tr><td>Results</td><td>5400</td></tr>
+                            <tr><td>First result</td><td>11/1/2015</td></tr>
+                            <tr><td>First result</td><td>4/1/2016</td></tr>
+                            <tr><td>Teams mapped</td><td>345</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-12">
+            <div class="page-header-condensed">
+                <h4>User List</h4>
+            </div>
             <table class="table table-condensed table-bordered table-striped">
                 <thead>
                     <tr>
@@ -78,7 +227,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                @for(u<-userList) {
+                @for(u <- userList) {
                     <tr>
                         <td>@u.lastName.getOrElse("")</td>
                         <td>@u.firstName.getOrElse("")</td>
@@ -92,67 +241,5 @@
             </table>
 
         </div>
-
-    </div>
-    <div class="page-header-condensed">
-        <h4>Team Data</h4>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/browseTeams">Browse Team Data</a></p>
-        </div>
-        <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeTeams">Scrape Team Data</a></p>
-        </div>
-    </div>
-    <div class="page-header-condensed">
-        <h4>Seasons</h4>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-info" href="/deepfij/admin/browseGames">Browse Game Data</a></p>
-        </div>
-        <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeGames">Scrape Game Data</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/createSeason">Create Season</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-danger" href="/deepfij/admin/scrapeGames">Drop Season</a></p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2015</h3>
-                </div>
-                <div class="panel-body">
-                    <p># games: 5400</p>
-                    <p># results: 5400</p>
-                </div>
-            </div>
-        </div>
-            <!-- /.col-sm-4 -->
-        <div class="col-sm-4">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2016</h3>
-                </div>
-                <div class="panel-body">
-                    Panel content
-                </div>
-            </div>
-        </div>
-            <!-- /.col-sm-4 -->
-        <div class="col-sm-4">
-            <div class="panel panel-warning">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2017</h3>
-                </div>
-                <div class="panel-body">
-                    Panel content
-                </div>
-            </div>
-        </div>
-            <!-- /.col-sm-4 -->
-            <!-- /.col-sm-4 -->
     </div>
 }
