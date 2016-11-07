@@ -1,5 +1,4 @@
-package forms
-
+package forms.silhouette
 
 import play.api.data.Form
 import play.api.data.Forms._

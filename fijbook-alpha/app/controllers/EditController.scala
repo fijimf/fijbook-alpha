@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import com.fijimf.deepfij.models.{Qotd, Season, Team, TeamDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm, SignUpForm}
+import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
