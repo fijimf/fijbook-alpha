@@ -14,16 +14,11 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   import dbConfig.driver.api._
 
+  override def listTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
 
-  override def findTeamByKey(key: String) = {
-    val q: Query[repo.TeamsTable, Team, Seq] = repo.teams.filter(team => team.key === key)
-    db.run(q.result.headOption)
-  }
+  override def findTeamByKey(key: String) = db.run(repo.teams.filter(team => team.key === key).result.headOption)
 
-  override def findTeamById(id: Long) = {
-    val q: Query[repo.TeamsTable, Team, Seq] = repo.teams.filter(team => team.id === id)
-    db.run(q.result.headOption)
-  }
+  override def findTeamById(id: Long) = db.run(repo.teams.filter(team => team.id === id).result.headOption)
 
   override def saveTeam(team: Team /*, isAutoUpdate:Boolean */): Future[Int] = {
     log.info("Saving team " + team.key)
@@ -46,20 +41,15 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     rowsAffected
   }
 
-  override def listTeams: Future[List[Team]] = {
-    db.run(repo.teams.to[List].result)
-  }
-
   override def unlockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
 
   override def lockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
-  override def saveSeason(s: Season): Future[Int] = {
-    db.run(repo.seasons.insertOrUpdate(s))
-  }
+  override def saveSeason(s: Season): Future[Int] = db.run(repo.seasons.insertOrUpdate(s))
 
-  override def saveQuote(q: Qotd): Future[Int] = {
-    db.run(repo.qotd.insertOrUpdate(q))
+  override def findSeasonById(id: Long): Future[Option[Season]] = {
+    val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
+    db.run(q.result.headOption)
   }
 
   override def saveGame(gt: (Game, Option[Result])) = {
@@ -79,10 +69,15 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   }
 
 
-  override def findSeasonById(id: Long): Future[Option[Season]] = {
-    val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
-    db.run(q.result.headOption)
+  override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
+
+  override def findQuoteById(id: Long): Future[Option[Quote]] = {
+    db.run(repo.quotes.filter(_.id === id).result.headOption)
   }
+
+  override def saveQuote(q: Quote) = db.run(repo.quotes.insertOrUpdate(q))
+
+  override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 }

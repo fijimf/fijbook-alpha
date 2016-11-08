@@ -12,7 +12,7 @@ trait ScheduleDAO {
 
   def saveGame(gt: (Game, Option[Result])):Future[Long]
 
-  def saveQuote(q: Qotd): Future[Int]
+  def saveQuote(q: Quote): Future[Int]
 
 
   def findTeamByKey(key: String): Future[Option[Team]]
@@ -28,4 +28,10 @@ trait ScheduleDAO {
   def lockTeam(key: String): Future[Int]
 
   def listTeams: Future[List[Team]]
+
+  def listQuotes: Future[List[Quote]]
+
+  def findQuoteById(id: Long): Future[Option[Quote]]
+
+  def deleteQuote(id: Long):Future[Int]
 }

@@ -28,7 +28,7 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   def margin = Math.abs(homeScore - awayScore)
 }
 
-case class Qotd(id: Long, quote: String, source: Option[String], url: Option[String])
+case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -281,7 +281,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  class QotdTable(tag: Tag) extends Table[Qotd](tag, "qotd") {
+  class QuoteTable(tag: Tag) extends Table[Quote](tag, "quote") {
 
     def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
@@ -291,7 +291,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def url = column[Option[String]]("url")
 
-    def * = (id, quote, source, url) <> (Qotd.tupled, Qotd.unapply)
+    def * = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
 
   }
 
@@ -308,7 +308,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val aliases = TableQuery[AliasesTable]
   lazy val conferences = TableQuery[ConferencesTable]
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
-  lazy val qotd = TableQuery[QotdTable]
+  lazy val quotes = TableQuery[QuoteTable]
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema
 }

@@ -2,7 +2,7 @@ package controllers
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Qotd, Season, Team, ScheduleDAO}
+import com.fijimf.deepfij.models.{Quote, Season, Team, ScheduleDAO}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm}
@@ -88,18 +88,32 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
     )
   }
 
+  def browseQuotes() = silhouette.SecuredAction.async{ implicit rs=>
+   teamDao.listQuotes.map(qs=> Ok(views.html.admin.browseQuotes(rs.identity, qs)))
+  }
   def createQuote() = silhouette.SecuredAction.async{ implicit rs=>
-    Future.successful(Ok(views.html.admin.createQotd(rs.identity, CreateQuoteForm.form)))
+    Future.successful(Ok(views.html.admin.createQuote(rs.identity, CreateQuoteForm.form)))
+  }
+
+  def deleteQuote(id:Long) = silhouette.SecuredAction.async{ implicit rs=>
+   teamDao.deleteQuote(id).map(n=>Redirect(routes.DataController.browseQuotes()).flashing("info"->("Quote " +id+" deleted")))
+  }
+
+  def editQuote(id:Long) = silhouette.SecuredAction.async{ implicit rs=>
+    teamDao.findQuoteById(id).map {
+      case Some(q) => Ok(views.html.admin.createQuote(rs.identity, CreateQuoteForm.form.fill(CreateQuoteForm.Data(id, q.quote, q.source, q.url))))
+      case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
+    }
   }
 
   def saveQuote() = silhouette.SecuredAction.async { implicit request =>
     CreateQuoteForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-          Future.successful(BadRequest(views.html.admin.createQotd (request.identity, form)))
+          Future.successful(BadRequest(views.html.admin.createQuote (request.identity, form)))
       },
       data => {
-        val q = Qotd(data.id, data.quote, data.source, data.url)
+        val q = Quote(data.id, data.quote, data.source, data.url)
         val future: Future[Int] = teamDao.saveQuote(q)
         future.onComplete{
           case Success(i)=> logger.info("Hooray")
