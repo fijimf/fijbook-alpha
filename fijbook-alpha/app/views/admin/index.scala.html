@@ -15,7 +15,7 @@
             <div class="page-header-condensed">
                 <h4>Database Ops</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/schema">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.SchemaController.dumpSchema()">
                 Show Schedule Schema</a></p>
             <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-schedule-drop-create">
                 Drop/Create Schedule DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"> </i></button></p>
@@ -32,14 +32,14 @@
                             <p>Are you sure?</p>
                         </div>
                         <div class="modal-footer">
-                            <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema">
+                            <a type="button" class="btn btn-danger" id="delete" href="@routes.SchemaController.dropCreateSchema()">
                                 Drop/Create</a>
                             <button type="button" data-dismiss="modal" class="btn">Cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/schema-user">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.SchemaController.dumpUserSchema()">
                 Show User Schema</a></p>
             <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-user-drop-create">
                 Drop/Create User DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></button></p>
@@ -56,7 +56,7 @@
                             <p>Are you sure?</p>
                         </div>
                         <div class="modal-footer">
-                            <a type="button" class="btn btn-danger" id="delete" href="/deepfij/admin/dropCreateSchema-user">
+                            <a type="button" class="btn btn-danger" id="delete" href="@routes.SchemaController.dropCreateUserSchema()">
                                 Drop/Create</a>
                             <button type="button" data-dismiss="modal" class="btn">Cancel</button>
                         </div>
@@ -76,7 +76,7 @@
             <div class="page-header-condensed">
                 <h4>Aliases</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseQuotes">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseAliases()">
                 Browse Aliases</a></p>
         </div>
         <div class="col-sm-3 col-sm-offset-1">

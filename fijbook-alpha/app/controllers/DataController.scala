@@ -2,10 +2,10 @@ package controllers
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Quote, Season, Team, ScheduleDAO}
+import com.fijimf.deepfij.models._
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{CreateQuoteForm, CreateSeasonForm, EditTeamForm}
+import forms.{CreateAliasForm, CreateQuoteForm, CreateSeasonForm, EditTeamForm}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
@@ -122,5 +122,41 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
         future.map(i=>Redirect(routes.AdminController.index()).flashing("info" -> ("Created " + data.quote)))
       }
     )
+  }
+
+  def createAlias() = silhouette.SecuredAction.async{ implicit rs=>
+    Future.successful(Ok(views.html.admin.createAlias(rs.identity, CreateAliasForm.form)))
+  }
+  def browseAliases() = silhouette.SecuredAction.async{ implicit rs=>
+    teamDao.listAliases.map(qs=> Ok(views.html.admin.browseAliases(rs.identity, qs)))
+  }
+
+  def saveAlias() = silhouette.SecuredAction.async { implicit request =>
+    CreateAliasForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+        Future.successful(BadRequest(views.html.admin.createAlias (request.identity, form)))
+      },
+      data => {
+        val q = Alias(data.id, data.key, data.alias)
+        val future: Future[Int] = teamDao.saveAlias(q)
+        future.onComplete{
+          case Success(i)=> logger.info("Hooray")
+          case Failure(thr)=> logger.error("Boo", thr)
+        }
+        future.map(i=>Redirect(routes.AdminController.index()).flashing("info" -> ("Created " + data.alias)))
+      }
+    )
+  }
+
+  def editAlias(id: Long) = silhouette.SecuredAction.async{ implicit rs=>
+    teamDao.findAliasById(id).map {
+      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, CreateAliasForm.form.fill(CreateAliasForm.Data(id, q.key, q.alias))))
+      case None => Redirect(routes.DataController.browseAliases()).flashing("warn" -> ("No alias found with id " + id))
+    }
+  }
+
+  def deleteAlias(id: Long) = silhouette.SecuredAction.async{ implicit rs=>
+    teamDao.deleteAlias(id).map(n=>Redirect(routes.DataController.browseAliases()).flashing("info"->("Alias " +id+" deleted")))
   }
 }

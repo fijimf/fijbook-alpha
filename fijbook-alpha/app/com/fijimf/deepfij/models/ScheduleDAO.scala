@@ -1,27 +1,32 @@
 package com.fijimf.deepfij.models
 
-import com.sun.org.apache.xpath.internal.operations.Gt
-
 import scala.concurrent.Future
 
 /**
   * Give access to the user object.
   */
 trait ScheduleDAO {
+  def saveAlias(a: Alias): Future[Int]
+
+  def findAliasById(id: Long): Future[Option[Alias]]
+
   def listAliases: Future[List[Alias]]
 
-  def saveGame(gt: (Game, Option[Result])):Future[Long]
+  def deleteAlias(id: Long): Future[Int]
+
+  def saveGame(gt: (Game, Option[Result])): Future[Long]
 
   def saveQuote(q: Quote): Future[Int]
-
 
   def findTeamByKey(key: String): Future[Option[Team]]
 
   def findTeamById(id: Long): Future[Option[Team]]
 
   def saveTeam(team: Team): Future[Int]
+
   def saveSeason(season: Season): Future[Int]
-  def findSeasonById(id:Long): Future[Option[Season]]
+
+  def findSeasonById(id: Long): Future[Option[Season]]
 
   def unlockTeam(key: String): Future[Int]
 
@@ -33,5 +38,5 @@ trait ScheduleDAO {
 
   def findQuoteById(id: Long): Future[Option[Quote]]
 
-  def deleteQuote(id: Long):Future[Int]
+  def deleteQuote(id: Long): Future[Int]
 }

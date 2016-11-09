@@ -80,4 +80,13 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
+
+
+  override def findAliasById(id: Long): Future[Option[Alias]] = {
+    db.run(repo.aliases.filter(_.id === id).result.headOption)
+  }
+
+  override def saveAlias(a: Alias) = db.run(repo.aliases.insertOrUpdate(a))
+
+  override def deleteAlias(id: Long):Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
 }

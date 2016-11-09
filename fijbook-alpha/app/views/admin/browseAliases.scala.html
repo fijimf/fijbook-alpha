@@ -1,23 +1,23 @@
-@import com.fijimf.deepfij.models.{Quote, User}
+@import com.fijimf.deepfij.models.{Alias, User}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: User, qs: List[Quote])(implicit flash: Flash)
+@(user: User, qs: List[Alias])(implicit flash: Flash)
 @main(
     "deepfij",
-    "Browse Quotes",
+    "Browse Aliases",
     "",
     Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench").appendChild("Browse Quotes", "fa-wrench", "browseQuotes")),
     StandardNavBar.active("admin"), Some(user)
 ) {
     <div class="row">
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createQuote()">Create Quote</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>
         </div>
         </div>
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-condensed table-bordered">
                 <thead><tr>
-                    <th>Quote</th>
+
                     <th>Source</th>
                     <th>URL</th>
                     <th></th>
@@ -26,9 +26,9 @@
                 <tbody >
                 @for(q <- qs) {
                     <tr>
-                        <td>@q.quote</td>
-                        <td>@q.source</td>
-                        <td>@q.url</td>
+
+                        <td>@q.key</td>
+                        <td>@q.alias</td>
                         <td ><i class="fa fa-edit text-success"> </i> </td>
                         <td ><i class="fa fa-times text-danger"> </i> </td>
                     </tr>

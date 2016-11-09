@@ -23,11 +23,16 @@ GET         /deepfij/admin/createSeason                     controllers.DataCont
 GET         /deepfij/admin/scrapeSeason/:id                 controllers.GameScrapeController.scrapeSeason(id:Long)
 GET         /deepfij/admin/scrapeOneDay/:id/:y/:m/:d        controllers.GameScrapeController.scrapeOneDay(id:Long, y:Int, m:Int, d:Int)
 POST        /deepfij/admin/saveSeason                       controllers.DataController.saveSeason
-GET         /deepfij/admin/browsQuotes                      controllers.DataController.browseQuotes
+GET         /deepfij/admin/browseQuotes                     controllers.DataController.browseQuotes
 GET         /deepfij/admin/createQuote                      controllers.DataController.createQuote
 POST        /deepfij/admin/saveQuote                        controllers.DataController.saveQuote
 GET         /deepfij/admin/editQuote/:id                    controllers.DataController.editQuote(id:Long)
 GET         /deepfij/admin/deleteQuote/:id                  controllers.DataController.deleteQuote(id:Long)
+GET         /deepfij/admin/browseAliases                    controllers.DataController.browseAliases
+GET         /deepfij/admin/createAlias                      controllers.DataController.createAlias
+POST        /deepfij/admin/saveAlias                        controllers.DataController.saveAlias
+GET         /deepfij/admin/editAlias/:id                    controllers.DataController.editAlias(id:Long)
+GET         /deepfij/admin/deleteAlias/:id                  controllers.DataController.deleteAlias(id:Long)
 
 ############ SILHOUETTE
 GET         /deepfij/signOut                                controllers.SignOutController.signOut
