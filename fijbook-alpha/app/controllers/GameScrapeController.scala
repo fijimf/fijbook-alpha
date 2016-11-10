@@ -1,6 +1,6 @@
 package controllers
 
-import java.time.{LocalDate, LocalDateTime, LocalTime}
+import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -8,17 +8,15 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
 import com.fijimf.deepfij.scraping.modules.scraping.model.GameData
-import com.fijimf.deepfij.scraping.modules.scraping.requests.{ShortNameAndKeyByStatAndPage, TeamDetail}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{EditTeamForm, OneDateForm}
 import play.api.Logger
 import play.api.mvc.Controller
 import utils.DefaultEnv
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 
 class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
@@ -27,18 +25,18 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-//  def scrapeDate = silhouette.SecuredAction.async {
-//    implicit rs =>
-//      OneDateForm.form.bindFromRequest.fold(
-//        form => Future.successful( BadRequest(views.html.admin.index(Some(rs.identity),List.empty, form))),
-//        data => {
-//          val d=data.date
-//          teamDao.findSeason(d).flatMap(scrapeLocalDate(_,d))
-//        }
-//
-//  }
+  //  def scrapeDate = silhouette.SecuredAction.async {
+  //    implicit rs =>
+  //      OneDateForm.form.bindFromRequest.fold(
+  //        form => Future.successful( BadRequest(views.html.admin.index(Some(rs.identity),List.empty, form))),
+  //        data => {
+  //          val d=data.date
+  //          teamDao.findSeason(d).flatMap(scrapeLocalDate(_,d))
+  //        }
+  //
+  //  }
   def scrapeLocalDate(seasonId: Long, date: LocalDate) = silhouette.SecuredAction.async { implicit rs =>
-    logger.info("Scraping date "+ date)
+    logger.info("Scraping date " + date)
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
     teamDao.findSeasonById(seasonId).map {
@@ -46,13 +44,14 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
         logger.info("Found sesaon " + season)
         teamDao.listTeams.map(teams => {
           logger.info("Loaded team dictionary")
-          scrape(seasonId,updatedBy,teams,date)
+          scrape(seasonId, updatedBy, teams, date)
         })
-      }}
+      }
+    }
     Future.successful(Redirect(routes.AdminController.index()))
   }
 
-  def scrapeOneDay(seasonId:Long, year:Int, month:Int, day:Int) = scrapeLocalDate(seasonId, LocalDate.of(year,month,day))
+  def scrapeOneDay(seasonId: Long, year: Int, month: Int, day: Int) = scrapeLocalDate(seasonId, LocalDate.of(year, month, day))
 
 
   def scrapeSeason(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
@@ -61,7 +60,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
     teamDao.findSeasonById(seasonId).map {
       case Some(season) => {
-        logger.info("Found sesaon "+season)
+        logger.info("Found sesaon " + season)
         teamDao.listTeams.map(teams => {
           logger.info("Loaded team dictionary")
 
@@ -111,7 +110,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
         updatedBy))
       )
     } else {
-      logger.info("Failed to map game "+gd)
+      logger.info("Failed to map game " + gd)
       None
     }
   }

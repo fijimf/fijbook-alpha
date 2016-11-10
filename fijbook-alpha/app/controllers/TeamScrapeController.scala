@@ -4,7 +4,8 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
-import com.fijimf.deepfij.scraping.modules.scraping.requests.{ShortNameAndKeyByStatAndPage, TeamDetail}
+import com.fijimf.deepfij.scraping.ShortNameAndKeyByStatAndPage
+import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -24,7 +25,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
   def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading aliases from database")
-    val aliasMap = Await.result(teamDao.listAliases.map(_.map(alias=>alias.alias->alias.key)),600.seconds)
+    val aliasMap: Map[String, String] = Await.result(teamDao.listAliases.map(_.map(alias => alias.alias -> alias.key)), 600.seconds).toMap
 
     logger.info("Loading preliminary team keys.")
     val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
@@ -32,8 +33,9 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     logger.info("Loading team detail")
 
     val teamMaster: Future[List[Team]] = teamShortNames.map((tsn: Map[String, String]) => {
-      tsn.toList.grouped(4).map((is: Iterable[(String,String)]) => {
-        scrapeKeyList(is, "Scraper["+rs.identity.name.getOrElse("???")+"]")
+      tsn.toList.grouped(4).map((is: Iterable[(String, String)]) => {
+        val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+        scrapeKeyList(is, userTag, aliasMap)
       }).flatten.toList
     })
 
@@ -43,19 +45,15 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
         logger.info("Saving " + t.key)
         teamDao.saveTeam(t)
       })
-      Future {
-        val badTeamlist: String = bad.map(_.key).mkString("\n")
-        logger.info("The following teams were bad:\n" + badTeamlist)
-        Ok(badTeamlist)
-      }
+      Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info"->("Loaded "+good.size+" Teams")))
     })
 
   }
 
-  def scrapeKeyList(is: Iterable[(String, String)], userTag: String): Iterable[Team] = {
+  def scrapeKeyList(is: Iterable[(String, String)], userTag: String, aliasMap: Map[String, String]): Iterable[Team] = {
     Await.result(Future.sequence(is.map {
       case (key, shortName) => {
-        (teamLoad ? TeamDetail(key, shortName, userTag)).mapTo[Team]
+        (teamLoad ? TeamDetail(aliasMap.getOrElse(key, key), shortName, userTag)).mapTo[Team]
       }
     }), 600.seconds)
   }
@@ -68,4 +66,5 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       ) yield t0 ++ t1
     }).map(_.toMap)
   }
+
 }

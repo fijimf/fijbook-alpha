@@ -1,8 +1,5 @@
 package com.fijimf.deepfij.scraping
 
-package modules.scraping.requests
-
-
 import scala.xml.Node
 
 case class ShortNameAndKeyByStatAndPage(s: Int, p: Int) extends HtmlScrapeRequest[Seq[(String, String)]] with NcaaComTeamScraper {
