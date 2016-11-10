@@ -19,9 +19,14 @@ GET         /deepfij/admin/scrapeTeams                      controllers.TeamScra
 GET         /deepfij/admin/browseTeams                      controllers.DataController.browseTeams
 GET         /deepfij/admin/editTeam/:id                     controllers.DataController.editTeam(id:Long)
 POST        /deepfij/admin/saveTeam                         controllers.DataController.saveTeam
+GET         /deepfij/admin/scrapeConferences                controllers.TeamScrapeController.scrapeConferences
+GET         /deepfij/admin/browseConferences                controllers.DataController.browseConferences
+GET         /deepfij/admin/editConference/:id               controllers.DataController.editConference(id:Long)
+POST        /deepfij/admin/saveConference                   controllers.DataController.saveConference
 GET         /deepfij/admin/createSeason                     controllers.DataController.createSeason
 GET         /deepfij/admin/scrapeSeason/:id                 controllers.GameScrapeController.scrapeSeason(id:Long)
 GET         /deepfij/admin/scrapeOneDay/:id/:y/:m/:d        controllers.GameScrapeController.scrapeOneDay(id:Long, y:Int, m:Int, d:Int)
+GET         /deepfij/admin/scrapeDates                      controllers.GameScrapeController.scrapeDates
 POST        /deepfij/admin/saveSeason                       controllers.DataController.saveSeason
 GET         /deepfij/admin/browseQuotes                     controllers.DataController.browseQuotes
 GET         /deepfij/admin/createQuote                      controllers.DataController.createQuote

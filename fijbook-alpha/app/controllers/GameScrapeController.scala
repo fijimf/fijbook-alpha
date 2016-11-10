@@ -114,4 +114,6 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       None
     }
   }
+
+    def scrapeDates() = play.mvc.Results.TODO
 }

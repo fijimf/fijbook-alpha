@@ -83,9 +83,9 @@
             <div class="page-header-condensed">
                 <h4>Conferences</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/browseConferences">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseConferences()">
                 Browse Conferences</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/scrapeConferences">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.TeamScrapeController.scrapeConferences()">
                 Scrape Conferences</a></p>
             <div class="page-header-condensed">
                 <h4>Quotes</h4>
@@ -102,7 +102,7 @@
                 <h4>Seasons</h4>
             </div>
             <p>
-                <a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/createSeason"> Create Season</a>
+                <a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createSeason()"> Create Season</a>
             </p>
         </div>
         <div class="col-sm-3 col-sm-offset-1">
@@ -110,7 +110,7 @@
                 <h4>&nbsp;</h4> <!-- Placeholder for vertical align-->
             </div>
             <p>
-                <a type="button" class="btn btn-small btn-block btn-default" href="/deepfij/admin/createSeason">Scrape Games for Dates</a>
+                <a type="button" class="btn btn-small btn-block btn-default" href="@routes.GameScrapeController.scrapeDates()">Scrape Games for Dates</a>
             </p>
 
         </div>

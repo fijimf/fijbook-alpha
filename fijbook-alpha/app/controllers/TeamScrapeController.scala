@@ -67,4 +67,5 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     }).map(_.toMap)
   }
 
+  def scrapeConferences() = play.mvc.Results.TODO
 }

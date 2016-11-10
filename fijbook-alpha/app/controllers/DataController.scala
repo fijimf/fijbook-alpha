@@ -159,4 +159,11 @@ class DataController @Inject()(val teamDao:ScheduleDAO, silhouette: Silhouette[D
   def deleteAlias(id: Long) = silhouette.SecuredAction.async{ implicit rs=>
     teamDao.deleteAlias(id).map(n=>Redirect(routes.DataController.browseAliases()).flashing("info"->("Alias " +id+" deleted")))
   }
+
+    def browseConferences() = play.mvc.Results.TODO
+
+  def editConference(id: Long) = play.mvc.Results.TODO
+
+  def saveConference() = play.mvc.Results.TODO
+  def scrapeConferences() = play.mvc.Results.TODO
 }
