@@ -2,7 +2,9 @@ package controllers
 
 import java.time.{LocalDate, LocalDateTime}
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
+import akka.contrib.throttle.Throttler
+import akka.contrib.throttle.Throttler._
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
@@ -18,12 +20,15 @@ import utils.DefaultEnv
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef,@Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
+
+  throttler ! new Throttler.SetRate(Throttler.Rate(1, 1.second))
+  throttler ! new Throttler.SetTarget(teamLoad)
 
   //  def scrapeDate = silhouette.SecuredAction.async {
   //    implicit rs =>
@@ -76,7 +81,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
     val teamDict = teams.map(t => t.key -> t).toMap
     logger.info("Loading date " + d)
-    (teamLoad ? ScoreboardByDateReq(d))
+    (throttler ? ScoreboardByDateReq(d))
       .mapTo[List[GameData]]
       .map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
       .flatMap(l => Future.sequence(l.flatten.map(teamDao.saveGame)))
