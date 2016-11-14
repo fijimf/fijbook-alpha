@@ -59,7 +59,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   def scrapeOneDay(seasonId: Long, year: Int, month: Int, day: Int) = scrapeLocalDate(seasonId, LocalDate.of(year, month, day))
 
 
-  def scrapeSeason(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Scraping season")
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 

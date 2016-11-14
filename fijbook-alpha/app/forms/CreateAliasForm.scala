@@ -7,7 +7,7 @@ object CreateAliasForm {
 
   val form = Form(
     mapping(
-      "id" -> ignored[Long](0),
+      "id" -> default(longNumber,0L),
       "alias" -> nonEmptyText,
       "key" -> nonEmptyText
     )(Data.apply)(Data.unapply)

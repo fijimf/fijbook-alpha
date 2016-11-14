@@ -1,74 +1,82 @@
 ########### INDEX
-GET         /                                               controllers.IndexController.redirect
-GET         /deepfij                                        controllers.IndexController.redirect
-GET         /deepfij/index                                  controllers.IndexController.index
+GET         /                                                   controllers.IndexController.redirect
+GET         /deepfij                                            controllers.IndexController.redirect
+GET         /deepfij/index                                      controllers.IndexController.index
 
 ########### ASSETS
 
-GET         /assets/*file                                   controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
 
 ########### ADMIN
-GET         /deepfij/admin                                  controllers.AdminController.index
+GET         /deepfij/admin                                      controllers.AdminController.index
 
 ########### DATABASE
-GET         /deepfij/admin/schema                           controllers.SchemaController.dumpSchema
-GET         /deepfij/admin/schema-user                      controllers.SchemaController.dumpUserSchema
-GET         /deepfij/admin/dropCreateSchema                 controllers.SchemaController.dropCreateSchema
-GET         /deepfij/admin/dropCreateSchema-user            controllers.SchemaController.dropCreateUserSchema
+GET         /deepfij/admin/schema                               controllers.SchemaController.dumpSchema
+GET         /deepfij/admin/schema-user                          controllers.SchemaController.dumpUserSchema
+GET         /deepfij/admin/dropCreateSchema                     controllers.SchemaController.dropCreateSchema
+GET         /deepfij/admin/dropCreateSchema-user                controllers.SchemaController.dropCreateUserSchema
 
 ########### SCRAPING
-GET         /deepfij/admin/scrapeTeams                      controllers.TeamScrapeController.scrapeTeams
-GET         /deepfij/admin/scrapeConferences                controllers.TeamScrapeController.scrapeConferences
-GET         /deepfij/admin/scrapeSeason/:id                 controllers.GameScrapeController.scrapeSeason(id:Long)
-GET         /deepfij/admin/scrapeDates                      controllers.GameScrapeController.scrapeDates
+GET         /deepfij/admin/scrapeTeams                          controllers.TeamScrapeController.scrapeTeams
+GET         /deepfij/admin/scrapeConferences                    controllers.TeamScrapeController.scrapeConferences
+GET         /deepfij/admin/scrapeGames/:seasonId                controllers.GameScrapeController.scrapeGames(seasonId:Long)
+GET         /deepfij/admin/scrapeDates                          controllers.GameScrapeController.scrapeDates
 
 ########### DATA
 ##### TEAMS
-GET         /deepfij/admin/browseTeams                      controllers.DataController.browseTeams
-GET         /deepfij/admin/editTeam/:id                     controllers.DataController.editTeam(id:Long)
-POST        /deepfij/admin/saveTeam                         controllers.DataController.saveTeam
-POST        /deepfij/admin/deleteTeam                       controllers.DataController.deleteTeam(id:Long)
+GET         /deepfij/admin/browseTeams                          controllers.DataController.browseTeams
+GET         /deepfij/admin/editTeam/:id                         controllers.DataController.editTeam(id:Long)
+POST        /deepfij/admin/saveTeam                             controllers.DataController.saveTeam
+POST        /deepfij/admin/deleteTeam                           controllers.DataController.deleteTeam(id:Long)
 
 ##### CONFERENCES
-GET         /deepfij/admin/browseConferences                controllers.DataController.browseConferences
-GET         /deepfij/admin/editConference/:id               controllers.DataController.editConference(id:Long)
-POST        /deepfij/admin/saveConference                   controllers.DataController.saveConference
+GET         /deepfij/admin/browseConferences                    controllers.DataController.browseConferences
+GET         /deepfij/admin/editConference/:id                   controllers.DataController.editConference(id:Long)
+POST        /deepfij/admin/saveConference                       controllers.DataController.saveConference
 
 ##### SEASONS
-GET         /deepfij/admin/createSeason                     controllers.DataController.createSeason
-POST        /deepfij/admin/saveSeason                       controllers.DataController.saveSeason
+GET         /deepfij/admin/createSeason                         controllers.DataController.createSeason
+POST        /deepfij/admin/saveSeason                           controllers.DataController.saveSeason
+GET         /deepfij/admin/deleteSeason/:id                     controllers.DataController.deleteSeason(id:Long)
+GET         /deepfij/admin/lockSeason/:id                     controllers.DataController.lockSeason(id:Long)
+
+##### CONFERENCEMAP
+GET         /deepfij/admin/browseConferenceMap/:seasonId        controllers.DataController.browseConferenceMap(seasonId:Long)
+
+##### GAMES
+GET         /deepfij/admin/browseGames/:seasonId                controllers.DataController.browseGames(seasonId:Long)
 
 ##### QUOTES
-GET         /deepfij/admin/browseQuotes                     controllers.DataController.browseQuotes
-GET         /deepfij/admin/createQuote                      controllers.DataController.createQuote
-POST        /deepfij/admin/saveQuote                        controllers.DataController.saveQuote
-GET         /deepfij/admin/editQuote/:id                    controllers.DataController.editQuote(id:Long)
-GET         /deepfij/admin/deleteQuote/:id                  controllers.DataController.deleteQuote(id:Long)
+GET         /deepfij/admin/browseQuotes                         controllers.DataController.browseQuotes
+GET         /deepfij/admin/createQuote                          controllers.DataController.createQuote
+POST        /deepfij/admin/saveQuote                            controllers.DataController.saveQuote
+GET         /deepfij/admin/editQuote/:id                        controllers.DataController.editQuote(id:Long)
+GET         /deepfij/admin/deleteQuote/:id                      controllers.DataController.deleteQuote(id:Long)
 
 ##### ALIASES
-GET         /deepfij/admin/browseAliases                    controllers.DataController.browseAliases
-GET         /deepfij/admin/createAlias                      controllers.DataController.createAlias
-POST        /deepfij/admin/saveAlias                        controllers.DataController.saveAlias
-GET         /deepfij/admin/editAlias/:id                    controllers.DataController.editAlias(id:Long)
-GET         /deepfij/admin/deleteAlias/:id                  controllers.DataController.deleteAlias(id:Long)
+GET         /deepfij/admin/browseAliases                        controllers.DataController.browseAliases
+GET         /deepfij/admin/createAlias                          controllers.DataController.createAlias
+POST        /deepfij/admin/saveAlias                            controllers.DataController.saveAlias
+GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)
+GET         /deepfij/admin/deleteAlias/:id                      controllers.DataController.deleteAlias(id:Long)
 
 ############ SILHOUETTE
-GET         /deepfij/signOut                                controllers.SignOutController.signOut
-GET         /deepfij/authenticate/:provider                 controllers.SocialAuthController.authenticate(provider)
+GET         /deepfij/signOut                                    controllers.SignOutController.signOut
+GET         /deepfij/authenticate/:provider                     controllers.SocialAuthController.authenticate(provider)
 
-GET         /deepfij/signUp                                 controllers.SignUpController.view
-POST        /deepfij/signUp                                 controllers.SignUpController.submit
+GET         /deepfij/signUp                                     controllers.SignUpController.view
+POST        /deepfij/signUp                                     controllers.SignUpController.submit
 
-GET         /deepfij/signIn                                 controllers.SignInController.view
-POST        /deepfij/signIn                                 controllers.SignInController.submit
+GET         /deepfij/signIn                                     controllers.SignInController.view
+POST        /deepfij/signIn                                     controllers.SignInController.submit
 
-GET         /deepfij/password/forgot                        controllers.ForgotPasswordController.view
-POST        /deepfij/password/forgot                        controllers.ForgotPasswordController.submit
-GET         /deepfij/password/reset/:token                  controllers.ResetPasswordController.view(token: java.util.UUID)
-POST        /deepfij/password/reset/:token                  controllers.ResetPasswordController.submit(token: java.util.UUID)
-GET         /deepfij/password/change                        controllers.ChangePasswordController.view
-POST        /deepfij/password/change                        controllers.ChangePasswordController.submit
+GET         /deepfij/password/forgot                            controllers.ForgotPasswordController.view
+POST        /deepfij/password/forgot                            controllers.ForgotPasswordController.submit
+GET         /deepfij/password/reset/:token                      controllers.ResetPasswordController.view(token: java.util.UUID)
+POST        /deepfij/password/reset/:token                      controllers.ResetPasswordController.submit(token: java.util.UUID)
+GET         /deepfij/password/change                            controllers.ChangePasswordController.view
+POST        /deepfij/password/change                            controllers.ChangePasswordController.submit
 
-GET         /deepfij/account/email/:email                   controllers.ActivateAccountController.send(email: String)
-GET         /deepfij/account/activate/:token                controllers.ActivateAccountController.activate(token: java.util.UUID)
+GET         /deepfij/account/email/:email                       controllers.ActivateAccountController.send(email: String)
+GET         /deepfij/account/activate/:token                    controllers.ActivateAccountController.activate(token: java.util.UUID)
 

@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.{Alias, User}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: User, qs: List[Alias])(implicit flash: Flash)
+@(user: User, as: List[Alias])(implicit flash: Flash)
 @main(
     "deepfij",
     "Browse Aliases",
@@ -12,25 +12,25 @@
         <div class="col-sm-3">
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>
         </div>
-        </div>
+    </div>
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-condensed table-bordered">
                 <thead><tr>
 
-                    <th>Source</th>
-                    <th>URL</th>
+                    <th>Key</th>
+                    <th>Alias</th>
                     <th></th>
                     <th></th>
                 </tr></thead>
                 <tbody >
-                @for(q <- qs) {
+                @for(a <- as) {
                     <tr>
 
-                        <td>@q.key</td>
-                        <td>@q.alias</td>
-                        <td ><i class="fa fa-edit text-success"> </i> </td>
-                        <td ><i class="fa fa-times text-danger"> </i> </td>
+                        <td>@a.key</td>
+                        <td>@a.alias</td>
+                        <td class="text-center"><a href="@routes.DataController.editAlias(a.id)"><i class="fa fa-edit text-success"> </i></a></td>
+                        <td class="text-center"><a href="@routes.DataController.deleteAlias(a.id)"><i class="fa fa-times text-danger"> </i></a></td>
                     </tr>
                 }
                 </tbody>

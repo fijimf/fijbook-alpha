@@ -122,7 +122,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           case Success(i) => logger.info("Hooray")
           case Failure(thr) => logger.error("Boo", thr)
         }
-        future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created " + data.quote)))
+        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Created " + data.quote)))
       }
     )
   }
@@ -148,7 +148,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           case Success(i) => logger.info("Hooray")
           case Failure(thr) => logger.error("Boo", thr)
         }
-        future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created " + data.alias)))
+        future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias+ " to " + data.key)))
       }
     )
   }
@@ -180,4 +180,5 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def lockSeason(id:Long)=play.mvc.Results.TODO
 
+  def deleteSeason(id: Long) = play.mvc.Results.TODO
 }
