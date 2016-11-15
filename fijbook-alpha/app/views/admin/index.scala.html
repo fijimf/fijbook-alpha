@@ -1,7 +1,8 @@
 @import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Schedule
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import helper._
-@(user: Option[User], userList: List[User])(implicit flash: Flash)
+@(user: Option[User], userList: List[User], schedules:List[Schedule])(implicit flash: Flash)
 @main(
     "deepfij",
     "Admin",
@@ -116,101 +117,44 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2017&nbsp;<i class="fa fa-unlock"></i></h3>
-                </div>
-                <div class="panel-body">
+        @for(s<-schedules) {
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">@s.season.year &nbsp; <i class="fa fa-unlock"></i></h3>
+                    </div>
+                    <div class="panel-body">
 
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.deleteSeason(1)">
-                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseConferenceMap(1)">
-                        Browse Conference Map</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.GameScrapeController.scrapeGames(1)">
-                        Scrape Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseGames(1)">
-                        Browse Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.lockSeason(1)">
-                        Lock Results</a></p>
-                    <table class="table table-bordered table-condensed">
-                        <thead/>
-                        <tbody>
-                            <tr><td>Games</td><td>5400</td></tr>
-                            <tr><td>First game</td><td>11/1/2015</td></tr>
-                            <tr><td>First game</td><td>4/1/2016</td></tr>
-                            <tr><td>Results</td><td>5400</td></tr>
-                            <tr><td>First result</td><td>11/1/2015</td></tr>
-                            <tr><td>First result</td><td>4/1/2016</td></tr>
-                            <tr><td>Teams mapped</td><td>345</td></tr>
-                        </tbody>
-                    </table>
-                </div></div>
-        </div>
-            <!-- /.col-sm-4 -->
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2016&nbsp;<i class="fa fa-lock"></i></h3>
-                </div>
-                <div class="panel-body">
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Browse Conference Map</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Scrape Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Browse Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Unlock Results</a></p>
-                    <table class="table table-bordered table-condensed">
-                        <thead/>
-                        <tbody>
-                            <tr><td>Games</td><td>5400</td></tr>
-                            <tr><td>First game</td><td>11/1/2015</td></tr>
-                            <tr><td>First game</td><td>4/1/2016</td></tr>
-                            <tr><td>Results</td><td>5400</td></tr>
-                            <tr><td>First result</td><td>11/1/2015</td></tr>
-                            <tr><td>First result</td><td>4/1/2016</td></tr>
-                            <tr><td>Teams mapped</td><td>345</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.deleteSeason(s.season.id)">
+                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a>
+                        </p>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseConferenceMap(s.season.id)">
+                        Browse Conference Map</a>
+                        </p>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.GameScrapeController.scrapeGames(s.season.id)">
+                        Scrape Games</a>
+                        </p>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseGames(s.season.id)">
+                        Browse Games</a>
+                        </p>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.lockSeason(s.season.id)">
+                        Lock Results</a>
+                        </p>
+                        <table class="table table-bordered table-condensed">
+                            <thead/>
+                            <tbody>
+                                <tr><td>Games</td> <td>@s.games.size</td></tr>
+                                <tr><td>First game</td> <td>@s.firstGame.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>Last game</td> <td>@s.lastGame.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>Results</td> <td>@s.results.size</td></tr>
+                                <tr><td>First result</td> <td>@s.firstResult.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>Last result</td> <td>@s.lastResult.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>Teams mapped</td> <td>@s.teamsMapped.size</td></tr>
+                            </tbody>
+                        </table>
+                    </div></div>
             </div>
-        </div>
-            <!-- /.col-sm-4 -->
-        <div class="col-sm-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">2015&nbsp;<i class="fa fa-lock"></i></h3>
-                </div>
-                <div class="panel-body">
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Browse Conference Map</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Scrape Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Browse Games</a></p>
-                    <p><a type="button" class="btn btn-xs btn-block btn-default" href="/deepfij/admin/createSeason">
-                        Unlock Results</a></p>
-                    <table class="table table-bordered table-condensed">
-                        <thead/>
-                        <tbody>
-                            <tr><td>Games</td><td>5400</td></tr>
-                            <tr><td>First game</td><td>11/1/2015</td></tr>
-                            <tr><td>First game</td><td>4/1/2016</td></tr>
-                            <tr><td>Results</td><td>5400</td></tr>
-                            <tr><td>First result</td><td>11/1/2015</td></tr>
-                            <tr><td>First result</td><td>4/1/2016</td></tr>
-                            <tr><td>Teams mapped</td><td>345</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        }
     </div>
     <div class="row">
         <div class="col-sm-12">

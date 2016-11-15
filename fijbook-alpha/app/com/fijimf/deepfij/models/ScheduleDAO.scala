@@ -39,4 +39,6 @@ trait ScheduleDAO {
   def findQuoteById(id: Long): Future[Option[Quote]]
 
   def deleteQuote(id: Long): Future[Int]
+
+  def loadSchedules(): Future[List[Schedule]]
 }

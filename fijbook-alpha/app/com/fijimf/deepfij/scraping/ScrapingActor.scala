@@ -26,6 +26,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   }
 
   override def receive: Receive = {
+
     case r:HtmlScrapeRequest[_] =>
       handleScrape(r)
     case r:JsonScrapeRequest[_] =>
@@ -35,6 +36,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   }
 
   def handleScrape(r: HtmlScrapeRequest[_]): Unit = {
+    logger.info("Received html req")
     val mySender = sender()
     logger.info("Requesting " + r.url)
     ws.url(r.url).get().onComplete {
@@ -59,6 +61,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
 
 
   def handleJsonScrape(r: JsonScrapeRequest[_]): Unit = {
+    logger.info("Received json req")
     val mySender = sender()
     logger.info("Requesting " + r.url)
     ws.url(r.url).get().onComplete {

@@ -310,5 +310,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferenceMaps = TableQuery[ConferenceMapsTable]
   lazy val quotes = TableQuery[QuoteTable]
 
+  lazy val gameResults = games joinLeft results on (_.id === _.gameId)
+
   lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema
 }

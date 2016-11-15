@@ -5,8 +5,9 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import slick.lifted.TableQuery
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick {
@@ -78,6 +79,28 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def saveQuote(q: Quote) = db.run(repo.quotes.insertOrUpdate(q))
 
   override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
+
+  def loadSchedule(s: Season):Future[Schedule] = {
+    val fTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
+    val fConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
+    val fConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.filter(_.seasonId===s.id).to[List].result)
+    val fResults: Future[List[(Game,Option[Result])]] = db.run(repo.gameResults.filter(_._1.seasonId===s.id).to[List].result)
+    for(
+      teams<-fTeams;
+      conferences<-fConferences;
+      conferenceMap<-fConferenceMaps;
+      results<-fResults
+    ) yield {
+      Schedule(s,teams,conferences,conferenceMap, results)
+    }
+  }
+
+  override def loadSchedules(): Future[List[Schedule]] = {
+    db.run(repo.seasons.to[List].result).flatMap(seasons=>
+      Future.sequence(seasons.map(season=>loadSchedule(season)))
+    )
+  }
+
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 

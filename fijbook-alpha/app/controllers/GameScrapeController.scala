@@ -27,8 +27,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-  throttler ! new Throttler.SetRate(Throttler.Rate(1, 1.second))
-  throttler ! new Throttler.SetTarget(teamLoad)
+
 
   //  def scrapeDate = silhouette.SecuredAction.async {
   //    implicit rs =>
@@ -60,6 +59,9 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
 
   def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
+
+    logger.info("Setting throttler")
+    throttler !  Throttler.SetTarget(Some(teamLoad))
     logger.info("Scraping season")
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
