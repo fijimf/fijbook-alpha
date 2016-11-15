@@ -79,7 +79,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         Future.successful(BadRequest(views.html.admin.createSeason(request.identity, form)))
       },
       data => {
-        val s = Season(data.id, data.year)
+        val s = Season(data.id, data.year, data.lock, data.lockBefore)
         val future: Future[Int] = teamDao.saveSeason(s)
         future.onComplete {
           case Success(i) => logger.info("Hooray")

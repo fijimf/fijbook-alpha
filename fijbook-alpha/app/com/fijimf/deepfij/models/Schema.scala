@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models
 
+import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 import javax.inject.Inject
 
@@ -9,11 +10,41 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
+sealed trait SeasonLockStatus {
+  def canUpdate(date: LocalDate): Boolean
+}
 
-case class Season(id: Long, year: Int) {
-  val startDate =  LocalDate.of(year, 11,1)
-  val endDate =  LocalDate.of(year, 12,1)
-  val dates = Iterator.iterate(startDate) { _.plusDays(1) }.takeWhile(_.isBefore(endDate)).toList
+case object Locked extends SeasonLockStatus {
+  def canUpdate(d: LocalDate) = false
+}
+
+case object Open extends SeasonLockStatus {
+  def canUpdate(d: LocalDate) = true
+}
+
+case object Updataing extends SeasonLockStatus {
+  def canUpdate(d: LocalDate) = false
+}
+
+case class LockedBefore(date: LocalDate) extends SeasonLockStatus {
+  def canUpdate(d: LocalDate) = d.isAfter(date)
+}
+
+case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDate]) {
+  val status = lock.toLowerCase match {
+    case "lock" => Locked
+    case "update" => Updataing
+    case _ =>
+      lockBefore match {
+        case Some(date) => LockedBefore(date)
+        case None => Open
+      }
+  }
+  val startDate = LocalDate.of(year, 11, 1)
+  val endDate = LocalDate.of(year, 12, 1)
+  val dates = Iterator.iterate(startDate) {
+    _.plusDays(1)
+  }.takeWhile(_.isBefore(endDate)).toList
 }
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
@@ -56,13 +87,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   def all(tableQuery: TableQuery[_]) = db.run(tableQuery.to[List].result)
 
   def createSeason(year: Int): Future[Long] = {
-    val s = Season(0, year)
+    val s = Season(0, year, "open", None)
     db.run(seasons returning seasons.map(_.id) += s)
   }
 
   def createConference(key: String, name: String,
                        logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
-                       officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy:String): Future[Long] = {
+                       officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
     val t = Conference(0, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
     db.run(conferences returning conferences.map(_.id) += t)
   }
@@ -70,7 +101,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   def createTeam(key: String, name: String, longName: String, nickname: String,
                  logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
                  primaryColor: Option[String] = None, secondaryColor: Option[String] = None,
-                 officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy:String): Future[Long] = {
+                 officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
     val t = Team(0, key, name, longName, nickname, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
     db.run(teams returning teams.map(_.id) += t)
   }
@@ -78,7 +109,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   def getTeams(implicit ec: ExecutionContext) = db.run(teams.to[List].map(t => t.key -> t).result).map(_.toMap)
 
 
-  def mapTeam(seasonId: Long, teamId: Long, confId: Long, updatedBy:String)(implicit ec: ExecutionContext): Future[Long] = {
+  def mapTeam(seasonId: Long, teamId: Long, confId: Long, updatedBy: String)(implicit ec: ExecutionContext): Future[Long] = {
     val q = conferenceMaps.withFilter(cm => cm.seasonId === seasonId && cm.teamId === teamId)
     val action = q.result.headOption.flatMap((cm: Option[ConferenceMap]) => {
       cm match {
@@ -246,8 +277,12 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def year = column[Int]("year")
 
+    def lock = column[String]("lock", O.Length(8))
 
-    def * = (id, year) <> (Season.tupled, Season.unapply)
+    def lockBefore = column[Option[LocalDate]]("lockBefore")
+
+
+    def * = (id, year, lock, lockBefore) <> (Season.tupled, Season.unapply)
 
     def idx1 = index("season_idx1", year, unique = true)
 
@@ -296,9 +331,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, Long](
-    ldt => ldt.toEpochSecond(ZoneOffset.UTC),
-    long => LocalDateTime.ofEpochSecond(long, 0, ZoneOffset.UTC)
+  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
+    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
+  )
+  implicit val JavaLocalDateMapper = MappedColumnType.base[LocalDate, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
+    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
 
   lazy val seasons = TableQuery[SeasonsTable]
