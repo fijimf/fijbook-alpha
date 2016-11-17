@@ -2,6 +2,7 @@
 @import com.fijimf.deepfij.models.Schedule
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import helper._
+@import java.time.format.DateTimeFormatter
 @(user: Option[User], userList: List[User], schedules:List[Schedule])(implicit flash: Flash)
 @main(
     "deepfij",
@@ -120,10 +121,22 @@
         @for(s<-schedules) {
             <div class="col-sm-4">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">@s.season.year &nbsp; <i class="fa fa-unlock"></i></h3>
-                    </div>
-                    <div class="panel-body">
+                    @defining(s.season.lock match {
+                        case "lock"=>("","fa-lock")
+                        case "updating"=>("","fa-recycle")
+                        case _ => {
+                            if (s.season.lockBefore.isDefined) {
+                                (s.season.lockBefore.get.format(DateTimeFormatter.ISO_DATE), "fa-lock")
+                            } else {
+                                ("", "fa-unlock")
+                            }
+                        }
+                    }) { tup =>
+                        <div class="panel-heading">
+                            <h3 class="panel-title">@s.season.year &nbsp; <i class="fa @tup._2">@tup._1</i></h3>
+                        </div>
+                    }
+                <div class="panel-body">
 
                         <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.deleteSeason(s.season.id)">
                         Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a>
@@ -144,11 +157,11 @@
                             <thead/>
                             <tbody>
                                 <tr><td>Games</td> <td>@s.games.size</td></tr>
-                                <tr><td>First game</td> <td>@s.firstGame.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
-                                <tr><td>Last game</td> <td>@s.lastGame.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>First game</td> <td>@s.firstGame.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
+                                <tr><td>Last game</td> <td>@s.lastGame.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
                                 <tr><td>Results</td> <td>@s.results.size</td></tr>
-                                <tr><td>First result</td> <td>@s.firstResult.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
-                                <tr><td>Last result</td> <td>@s.lastResult.map(fg => fg.formatted("MM/dd/yyyy")).getOrElse("")</td></tr>
+                                <tr><td>First result</td> <td>@s.firstResult.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
+                                <tr><td>Last result</td> <td>@s.lastResult.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
                                 <tr><td>Teams mapped</td> <td>@s.teamsMapped.size</td></tr>
                             </tbody>
                         </table>

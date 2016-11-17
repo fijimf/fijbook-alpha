@@ -4,7 +4,7 @@ import java.time._
 import java.util.TimeZone
 import java.util.spi.TimeZoneNameProvider
 
-import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, Result, TourneyInfo}
+import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData, TourneyInfo}
 import play.api.Logger
 import play.api.libs.json._
 
@@ -124,7 +124,7 @@ trait NcaaComGameScraper {
         hs <- (v \ "home" \ "currentScore").asOpt[String];
         as <- (v \ "away" \ "currentScore").asOpt[String]
       ) yield {
-        Result(hs.toInt, as.toInt, ps.value.size)
+        ResultData(hs.toInt, as.toInt, ps.value.size)
       }
 
       val optTourneyInfo = for (

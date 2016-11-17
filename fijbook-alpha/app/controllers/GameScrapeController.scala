@@ -2,14 +2,13 @@ package controllers
 
 import java.time.{LocalDate, LocalDateTime}
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorRef
 import akka.contrib.throttle.Throttler
-import akka.contrib.throttle.Throttler._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.{Game, ScheduleDAO, Team, Result => GameResult}
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
-import com.fijimf.deepfij.scraping.modules.scraping.model.GameData
+import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -19,26 +18,15 @@ import utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
-class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef,@Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-
-
-  //  def scrapeDate = silhouette.SecuredAction.async {
-  //    implicit rs =>
-  //      OneDateForm.form.bindFromRequest.fold(
-  //        form => Future.successful( BadRequest(views.html.admin.index(Some(rs.identity),List.empty, form))),
-  //        data => {
-  //          val d=data.date
-  //          teamDao.findSeason(d).flatMap(scrapeLocalDate(_,d))
-  //        }
-  //
-  //  }
   def scrapeLocalDate(seasonId: Long, date: LocalDate) = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Scraping date " + date)
     val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
@@ -59,24 +47,35 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
 
   def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
+    if (teamDao.checkAndSetLock(seasonId)) {
+      logger.info("Setting throttler")
+      throttler ! Throttler.SetTarget(Some(teamLoad))
+      logger.info("Scraping season")
+      val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
-    logger.info("Setting throttler")
-    throttler !  Throttler.SetTarget(Some(teamLoad))
-    logger.info("Scraping season")
-    val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
+      teamDao.findSeasonById(seasonId).map {
+        case Some(season) => {
+          logger.info("Found season " + season)
+          teamDao.listTeams.map(teams => {
+            logger.info("Loaded team dictionary")
 
-    teamDao.findSeasonById(seasonId).map {
-      case Some(season) => {
-        logger.info("Found sesaon " + season)
-        teamDao.listTeams.map(teams => {
-          logger.info("Loaded team dictionary")
-
-          val dates: List[LocalDate] = season.dates.toList
-          dates.map(d => scrape(seasonId, updatedBy, teams, d))
-        })
-        Redirect(routes.AdminController.index())
+            val dates: List[LocalDate] = season.dates
+            val x: List[Future[List[Long]]] = dates.filter(d => season.status.canUpdate(d)).map(d => scrape(seasonId, updatedBy, teams, d))
+            Future.sequence(x).onComplete((ttl: Try[List[List[Long]]]) => {
+              ttl match {
+                case Success(_)=>logger.info("Successfully loaded games")
+                case Failure(thr)=>logger.error("failed scraping teams", thr)
+              }
+              teamDao.unlockSeason(seasonId)
+            })
+          })
+          Redirect(routes.AdminController.index())
+        }
+        case None => Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found.  Unable to scrape")
       }
-      case None => Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found.  Unable to scrape")
+
+    } else {
+      Future.successful(Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found or was locked.  Unable to scrape"))
     }
   }
 
@@ -87,40 +86,47 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       .mapTo[List[GameData]]
       .map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
       .flatMap(l => Future.sequence(l.flatten.map(teamDao.saveGame)))
-
-
   }
 
-  def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[Result])] = {
-    if (teamDict.contains(gd.homeTeamKey) && teamDict.contains(gd.awayTeamKey)) {
-      Some(Game(
-        0L,
-        seasonId,
-        teamDict(gd.homeTeamKey).id,
-        teamDict(gd.awayTeamKey).id,
-        gd.date,
-        gd.location,
-        gd.tourneyInfo.map(_.region),
-        gd.tourneyInfo.map(_.homeTeamSeed),
-        gd.tourneyInfo.map(_.awayTeamSeed),
-        false,
-        LocalDateTime.now(),
-        updatedBy
-      ) -> gd.result.map(r => com.fijimf.deepfij.models.Result(
-        0,
-        0,
-        r.homeScore,
-        r.awayScore,
-        r.periods,
-        false,
-        LocalDateTime.now(),
-        updatedBy))
-      )
-    } else {
-      logger.info("Failed to map game " + gd)
-      None
+  def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[GameResult])] = {
+    for (
+      ht <- teamDict.get(gd.homeTeamKey);
+      at <- teamDict.get(gd.awayTeamKey)
+    ) yield {
+      populateGame(seasonId, updatedBy, gd, ht, at) -> gd.result.map(r => populateResult(updatedBy, r))
     }
   }
 
-    def scrapeDates() = play.mvc.Results.TODO
+
+  def populateResult(updatedBy: String, r: ResultData): GameResult = {
+    GameResult(
+      id = 0L,
+      gameId = 0L,
+      homeScore = r.homeScore,
+      awayScore = r.awayScore,
+      periods = r.periods,
+      lockRecord = false,
+      updatedAt = LocalDateTime.now(),
+      updatedBy = updatedBy)
+  }
+
+  def populateGame(seasonId: Long, updatedBy: String, gd: GameData, ht: Team, at: Team): Game = {
+    Game(
+      id = 0L,
+      seasonId = seasonId,
+      homeTeamId = ht.id,
+      awayTeamId = at.id,
+      date = gd.date,
+      location = gd.location,
+      tourneyKey = gd.tourneyInfo.map(_.region),
+      homeTeamSeed = gd.tourneyInfo.map(_.homeTeamSeed),
+      awayTeamSeed = gd.tourneyInfo.map(_.awayTeamSeed),
+      lockRecord = false,
+      updatedAt = LocalDateTime.now(),
+      updatedBy = updatedBy
+    )
+  }
+
+  def scrapeDates() = play.mvc.Results.TODO
+
 }

@@ -6,6 +6,10 @@ import scala.concurrent.Future
   * Give access to the user object.
   */
 trait ScheduleDAO {
+  def unlockSeason(seasonId: Long): Future[Int]
+
+  def checkAndSetLock(seasonId: Long): Boolean
+
   def saveAlias(a: Alias): Future[Int]
 
   def findAliasById(id: Long): Future[Option[Alias]]

@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models
 
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 import play.api.Logger
@@ -7,6 +8,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.lifted.TableQuery
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
@@ -107,6 +109,15 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def findAliasById(id: Long): Future[Option[Alias]] = {
     db.run(repo.aliases.filter(_.id === id).result.headOption)
+  }
+
+  override def unlockSeason(seasonId: Long): Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
+
+  override def checkAndSetLock(seasonId: Long): Boolean = { // Note this function blocks
+    val run: Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId && s.lock=!="lock" && s.lock=!="update").map(_.lock).update("update"))
+    val map: Future[Boolean] = run.map(n => n == 1)
+    val result: Boolean = Await.result(map, Duration(15,TimeUnit.SECONDS) )
+result
   }
 
   override def saveAlias(a: Alias) = db.run(repo.aliases.insertOrUpdate(a))

@@ -22,8 +22,8 @@ case object Open extends SeasonLockStatus {
   def canUpdate(d: LocalDate) = true
 }
 
-case object Updataing extends SeasonLockStatus {
-  def canUpdate(d: LocalDate) = false
+case object Updating extends SeasonLockStatus {
+  def canUpdate(d: LocalDate) = true
 }
 
 case class LockedBefore(date: LocalDate) extends SeasonLockStatus {
@@ -31,9 +31,9 @@ case class LockedBefore(date: LocalDate) extends SeasonLockStatus {
 }
 
 case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDate]) {
-  val status = lock.toLowerCase match {
+  val status:SeasonLockStatus = lock.toLowerCase match {
     case "lock" => Locked
-    case "update" => Updataing
+    case "update" => Updating
     case _ =>
       lockBefore match {
         case Some(date) => LockedBefore(date)
