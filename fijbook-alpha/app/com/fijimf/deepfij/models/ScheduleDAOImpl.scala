@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.models
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -15,6 +17,16 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   val log = Logger(getClass)
 
   import dbConfig.driver.api._
+
+
+  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
+    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
+  )
+  implicit val JavaLocalDateMapper = MappedColumnType.base[LocalDate, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
+    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
+  )
 
   override def listTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
 
@@ -52,6 +64,11 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def findSeasonById(id: Long): Future[Option[Season]] = {
     val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
     db.run(q.result.headOption)
+  }
+
+
+  override def clearGamesByDate(d:LocalDate):Future[Int]  = {
+    db.run(repo.games.filter(g=>g.date===d).delete)
   }
 
   override def saveGame(gt: (Game, Option[Result])) = {

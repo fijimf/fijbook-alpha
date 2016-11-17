@@ -20,7 +20,6 @@ GET         /deepfij/admin/dropCreateSchema-user                controllers.Sche
 GET         /deepfij/admin/scrapeTeams                          controllers.TeamScrapeController.scrapeTeams
 GET         /deepfij/admin/scrapeConferences                    controllers.TeamScrapeController.scrapeConferences
 GET         /deepfij/admin/scrapeGames/:seasonId                controllers.GameScrapeController.scrapeGames(seasonId:Long)
-GET         /deepfij/admin/scrapeDates                          controllers.GameScrapeController.scrapeDates
 
 ########### DATA
 ##### TEAMS

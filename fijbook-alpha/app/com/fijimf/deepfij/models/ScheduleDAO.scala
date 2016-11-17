@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.models
 
+import java.time.LocalDate
+
 import scala.concurrent.Future
 
 /**
@@ -17,6 +19,8 @@ trait ScheduleDAO {
   def listAliases: Future[List[Alias]]
 
   def deleteAlias(id: Long): Future[Int]
+
+  def clearGamesByDate(d:LocalDate):Future[Int]
 
   def saveGame(gt: (Game, Option[Result])): Future[Long]
 

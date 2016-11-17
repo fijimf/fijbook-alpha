@@ -20,49 +20,29 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val scheduleDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
 
-  def scrapeLocalDate(seasonId: Long, date: LocalDate) = silhouette.SecuredAction.async { implicit rs =>
-    logger.info("Scraping date " + date)
-    val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
-
-    teamDao.findSeasonById(seasonId).map {
-      case Some(season) => {
-        logger.info("Found sesaon " + season)
-        teamDao.listTeams.map(teams => {
-          logger.info("Loaded team dictionary")
-          scrape(seasonId, updatedBy, teams, date)
-        })
-      }
-    }
-    Future.successful(Redirect(routes.AdminController.index()))
-  }
-
-  def scrapeOneDay(seasonId: Long, year: Int, month: Int, day: Int) = scrapeLocalDate(seasonId, LocalDate.of(year, month, day))
-
-
   def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
-    if (teamDao.checkAndSetLock(seasonId)) {
+    if (scheduleDao.checkAndSetLock(seasonId)) {
       logger.info("Setting throttler")
       throttler ! Throttler.SetTarget(Some(teamLoad))
       logger.info("Scraping season")
       val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
 
-      teamDao.findSeasonById(seasonId).map {
+      scheduleDao.findSeasonById(seasonId).map {
         case Some(season) => {
           logger.info("Found season " + season)
-          teamDao.listTeams.map(teams => {
+          scheduleDao.listTeams.map(teamDictionary => {
             logger.info("Loaded team dictionary")
-
-            Future.sequence(season.dates.filter(d => season.status.canUpdate(d)).map(d => scrape(seasonId, updatedBy, teams, d))).onComplete(_ => completeScrape(seasonId))
-
+            val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
+            Future.sequence(dateList.map(d => scrape(seasonId, updatedBy, teamDictionary, d))).onComplete(_ => completeScrape(seasonId))
           })
-          Redirect(routes.AdminController.index())
+          Redirect(routes.AdminController.index()).flashing("info"->("Scraping game data for "+seasonId))
         }
         case None => Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found.  Unable to scrape")
       }
@@ -74,7 +54,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
   def completeScrape(seasonId: Long): Future[Int] = {
     logger.info("Completed scraping dates.")
-    teamDao.unlockSeason(seasonId)
+    scheduleDao.unlockSeason(seasonId)
   }
 
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
@@ -83,7 +63,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     val flGameData: Future[List[GameData]] = (throttler ? ScoreboardByDateReq(d)).mapTo[List[GameData]]
     val flGameResults: Future[List[Option[(Game, Option[GameResult])]]] = flGameData.map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
     flGameResults.flatMap(l => {
-      val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(teamDao.saveGame))
+      val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(scheduleDao.saveGame))
       sequence.onComplete {
         case Success(ll)=>logger.info("For "+d+" scraped "+ll.size+" games.")
         case Failure(thr)=>logger.error("For "+d+" failed.",thr)
@@ -120,7 +100,8 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       seasonId = seasonId,
       homeTeamId = ht.id,
       awayTeamId = at.id,
-      date = gd.date,
+      date = gd.date.toLocalDate,
+      datetime = gd.date,
       location = gd.location,
       tourneyKey = gd.tourneyInfo.map(_.region),
       homeTeamSeed = gd.tourneyInfo.map(_.homeTeamSeed),
@@ -130,7 +111,4 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       updatedBy = updatedBy
     )
   }
-
-  def scrapeDates() = play.mvc.Results.TODO
-
 }

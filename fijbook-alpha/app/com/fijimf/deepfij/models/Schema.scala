@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime, ZoneOffset}
+import java.time.{LocalDate, LocalDateTime}
 import javax.inject.Inject
 
 import play.api.Logger
@@ -49,7 +49,7 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date:LocalDate, datetime: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
 case class Team(id: Long, key: String, name: String, longName: String, nickname: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -225,7 +225,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def awayTeam = foreignKey("fk_game_ateam", awayTeamId, teams)(_.id)
 
-    def date = column[LocalDateTime]("date")
+    def date = column[LocalDate]("date")
+
+    def datetime = column[LocalDateTime]("datetime")
 
     def location = column[Option[String]]("location", O.Length(144))
 
@@ -241,7 +243,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedBy = column[String]("updated_by", O.Length(64))
 
-    def * = (id, seasonId, homeTeamId, awayTeamId, date, location, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
+    def * = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
   }
 
