@@ -59,15 +59,8 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
           teamDao.listTeams.map(teams => {
             logger.info("Loaded team dictionary")
 
-            val dates: List[LocalDate] = season.dates
-            val x: List[Future[List[Long]]] = dates.filter(d => season.status.canUpdate(d)).map(d => scrape(seasonId, updatedBy, teams, d))
-            Future.sequence(x).onComplete((ttl: Try[List[List[Long]]]) => {
-              ttl match {
-                case Success(_)=>logger.info("Successfully loaded games")
-                case Failure(thr)=>logger.error("failed scraping teams", thr)
-              }
-              teamDao.unlockSeason(seasonId)
-            })
+            Future.sequence(season.dates.filter(d => season.status.canUpdate(d)).map(d => scrape(seasonId, updatedBy, teams, d))).onComplete(_ => completeScrape(seasonId))
+
           })
           Redirect(routes.AdminController.index())
         }
@@ -79,13 +72,24 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     }
   }
 
+  def completeScrape(seasonId: Long): Future[Int] = {
+    logger.info("Completed scraping dates.")
+    teamDao.unlockSeason(seasonId)
+  }
+
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
     val teamDict = teams.map(t => t.key -> t).toMap
     logger.info("Loading date " + d)
-    (throttler ? ScoreboardByDateReq(d))
-      .mapTo[List[GameData]]
-      .map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
-      .flatMap(l => Future.sequence(l.flatten.map(teamDao.saveGame)))
+    val flGameData: Future[List[GameData]] = (throttler ? ScoreboardByDateReq(d)).mapTo[List[GameData]]
+    val flGameResults: Future[List[Option[(Game, Option[GameResult])]]] = flGameData.map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
+    flGameResults.flatMap(l => {
+      val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(teamDao.saveGame))
+      sequence.onComplete {
+        case Success(ll)=>logger.info("For "+d+" scraped "+ll.size+" games.")
+        case Failure(thr)=>logger.error("For "+d+" failed.",thr)
+      }
+      sequence
+    })
   }
 
   def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[GameResult])] = {

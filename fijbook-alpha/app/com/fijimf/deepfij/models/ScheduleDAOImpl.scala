@@ -6,7 +6,6 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import slick.lifted.TableQuery
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -58,17 +57,17 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def saveGame(gt: (Game, Option[Result])) = {
     val (game, optResult) = gt
 
-    db.run(optResult match {
+    optResult match {
       case Some(result) =>
-        (for (
+        db.run((for (
           qid <- (repo.games returning repo.games.map(_.id)) += game;
           rid <- repo.results returning repo.results.map(_.id) += result.copy(gameId = qid)
-        ) yield qid).transactionally
+        ) yield qid).transactionally)
       case None =>
-        (for (
+        db.run((for (
           qid <- (repo.games returning repo.games.map(_.id)) += game
-        ) yield qid).transactionally
-    })
+        ) yield qid).transactionally)
+    }
   }
 
 
