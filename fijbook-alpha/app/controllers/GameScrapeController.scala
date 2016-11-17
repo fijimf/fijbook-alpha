@@ -60,16 +60,29 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
     val teamDict = teams.map(t => t.key -> t).toMap
     logger.info("Loading date " + d)
-    val flGameData: Future[List[GameData]] = (throttler ? ScoreboardByDateReq(d)).mapTo[List[GameData]]
-    val flGameResults: Future[List[Option[(Game, Option[GameResult])]]] = flGameData.map(_.map(gameDataToGame(seasonId, updatedBy, teamDict, _)))
-    flGameResults.flatMap(l => {
-      val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(scheduleDao.saveGame))
-      sequence.onComplete {
-        case Success(ll)=>logger.info("For "+d+" scraped "+ll.size+" games.")
-        case Failure(thr)=>logger.error("For "+d+" failed.",thr)
+    val results: Future[List[(Game, Option[GameResult])]] = (throttler ? ScoreboardByDateReq(d)).mapTo[List[GameData]].map(_.flatMap(gameDataToGame(seasonId, updatedBy, teamDict, _)))
+    results.andThen {
+      case Success(l) => {
+        scheduleDao.clearGamesByDate(d).andThen {
+          case Success(nd)=> {
+            val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(scheduleDao.saveGame))
+            sequence.onComplete {
+              case Success(ll) => logger.info("For " + d + " scraped " + ll.size + " games.")
+              case Failure(thr) => logger.error("For " + d + " failed.", thr)
+            }
+            sequence
+          }
+          case Failure(thr)=>{
+            logger.warn("Failed deleting rows for date" + d, thr)
+            Future.successful(List.empty[Long])
+          }
+        }
       }
-      sequence
-    })
+      case Failure(thr) =>{
+        logger.warn("Scrape for date failed"+d, thr)
+        Future.successful(List.empty[Long])
+      }
+    }
   }
 
   def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[GameResult])] = {
