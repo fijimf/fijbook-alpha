@@ -66,9 +66,10 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(q.result.headOption)
   }
 
-
   override def clearGamesByDate(d:LocalDate):Future[Int]  = {
-    db.run(repo.games.filter(g=>g.date===d).delete)
+    val dateGames = repo.games.filter(g=>g.date===d)
+    val dateResults = repo.results.filter(_.gameId in dateGames.map(_.id))
+    db.run((dateResults.delete andThen dateGames.delete).transactionally)
   }
 
   override def saveGame(gt: (Game, Option[Result])) = {
@@ -127,12 +128,16 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(repo.aliases.filter(_.id === id).result.headOption)
   }
 
-  override def unlockSeason(seasonId: Long): Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
+  override def unlockSeason(seasonId: Long): Future[Int] = {
+    log.info("Unlocking season "+seasonId)
+    db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
+  }
 
   override def checkAndSetLock(seasonId: Long): Boolean = { // Note this function blocks
     val run: Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId && s.lock=!="lock" && s.lock=!="update").map(_.lock).update("update"))
     val map: Future[Boolean] = run.map(n => n == 1)
     val result: Boolean = Await.result(map, Duration(15,TimeUnit.SECONDS) )
+    log.info("Locking season "+seasonId+ " for update")
 result
   }
 

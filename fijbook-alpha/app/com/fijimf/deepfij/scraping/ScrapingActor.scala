@@ -35,7 +35,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
       println("Unexpected message")
   }
 
-  def handleScrape(r: HtmlScrapeRequest[_]): Unit = {
+  def handleScrape[T](r: HtmlScrapeRequest[T]): Unit = {
     logger.info("Received html req")
     val mySender = sender()
     logger.info("Requesting " + r.url)
@@ -60,7 +60,8 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   }
 
 
-  def handleJsonScrape(r: JsonScrapeRequest[_]): Unit = {
+
+  def handleJsonScrape[T](r: JsonScrapeRequest[T]): Unit = {
     logger.info("Received json req")
     val mySender = sender()
     logger.info("Requesting " + r.url)
@@ -72,21 +73,23 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
           logger.warn("%d - %s (%s )".format(response.status, response.statusText, r.url))
         }
         if (response.body.length < 10) {
-          mySender ! "Failed with empty body"
+          mySender ! Left(EmptyBodyException)
         } else {
           Try {
             Json.parse(r.preProcessBody(response.body))
           } match {
             case Success(js) =>
-              mySender ! r.scrape(js)
+              mySender ! Right(r.scrape(js))
             case Failure(ex) =>
               logger.error("Error parsing response:\n" + ex.getMessage + " " + response.body)
-              mySender ! "Failed with exception " + ex.getMessage
+              mySender ! Left(ex)
           }
         }
       case Failure(ex) =>
         logger.error("Get failed", ex)
-        mySender ! "Failed with exception " + ex.getMessage
+        mySender ! Left(ex)
     }
   }
 }
+
+case object EmptyBodyException extends RuntimeException

@@ -4,21 +4,22 @@ import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.ActorRef
 import akka.contrib.throttle.Throttler
-import akka.pattern.ask
+import akka.pattern._
 import akka.util.Timeout
-import com.fijimf.deepfij.models.{Game, ScheduleDAO, Team, Result => GameResult}
+import com.fijimf.deepfij.models.{Game, ScheduleDAO, Season, Team, Result => GameResult}
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
+import com.fijimf.deepfij.scraping.modules.scraping.EmptyBodyException
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.mvc.Controller
+import play.api.mvc.{Controller, Result}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{Await, Future, Promise}
+import scala.util.{Failure, Success}
 
 class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val scheduleDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
@@ -26,64 +27,75 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
+  throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
+    val p = Promise[Result]()
     if (scheduleDao.checkAndSetLock(seasonId)) {
-      logger.info("Setting throttler")
-      throttler ! Throttler.SetTarget(Some(teamLoad))
       logger.info("Scraping season")
-      val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
+      p.success {
+        Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
+      }
 
+      val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
       scheduleDao.findSeasonById(seasonId).map {
-        case Some(season) => {
-          logger.info("Found season " + season)
-          scheduleDao.listTeams.map(teamDictionary => {
-            logger.info("Loaded team dictionary")
-            val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
-            Future.sequence(dateList.map(d => scrape(seasonId, updatedBy, teamDictionary, d))).onComplete(_ => completeScrape(seasonId))
-          })
-          Redirect(routes.AdminController.index()).flashing("info"->("Scraping game data for "+seasonId))
+        case Some(season) => scrapeSeasonGames(season, updatedBy).onComplete {
+          case Success(ll) => logger.info(ll.map(_.mkString(", ")).mkString("\n"))
+            completeScrape(seasonId)
+          case Failure(thr) => logger.error("Failed update ", thr)
+            completeScrape(seasonId)
         }
-        case None => Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found.  Unable to scrape")
+        case None => //This should never happen as we've already checked.
       }
 
     } else {
-      Future.successful(Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found or was locked.  Unable to scrape"))
+      p.success {
+        Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found or was locked.  Unable to scrape")
+      }
     }
+    p.future
+  }
+
+
+  def scrapeSeasonGames(season: Season, updatedBy: String): Future[List[List[Long]]] = {
+    logger.info("Found season " + season)
+    scheduleDao.listTeams.flatMap(teamDictionary => {
+      logger.info("Loaded team dictionary")
+      val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
+      logger.info("Loading " + dateList.size + " dates")
+      Await.result(Future.sequence(dateList.map(dd => scheduleDao.clearGamesByDate(dd))), 15.seconds)
+      val map: List[Future[List[Long]]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, d))
+      Future.sequence(map)
+    })
   }
 
   def completeScrape(seasonId: Long): Future[Int] = {
-    logger.info("Completed scraping dates.")
     scheduleDao.unlockSeason(seasonId)
   }
 
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
     val teamDict = teams.map(t => t.key -> t).toMap
     logger.info("Loading date " + d)
-    val results: Future[List[(Game, Option[GameResult])]] = (throttler ? ScoreboardByDateReq(d)).mapTo[List[GameData]].map(_.flatMap(gameDataToGame(seasonId, updatedBy, teamDict, _)))
-    results.andThen {
-      case Success(l) => {
-        scheduleDao.clearGamesByDate(d).andThen {
-          case Success(nd)=> {
-            val sequence: Future[List[Long]] = Future.sequence(l.flatten.map(scheduleDao.saveGame))
-            sequence.onComplete {
-              case Success(ll) => logger.info("For " + d + " scraped " + ll.size + " games.")
-              case Failure(thr) => logger.error("For " + d + " failed.", thr)
-            }
-            sequence
-          }
-          case Failure(thr)=>{
-            logger.warn("Failed deleting rows for date" + d, thr)
-            Future.successful(List.empty[Long])
-          }
+    val future: Future[Either[Throwable, List[GameData]]] = (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]]
+    val results: Future[List[(Game, Option[GameResult])]] = future.map(_.fold(
+      thr => {
+        if (thr == EmptyBodyException) {
+          logger.warn("For date " + d + " scraper returned an empty body")
+        } else {
+          logger.error("For date " + d + " scraper returned an exception ", thr)
         }
-      }
-      case Failure(thr) =>{
-        logger.warn("Scrape for date failed"+d, thr)
-        Future.successful(List.empty[Long])
-      }
+        List.empty[(Game, Option[GameResult])]
+      },
+      lgd => {
+        lgd.flatMap(gameDataToGame(seasonId, updatedBy, teamDict, _))
+      }))
+    for (gameList <- results;
+         keys <- Future.sequence(gameList.map(scheduleDao.saveGame))
+    ) yield {
+      keys
     }
   }
+
 
   def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[GameResult])] = {
     for (
