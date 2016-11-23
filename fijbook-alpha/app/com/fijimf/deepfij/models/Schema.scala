@@ -70,6 +70,16 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   import dbConfig.driver.api._
 
+  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
+    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
+  )
+
+  implicit val JavaLocalDateMapper = MappedColumnType.base[LocalDate, String](
+    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
+    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
+  )
+
   def dumpSchema()(implicit ec: ExecutionContext) = {
     Future((ddl.create.statements, ddl.drop.statements))
   }
@@ -331,16 +341,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
 
   }
-
-
-  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
-    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
-  )
-  implicit val JavaLocalDateMapper = MappedColumnType.base[LocalDate, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
-    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
-  )
 
   lazy val seasons = TableQuery[SeasonsTable]
   lazy val games = TableQuery[GamesTable]
