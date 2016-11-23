@@ -40,9 +40,9 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
         case None => Open
       }
   }
-  val startDate = LocalDate.of(year, 11, 1)
-  val endDate = LocalDate.of(year, 12, 1)
-  val dates = Iterator.iterate(startDate) {
+  val startDate: LocalDate = LocalDate.of(year-1, 11, 1)
+  val endDate: LocalDate = LocalDate.of(year, 5, 1)
+  val dates: List[LocalDate] = Iterator.iterate(startDate) {
     _.plusDays(1)
   }.takeWhile(_.isBefore(endDate)).toList
 }
