@@ -37,6 +37,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           data.name,
           data.longName,
           data.nickname,
+          data.optConference,
           data.logoLgUrl,
           data.logoSmUrl,
           data.primaryColor,

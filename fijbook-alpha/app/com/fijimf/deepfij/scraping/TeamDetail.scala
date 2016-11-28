@@ -30,6 +30,7 @@ case class TeamDetail(key: String, shortName:String, user:String) extends HtmlSc
       shortName,
       longName,
       nickname,
+      conference,
       logoUrl,
       logoUrl.map(_.replace("40","70")),
       primaryColor,

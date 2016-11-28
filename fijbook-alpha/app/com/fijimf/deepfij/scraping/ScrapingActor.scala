@@ -12,6 +12,7 @@ import play.api.libs.ws.WSClient
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
+import scala.util.control.NonFatal
 
 class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   val logger: Logger = Logger(this.getClass)
@@ -48,14 +49,19 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
         }
         HtmlUtil.loadFromString(response.body) match {
           case Success(node) =>
-            mySender ! r.scrape(node)
+            try {
+              val scrape = r.scrape(node)
+              mySender ! Right(scrape)
+            } catch {
+              case thr: Throwable => sender! Left(thr)
+            }
           case Failure(ex) =>
             logger.error("Error parsing response:\n" + response.body, ex)
-            sender ! "Failed with exception " + ex.getMessage
+            sender ! Left(ex)
         }
       case Failure(ex) =>
         logger.error("Get failed", ex)
-        sender ! "Failed with exception " + ex.getMessage
+        sender ! Left(ex)
     }
   }
 
