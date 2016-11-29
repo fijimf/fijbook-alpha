@@ -119,7 +119,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     db.run(teams returning teams.map(_.id) += t)
   }
 
-  def getTeams(implicit ec: ExecutionContext): Future[Any] = db.run(teams.to[List].map(t => t.key -> t).result).map(_.toMap)
+  def getTeams(implicit ec: ExecutionContext): Future[Map[String, Team]] = db.run(teams.to[List].map(t => t.key -> t).result).map(_.toMap)
 
 
   def mapTeam(seasonId: Long, teamId: Long, confId: Long, updatedBy: String)(implicit ec: ExecutionContext): Future[Long] = {

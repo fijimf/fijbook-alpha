@@ -32,7 +32,7 @@ class TeamDAOImplSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEac
       assert(Await.result(teamDao.listTeams, Duration.Inf).isEmpty)
     }
     "allow teams to be created" in new WithApplication(FakeApplication()) {
-      private val team = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
+      private val team = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East", None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
       private val rowsAffected: Int = Await.result(teamDao.saveTeam(team), Duration.Inf)
       assert(rowsAffected == 1)
       private val teamList: List[Team] = Await.result(teamDao.listTeams, Duration.Inf)
@@ -51,9 +51,9 @@ class TeamDAOImplSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEac
     }
 
     "allow teams to be updated" in new WithApplication(FakeApplication()) {
-      private val team1 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Xoyas", None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
+      private val team1 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Xoyas",  "Big East",None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
       private val rowsAffected1: Int = Await.result(teamDao.saveTeam(team1), Duration.Inf)
-      private val team2 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
+      private val team2 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas",  "Big East",None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
       private val rowsAffected2: Int = Await.result(teamDao.saveTeam(team2), Duration.Inf)
 
       assert(rowsAffected2 == 1)
@@ -67,9 +67,9 @@ class TeamDAOImplSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEac
     }
 
     "locked team cannot be updated" in new WithApplication(FakeApplication()) {
-      private val team1 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Xoyas", None, None, None, None, None, None, None, true, LocalDateTime.now(), "Jim")
+      private val team1 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Xoyas",  "Big East",None, None, None, None, None, None, None, true, LocalDateTime.now(), "Jim")
       private val rowsAffected1: Int = Await.result(teamDao.saveTeam(team1), Duration.Inf)
-      private val team2 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
+      private val team2 = Team(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas",  "Big East",None, None, None, None, None, None, None, false, LocalDateTime.now(), "Jim")
       private val rowsAffected2: Int = Await.result(teamDao.saveTeam(team2), Duration.Inf)
 
       assert(rowsAffected2 == 0)
