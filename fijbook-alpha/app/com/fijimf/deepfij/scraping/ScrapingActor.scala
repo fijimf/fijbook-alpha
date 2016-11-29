@@ -12,7 +12,6 @@ import play.api.libs.ws.WSClient
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
-import scala.util.control.NonFatal
 
 class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   val logger: Logger = Logger(this.getClass)
@@ -32,6 +31,8 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
       handleScrape(r)
     case r:JsonScrapeRequest[_] =>
       handleJsonScrape(r)
+    case TestUrl(url) =>
+      handleTest(url)
     case _ =>
       println("Unexpected message")
   }
@@ -96,6 +97,20 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
         mySender ! Left(ex)
     }
   }
+
+
+  def handleTest(url: String): Unit = {
+    logger.info("Received test req")
+    val mySender = sender()
+    logger.info("Requesting " + url)
+    ws.url(url).get().onComplete {
+      case Success(response) =>
+        mySender ! Some(response.status)
+      case Failure(ex) =>
+        mySender ! None
+    }
+  }
+
 }
 
 case object EmptyBodyException extends RuntimeException

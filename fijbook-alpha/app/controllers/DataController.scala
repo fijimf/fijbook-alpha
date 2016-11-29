@@ -165,13 +165,15 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
     teamDao.deleteAlias(id).map(n => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Alias " + id + " deleted")))
   }
 
-  def browseConferences() = play.mvc.Results.TODO
+  def browseConferences() = silhouette.SecuredAction.async { implicit rs =>
+    logger.info("Loading preliminary team keys.")
+
+    teamDao.listConferences.map(oc => Ok(views.html.admin.browseConferences(rs.identity, oc.sortBy(_.name))))
+  }
 
   def editConference(id: Long) = play.mvc.Results.TODO
 
   def saveConference() = play.mvc.Results.TODO
-
-  def scrapeConferences() = play.mvc.Results.TODO
 
   def deleteTeam(id: Long) = play.mvc.Results.TODO
 

@@ -194,7 +194,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def key: Rep[String] = column[String]("key", O.Length(24))
+    def key: Rep[String] = column[String]("key", O.Length(48))
 
     def name: Rep[String] = column[String]("name", O.Length(64))
 

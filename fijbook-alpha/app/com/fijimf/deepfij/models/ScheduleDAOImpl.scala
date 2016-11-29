@@ -97,6 +97,10 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def saveQuote(q: Quote) = db.run(repo.quotes.insertOrUpdate(q))
 
+  override def listConferences:Future[List[Conference]] = db.run(repo.conferences.to[List].result)
+
+  override def saveConference(c:Conference) = db.run(repo.conferences.insertOrUpdate(c))
+
   override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
   def loadSchedule(s: Season):Future[Schedule] = {

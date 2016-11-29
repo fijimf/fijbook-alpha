@@ -1,11 +1,13 @@
 package controllers
 
+import java.time.LocalDateTime
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
-import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, ShortTeamAndConferenceByYear, TeamConfMap}
 import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
+import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TestUrl}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -15,7 +17,6 @@ import utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success, Try}
 
 class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
 
@@ -46,7 +47,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
         logger.info("Saving " + t.key)
         teamDao.saveTeam(t)
       })
-      Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info"->("Loaded "+good.size+" Teams")))
+      Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Loaded " + good.size + " Teams")))
     })
 
   }
@@ -55,7 +56,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     val futureTeams: Iterable[Future[Option[Team]]] = is.map {
       case (key, shortName) => {
         (teamLoad ? TeamDetail(aliasMap.getOrElse(key, key), shortName, userTag))
-          .mapTo[Either[Throwable,Team]]
+          .mapTo[Either[Throwable, Team]]
           .map(_.fold(thr => None, t => Some(t)))
       }
     }
@@ -66,34 +67,50 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     pagination.foldLeft(Future.successful(Seq.empty[(String, String)]))((data: Future[Seq[(String, String)]], p: Int) => {
       for (
         t0 <- data;
-        t1 <- (teamLoad ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable,Seq[(String, String)]]].map(_.fold(
-          thr=>Seq.empty,
-          seq=> seq
+        t1 <- (teamLoad ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable, Seq[(String, String)]]].map(_.fold(
+          thr => Seq.empty,
+          seq => seq
         ))
       ) yield t0 ++ t1
     }).map(_.toMap)
   }
 
   def scrapeConferences() = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
 
+    val basicKey: String => String = _.toLowerCase.replace(' ', '-')
+    val dropThe: String => String = basicKey.andThen(_.replaceFirst("^the\\-", ""))
+    val dropConference: String => String = basicKey.andThen(_.replaceFirst("\\-conference$", ""))
+    val dropLeague: String => String = basicKey.andThen(_.replaceFirst("\\-league$", ""))
+    val dropEllipsis: String => String = basicKey.andThen(_.replaceFirst("\\.\\.\\.$", ""))
+    val tryConf: String => String = basicKey.andThen(_.replaceFirst("\\-athletic\\.\\.\\.$", "-athletic-conference"))
+    val dropAthletic: String => String = basicKey.andThen(_.replaceFirst("\\-athletic\\.\\.\\.$", ""))
+    val initials: String => String = basicKey.andThen(s => new String(s.split('-').map(_.charAt(0))))
+    val tryAthletic: String => String = basicKey.andThen(_.replaceFirst("\\.\\.\\.$", "-athletic"))
+
+    val transforms = List(basicKey, dropThe, dropConference, dropThe.andThen(dropConference), dropLeague, dropThe.andThen(dropLeague), initials, dropThe.andThen(initials), dropEllipsis, tryConf, dropAthletic, tryAthletic)
     logger.info("Loading preliminary team keys.")
-    val teamKeys: List[String] = Await.result(teamDao.listTeams.map(_.map(g => g.key)), 600.seconds)
+    val teamList = Await.result(teamDao.listTeams, 600.seconds)
 
+    val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
+    val conferences: List[Conference] = names.map(n => {
+      val candidate: Future[Option[String]] = Future.sequence(
+        transforms.map(f => f(n)).toSet.map((k: String) => {
+          logger.info("Trying " + k)
+          val u = TestUrl("http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + k + ".70.png")
+          (teamLoad ? u).mapTo[Option[Int]].map(oi => k -> oi)
+        })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
 
-    logger.info("Loading team detail")
+      val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
+      val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
+      val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
+      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, false, LocalDateTime.now(), userTag)
+    }).toList
 
-    val masterTeamConference: Future[Either[Throwable,TeamConfMap]] = (teamLoad ? ShortTeamAndConferenceByYear(2017)).mapTo[Either[Throwable, TeamConfMap]]
-    val tcm = Await.result(masterTeamConference, 15.minutes)
-    println(tcm)
-//      val confMap: Map[Int, String] = tcm.fold(thr=>TeamConfMap(Map.empty, Map.empty),tcm=>tcm).confKey
-//      confMap.keys.map(conferenceKey => {
-//        val conferenceName: String = confMap.getOrElse(conferenceKey, conferenceKey.toString)
-//        val teamMap: TeamMap = Await.result((teamLoad ? ShortTeamByYearAndConference(yr, conferenceKey)).mapTo[TeamMap], 60.seconds)
-//        conferenceName -> teamMap.data.values.toList
-//      }).toMap
-//
-
-    Future.successful(Redirect(routes.AdminController.index()))
+    val sequence: Future[List[Int]] = Future.sequence(conferences.map(c => {
+      teamDao.saveConference(c)
+    }))
+    sequence.map(_ => Redirect(routes.AdminController.index()))
 
   }
 
