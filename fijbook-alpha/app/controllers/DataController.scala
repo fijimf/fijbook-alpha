@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import com.fijimf.deepfij.models._
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{CreateAliasForm, CreateQuoteForm, CreateSeasonForm, EditTeamForm}
+import forms._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
@@ -69,12 +69,12 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def createSeason() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createSeason(rs.identity, CreateSeasonForm.form)))
+    Future.successful(Ok(views.html.admin.createSeason(rs.identity, EditSeasonForm.form)))
 
   }
 
   def saveSeason() = silhouette.SecuredAction.async { implicit request =>
-    CreateSeasonForm.form.bindFromRequest.fold(
+    EditSeasonForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
         Future.successful(BadRequest(views.html.admin.createSeason(request.identity, form)))
@@ -96,7 +96,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def createQuote() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createQuote(rs.identity, CreateQuoteForm.form)))
+    Future.successful(Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form)))
   }
 
   def deleteQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
@@ -105,13 +105,13 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def editQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.findQuoteById(id).map {
-      case Some(q) => Ok(views.html.admin.createQuote(rs.identity, CreateQuoteForm.form.fill(CreateQuoteForm.Data(id, q.quote, q.source, q.url))))
+      case Some(q) => Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(id, q.quote, q.source, q.url))))
       case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
     }
   }
 
   def saveQuote() = silhouette.SecuredAction.async { implicit request =>
-    CreateQuoteForm.form.bindFromRequest.fold(
+    EditQuoteForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
         Future.successful(BadRequest(views.html.admin.createQuote(request.identity, form)))
@@ -129,7 +129,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def createAlias() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createAlias(rs.identity, CreateAliasForm.form)))
+    Future.successful(Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form)))
   }
 
   def browseAliases() = silhouette.SecuredAction.async { implicit rs =>
@@ -137,7 +137,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def saveAlias() = silhouette.SecuredAction.async { implicit request =>
-    CreateAliasForm.form.bindFromRequest.fold(
+    EditAliasForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
         Future.successful(BadRequest(views.html.admin.createAlias(request.identity, form)))
@@ -156,7 +156,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def editAlias(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.findAliasById(id).map {
-      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, CreateAliasForm.form.fill(CreateAliasForm.Data(id, q.key, q.alias))))
+      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form.fill(EditAliasForm.Data(id, q.key, q.alias))))
       case None => Redirect(routes.DataController.browseAliases()).flashing("warn" -> ("No alias found with id " + id))
     }
   }
@@ -171,9 +171,39 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
     teamDao.listConferences.map(oc => Ok(views.html.admin.browseConferences(rs.identity, oc.sortBy(_.name))))
   }
 
-  def editConference(id: Long) = play.mvc.Results.TODO
+  def deleteConference(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.deleteConference(id).map(n => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Conference " + id + " deleted")))
+  }
 
-  def saveConference() = play.mvc.Results.TODO
+  def editConference(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.findConferenceById(id).map {
+      case Some(c) => Ok(views.html.admin.editConference(rs.identity, c, EditConferenceForm.form.fill(EditConferenceForm.Data(id, c.key, c.name, c.logoSmUrl, c.logoLgUrl, c.officialUrl, c.officialTwitter, c.officialFacebook))))
+      case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
+    }
+  }
+
+  def saveConference() = silhouette.SecuredAction.async { implicit request =>
+    EditQuoteForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+        Future.successful(BadRequest(views.html.admin.createQuote(request.identity, form)))
+      },
+      data => {
+        val q = Quote(data.id, data.quote, data.source, data.url)
+        val future: Future[Int] = teamDao.saveQuote(q)
+        future.onComplete {
+          case Success(i) => logger.info("Hooray")
+          case Failure(thr) => logger.error("Boo", thr)
+        }
+        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Created " + data.quote)))
+      }
+    )
+  }
+
+
+
+
+
 
   def deleteTeam(id: Long) = play.mvc.Results.TODO
 

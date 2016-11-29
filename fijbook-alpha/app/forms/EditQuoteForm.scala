@@ -3,7 +3,7 @@ package forms
 import play.api.data.Form
 import play.api.data.Forms._
 
-object CreateQuoteForm {
+object EditQuoteForm {
 
   val form = Form(
     mapping(

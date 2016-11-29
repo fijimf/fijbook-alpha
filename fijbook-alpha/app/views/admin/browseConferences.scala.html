@@ -26,7 +26,7 @@
                     @for(c<-conferences){
                         <tr>
                             <td style="padding: 0;"><img style="border: 0; background-color:999;" src=@c.logoLgUrl.getOrElse("") /> </td>
-                            <td style="vertical-align: middle"><a href="/deepfij/admin/editTeam/@c.id">@c.name</a></td>
+                            <td style="vertical-align: middle"><a href="/deepfij/admin/editConference/@c.id">@c.name</a></td>
                             <td style="vertical-align: middle">@c.key</td>
                             <td style="vertical-align: middle">@{if (c.officialUrl.isDefined) <i class="fa fa-check text-success" style="color: green"></i> else <i class="fa fa-times text-danger" style="color:red"></i>}</td>
                             <td style="vertical-align: middle">@{if (c.officialTwitter.isDefined) <i class="fa fa-check text-success" style="color: green"></i> else <i class="fa fa-times text-danger" style="color:red"></i>}</td>

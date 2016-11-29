@@ -5,7 +5,7 @@ import java.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
 
-object CreateSeasonForm {
+object EditSeasonForm {
 
   val form = Form(
     mapping(

@@ -11,7 +11,6 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
 
 class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick {
   val log = Logger(getClass)
@@ -19,45 +18,40 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   import dbConfig.driver.api._
 
 
-  implicit val JavaLocalDateTimeMapper = MappedColumnType.base[LocalDateTime, String](
+  implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
     ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
     str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
   )
-  implicit val JavaLocalDateMapper = MappedColumnType.base[LocalDate, String](
+  implicit val JavaLocalDateMapper: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](
     ldt => ldt.format(DateTimeFormatter.ISO_DATE),
     str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
 
+  //**** Team
   override def listTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
 
-  override def findTeamByKey(key: String) = db.run(repo.teams.filter(team => team.key === key).result.headOption)
+  override def findTeamByKey(key: String): Future[Option[Team]] = db.run(repo.teams.filter(team => team.key === key).result.headOption)
 
-  override def findTeamById(id: Long) = db.run(repo.teams.filter(team => team.id === id).result.headOption)
+  override def findTeamById(id: Long): Future[Option[Team]] = db.run(repo.teams.filter(team => team.id === id).result.headOption)
 
-  override def saveTeam(team: Team /*, isAutoUpdate:Boolean */): Future[Int] = {
-    log.info("Saving team " + team.key)
-
-    val rowsAffected: Future[Int] = db.run(repo.teams.filter(t => t.key === team.key).result.flatMap(ts =>
+  override def saveTeam(team: Team ): Future[Int] = {
+    db.run(repo.teams.filter(t => t.key === team.key).result.flatMap(ts =>
       ts.headOption match {
-        case Some(t) => {
+        case Some(t) =>
           if (!t.lockRecord) repo.teams.insertOrUpdate(team.copy(id = t.id)) else repo.teams.filter(z => z.id === -1L).update(team)
-        }
-        case None => {
+        case None =>
           repo.teams.insertOrUpdate(team)
-        }
       }
     ).transactionally)
-
-    rowsAffected.onComplete {
-      case Success(i) => log.info(team.key + " save succeeded")
-      case Failure(thr) => log.error("Failed saving " + team.toString, thr)
-    }
-    rowsAffected
   }
+
+  override def deleteTeam(id: Long): Future[Int] = db.run(repo.teams.filter(team => team.id === id).delete)
 
   override def unlockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
 
   override def lockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
+
+  //******* Season
 
   override def saveSeason(s: Season): Future[Int] = db.run(repo.seasons.insertOrUpdate(s))
 
@@ -66,20 +60,34 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(q.result.headOption)
   }
 
+  override def unlockSeason(seasonId: Long): Future[Int] = {
+    log.info("Unlocking season "+seasonId)
+    db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
+  }
+
+  override def checkAndSetLock(seasonId: Long): Boolean = { // Note this function blocks
+  val run: Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId && s.lock=!="lock" && s.lock=!="update").map(_.lock).update("update"))
+    val map: Future[Boolean] = run.map(n => n == 1)
+    log.info("Locking season "+seasonId+ " for update")
+    Await.result(map, Duration(15,TimeUnit.SECONDS) )
+  }
+
+  //******* Game
+
   override def clearGamesByDate(d:LocalDate):Future[Int]  = {
     val dateGames = repo.games.filter(g=>g.date===d)
     val dateResults = repo.results.filter(_.gameId in dateGames.map(_.id))
     db.run((dateResults.delete andThen dateGames.delete).transactionally)
   }
 
-  override def saveGame(gt: (Game, Option[Result])) = {
+  override def saveGame(gt: (Game, Option[Result])): Future[Long] = {
     val (game, optResult) = gt
 
     optResult match {
       case Some(result) =>
         db.run((for (
           qid <- (repo.games returning repo.games.map(_.id)) += game;
-          rid <- repo.results returning repo.results.map(_.id) += result.copy(gameId = qid)
+          _ <- repo.results returning repo.results.map(_.id) += result.copy(gameId = qid)
         ) yield qid).transactionally)
       case None =>
         db.run((for (
@@ -89,19 +97,29 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   }
 
 
+  // Quote
+
   override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
 
-  override def findQuoteById(id: Long): Future[Option[Quote]] = {
-    db.run(repo.quotes.filter(_.id === id).result.headOption)
-  }
+  override def findQuoteById(id: Long): Future[Option[Quote]] =  db.run(repo.quotes.filter(_.id === id).result.headOption)
 
-  override def saveQuote(q: Quote) = db.run(repo.quotes.insertOrUpdate(q))
+  override def saveQuote(q: Quote):Future[Int] = db.run(repo.quotes.insertOrUpdate(q))
+
+  override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
+
+  // Conference
+
+  override def findConferenceById(id: Long)  : Future[Option[Conference]] = db.run(repo.conferences.filter(_.id === id).result.headOption)
+
+  override def deleteConference(id: Long):Future[Int] = db.run(repo.conferences.filter(_.id === id).delete)
 
   override def listConferences:Future[List[Conference]] = db.run(repo.conferences.to[List].result)
 
-  override def saveConference(c:Conference) = db.run(repo.conferences.insertOrUpdate(c))
+  override def saveConference(c:Conference): Future[Int] = db.run(repo.conferences.insertOrUpdate(c))
 
-  override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
+
+
+  // Schedule
 
   def loadSchedule(s: Season):Future[Schedule] = {
     val fTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
@@ -124,28 +142,13 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     )
   }
 
+// Aliases
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 
+  override def findAliasById(id: Long): Future[Option[Alias]] = db.run(repo.aliases.filter(_.id === id).result.headOption)
 
-  override def findAliasById(id: Long): Future[Option[Alias]] = {
-    db.run(repo.aliases.filter(_.id === id).result.headOption)
-  }
-
-  override def unlockSeason(seasonId: Long): Future[Int] = {
-    log.info("Unlocking season "+seasonId)
-    db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
-  }
-
-  override def checkAndSetLock(seasonId: Long): Boolean = { // Note this function blocks
-    val run: Future[Int] = db.run(repo.seasons.filter(s=> s.id===seasonId && s.lock=!="lock" && s.lock=!="update").map(_.lock).update("update"))
-    val map: Future[Boolean] = run.map(n => n == 1)
-    val result: Boolean = Await.result(map, Duration(15,TimeUnit.SECONDS) )
-    log.info("Locking season "+seasonId+ " for update")
-result
-  }
-
-  override def saveAlias(a: Alias) = db.run(repo.aliases.insertOrUpdate(a))
+  override def saveAlias(a: Alias): Future[Int] = db.run(repo.aliases.insertOrUpdate(a))
 
   override def deleteAlias(id: Long):Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
 }

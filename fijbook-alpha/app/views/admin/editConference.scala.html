@@ -1,0 +1,34 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Conference
+@import helper._
+
+@(user:User,conference:Conference, confForm: Form[forms.EditConferenceForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+@main(
+    "deepfij",
+    conference.name,
+    "",
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Teams","fa-eyeball","browseTeams").appendChild(conference.name,"fa-edit","editConference")),
+    StandardNavBar.active("admin"), Some(user)
+) {
+    <div class="row">
+        <div class="col-sm-8">
+            @b3.form(routes.DataController.saveTeam()) {
+                @CSRF.formField
+                @b3.hidden( "id", confForm("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( confForm("key"), '_label -> "Key" )
+                @b3.text( confForm("name"), '_label -> "Name" )
+                @b3.text( confForm("logoSmUrl"), '_label->"Small Logo" )
+                @b3.text( confForm("logoLgUrl"), '_label->"Large Logo" )
+                @b3.text( confForm("officialUrl"), '_label->"Official URL" )
+                @b3.text( confForm("officialTwitter"), '_label->"Twitter" )
+                @b3.text( confForm("officialFacebook"), '_label->"Facebook" )
+                @b3.submit('class -> "btn btn-default"){ Submit }
+            }
+        </div>
+    </div>
+}

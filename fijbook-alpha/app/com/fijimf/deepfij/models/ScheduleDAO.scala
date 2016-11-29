@@ -4,13 +4,14 @@ import java.time.LocalDate
 
 import scala.concurrent.Future
 
-/**
-  * Give access to the user object.
-  */
 trait ScheduleDAO {
+  def findConferenceById(id: Long): Future[Option[Conference]]
+
+  def deleteConference(id: Long): Future[Int]
+
   def listConferences: Future[List[Conference]]
 
-  def saveConference(c: Conference) : Future[Int]
+  def saveConference(c: Conference): Future[Int]
 
   def unlockSeason(seasonId: Long): Future[Int]
 
@@ -24,7 +25,9 @@ trait ScheduleDAO {
 
   def deleteAlias(id: Long): Future[Int]
 
-  def clearGamesByDate(d:LocalDate):Future[Int]
+  def deleteTeam(id: Long): Future[Int]
+
+  def clearGamesByDate(d: LocalDate): Future[Int]
 
   def saveGame(gt: (Game, Option[Result])): Future[Long]
 

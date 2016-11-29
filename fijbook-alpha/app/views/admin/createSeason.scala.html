@@ -4,7 +4,7 @@
 @import com.fijimf.deepfij.models.Team
 @import helper._
 
-@(user:User, seasonForm: Form[forms.CreateSeasonForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@(user:User, seasonForm: Form[forms.EditSeasonForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
