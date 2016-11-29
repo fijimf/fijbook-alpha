@@ -93,7 +93,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     val teamList = Await.result(teamDao.listTeams, 600.seconds)
 
     val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
-    val conferences: List[Conference] = names.map(n => {
+    val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, false, LocalDateTime.now(), userTag) :: names.map(n => {
       val candidate: Future[Option[String]] = Future.sequence(
         transforms.map(f => f(n)).toSet.map((k: String) => {
           logger.info("Trying " + k)
@@ -107,11 +107,33 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, false, LocalDateTime.now(), userTag)
     }).toList
 
+
     val sequence: Future[List[Int]] = Future.sequence(conferences.map(c => {
       teamDao.saveConference(c)
     }))
     sequence.map(_ => Redirect(routes.AdminController.index()))
 
+  }
+
+  def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+    (for (
+      sl <- teamDao.listSeasons;
+      tl <- teamDao.listTeams;
+      cl <- teamDao.listConferences
+    ) yield {
+      val confNameMap = cl.map(c => c.name -> c).toMap
+      for (
+        s <- sl;
+        t <- tl
+      ) yield {
+        val nameKey = t.optConference.replaceFirst("Athletic Association$", "Athletic...").replaceFirst("\\.\\.\\.$", "")
+        val conf = confNameMap.get(nameKey).orElse(confNameMap.get("Independents"))
+        ConferenceMap(0L, s.id, conf.map(_.id).getOrElse(0L), t.id, false, LocalDateTime.now(), userTag)
+      }
+    }).flatMap(lcm => {
+      Future.sequence(lcm.map(cm => teamDao.saveConferenceMap(cm)))
+    }).map(_ => Redirect(routes.AdminController.index()))
   }
 
 }

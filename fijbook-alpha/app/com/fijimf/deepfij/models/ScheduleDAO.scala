@@ -5,6 +5,8 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def saveConferenceMap(cm: ConferenceMap):Future[Int]
+
   def findConferenceById(id: Long): Future[Option[Conference]]
 
   def deleteConference(id: Long): Future[Int]
@@ -42,6 +44,7 @@ trait ScheduleDAO {
   def saveSeason(season: Season): Future[Int]
 
   def findSeasonById(id: Long): Future[Option[Season]]
+  def listSeasons: Future[List[Season]]
 
   def unlockTeam(key: String): Future[Int]
 

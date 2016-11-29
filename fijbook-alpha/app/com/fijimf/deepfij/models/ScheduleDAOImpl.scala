@@ -60,6 +60,8 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(q.result.headOption)
   }
 
+  override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
+
   override def unlockSeason(seasonId: Long): Future[Int] = {
     log.info("Unlocking season "+seasonId)
     db.run(repo.seasons.filter(s=> s.id===seasonId).map(_.lock).update("open"))
@@ -108,6 +110,8 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def deleteQuote(id: Long):Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
   // Conference
+
+  override def saveConferenceMap(cm: ConferenceMap) = db.run(repo.conferenceMaps.insertOrUpdate(cm))
 
   override def findConferenceById(id: Long)  : Future[Option[Conference]] = db.run(repo.conferences.filter(_.id === id).result.headOption)
 

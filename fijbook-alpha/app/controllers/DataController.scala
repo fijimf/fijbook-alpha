@@ -183,19 +183,24 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def saveConference() = silhouette.SecuredAction.async { implicit request =>
-    EditQuoteForm.form.bindFromRequest.fold(
+    EditConferenceForm.form.bindFromRequest.fold(
       form => {
-        logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.createQuote(request.identity, form)))
+        val formId: Int = form("id").value.getOrElse("0").toInt
+        val fot: Future[Option[Conference]] = teamDao.findConferenceById(formId)
+        fot.map(ot => ot match {
+          case Some(t) => BadRequest(views.html.admin.editConference(request.identity, t, form))
+          case None => Redirect(routes.DataController.browseConferences()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
+        })
       },
       data => {
-        val q = Quote(data.id, data.quote, data.source, data.url)
-        val future: Future[Int] = teamDao.saveQuote(q)
+        val q = Conference(data.id,data.key, data.name, data.logoLgUrl, data.logoSmUrl,data.officialUrl,data.officialTwitter,data.officialFacebook,false, LocalDateTime.now(),
+          request.identity.userID.toString)
+        val future: Future[Int] = teamDao.saveConference(q)
         future.onComplete {
           case Success(i) => logger.info("Hooray")
           case Failure(thr) => logger.error("Boo", thr)
         }
-        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Created " + data.quote)))
+        future.map(i => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Saved " + data.name)))
       }
     )
   }
