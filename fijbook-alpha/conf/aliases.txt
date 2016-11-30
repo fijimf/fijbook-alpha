@@ -1,0 +1,32 @@
+army-west-point         army
+md-east-shore           umes
+sfa                     stephen-f-austin
+sc-upstate	            usc-upstate
+saint-francis-pa        st-francis-pa
+detroit-mercy           detroit
+etsu                    east-tenn-st
+the-citadel             citadel	31
+loyola-chicago          loyola-il
+uncw                    unc-wilmington
+saint-peters            st-peters
+mcneese                 mcneese-st
+alcorn                  alcorn-st
+ut-arlington            texas-arlington
+fort-wayne              ipfw
+ul-lafayette            la-lafayette
+lamar-university        lamar
+csu-bakersfield         bakersfield
+omaha                   neb-omaha
+st-francis-brooklyn     st-francis-ny
+seattle-u               seattle
+liu-brooklyn            long-island
+csun                    cal-st-northridge
+uncg                    unc-greensboro
+little-rock             ualr
+siue                    siu-edwardsville
+
+
+# abilene-christian	29
+# incarnate-word	29
+# grand-canyon	31
+# mass-lowell	31

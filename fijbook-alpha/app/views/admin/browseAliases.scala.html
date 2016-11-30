@@ -18,8 +18,8 @@
             <table class="table table-condensed table-bordered">
                 <thead><tr>
 
-                    <th>Key</th>
-                    <th>Alias</th>
+                    <th>Scraped non-standard value</th>
+                    <th>Team key to use</th>
                     <th></th>
                     <th></th>
                 </tr></thead>
@@ -27,8 +27,8 @@
                 @for(a <- as) {
                     <tr>
 
-                        <td>@a.key</td>
                         <td>@a.alias</td>
+                        <td>@a.key</td>
                         <td class="text-center"><a href="@routes.DataController.editAlias(a.id)"><i class="fa fa-edit text-success"> </i></a></td>
                         <td class="text-center"><a href="@routes.DataController.deleteAlias(a.id)"><i class="fa fa-times text-danger"> </i></a></td>
                     </tr>

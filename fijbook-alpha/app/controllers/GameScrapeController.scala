@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.contrib.throttle.Throttler
 import akka.pattern._
 import akka.util.Timeout
-import com.fijimf.deepfij.models.{Game, ScheduleDAO, Season, Team, Result => GameResult}
+import com.fijimf.deepfij.models.{Alias, Game, ScheduleDAO, Season, Team, Result => GameResult}
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
 import com.fijimf.deepfij.scraping.modules.scraping.EmptyBodyException
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
@@ -18,7 +18,7 @@ import play.api.mvc.{Controller, Result}
 import utils.DefaultEnv
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
 
 class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val scheduleDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
@@ -40,7 +40,9 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
       scheduleDao.findSeasonById(seasonId).map {
         case Some(season) => scrapeSeasonGames(season, updatedBy).onComplete {
-          case Success(ll) => logger.info(ll.map(_.mkString(", ")).mkString("\n"))
+          case Success(ssr) => {
+            ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
+          }
             completeScrape(seasonId)
           case Failure(thr) => logger.error("Failed update ", thr)
             completeScrape(seasonId)
@@ -57,15 +59,17 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   }
 
 
-  def scrapeSeasonGames(season: Season, updatedBy: String): Future[List[List[Long]]] = {
+  def scrapeSeasonGames(season: Season, updatedBy: String): Future[SeasonScrapeResult] = {
     logger.info("Found season " + season)
-    scheduleDao.listTeams.flatMap(teamDictionary => {
-      logger.info("Loaded team dictionary")
-      val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
-      logger.info("Loading " + dateList.size + " dates")
-      Await.result(Future.sequence(dateList.map(dd => scheduleDao.clearGamesByDate(dd))), 15.seconds)
-      val map: List[Future[List[Long]]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, d))
-      Future.sequence(map)
+    scheduleDao.listAliases.flatMap(aliasDict => {
+      scheduleDao.listTeams.flatMap(teamDictionary => {
+        logger.info("Loaded team dictionary")
+        val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
+        logger.info("Loading " + dateList.size + " dates")
+        Await.result(Future.sequence(dateList.map(dd => scheduleDao.clearGamesByDate(dd))), 15.seconds)
+        val map: List[Future[(LocalDate, GameScrapeResult)]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(d -> _))
+        Future.sequence(map).map(lgsr => SeasonScrapeResult(lgsr))
+      })
     })
   }
 
@@ -73,36 +77,49 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     scheduleDao.unlockSeason(seasonId)
   }
 
-  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], d: LocalDate): Future[List[Long]] = {
+  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases:List[Alias], d: LocalDate): Future[GameScrapeResult] = {
     val teamDict = teams.map(t => t.key -> t).toMap
+    val aliasDict = aliases.filter(a=>teamDict.contains(a.key)).map(a=>a.alias->teamDict(a.key))
+
+    val masterDict = teamDict++aliasDict
     logger.info("Loading date " + d)
     val future: Future[Either[Throwable, List[GameData]]] = (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]]
-    val results: Future[List[(Game, Option[GameResult])]] = future.map(_.fold(
+    val results: Future[List[GameMapping]] = future.map(_.fold(
       thr => {
         if (thr == EmptyBodyException) {
           logger.warn("For date " + d + " scraper returned an empty body")
         } else {
           logger.error("For date " + d + " scraper returned an exception ", thr)
         }
-        List.empty[(Game, Option[GameResult])]
+        List.empty[GameMapping]
       },
-      lgd => {
-        lgd.flatMap(gameDataToGame(seasonId, updatedBy, teamDict, _))
-      }))
-    for (gameList <- results;
-         keys <- Future.sequence(gameList.map(scheduleDao.saveGame))
-    ) yield {
-      keys
-    }
+      lgd => lgd.map(gameDataToGame(seasonId, updatedBy, masterDict, _))
+    ))
+    results.flatMap(gameList => {
+      val z = Future.successful(GameScrapeResult())
+      gameList.foldLeft(z)((fgsr: Future[GameScrapeResult], mapping: GameMapping) => {
+        fgsr.flatMap(_.acc(scheduleDao, mapping))
+      })
+
+    })
+
   }
 
 
-  def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): Option[(Game, Option[GameResult])] = {
-    for (
-      ht <- teamDict.get(gd.homeTeamKey);
-      at <- teamDict.get(gd.awayTeamKey)
-    ) yield {
-      populateGame(seasonId, updatedBy, gd, ht, at) -> gd.result.map(r => populateResult(updatedBy, r))
+  def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
+    val atk = gd.awayTeamKey
+    val htk = gd.homeTeamKey
+    (teamDict.get(htk), teamDict.get(atk)) match {
+      case (None, None) => UnmappedGame(List(htk, atk))
+      case (Some(t), None) => UnmappedGame(List(atk))
+      case (None, Some(t)) => UnmappedGame(List(htk))
+      case (Some(ht), Some(at)) => {
+        val game = populateGame(seasonId, updatedBy, gd, ht, at)
+        gd.result match {
+          case Some(rd) => MappedGameAndResult(game, populateResult(updatedBy, rd))
+          case None => MappedGame(game)
+        }
+      }
     }
   }
 
@@ -137,3 +154,31 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     )
   }
 }
+
+case class GameScrapeResult(ids: List[Long] = List.empty[Long], unmappedKeys: List[String] = List.empty[String]) {
+  def acc(dao: ScheduleDAO, gm: GameMapping)(implicit ec: ExecutionContext): Future[GameScrapeResult] = {
+    gm match {
+      case UnmappedGame(ss) => Future.successful(copy(unmappedKeys = unmappedKeys ++ ss))
+      case MappedGame(g) => dao.saveGame(g -> None).map(id => copy(ids = id :: ids))
+      case MappedGameAndResult(g, r) => dao.saveGame(g -> Some(r)).map(id => copy(ids = id :: ids))
+    }
+  }
+}
+
+sealed trait GameMapping
+
+case class MappedGame(g: Game) extends GameMapping
+
+case class MappedGameAndResult(g: Game, r: GameResult) extends GameMapping
+
+case class UnmappedGame(keys: List[String]) extends GameMapping
+
+object SeasonScrapeResult {
+  def apply(list: List[(LocalDate, GameScrapeResult)]): SeasonScrapeResult = {
+    val gameCounts: Map[LocalDate, Int] = list.map(tup => tup._1 -> tup._2.ids.size).toMap
+    val unmappedTeamCount: Map[String, Int] = list.flatMap(_._2.unmappedKeys).groupBy(_.toString).map(tup => (tup._1, tup._2.size))
+    SeasonScrapeResult(gameCounts, unmappedTeamCount)
+  }
+}
+
+case class SeasonScrapeResult(gameCounts: Map[LocalDate, Int], unmappedTeamCount: Map[String, Int])

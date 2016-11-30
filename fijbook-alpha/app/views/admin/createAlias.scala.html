@@ -20,8 +20,8 @@
             @b3.form(routes.DataController.saveAlias()) {
                 @CSRF.formField
                 @b3.hidden( "id", seasonForm("id").value.getOrElse(""), '_label -> "ID" )
-                @b3.text( seasonForm("alias"), '_label -> "Alias" )
-                @b3.text( seasonForm("key"), '_label -> "Key" )
+                @b3.text( seasonForm("alias"), '_label -> "Scraped Non-standard Value" )
+                @b3.text( seasonForm("key"), '_label -> "Actual Key to Use" )
                 @b3.submit('class -> "btn btn-default"){ Submit }
             }
         </div>

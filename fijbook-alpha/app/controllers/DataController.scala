@@ -143,12 +143,8 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         Future.successful(BadRequest(views.html.admin.createAlias(request.identity, form)))
       },
       data => {
-        val q = Alias(data.id, data.key, data.alias)
+        val q = Alias(data.id, data.alias, data.key)
         val future: Future[Int] = teamDao.saveAlias(q)
-        future.onComplete {
-          case Success(i) => logger.info("Hooray")
-          case Failure(thr) => logger.error("Boo", thr)
-        }
         future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias+ " to " + data.key)))
       }
     )
@@ -156,7 +152,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def editAlias(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.findAliasById(id).map {
-      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form.fill(EditAliasForm.Data(id, q.key, q.alias))))
+      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form.fill(EditAliasForm.Data(id, q.alias, q.key))))
       case None => Redirect(routes.DataController.browseAliases()).flashing("warn" -> ("No alias found with id " + id))
     }
   }
