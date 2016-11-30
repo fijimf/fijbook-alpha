@@ -12,6 +12,7 @@ import play.api.mvc.Controller
 import utils.DefaultEnv
 
 import scala.concurrent.Future
+import scala.io.Source
 import scala.util.{Failure, Success}
 
 class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
@@ -145,7 +146,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       data => {
         val q = Alias(data.id, data.alias, data.key)
         val future: Future[Int] = teamDao.saveAlias(q)
-        future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias+ " to " + data.key)))
+        future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias + " to " + data.key)))
       }
     )
   }
@@ -189,7 +190,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         })
       },
       data => {
-        val q = Conference(data.id,data.key, data.name, data.logoLgUrl, data.logoSmUrl,data.officialUrl,data.officialTwitter,data.officialFacebook,false, LocalDateTime.now(),
+        val q = Conference(data.id, data.key, data.name, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, false, LocalDateTime.now(),
           request.identity.userID.toString)
         val future: Future[Int] = teamDao.saveConference(q)
         future.onComplete {
@@ -202,17 +203,32 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
 
-
-
+  def initializeAliases() = silhouette.SecuredAction.async { implicit request =>
+    teamDao.deleteAliases().flatMap(i => {
+      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length>0)
+      Future.sequence(lines.map(s => {
+        val parts = s.trim.split("\\s+")
+        if (parts.size==2) {
+          teamDao.saveAlias(Alias(0L, parts(0), parts(1)))
+        } else {
+          logger.info("Skipping '"+s+"'")
+          Future.successful(0)
+        }
+      })
+      )
+    }).map(
+      xx => Redirect(routes.DataController.browseAliases())
+    )
+  }
 
 
   def deleteTeam(id: Long) = play.mvc.Results.TODO
 
-  def browseConferenceMap(seasonId:Long) = play.mvc.Results.TODO
+  def browseConferenceMap(seasonId: Long) = play.mvc.Results.TODO
 
-  def browseGames(id:Long)= play.mvc.Results.TODO
+  def browseGames(id: Long) = play.mvc.Results.TODO
 
-  def lockSeason(id:Long)=play.mvc.Results.TODO
+  def lockSeason(id: Long) = play.mvc.Results.TODO
 
   def deleteSeason(id: Long) = play.mvc.Results.TODO
 }

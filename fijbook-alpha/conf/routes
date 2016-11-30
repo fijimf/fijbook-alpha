@@ -55,6 +55,7 @@ GET         /deepfij/admin/deleteQuote/:id                      controllers.Data
 
 ##### ALIASES
 GET         /deepfij/admin/browseAliases                        controllers.DataController.browseAliases
+GET         /deepfij/admin/initializeAliases                    controllers.DataController.initializeAliases()
 GET         /deepfij/admin/createAlias                          controllers.DataController.createAlias
 POST        /deepfij/admin/saveAlias                            controllers.DataController.saveAlias
 GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)

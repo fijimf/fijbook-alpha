@@ -111,6 +111,8 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   // Conference
 
+  override def deleteAliases():Future[Int] = db.run(repo.aliases.delete)
+
   override def saveConferenceMap(cm: ConferenceMap) = db.run(repo.conferenceMaps.insertOrUpdate(cm))
 
   override def findConferenceById(id: Long)  : Future[Option[Conference]] = db.run(repo.conferences.filter(_.id === id).result.headOption)

@@ -5,12 +5,12 @@ sc-upstate	            usc-upstate
 saint-francis-pa        st-francis-pa
 detroit-mercy           detroit
 etsu                    east-tenn-st
-the-citadel             citadel	31
+the-citadel             citadel
 loyola-chicago          loyola-il
 uncw                    unc-wilmington
 saint-peters            st-peters
 mcneese                 mcneese-st
-alcorn                  alcorn-st
+alcorn-st               alcorn
 ut-arlington            texas-arlington
 fort-wayne              ipfw
 ul-lafayette            la-lafayette
@@ -26,7 +26,9 @@ little-rock             ualr
 siue                    siu-edwardsville
 
 
-# abilene-christian	29
-# incarnate-word	29
-# grand-canyon	31
-# mass-lowell	31
+# abilene-christian
+# incarnate-word
+# grand-canyon
+# mass-lowell
+# nc-central
+# nc-at

@@ -5,6 +5,8 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def deleteAliases():Future[Int]
+
   def saveConferenceMap(cm: ConferenceMap):Future[Int]
 
   def findConferenceById(id: Long): Future[Option[Conference]]
