@@ -11,14 +11,16 @@ import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TestUrl}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
+import forms.ScrapeOneTeamForm
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Controller}
 import utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv],val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -135,5 +137,31 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       Future.sequence(lcm.map(cm => teamDao.saveConferenceMap(cm)))
     }).map(_ => Redirect(routes.AdminController.index()))
   }
+
+  def scrapeOne() = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+    ScrapeOneTeamForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+        Future.successful(BadRequest(views.html.admin.scrapeOneTeam(rs.identity, form)))
+      },
+      data => {
+        val fot: Future[Option[Team]] = (teamLoad ? TeamDetail(data.key, data.shortName, userTag))
+          .mapTo[Either[Throwable, Team]]
+          .map(_.fold(thr => None, t => Some(t)))
+        fot.flatMap {
+          case Some(t) =>
+            teamDao.saveTeam(t).map(i => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Scrapeed " + data.shortName)))
+          case None =>
+            Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Failed to scrape " + data.shortName)))
+        }
+      }
+    )
+  }
+
+  def scrapeOneForm() = silhouette.SecuredAction.async { implicit rs =>
+    Future.successful(Ok(views.html.admin.scrapeOneTeam(rs.identity, ScrapeOneTeamForm.form)))
+  }
+
 
 }

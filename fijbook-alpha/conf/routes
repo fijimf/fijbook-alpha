@@ -24,6 +24,8 @@ GET         /deepfij/admin/scrapeGames/:seasonId                controllers.Game
 ########### DATA
 ##### TEAMS
 GET         /deepfij/admin/browseTeams                          controllers.DataController.browseTeams
+GET         /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOneForm
+POST        /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOne
 GET         /deepfij/admin/editTeam/:id                         controllers.DataController.editTeam(id:Long)
 POST        /deepfij/admin/saveTeam                             controllers.DataController.saveTeam
 POST        /deepfij/admin/deleteTeam                           controllers.DataController.deleteTeam(id:Long)
