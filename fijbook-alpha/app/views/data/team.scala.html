@@ -1,0 +1,32 @@
+@import com.fijimf.deepfij.models.{Schedule, Team, User}
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@(user: User, key: String, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+
+@main(
+    "deepfij",
+    "",
+    "",
+    Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild("Seasons", "fa-eyeball", "browseSeasons").appendChild("create", "fa-edit", "createSeason")),
+    StandardNavBar.active("admin"), Some(user)
+) {
+    @defining(curr.keyTeam(key)) { (t: Team) =>
+        <div class="row">
+            <div class="col-sm-8">
+                <h1>@t.name @t.nickname</h1>
+                <h3>@curr.overallRecord(t)._1 - @curr.overallRecord(t)._2, @curr.conferenceRecord(t)._1 - @curr.conferenceRecord(t)._2 @curr.conference(t).name</h3>
+                <table>
+                @for(g <-curr.games(t)) {
+                    <tr>
+                        <td>@g._1.date</td>
+                        <td>@curr.teamsMap(g._1.homeTeamId).name</td>
+                        <td>@curr.teamsMap(g._1.awayTeamId).name</td>
+
+
+                    </tr>
+                }
+                </table>
+            </div>
+        </div>
+    }
+}

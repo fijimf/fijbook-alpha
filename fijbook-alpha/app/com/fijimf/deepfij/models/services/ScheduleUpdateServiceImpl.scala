@@ -1,87 +1,76 @@
-package controllers
+package com.fijimf.deepfij.models.services
 
 import java.time.{LocalDate, LocalDateTime}
+import javax.inject.Inject
 
 import akka.actor.ActorRef
-import akka.contrib.throttle.Throttler
-import akka.pattern._
+import akka.pattern.ask
 import akka.util.Timeout
-import com.fijimf.deepfij.models.{Alias, Game, ScheduleDAO, Season, Team, Result => GameResult}
+import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
 import com.fijimf.deepfij.scraping.modules.scraping.EmptyBodyException
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
-import com.google.inject.Inject
 import com.google.inject.name.Named
-import com.mohiva.play.silhouette.api.Silhouette
+import controllers._
 import play.api.Logger
-import play.api.mvc.{Controller, Result}
-import utils.DefaultEnv
+import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val scheduleDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService {
+  val logger = Logger(this.getClass)
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
-  throttler ! Throttler.SetTarget(Some(teamLoad))
+  val activeYear = 2017
 
-  def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs =>
-    val p = Promise[Result]()
-    if (scheduleDao.checkAndSetLock(seasonId)) {
-      logger.info("Scraping season")
-      p.success {
-        Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
-      }
+  def update() {
 
-      val updatedBy: String = "Scraper[" + rs.identity.userID.toString + "]"
-      scheduleDao.findSeasonById(seasonId).map {
-        case Some(season) => scrapeSeasonGames(season, updatedBy).onComplete {
-          case Success(ssr) => {
-            ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
+    val season = dao.findSeasonByYear(activeYear)
+    season.map {
+      case None =>
+      case Some(s) =>
+
+        if (dao.checkAndSetLock(s.id)) {
+
+          val updatedBy: String = "Scraper[Updater]"
+          scrapeSeasonGames(s, updatedBy).onComplete {
+            case Success(ssr) => {
+              ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
+            }
+              completeScrape(s.id)
+            case Failure(thr) => logger.error("Failed update ", thr)
+              completeScrape(s.id)
           }
-            completeScrape(seasonId)
-          case Failure(thr) => logger.error("Failed update ", thr)
-            completeScrape(seasonId)
-        }
-        case None => //This should never happen as we've already checked.
-      }
 
-    } else {
-      p.success {
-        Redirect(routes.AdminController.index()).flashing("error" -> "Season was not found or was locked.  Unable to scrape")
-      }
+        }
+
     }
-    p.future
+  }
+
+  def completeScrape(seasonId: Long): Future[Int] = {
+    dao.unlockSeason(seasonId)
   }
 
 
   def scrapeSeasonGames(season: Season, updatedBy: String): Future[SeasonScrapeResult] = {
-    logger.info("Found season " + season)
-    scheduleDao.listAliases.flatMap(aliasDict => {
-      scheduleDao.listTeams.flatMap(teamDictionary => {
-        logger.info("Loaded team dictionary")
+    dao.listAliases.flatMap(aliasDict => {
+      dao.listTeams.flatMap(teamDictionary => {
         val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
-        logger.info("Loading " + dateList.size + " dates")
-        Await.result(Future.sequence(dateList.map(dd => scheduleDao.clearGamesByDate(dd))), 15.seconds)
+        Await.result(Future.sequence(dateList.map(dd => dao.clearGamesByDate(dd))), 15.seconds)
         val map: List[Future[(LocalDate, GameScrapeResult)]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(d -> _))
         Future.sequence(map).map(lgsr => SeasonScrapeResult(lgsr))
       })
     })
   }
 
-  def completeScrape(seasonId: Long): Future[Int] = {
-    scheduleDao.unlockSeason(seasonId)
-  }
-
-  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases:List[Alias], d: LocalDate): Future[GameScrapeResult] = {
+  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[GameScrapeResult] = {
     val teamDict = teams.map(t => t.key -> t).toMap
-    val aliasDict = aliases.filter(a=>teamDict.contains(a.key)).map(a=>a.alias->teamDict(a.key))
+    val aliasDict = aliases.filter(a => teamDict.contains(a.key)).map(a => a.alias -> teamDict(a.key))
 
-    val masterDict = teamDict++aliasDict
+    val masterDict = teamDict ++ aliasDict
     logger.info("Loading date " + d)
     val future: Future[Either[Throwable, List[GameData]]] = (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]]
     val results: Future[List[GameMapping]] = future.map(_.fold(
@@ -98,7 +87,7 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     results.flatMap(gameList => {
       val z = Future.successful(GameScrapeResult())
       gameList.foldLeft(z)((fgsr: Future[GameScrapeResult], mapping: GameMapping) => {
-        fgsr.flatMap(_.acc(scheduleDao, mapping))
+        fgsr.flatMap(_.acc(dao, mapping))
       })
 
     })
@@ -124,8 +113,8 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   }
 
 
-  def populateResult(updatedBy: String, r: ResultData): GameResult = {
-    GameResult(
+  def populateResult(updatedBy: String, r: ResultData): Result = {
+    Result(
       id = 0L,
       gameId = 0L,
       homeScore = r.homeScore,
@@ -153,10 +142,5 @@ class GameScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       updatedBy = updatedBy
     )
   }
+
 }
-
-
-
-
-
-

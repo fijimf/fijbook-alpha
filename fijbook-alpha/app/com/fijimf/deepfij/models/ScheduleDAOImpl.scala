@@ -111,6 +111,8 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   // Conference
 
+  override def findSeasonByYear(year: Int) = db.run(repo.seasons.filter(_.year === year).result.headOption)
+
   override def deleteAliases():Future[Int] = db.run(repo.aliases.delete)
 
   override def saveConferenceMap(cm: ConferenceMap) = db.run(repo.conferenceMaps.insertOrUpdate(cm))

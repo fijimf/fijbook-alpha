@@ -5,6 +5,8 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def findSeasonByYear(year:Int):Future[Option[Season]]
+
   def deleteAliases():Future[Int]
 
   def saveConferenceMap(cm: ConferenceMap):Future[Int]

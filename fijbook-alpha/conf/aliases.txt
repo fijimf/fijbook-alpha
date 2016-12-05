@@ -24,7 +24,8 @@ csun                    cal-st-northridge
 uncg                    unc-greensboro
 little-rock             ualr
 siue                    siu-edwardsville
-
+st-josephs              saint-josephs
+fla-gulf-coast          fgcu
 
 # abilene-christian
 # incarnate-word
