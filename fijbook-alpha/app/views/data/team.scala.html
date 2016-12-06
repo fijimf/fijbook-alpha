@@ -1,18 +1,18 @@
 @import com.fijimf.deepfij.models.{Schedule, Team, User,GameLine}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: User, t: Team, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@(user: Option[User], t: Team, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
 @main(
     "deepfij",
     t.name +" "+t.nickname,
     curr.overallRecord(t)._1 +"-"+ curr.overallRecord(t)._2+", "+curr.conferenceRecord(t)._1+"-"+ curr.conferenceRecord(t)._2 +" "+curr.conference(t).name,
-    Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild("Seasons", "fa-eyeball", "browseSeasons").appendChild("create", "fa-edit", "createSeason")),
-    StandardNavBar.active("admin"), Some(user), t.logoSmUrl.getOrElse("/assets/images/deepfij.png")
+    Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild(t.name, "fa-eyeball", t.key)),
+    StandardNavBar.active("admin"), user, t.logoSmUrl.getOrElse("/assets/images/deepfij.png")
 ) {
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <h3></h3>
                 <table class="table table-condensed table-schedule" >
                 @for(g <-curr.games(t)) {
@@ -21,7 +21,11 @@
                             <td>@gl.date</td>
                             <td>@gl.vsAt</td>
                             <td><a href="@routes.TeamController.team(gl.opp.key)">@gl.opp.name</a></td>
-                            <td>@gl.wl</td>
+                            @if(gl.wl=="W"){
+                                <td><strong class="text-success">@gl.wl</strong></td>
+                            } else {
+                                <td><strong class="text-danger">@gl.wl</strong></td>
+                            }
                             <td>@gl.literalScore</td>
 
                         </tr>

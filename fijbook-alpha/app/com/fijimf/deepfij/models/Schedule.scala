@@ -87,4 +87,8 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
       GameLine(date, vsAt, opp, wl, literalScore)
     }
 
+  def homeRecord(team:Team) = record(team, g=>g.homeTeamId==team.id)
+  def awayRecord(team:Team) = record(team, g=>g.awayTeamId==team.id)
+  def neutralRecord(team:Team) = record(team, g=>g.isNeutralSite)
+
 }

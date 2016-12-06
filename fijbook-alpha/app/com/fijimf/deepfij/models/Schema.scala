@@ -52,7 +52,7 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite:Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
 }
 
 case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
@@ -251,6 +251,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def location: Rep[Option[String]] = column[Option[String]]("location", O.Length(144))
 
+    def isNeutralSite: Rep[Boolean] = column[Boolean]("is_neutral_site")
+
     def tourneyKey: Rep[Option[String]] = column[Option[String]]("tourney_key", O.Length(64))
 
     def homeTeamSeed: Rep[Option[Int]] = column[Option[Int]]("home_team_seed")
@@ -263,7 +265,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Game] = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
+    def * : ProvenShape[Game] = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, isNeutralSite, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
   }
 
