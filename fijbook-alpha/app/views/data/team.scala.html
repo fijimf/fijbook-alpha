@@ -1,32 +1,33 @@
-@import com.fijimf.deepfij.models.{Schedule, Team, User}
+@import com.fijimf.deepfij.models.{Schedule, Team, User,GameLine}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: User, key: String, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@(user: User, t: Team, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
 @main(
     "deepfij",
-    "",
-    "",
+    t.name +" "+t.nickname,
+    curr.overallRecord(t)._1 +"-"+ curr.overallRecord(t)._2+", "+curr.conferenceRecord(t)._1+"-"+ curr.conferenceRecord(t)._2 +" "+curr.conference(t).name,
     Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild("Seasons", "fa-eyeball", "browseSeasons").appendChild("create", "fa-edit", "createSeason")),
-    StandardNavBar.active("admin"), Some(user)
+    StandardNavBar.active("admin"), Some(user), t.logoSmUrl.getOrElse("/assets/images/deepfij.png")
 ) {
-    @defining(curr.keyTeam(key)) { (t: Team) =>
+
         <div class="row">
-            <div class="col-sm-8">
-                <h1>@t.name @t.nickname</h1>
-                <h3>@curr.overallRecord(t)._1 - @curr.overallRecord(t)._2, @curr.conferenceRecord(t)._1 - @curr.conferenceRecord(t)._2 @curr.conference(t).name</h3>
-                <table>
+            <div class="col-sm-6">
+                <h3></h3>
+                <table class="table table-condensed table-schedule" >
                 @for(g <-curr.games(t)) {
-                    <tr>
-                        <td>@g._1.date</td>
-                        <td>@curr.teamsMap(g._1.homeTeamId).name</td>
-                        <td>@curr.teamsMap(g._1.awayTeamId).name</td>
+                    @defining(curr.gameLine(t,g._1,g._2)){ (gl:GameLine) =>
+                        <tr>
+                            <td>@gl.date</td>
+                            <td>@gl.vsAt</td>
+                            <td><a href="@routes.TeamController.team(gl.opp.key)">@gl.opp.name</a></td>
+                            <td>@gl.wl</td>
+                            <td>@gl.literalScore</td>
 
-
-                    </tr>
+                        </tr>
+                    }
                 }
                 </table>
             </div>
         </div>
     }
-}

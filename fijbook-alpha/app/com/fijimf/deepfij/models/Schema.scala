@@ -52,7 +52,8 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+}
 
 case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -60,6 +61,10 @@ case class Alias(id: Long, alias: String, key: String)
 
 case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
   def margin: Int = Math.abs(homeScore - awayScore)
+  def isHomeWinner:Boolean = homeScore>awayScore
+  def isAwayWinner:Boolean = homeScore<awayScore
+  def isHomeLoser:Boolean = homeScore<awayScore
+  def isAwayLoser:Boolean = homeScore>awayScore
 }
 
 case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])

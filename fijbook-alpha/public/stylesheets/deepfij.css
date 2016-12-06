@@ -14,3 +14,12 @@
     font-weight: lighter;
 
 }
+
+.table-schedule {
+    font-size: smaller;
+}
+
+.table-schedule td {
+    padding: 0px;
+    margin: 0px;
+}

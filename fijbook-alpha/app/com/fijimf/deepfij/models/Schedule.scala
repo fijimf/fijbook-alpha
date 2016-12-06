@@ -73,4 +73,18 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
     games.filter(g=>t.id == g.homeTeamId || t.id == g.awayTeamId).sortBy(_.date.toEpochDay).map(g=>g->resultMap.get(g.id))
   }
 
+
+
+    def gameLine(t:Team, g:Game, or:Option[Result]):GameLine = {
+      val date = g.date
+      val (vsAt, opp) = if (t.id == g.homeTeamId) ("vs.", teamsMap(g.awayTeamId)) else ("@", teamsMap(g.homeTeamId))
+      val (wl, literalScore) = or match {
+        case Some(r) => {
+          (if (isWinner(t, g, r)) "W" else if (isLoser(t, g, r)) "L" else "", s"${r.homeScore} - ${r.awayScore}")
+        }
+        case None => ("", "")
+      }
+      GameLine(date, vsAt, opp, wl, literalScore)
+    }
+
 }

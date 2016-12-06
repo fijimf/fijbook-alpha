@@ -19,7 +19,7 @@ class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
     teamDao.loadSchedules().map(ss=> {
       val sortedSchedules  = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
-        case Some(sch)=> Ok(views.html.data.team( request.identity,key, sch,sortedSchedules.tail))
+        case Some(sch)=> Ok(views.html.data.team( request.identity,sch.keyTeam(key), sch,sortedSchedules.tail))
         case None=> Redirect(routes.IndexController.index()).flashing("info"->"No current schedule loaded")
       }
 
