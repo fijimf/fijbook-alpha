@@ -8,8 +8,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
 import utils.DefaultEnv
 
-import scala.concurrent.Future
-
 class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,18 +29,27 @@ class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   }
 
-  def teams() = silhouette.UserAwareAction.async { implicit request =>
+  def teams(q: String) = silhouette.UserAwareAction.async { implicit request =>
     teamDao.loadSchedules().map(ss => {
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) => {
-          val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
-
-          Ok(views.html.data.teams(request.identity, columns))
+          val matches = sch.teams.filter(t => {
+            val qryStr = q.trim.toUpperCase
+            t.name.toUpperCase.contains(qryStr) || t.longName.toUpperCase.contains(qryStr) || t.nickname.toUpperCase.contains(qryStr)
+          })
+          matches match {
+            case Nil=>
+              val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
+              Ok(views.html.data.teams(request.identity, columns)).flashing("info"->("No matching teams for query string '"+q+"'"))
+            case t :: Nil => Redirect(routes.TeamController.team(t.key))
+            case lst =>
+              val columns = lst.sortBy(_.name).grouped((lst.size + 3) / 4).toList
+              Ok(views.html.data.teams(request.identity, columns))
+          }
         }
         case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
       }
-
     })
   }
 }
