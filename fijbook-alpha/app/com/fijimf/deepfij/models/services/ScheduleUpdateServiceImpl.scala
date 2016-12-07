@@ -134,6 +134,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, @Named("data-load-ac
       date = gd.date.toLocalDate,
       datetime = gd.date,
       location = gd.location,
+      isNeutralSite = false,
       tourneyKey = gd.tourneyInfo.map(_.region),
       homeTeamSeed = gd.tourneyInfo.map(_.homeTeamSeed),
       awayTeamSeed = gd.tourneyInfo.map(_.awayTeamSeed),

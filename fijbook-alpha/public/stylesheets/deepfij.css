@@ -23,3 +23,8 @@
     padding: 0px;
     margin: 0px;
 }
+
+.teamlist {
+    list-style: none;
+    font-size: small;
+}

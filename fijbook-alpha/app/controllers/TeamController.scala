@@ -16,23 +16,33 @@ class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   val logger = Logger(getClass)
 
-  def team(key:String) = silhouette.UserAwareAction.async { implicit request =>
+  def team(key: String) = silhouette.UserAwareAction.async { implicit request =>
 
-    teamDao.loadSchedules().map(ss=> {
-      val sortedSchedules  = ss.sortBy(s => -s.season.year)
+    teamDao.loadSchedules().map(ss => {
+      val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
-        case Some(sch)=> {
-          Ok(views.html.data.team( request.identity,sch.keyTeam(key), sch,sortedSchedules.tail))
+        case Some(sch) => {
+          Ok(views.html.data.team(request.identity, sch.keyTeam(key), sch, sortedSchedules.tail))
         }
-        case None=> Redirect(routes.IndexController.index()).flashing("info"->"No current schedule loaded")
+        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
       }
 
     })
 
   }
-  def teams() = play.mvc.Results.TODO //silhouette.UserAwareAction.async { implicit request =>
-//
-//    Future.successful(play.mvc.Results.TODO)
-//
-//  }
+
+  def teams() = silhouette.UserAwareAction.async { implicit request =>
+    teamDao.loadSchedules().map(ss => {
+      val sortedSchedules = ss.sortBy(s => -s.season.year)
+      sortedSchedules.headOption match {
+        case Some(sch) => {
+          val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
+
+          Ok(views.html.data.teams(request.identity, columns))
+        }
+        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+      }
+
+    })
+  }
 }

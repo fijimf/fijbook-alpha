@@ -2,7 +2,8 @@
 GET         /                                                   controllers.IndexController.redirect
 GET         /deepfij                                            controllers.IndexController.redirect
 GET         /deepfij/index                                      controllers.IndexController.index
-GET         /deepfij/team/:key                                  controllers.TeamController.team(key:String)
+GET         /deepfij/teams                                      controllers.TeamController.teams()
+GET         /deepfij/teams/:key                                  controllers.TeamController.team(key:String)
 ########### ASSETS
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)

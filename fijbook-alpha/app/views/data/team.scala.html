@@ -6,14 +6,17 @@
 @main(
     "deepfij",
     t.name +" "+t.nickname,
-    curr.overallRecord(t)._1 +"-"+ curr.overallRecord(t)._2+", "+curr.conferenceRecord(t)._1+"-"+ curr.conferenceRecord(t)._2 +" "+curr.conference(t).name,
+    curr.overallRecord(t).won +"-"+ curr.overallRecord(t).lost+", "+curr.conferenceRecord(t).won+"-"+ curr.conferenceRecord(t).lost+" "+curr.conference(t).name,
     Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild(t.name, "fa-eyeball", t.key)),
-    StandardNavBar.active("admin"), user, t.logoSmUrl.getOrElse("/assets/images/deepfij.png")
+    StandardNavBar.active("admin"),
+    user,
+    t.logoSmUrl.getOrElse("/assets/images/deepfij.png"),
+    t.primaryColor.getOrElse("#ddd")
 ) {
 
         <div class="row">
             <div class="col-sm-4">
-                <h3></h3>
+                <h5>Schedule</h5>
                 <table class="table table-condensed table-schedule" >
                 @for(g <-curr.games(t)) {
                     @defining(curr.gameLine(t,g._1,g._2)){ (gl:GameLine) =>
@@ -30,6 +33,20 @@
 
                         </tr>
                     }
+                }
+                </table>
+            </div>
+            <div class="col-sm-4">
+                <h5>@{curr.conference(t).name+" Standings"}</h5>
+                <table class="table table-condensed table-schedule" >
+                @for(r <-curr.conferenceStandings(curr.conference(t)).records) {
+                        <tr>
+                            <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
+                            <td>@r._1.won</td>
+                            <td>@r._1.lost</td>
+                            <td>@r._2.won</td>
+                            <td>@r._2.lost</td>
+                        </tr>
                 }
                 </table>
             </div>

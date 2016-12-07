@@ -2,7 +2,7 @@
 @import controllers.nav.StandardNavBar
 @import controllers.nav.Breadcrumbs
 @import com.fijimf.deepfij.models.User
-@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png")(content: Html)(implicit flash: Flash)
+@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd")(content: Html)(implicit flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -168,7 +168,7 @@
                             <img src=@icon>
                         </div>
                         <div class="col-lg-11">
-                            <h3 class="page-header" style="margin-top:15px">
+                            <h3 class="page-header" style="margin-top:15px; border-bottom: 3px solid @lineColor;">
                                 @pageHead
                             <small>@pageSubHead</small>
                             </h3>
