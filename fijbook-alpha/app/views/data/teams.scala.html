@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="row">
-    @for(n<-0.to(columns.size-1)) {
+    @for(n<-columns.indices) {
         <div class="col-sm-3">
             <ul>
             @for(t <- columns(n)) {

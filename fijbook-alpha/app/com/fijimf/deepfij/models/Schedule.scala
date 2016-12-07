@@ -3,6 +3,7 @@ package com.fijimf.deepfij.models
 import java.time.LocalDate
 
 case class Schedule(season: Season, teams: List[Team], conferences: List[Conference], conferenceMap: List[ConferenceMap], gameResults: List[(Game, Option[Result])]) {
+  val conferenceKeyMap: Map[String, Conference] = conferences.map(t => t.key -> t).toMap
   val games: List[Game] = gameResults.map(_._1).sortBy(_.date.toEpochDay)
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
   val results: List[Result] = gameResults.filter(_._2.isDefined).sortBy(_._1.date.toEpochDay).map(_._2.get)
@@ -56,6 +57,19 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
     }
   }
 
+  def winner(g:Game):Option[Team]={
+    resultMap.get(g.id) match {
+      case Some(r) => if (r.homeScore>r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
+      case None => None
+    }
+  }
+  def loser(g:Game):Option[Team]={
+    resultMap.get(g.id) match {
+      case Some(r) => if (r.homeScore<r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
+      case None => None
+    }
+  }
+
   def isConferenceGame(g: Game): Boolean = {
     val conferences = conferenceMap.filter(m => m.teamId == g.homeTeamId || m.teamId == g.awayTeamId).map(_.conferenceId)
     conferences.size == 2 && (conferences(0) == conferences(1))
@@ -80,44 +94,51 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
 
   def record(team: Team, predicate: Game => Boolean = _ => true, lastN: Int = 0): WonLostRecord = {
     val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(predicate)
-   val(w,l) =  (lastN match {
+    val (w, l) = (lastN match {
       case 0 => g1
       case n => g1.take(n)
     }).foldLeft(0, 0)((wl: (Int, Int), game: Game) => if (isWinner(team, game)) (wl._1 + 1, wl._2) else if (isLoser(team, game)) (wl._1, wl._2 + 1) else wl)
-    WonLostRecord(w,l)
+    WonLostRecord(w, l)
+  }
+
+  def interConfRecord(conf:Conference):List[(Conference, WonLostRecord)] ={
+    val confGames: Map[Long, List[Game]] = nonConferenceSchedule(conf).groupBy(g=>if (teamConference(g.awayTeamId)==conf.id) teamConference(g.homeTeamId) else teamConference(g.awayTeamId))
+    confGames.mapValues(gl=>
+       gl.foldLeft(0,0)((wl: (Int, Int), game: Game) =>{
+         winner(game) match {
+           case Some(w)=> if (teamConference(w.id)==conf.id) (wl._1+1,wl._2) else (wl._1,wl._2+1)
+           case _=>wl
+         }
+       })
+    ).map((tuple: (Long, (Int, Int))) => (conferenceIdMap(tuple._1), WonLostRecord(tuple._2._1,tuple._2._2))).toList.sortBy(tup=>(tup._2.lost-tup._2.won, -tup._2.won,tup._1.name))
+
   }
 
   def overallRecord(team: Team): WonLostRecord = record(team)
 
   def conferenceRecord(team: Team): WonLostRecord = record(team, g => isConferenceGame(g))
+
   def nonConferenceRecord(team: Team): WonLostRecord = record(team, g => !isConferenceGame(g))
 
-  def homeRecord(team: Team):WonLostRecord = record(team, g => g.homeTeamId == team.id)
+  def homeRecord(team: Team): WonLostRecord = record(team, g => g.homeTeamId == team.id)
 
-  def awayRecord(team: Team):WonLostRecord = record(team, g => g.awayTeamId == team.id)
+  def awayRecord(team: Team): WonLostRecord = record(team, g => g.awayTeamId == team.id)
 
-  def neutralRecord(team: Team):WonLostRecord = record(team, g => g.isNeutralSite)
+  def neutralRecord(team: Team): WonLostRecord = record(team, g => g.isNeutralSite)
 
-  case class WonLostRecord(won: Int = 0, lost: Int = 0) extends Ordering[WonLostRecord] {
-    require(won>=0 && lost>=0)
-    override def compare(x: WonLostRecord, y: WonLostRecord): Int = {
-      (x.won - x.lost) - (y.won - y.lost) match {
-        case 0 => x.won - y.won
-        case i => i
-      }
-    }
-    def pct:Option[Double] =
-      won + lost match {
-        case 0=>None
-        case x=>Some(won.toDouble/x.toDouble)
-      }
-  }
 
-  case class ConferenceStandings(records:List[(WonLostRecord, WonLostRecord, Team)])
 
   def conferenceStandings(conference: Conference): ConferenceStandings = {
-    val list = conferenceTeams(conference.id).map(tid => teamsMap(tid)).map(t => ( conferenceRecord(t), overallRecord(t),t))
-    ConferenceStandings(list.sortBy(tup=>(tup._1.lost-tup._1.won, -tup._1.won, tup._2.lost-tup._2.won, -tup._2.won,tup._3.name)))
+    val list = conferenceTeams(conference.id).map(tid => teamsMap(tid)).map(t => (conferenceRecord(t), overallRecord(t), t))
+    ConferenceStandings(list.sortBy(tup => (tup._1.lost - tup._1.won, -tup._1.won, tup._2.lost - tup._2.won, -tup._2.won, tup._3.name)))
+  }
+
+  def conferenceSchedule(conference: Conference): List[Game] = {
+    games.filter(g => teamConference.get(g.homeTeamId).contains(conference.id) && teamConference.get(g.awayTeamId).contains(conference.id))
+  }
+
+  def nonConferenceSchedule(conference: Conference): List[Game] = {
+    games.filter(g => teamConference.get(g.homeTeamId) != teamConference.get(g.awayTeamId) && (teamConference.get(g.homeTeamId).contains(conference.id) || teamConference.get(g.awayTeamId).contains(conference.id)))
   }
 
 

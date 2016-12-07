@@ -1,0 +1,63 @@
+@import com.fijimf.deepfij.models.{Conference, Schedule,Game, Team, User,GameLine, WonLostRecord, ConferenceStandings}
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+
+@(user: Option[User], c: Conference, cs:ConferenceStandings,rec:List[(Conference, WonLostRecord)], nonConf:List[Game], conf:List[Game], curr:Schedule)(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+
+@main("deepfij", c.name, "", Some(Breadcrumbs.base.appendChild("Teams", "/conferences", "fa-wrench").appendChild(c.name, "fa-eyeball", c.key)), StandardNavBar.active("conferences"), user, c.logoLgUrl.getOrElse("/assets/images/deepfij.png"), "#999"
+) {
+
+        <div class="row">
+            <div class="col-sm-5">
+                <h5>@{c.name+" Standings"}</h5>
+                <table class="table table-condensed table-schedule" >
+                @for(r <-cs.records) {
+                        <tr>
+                            <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
+                            <td>@r._1.won</td>
+                            <td>@r._1.lost</td>
+                            <td>@r._2.won</td>
+                            <td>@r._2.lost</td>
+                        </tr>
+                }
+                </table>
+                <h5>Conference Schedule</h5>
+                <table class="table table-condensed table-schedule" >
+                @for(g <-conf) {
+                    <tr>
+                        <td>@g.date</td>
+                        <td>@{curr.teamsMap(g.homeTeamId).name}</td>
+                        <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
+                        <td>@{curr.teamsMap(g.awayTeamId).name}</td>
+                        <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
+                    </tr>
+                }
+                </table>
+            </div>
+            <div class="col-sm-5 col-sm-offset-1">
+                <h5>Inter Conference Records"</h5>
+                <table class="table table-condensed table-schedule" >
+                @for(r <-rec) {
+                        <tr>
+                            <td><a href="@routes.TeamController.conference(r._1.key)">@r._1.name</a></td>
+                            <td>@r._2.won</td>
+                            <td>@r._2.lost</td>
+                        </tr>
+                }
+                </table>
+
+                <h5>Non-Conference Schedule</h5>
+                <table class="table table-condensed table-schedule" >
+                @for(g <-nonConf) {
+                    <tr>
+                        <td>@g.date</td>
+                        <td>@{curr.teamsMap(g.homeTeamId).name}</td>
+                        <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
+                        <td>@{curr.teamsMap(g.awayTeamId).name}</td>
+                        <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
+                    </tr>
+                }
+                </table>
+            </div>
+        </div>
+    }

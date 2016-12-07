@@ -4,6 +4,8 @@ GET         /deepfij                                            controllers.Inde
 GET         /deepfij/index                                      controllers.IndexController.index
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                  controllers.TeamController.team(key:String)
+GET         /deepfij/conferences                                      controllers.TeamController.teams(q:String ?= "")
+GET         /deepfij/conferences/:key                                  controllers.TeamController.conference(key:String)
 ########### ASSETS
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)

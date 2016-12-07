@@ -52,4 +52,22 @@ class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       }
     })
   }
+
+  def conference(key: String) = silhouette.UserAwareAction.async { implicit request =>
+
+    teamDao.loadSchedules().map(ss => {
+      val sortedSchedules = ss.sortBy(s => -s.season.year)
+      sortedSchedules.headOption match {
+        case Some(sch) => {
+          val c = sch.conferenceKeyMap(key)
+          Ok(views.html.data.conference(request.identity, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
+        }
+        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+      }
+
+    })
+
+  }
+
+
 }
