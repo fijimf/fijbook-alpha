@@ -192,7 +192,7 @@
                         <td>@u.firstName.getOrElse("")</td>
                         <td>@u.email.getOrElse("")</td>
                         <td>
-                            <a href="/deepfij/userProfile/@u.userID.toString/">@u.userID.toString</a>
+                            <a href="@routes.AdminController.userProfile(u.userID.toString)">@u.userID.toString</a>
                         </td>
                     </tr>
                 }

@@ -12,6 +12,7 @@ GET         /assets/*file                                       controllers.Asse
 
 ########### ADMIN
 GET         /deepfij/admin                                      controllers.AdminController.index
+GET         /deepfij/admin/userProfile/:id                      controllers.AdminController.userProfile(id:String)
 
 ########### DATABASE
 GET         /deepfij/admin/schema                               controllers.SchemaController.dumpSchema

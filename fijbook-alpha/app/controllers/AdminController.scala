@@ -22,4 +22,6 @@ class AdminController @Inject()(val userService: UserService, val scheduleDao:Sc
       Ok(views.html.admin.index(rs.identity, users, schedules))
     }
   }
+
+    def userProfile(id: String) = play.mvc.Results.TODO
 }
