@@ -4,7 +4,7 @@
 @import com.fijimf.deepfij.models.Team
 @import helper._
 
-@(user:User, seasonForm: Form[forms.EditQuoteForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@(user:User, form: Form[forms.EditQuoteForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
@@ -19,10 +19,10 @@
         <div class="col-sm-8">
             @b3.form(routes.DataController.saveQuote()) {
                 @CSRF.formField
-                @b3.hidden( "id", seasonForm("id").value.getOrElse(""), '_label -> "ID" )
-                @b3.text( seasonForm("quote"), '_label -> "Quote" )
-                @b3.text( seasonForm("source"), '_label -> "Source" )
-                @b3.text( seasonForm("url"), '_label -> "URL" )
+                @b3.hidden( "id", form("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( form("quote"), '_label -> "Quote" )
+                @b3.text( form("source"), '_label -> "Source" )
+                @b3.text( form("url"), '_label -> "URL" )
                 @b3.submit('class -> "btn btn-default"){ Submit }
             }
         </div>

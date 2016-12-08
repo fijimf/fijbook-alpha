@@ -7,7 +7,7 @@ object EditQuoteForm {
 
   val form = Form(
     mapping(
-      "id" -> ignored[Long](0),
+      "id" -> longNumber,
       "quote" -> nonEmptyText,
       "source" -> optional(text),
       "url"->optional(text)

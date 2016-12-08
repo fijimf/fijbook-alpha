@@ -124,7 +124,8 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           case Success(i) => logger.info("Hooray")
           case Failure(thr) => logger.error("Boo", thr)
         }
-        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Created " + data.quote)))
+        val flashMsg = if (q.id==0) "Created quote "+q.id else "Updated quote"+q.id
+        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
   }
