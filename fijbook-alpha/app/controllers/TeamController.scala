@@ -69,5 +69,21 @@ class TeamController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   }
 
+  def conferences() = silhouette.UserAwareAction.async { implicit request =>
+
+    teamDao.loadSchedules().map(ss => {
+      val sortedSchedules = ss.sortBy(s => -s.season.year)
+      sortedSchedules.headOption match {
+        case Some(sch) => {
+          val cmap = sch.conferences.map(c=>c->sch.conferenceStandings(c)).sortBy(_._1.name)
+          Ok(views.html.data.conferences(request.identity, cmap))
+        }
+        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+      }
+
+    })
+
+  }
+
 
 }

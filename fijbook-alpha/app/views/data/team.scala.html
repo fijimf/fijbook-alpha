@@ -7,7 +7,7 @@
     "deepfij",
     t.name +" "+t.nickname,
     curr.overallRecord(t).won +"-"+ curr.overallRecord(t).lost+", "+curr.conferenceRecord(t).won+"-"+ curr.conferenceRecord(t).lost+" "+curr.conference(t).name,
-    Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench").appendChild(t.name, "fa-eyeball", t.key)),
+    Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-users").appendChild(t.name, "fa-eyeball", t.key)),
     StandardNavBar.active("admin"),
     user,
     t.logoSmUrl.getOrElse("/assets/images/deepfij.png"),

@@ -3,7 +3,7 @@
 @(user: Option[User], columns: List[List[Team]])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
-@main("deepfij", "Teams", "", Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-wrench")), StandardNavBar.active("teams"), user, "/assets/images/deepfij.png", "#ddd" ) {
+@main("deepfij", "Teams", "", Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-users")), StandardNavBar.active("teams"), user, "/assets/images/deepfij.png", "#ddd" ) {
     <div class="row">
         <div class="col-md-12">
             <form class="navbar-form" role="search">
