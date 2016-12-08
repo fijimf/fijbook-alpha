@@ -4,7 +4,7 @@
 @(user: Option[User], c: Conference, cs:ConferenceStandings,rec:List[(Conference, WonLostRecord)], nonConf:List[Game], conf:List[Game], curr:Schedule)(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
-@main("deepfij", c.name, "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list").appendChild(c.name, "fa-eyeball", c.key)), StandardNavBar.active("conferences"), user, c.logoLgUrl.getOrElse("/assets/images/deepfij.png"), "#999"
+@main("deepfij", c.name, "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list").appendChild(c.name, "fa-eyeball", c.key)), StandardNavBar.active("conferences", user), user, c.logoLgUrl.getOrElse("/assets/images/deepfij.png"), "#999"
 ) {
 
         <div class="row">

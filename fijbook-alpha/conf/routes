@@ -2,6 +2,7 @@
 GET         /                                                   controllers.IndexController.redirect
 GET         /deepfij                                            controllers.IndexController.redirect
 GET         /deepfij/index                                      controllers.IndexController.index
+GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                  controllers.TeamController.team(key:String)
 GET         /deepfij/conferences                                      controllers.TeamController.conferences()

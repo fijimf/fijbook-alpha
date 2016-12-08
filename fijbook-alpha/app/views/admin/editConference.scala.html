@@ -13,7 +13,7 @@
     conference.name,
     "",
     Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Teams","fa-eyeball","browseTeams").appendChild(conference.name,"fa-edit","editConference")),
-    StandardNavBar.active("admin"), Some(user)
+    StandardNavBar.active("admin",Some(user)), Some(user)
 ) {
     <div class="row">
         <div class="col-sm-8">

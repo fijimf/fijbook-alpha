@@ -3,7 +3,7 @@
 @(user: Option[User], cmap: List[(Conference,ConferenceStandings)])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
-@main("deepfij", "Conferences", "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list")), StandardNavBar.active("teams"), user, "/assets/images/deepfij.png", "#ddd" ) {
+@main("deepfij", "Conferences", "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list")), StandardNavBar.active("teams",user), user, "/assets/images/deepfij.png", "#ddd" ) {
 
     <div class="row">
         <div class="col-sm-12">

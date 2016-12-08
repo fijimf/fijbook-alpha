@@ -23,5 +23,5 @@ class AdminController @Inject()(val userService: UserService, val scheduleDao:Sc
     }
   }
 
-    def userProfile(id: String) = play.mvc.Results.TODO
+  def userProfile(id: String) = play.mvc.Results.TODO
 }
