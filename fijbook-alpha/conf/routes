@@ -4,9 +4,11 @@ GET         /deepfij                                            controllers.Inde
 GET         /deepfij/index                                      controllers.IndexController.index
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
-GET         /deepfij/teams/:key                                  controllers.TeamController.team(key:String)
-GET         /deepfij/conferences                                      controllers.TeamController.conferences()
-GET         /deepfij/conferences/:key                                  controllers.TeamController.conference(key:String)
+GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String)
+GET         /deepfij/conferences                                controllers.TeamController.conferences()
+GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
+GET         /deepfij/quotes/random                              controllers.QuoteController.random
+
 ########### ASSETS
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
@@ -44,7 +46,7 @@ POST        /deepfij/admin/saveConference                       controllers.Data
 GET         /deepfij/admin/createSeason                         controllers.DataController.createSeason
 POST        /deepfij/admin/saveSeason                           controllers.DataController.saveSeason
 GET         /deepfij/admin/deleteSeason/:id                     controllers.DataController.deleteSeason(id:Long)
-GET         /deepfij/admin/lockSeason/:id                     controllers.DataController.lockSeason(id:Long)
+GET         /deepfij/admin/lockSeason/:id                       controllers.DataController.lockSeason(id:Long)
 
 ##### CONFERENCEMAP
 GET         /deepfij/admin/seedConferenceMap                    controllers.TeamScrapeController.seedConferenceMaps()

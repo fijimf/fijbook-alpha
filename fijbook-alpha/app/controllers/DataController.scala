@@ -97,7 +97,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def createQuote() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form)))
+    Future.successful(Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(0L,"",None,None)))))
   }
 
   def deleteQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
