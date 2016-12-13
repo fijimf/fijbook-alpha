@@ -36,7 +36,9 @@ libraryDependencies ++= Seq(
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
   "com.adrianhurt" %% "play-bootstrap" % "1.0-P25-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
-  "com.typesafe.akka" %% "akka-contrib" % "2.3.15"
+  "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
+  "com.chuusai" %% "shapeless" % "2.3.1",
+  "org.apache.commons" % "commons-math3" % "3.6.1"
 )
 
 

@@ -8,6 +8,7 @@ GET         /deepfij/teams/:key                                 controllers.Team
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
+GET         /deepfij/stats/wins                                 controllers.StatsController.win
 
 ########### ASSETS
 

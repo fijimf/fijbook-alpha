@@ -19,9 +19,13 @@ class QuoteController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
 
   def random = Action.async {
     teamDao.listQuotes.map(qs => {
-      val n = Random.nextInt(qs.size)
-      val quote = qs(n)
-      Ok(Json.toJson(Map("quote" -> quote.quote)))
+      if (qs.isEmpty){
+        Ok(Json.toJson(Map("quote" -> "Anger is an energy")))
+      } else {
+        val n = Random.nextInt(qs.size)
+        val quote = qs(n)
+        Ok(Json.toJson(Map("quote" -> quote.quote)))
+      }
     })
   }
 }
