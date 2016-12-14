@@ -358,8 +358,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  case class StatValue(id: Long, statKeyId: Long, teamID:Long, date:LocalDate, value:Double)
-
   class StatKeyTable(tag: Tag) extends Table[Quote](tag, "stat_key") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -368,7 +366,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def statKey: Rep[String] = column[String]("stat_key")
 
-    def * : ProvenShape[StatKey] = (id, modelKey, statKey, url) <> (StatKey.tupled, StatKey.unapply)
+    def * : ProvenShape[StatKey] = (id, modelKey, statKey) <> (StatKey.tupled, StatKey.unapply)
 
   }
 
@@ -378,8 +376,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def statKeyId: Rep[Long] = column[Long]("stat_key_id")
     def teamId: Rep[Long] = column[Long]("team_id")
-
-    def * : ProvenShape[Quote] = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
+    def date:Rep[LocalDate] = column[LocalDate]("date")
+    def value:Rep[Double] = column[Double]("value")
+    def * : ProvenShape[StatValue] = (id, statKeyId, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
 
   }
 
@@ -392,8 +391,10 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferences: TableQuery[ConferencesTable] = TableQuery[ConferencesTable]
   lazy val conferenceMaps:  TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
   lazy val quotes: TableQuery[QuoteTable] = TableQuery[QuoteTable]
+  lazy val statKeys: TableQuery[StatKeyTable] = TableQuery[StatKeyTable]
+  lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
 
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statKeys.schema ++ statValues.schema
 }
