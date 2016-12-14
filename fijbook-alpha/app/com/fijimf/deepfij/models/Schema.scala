@@ -72,6 +72,8 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
 case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
+case class StatKey(id: Long, modelKey: String, statKey: String)
+case class StatValue(id: Long, statKeyId: Long, teamID:Long, date:LocalDate, value:Double)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
@@ -355,6 +357,32 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[Quote] = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
 
   }
+
+  case class StatValue(id: Long, statKeyId: Long, teamID:Long, date:LocalDate, value:Double)
+
+  class StatKeyTable(tag: Tag) extends Table[Quote](tag, "stat_key") {
+
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def modelKey: Rep[String] = column[String]("model_key")
+
+    def statKey: Rep[String] = column[String]("stat_key")
+
+    def * : ProvenShape[StatKey] = (id, modelKey, statKey, url) <> (StatKey.tupled, StatKey.unapply)
+
+  }
+
+  class StatValueTable(tag: Tag) extends Table[Quote](tag, "stat_value") {
+
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def statKeyId: Rep[Long] = column[Long]("stat_key_id")
+    def teamId: Rep[Long] = column[Long]("team_id")
+
+    def * : ProvenShape[Quote] = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
+
+  }
+
 
   lazy val seasons:  TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games:  TableQuery[GamesTable] = TableQuery[GamesTable]
