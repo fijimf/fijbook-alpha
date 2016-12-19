@@ -8,7 +8,6 @@ GET         /deepfij/teams/:key                                 controllers.Team
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
-GET         /deepfij/stats/wins                                 controllers.StatsController.win
 
 ########### ASSETS
 
@@ -31,6 +30,7 @@ GET         /deepfij/admin/scrapeGames/:seasonId                controllers.Game
 
 ########### DATA
 ##### TEAMS
+GET         /deepfij/admin/updateStats                          controllers.StatsController.updateAll()
 GET         /deepfij/admin/browseTeams                          controllers.DataController.browseTeams
 GET         /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOneForm
 POST        /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOne

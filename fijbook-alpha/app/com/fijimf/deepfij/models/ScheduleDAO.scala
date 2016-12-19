@@ -29,7 +29,7 @@ trait ScheduleDAO {
 
   def listAliases: Future[List[Alias]]
 
-  def deleteAlias(id: Long): Future[Int]
+  def deleteStatValues(dates:List[LocalDate], model:List[String]): Future[Unit]
 
   def deleteTeam(id: Long): Future[Int]
 
@@ -63,4 +63,8 @@ trait ScheduleDAO {
   def deleteQuote(id: Long): Future[Int]
 
   def loadSchedules(): Future[List[Schedule]]
+
+  def saveStatValues(stats:List[StatValue]):Future[Option[Int]]
+
+  def deleteAlias(id: Long): Future[Int]
 }

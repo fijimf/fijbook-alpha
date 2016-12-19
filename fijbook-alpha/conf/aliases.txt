@@ -14,6 +14,7 @@ alcorn-st               alcorn
 ut-arlington            texas-arlington
 fort-wayne              ipfw
 ul-lafayette            la-lafayette
+louisiana               la-lafayette
 lamar-university        lamar
 csu-bakersfield         bakersfield
 omaha                   neb-omaha

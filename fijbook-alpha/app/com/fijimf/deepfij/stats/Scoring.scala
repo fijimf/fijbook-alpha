@@ -4,12 +4,15 @@ import java.time.LocalDate
 
 import com.fijimf.deepfij.models.{Game, Schedule, Team}
 import org.apache.commons.math3.stat.StatUtils
+import play.api.Logger
+
+import scala.util.{Failure, Success, Try}
 
 case class Scoring(s: Schedule) extends Analyzer[ScoringAccumulator] {
-
+val log = Logger(Scoring.getClass)
   val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
     val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
-    s.games
+    Try {s.games
       .sortBy(_.date.toEpochDay)
       .foldLeft(zero)((tuple: (Map[Team, ScoringAccumulator], Map[LocalDate, Map[Team, ScoringAccumulator]]), game: Game) => {
         val (r0, byDate) = tuple
@@ -28,7 +31,14 @@ case class Scoring(s: Schedule) extends Analyzer[ScoringAccumulator] {
             (r2, byDate + (game.date -> r2))
           case None => (r0, byDate)
         }
-      })._2
+      })._2} match {
+      case Success(x)=>
+        log.info("Stat configuration succeeded wuth "+ x.size+" dates")
+        x
+      case Failure(thr)=>
+        log.error("Stat computation failed",thr)
+        zero._2
+    }
   }
 
 

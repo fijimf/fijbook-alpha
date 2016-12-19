@@ -3,12 +3,16 @@ package com.fijimf.deepfij.stats
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models.{Game, Schedule, Team}
+import play.api.Logger
 
-class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
+import scala.util.{Failure, Success, Try}
 
+case class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
+
+  val log = Logger(Rpi.getClass)
   val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
     val zero = (Map.empty[Team, RpiAccumulator], Map.empty[LocalDate, Map[Team, RpiAccumulator]])
-    s.games
+   Try{ s.games
       .sortBy(_.date.toEpochDay)
       .foldLeft(zero)((tuple: (Map[Team, RpiAccumulator], Map[LocalDate, Map[Team, RpiAccumulator]]), game: Game) => {
         val (running, byDate) = tuple
@@ -26,7 +30,14 @@ class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
           case _ => running
         }
         (newRunning, byDate + (game.date -> newRunning))
-      })._2
+      })._2} match {
+     case Success(x)=>
+       log.info("Stat configuration succeeded wuth "+ x.size+" dates")
+       x
+     case Failure(thr)=>
+       log.error("Stat computation failed",thr)
+       zero._2
+   }
   }
 
   val stats: List[Stat[RpiAccumulator]] = List(

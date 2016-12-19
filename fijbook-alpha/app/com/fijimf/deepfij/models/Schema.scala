@@ -52,10 +52,10 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite:Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
 }
 
-case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team]{
+case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
   override def compare(x: Team, y: Team): Int = x.name.compare(y.name)
 }
 
@@ -63,17 +63,21 @@ case class Alias(id: Long, alias: String, key: String)
 
 case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
   def margin: Int = Math.abs(homeScore - awayScore)
-  def isHomeWinner:Boolean = homeScore>awayScore
-  def isAwayWinner:Boolean = homeScore<awayScore
-  def isHomeLoser:Boolean = homeScore<awayScore
-  def isAwayLoser:Boolean = homeScore>awayScore
+
+  def isHomeWinner: Boolean = homeScore > awayScore
+
+  def isAwayWinner: Boolean = homeScore < awayScore
+
+  def isHomeLoser: Boolean = homeScore < awayScore
+
+  def isAwayLoser: Boolean = homeScore > awayScore
 }
 
 case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
-case class StatKey(id: Long, modelKey: String, statKey: String)
-case class StatValue(id: Long, statKeyId: Long, teamID:Long, date:LocalDate, value:Double)
+
+case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
@@ -358,7 +362,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  class StatKeyTable(tag: Tag) extends Table[Quote](tag, "stat_key") {
+  class StatValueTable(tag: Tag) extends Table[StatValue](tag, "stat_value") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
@@ -366,35 +370,28 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def statKey: Rep[String] = column[String]("stat_key")
 
-    def * : ProvenShape[StatKey] = (id, modelKey, statKey) <> (StatKey.tupled, StatKey.unapply)
-
-  }
-
-  class StatValueTable(tag: Tag) extends Table[Quote](tag, "stat_value") {
-
-    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-
-    def statKeyId: Rep[Long] = column[Long]("stat_key_id")
     def teamId: Rep[Long] = column[Long]("team_id")
-    def date:Rep[LocalDate] = column[LocalDate]("date")
-    def value:Rep[Double] = column[Double]("value")
-    def * : ProvenShape[StatValue] = (id, statKeyId, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
+
+    def date: Rep[LocalDate] = column[LocalDate]("date")
+
+    def value: Rep[Double] = column[Double]("value")
+
+    def * : ProvenShape[StatValue] = (id, modelKey, statKey, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
 
   }
 
 
-  lazy val seasons:  TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
-  lazy val games:  TableQuery[GamesTable] = TableQuery[GamesTable]
-  lazy val results:TableQuery[ResultsTable] = TableQuery[ResultsTable]
+  lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
+  lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
+  lazy val results: TableQuery[ResultsTable] = TableQuery[ResultsTable]
   lazy val teams: TableQuery[TeamsTable] = TableQuery[TeamsTable]
-  lazy val aliases:  TableQuery[AliasesTable] = TableQuery[AliasesTable]
+  lazy val aliases: TableQuery[AliasesTable] = TableQuery[AliasesTable]
   lazy val conferences: TableQuery[ConferencesTable] = TableQuery[ConferencesTable]
-  lazy val conferenceMaps:  TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
+  lazy val conferenceMaps: TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
   lazy val quotes: TableQuery[QuoteTable] = TableQuery[QuoteTable]
-  lazy val statKeys: TableQuery[StatKeyTable] = TableQuery[StatKeyTable]
   lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
 
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statKeys.schema ++ statValues.schema
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statValues.schema
 }
