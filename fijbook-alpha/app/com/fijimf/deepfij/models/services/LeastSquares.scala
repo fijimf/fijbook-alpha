@@ -4,23 +4,12 @@ import java.time.LocalDate
 
 import breeze.linalg.svd.DenseSVD
 import breeze.linalg.{DenseMatrix, DenseVector, svd}
+import breeze.stats._
 import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
 import com.fijimf.deepfij.stats.{Analyzer, Stat}
 import play.api.Logger
 
 case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
-
-
-  val A=new DenseMatrix[Double](6,3)
-  A.update(0,0,1.0)
-  A.update(1,1,1.0)
-  A.update(2,2,1.0)
-  A.update(3,2,1.0)
-  A.update(4,2,1.0)
-  A.update(5,2,1.0)
-  val b=new DenseVector(Array(1.0,2.0,5.0,2.0,3.0,6.0))
-  val x = solve(A,b)
-  println("************************************-->"+x.toString())
 
 
   override val name: String = "Least Squares"
@@ -44,56 +33,82 @@ case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
         val nGames: Int = results.size
         val nTeams: Int = teamMap.size
         val A: DenseMatrix[Double] =new DenseMatrix(nGames, nTeams)
-        val b: DenseVector[Double] =new DenseVector(nGames)
+        val bTies: DenseVector[Double] =new DenseVector(nGames)
+        val bNoTies: DenseVector[Double] =new DenseVector(nGames)
+        val bScaledTies: DenseVector[Double] =new DenseVector(nGames)
+        val bScaledNoTies: DenseVector[Double] =new DenseVector(nGames)
+        val bLogPropTies: DenseVector[Double] =new DenseVector(nGames)
+        val bLogPropNoTies: DenseVector[Double] =new DenseVector(nGames)
         results.foreach{case  (i: Int, g:Game, r:Result) =>
           A.update(i, teamMap(g.homeTeamId), 1.0)
           A.update(i, teamMap(g.awayTeamId), -1.0)
-          b.update(i, if (r.periods > 2) {
-              0.0
-            } else {
-              r.homeScore - r.awayScore
-            }
-          )
+          bTies.update(i, tiesResult(r))
+          bNoTies.update(i, noTiesResult(r))
+          bScaledTies.update(i, scaledTiesResult(r))
+          bScaledNoTies.update(i, scaledNoTiesResult(r))
+          bLogPropTies.update(i, logPropTiesResult(r))
+          bLogPropNoTies.update(i, logPropNoTiesResult(r))
         }
 
+        normalize(bLogPropNoTies)
+        normalize(bLogPropTies)
 
-        val x = solve(A,b)
+        val xs = solve(A,List (bTies, bNoTies, bScaledTies, bScaledNoTies, bLogPropTies, bLogPropTies))
         log.info("Completed "+d)
         d -> teamMap.map((tuple: (Long, Int)) => {
           val team = s.teamsMap(tuple._1)
-          val value = x(tuple._2)
-          if (team.name=="Villanova") log.info(team.name+"   "+value+"   "+tuple)
-          team -> LSCalc(value)
+          team -> LSCalc(xs(0)(tuple._2),xs(1)(tuple._2),xs(2)(tuple._2),xs(3)(tuple._2),xs(4)(tuple._2),xs(5)(tuple._2))
         })
       }
     }).toMap
   }
+
+  private def normalize(vec: DenseVector[Double]): DenseVector[Double] = {
+    val mav = meanAndVariance(vec)
+    vec :-= mav.mean
+    vec :/= mav.stdDev
+  }
+
+  private def tiesResult(r: Result): Double = {
+    if (r.periods > 2) {
+      0.0
+    } else {
+      r.homeScore - r.awayScore
+    }
+  }
+  private def noTiesResult(r: Result): Double = r.homeScore - r.awayScore
+
+  private def scaledTiesResult(r: Result): Double = math.signum(tiesResult(r))
+  private def scaledNoTiesResult(r: Result): Double = math.signum(noTiesResult(r))
+
+  private def logPropTiesResult(r: Result): Double = {
+    if (r.periods > 2) {
+      0.0
+    } else {
+      math.log(r.homeScore.toDouble/r.awayScore.toDouble)
+    }
+  }
+  private def logPropNoTiesResult(r: Result): Double = math.log(r.homeScore.toDouble/r.awayScore.toDouble)
+
   override val stats: List[Stat[LSCalc]] = List(
-    Stat[LSCalc]("X", "x", 0, higherIsBetter = true, _.x))
+    Stat[LSCalc]("X-margin[Ties]", "x-margin-ties", 0, higherIsBetter = true, _.xTies),
+    Stat[LSCalc]("X-margin[No Ties]", "x-margin-no-ties", 0, higherIsBetter = true, _.xNoTies),
+    Stat[LSCalc]("X-wins[Ties]", "x-wins-ties", 0, higherIsBetter = true, _.xScaledTies),
+    Stat[LSCalc]("X-wins[No Ties]", "x-wins-no-ties", 0, higherIsBetter = true, _.xScaledNoTies),
+    Stat[LSCalc]("X-log proportion[Ties]", "x-log-proportion-ties", 0, higherIsBetter = true, _.xLogPropTies),
+    Stat[LSCalc]("X-log proportion[No Ties]", "x-log-proportion-no-ties", 0, higherIsBetter = true, _.xLogPropNoTies)
+  )
 
-  def solve(A: DenseMatrix[Double], b: DenseVector[Double]): DenseVector[Double] = {
+  def solve(A: DenseMatrix[Double], bs: List[DenseVector[Double]]): List[DenseVector[Double]] = {
     val svd1: DenseSVD = svd(A)
     val sigma = new DenseMatrix[Double](A.cols, A.rows)
-    svd1.singularValues.toArray.zipWithIndex.foreach { case (ss: Double, i: Int) => if (ss > 0.01) sigma.update(i, i, 1.0 / ss) }
+    svd1.singularValues.toArray.zipWithIndex.foreach { case (ss: Double, i: Int) => if (ss > 0.1) sigma.update(i, i, 1.0 / ss) }
 
-    svd1.rightVectors.t * sigma * svd1.leftVectors.t * b
+    bs.map(b=>svd1.rightVectors.t * sigma * svd1.leftVectors.t * b)
   }
-
-
+  
 }
 
-case class LSCalc(x: Double)
+case class LSCalc(xTies: Double, xNoTies:Double, xScaledTies: Double, xScaledNoTies:Double, xLogPropTies: Double, xLogPropNoTies:Double)
 
 
-object FixIt {
-  def main(args: Array[String]): Unit = {
-
-  }
-  def solve(A: DenseMatrix[Double], b: DenseVector[Double]): DenseVector[Double] = {
-    val svd1: DenseSVD = svd(A)
-    val sigma = new DenseMatrix[Double](A.cols, A.rows)
-    svd1.singularValues.toArray.zipWithIndex.foreach { case (ss: Double, i: Int) => if (ss > 0.01) sigma.update(i, i, 1.0 / ss) }
-
-    svd1.rightVectors * sigma * svd1.leftVectors * b
-  }
-}
