@@ -28,7 +28,8 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
   }
 
   def updateForSchedule(sch: Schedule): Future[Option[Int]] = {
-    val models: List[Analyzer[_]] = List(WonLost(sch), Scoring(sch), Rpi(sch))
+//    val models: List[Analyzer[_]] = List(WonLost(sch), Scoring(sch), Rpi(sch), LeastSquares(sch))
+    val models: List[Analyzer[_]] = List( LeastSquares(sch))
     val dates = sch.lastResult match {
       case Some(d) => sch.season.dates.filter(sd => sd.isBefore(d))
       case None => List.empty

@@ -38,7 +38,8 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
   "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
   "com.chuusai" %% "shapeless" % "2.3.1",
-  "org.apache.commons" % "commons-math3" % "3.6.1"
+  "org.apache.commons" % "commons-math3" % "3.6.1",
+  "org.scalanlp" %% "breeze" % "0.12"
 )
 
 
