@@ -42,6 +42,18 @@ val log = Logger(Scoring.getClass)
   }
 
 
+
+  override val name: String = Scoring.name
+  override val desc: String = Scoring.desc
+  override val key: String = Scoring.key
+  override val stats: List[Stat[ScoringAccumulator]] = Scoring.stats
+}
+
+case object Scoring extends Model[ScoringAccumulator]{
+   val name: String = "Scoring"
+   val desc: String = "Scoring model captures max, min, mean, and variance of points for, points against, scoring margin and combined score "
+   val key: String = "scoring"
+
   val stats = List(
     Stat[ScoringAccumulator]("Mean Points For", "meanpf", 0, higherIsBetter = true, a => StatUtils.mean(a.pointsFor.map(_.toDouble).toArray)),
     Stat[ScoringAccumulator]("Points For Variance", "varpf", 0, higherIsBetter = true, a => StatUtils.variance(a.pointsFor.map(_.toDouble).toArray)),
@@ -60,7 +72,4 @@ val log = Logger(Scoring.getClass)
     Stat[ScoringAccumulator]("Min Combined Score", "minou", 0, higherIsBetter = true, a => StatUtils.min(a.overUnder.map(_.toDouble).toArray)),
     Stat[ScoringAccumulator]("Max Combined Score", "maxou", 0, higherIsBetter = true, a => StatUtils.max(a.overUnder.map(_.toDouble).toArray))
   )
-  override val name: String = "Scoring"
-  override val desc: String = "Scoring model captures max, min, mean, and variance of points for, points against, scoring margin and combined score "
-  override val key: String = "scoring"
 }

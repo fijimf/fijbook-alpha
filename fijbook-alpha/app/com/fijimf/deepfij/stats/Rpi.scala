@@ -12,34 +12,47 @@ case class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
   val log = Logger(Rpi.getClass)
   val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
     val zero = (Map.empty[Team, RpiAccumulator], Map.empty[LocalDate, Map[Team, RpiAccumulator]])
-   Try{ s.games
-      .sortBy(_.date.toEpochDay)
-      .foldLeft(zero)((tuple: (Map[Team, RpiAccumulator], Map[LocalDate, Map[Team, RpiAccumulator]]), game: Game) => {
-        val (running, byDate) = tuple
-        val newRunning = (s.winner(game), s.loser(game)) match {
-          case (Some(w), Some(l)) =>
-            val w0 = running.getOrElse(w, RpiAccumulator())
-            val l0 = running.getOrElse(l, RpiAccumulator())
-            val w1 = w0.addOppOppWins(l0.oppWins).addOppOppLosses(l0.oppLosses)
-            val l1 = l0.addOppOppWins(w0.oppWins).addOppOppLosses(w0.oppLosses)
-            val w2 = w1.addOppWins(l1.wins).addOppLosses(l1.losses)
-            val l2 = l1.addOppWins(w1.wins).addOppLosses(w1.losses)
-            val w3 = w2.addWin()
-            val l3 = l2.addLoss()
-            running + (w -> w3, l -> l3)
-          case _ => running
-        }
-        (newRunning, byDate + (game.date -> newRunning))
-      })._2} match {
-     case Success(x)=>
-       log.info("Stat configuration succeeded wuth "+ x.size+" dates")
-       x
-     case Failure(thr)=>
-       log.error("Stat computation failed",thr)
-       zero._2
-   }
+    Try {
+      s.games
+        .sortBy(_.date.toEpochDay)
+        .foldLeft(zero)((tuple: (Map[Team, RpiAccumulator], Map[LocalDate, Map[Team, RpiAccumulator]]), game: Game) => {
+          val (running, byDate) = tuple
+          val newRunning = (s.winner(game), s.loser(game)) match {
+            case (Some(w), Some(l)) =>
+              val w0 = running.getOrElse(w, RpiAccumulator())
+              val l0 = running.getOrElse(l, RpiAccumulator())
+              val w1 = w0.addOppOppWins(l0.oppWins).addOppOppLosses(l0.oppLosses)
+              val l1 = l0.addOppOppWins(w0.oppWins).addOppOppLosses(w0.oppLosses)
+              val w2 = w1.addOppWins(l1.wins).addOppLosses(l1.losses)
+              val l2 = l1.addOppWins(w1.wins).addOppLosses(w1.losses)
+              val w3 = w2.addWin()
+              val l3 = l2.addLoss()
+              running + (w -> w3, l -> l3)
+            case _ => running
+          }
+          (newRunning, byDate + (game.date -> newRunning))
+        })._2
+    } match {
+      case Success(x) =>
+        log.info("Stat configuration succeeded wuth " + x.size + " dates")
+        x
+      case Failure(thr) =>
+        log.error("Stat computation failed", thr)
+        zero._2
+    }
   }
 
+
+  override val name: String = Rpi.name
+  override val desc: String = Rpi.desc
+  override val key: String = Rpi.key
+  override val stats: List[Stat[RpiAccumulator]] = Rpi.stats
+}
+
+case object Rpi extends Model[RpiAccumulator] {
+  val name: String = "RPI"
+  val desc: String = "Simple implementation of the NCAA's ratings percentage index, with possibly minor implementation details. 1-2-1 weight OWP twice as much as WP and Opp Opp WP, 4-2-1 weights WP twice as much as Opp WP and Opp WP twice as much as Opp Opp WP.  Also offers geometric as well as arithmetic average"
+  val key: String = "rpi"
   val stats: List[Stat[RpiAccumulator]] = List(
     Stat[RpiAccumulator]("Wins", "wins", 0, higherIsBetter = true, _.wins),
     Stat[RpiAccumulator]("Losses", "losses", 0, higherIsBetter = false, _.losses),
@@ -55,7 +68,4 @@ case class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
     Stat[RpiAccumulator]("RPI Geom [1-2-1]", "rpig121", 0, higherIsBetter = true, _.rpig(1, 2, 1)),
     Stat[RpiAccumulator]("RPI Geom [4-2-1]", "rpig321", 0, higherIsBetter = true, _.rpig(4, 2, 1))
   )
-  override val name: String = "RPI"
-  override val desc: String = "Simple implementation of the NCAA's ratings percentage index, with possibly minor implementation details. 1-2-1 weight OWP twice as much as WP and Opp Opp WP, 4-2-1 weights WP twice as much as Opp WP and Opp WP twice as much as Opp Opp WP.  Also offers geometric as well as arithmetic average"
-  override val key: String = "rpi"
 }

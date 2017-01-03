@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models.services
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
-import com.fijimf.deepfij.stats.{Analyzer, Rpi, Scoring, WonLost}
+import com.fijimf.deepfij.stats._
 import play.api.Logger
 
 import scala.concurrent.{Await, Future}
@@ -19,6 +19,10 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
 
   val activeYear = 2017
 
+  val models:List[Model[_]] = List(WonLost, Scoring, Rpi, LeastSquares)
+
+  val statMap: Map[String, Map[String, Stat[_]]] = models.map(m=>m.key->m.stats.map(s=>s.key->s).toMap).toMap
+  val modelMap: Map[String, Model[_]] = models.map(m=>m.key->m).toMap
 
   def update(): Option[Future[Option[Int]]] ={
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
@@ -55,5 +59,12 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
       )
     }).flatten
     dao.saveStatValues(values)
+  }
+
+  override def lookupStat(modelKey: String, statKey: String): Option[Stat[_]]={
+    statMap.get(modelKey).flatMap(m=>m.get(statKey))
+  }
+  override def lookupModel(modelKey: String): Option[Model[_]]={
+    modelMap.get(modelKey)
   }
 }

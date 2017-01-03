@@ -1,0 +1,102 @@
+@import com.fijimf.deepfij.models.{Schedule, Team, User}
+@import com.fijimf.deepfij.stats.Stat
+@import java.time.format.DateTimeFormatter
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@(user: Option[User], t: StatContext)(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+
+@main(
+    "deepfij",
+    t.statName,
+    t.modelName,
+    Some(Breadcrumbs.base.appendChild("Stats", "/stats", "fa-users").appendChild(t.modelName, "fa-eyeball", t.model.key).appendChild(t.statName, "fa-eyeball", t.stat.key)),
+    StandardNavBar.active("stats", user),
+    user,
+    "/assets/images/deepfij.png",
+    "#ddd"
+) {
+
+    <div class="row">
+        <div class="col-sm-3">
+            <table class="table table-condensed table-bordered stat-summary-table">
+                <tr>
+                    <td colspan="2" style="font-weight: bold;
+                        font-size: 110%">@t.statName</td>
+                </tr>
+                <tr>
+                    <th >As of</th>
+                    <td >@t.latestDate.format(DateTimeFormatter.ISO_LOCAL_DATE)</td>
+                </tr>
+                <tr>
+                    <th >Mean</th>
+                    <td >@t.desc.getMean.formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th >Std. Dev.</th>
+                    <td >@t.desc.getStandardDeviation.formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th >Skewness</th>
+                    <td >@t.desc.getSkewness.formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th >Kurtosis</th>
+                    <td >@t.desc.getKurtosis.formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th>Min</th>
+                    <td>@t.desc.getMin.formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th>Q1</th>
+                    <td>@t.desc.getPercentile(0.25).formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th>Med</th>
+                    <td>@t.desc.getPercentile(0.5).formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th>Q3</th>
+                    <td>@t.desc.getPercentile(0.75).formatted("%12.4f")</td>
+                </tr>
+                <tr>
+                    <th>Max</th>
+                    <td>@t.desc.getMax.formatted("%12.4f")</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-4 col-sm-offset-1">
+                <table class="table table-condensed table-schedule table-bordered" >
+                    <tr>
+                        <th>Rk</th>
+                        <th>Team</th>
+                        <th>@t.statName</th>
+                    </tr>
+                @for(tup<-t.latestValues){
+                    <tr>
+                        <td>@tup._1</td>
+                        <td><a href="@routes.TeamController.team(tup._3.key)">@tup._3.name</a></td>
+                        <td>@tup._2.value.formatted("%12.4f")</td>
+                    </tr>
+                }
+                </table>
+            </div>
+            <div class="col-sm-4">
+                <table class="table table-condensed table-schedule table-bordered" >
+                    <tr>
+                        <th>Team (alpha)</th>
+                        <th>Rk</th>
+                        <th>@t.statName</th>
+                    </tr>
+                @for(tup<-t.latestValuesAlpha){
+                    <tr>
+                        <td><a href="@routes.TeamController.team(tup._3.key)">@tup._3.name</a></td>
+                        <td>@tup._1</td>
+                        <td>@tup._2.value.formatted("%12.4f")</td>
+                    </tr>
+                }
+                </table>
+            </div>
+
+    </div>
+}

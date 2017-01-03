@@ -1,4 +1,4 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.stats
 
 import java.time.LocalDate
 
@@ -6,26 +6,20 @@ import breeze.linalg.svd.DenseSVD
 import breeze.linalg.{DenseMatrix, DenseVector, svd}
 import breeze.stats._
 import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
-import com.fijimf.deepfij.stats.{Analyzer, Stat}
 import play.api.Logger
 
-case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
-
-
-  override val name: String = "Least Squares"
-  override val desc: String = "Simple regression model"
-  override val key: String = "least-squares"
+case class LeastSquares(s: Schedule) extends Analyzer[LSAccumulator] {
 
   val log = Logger(LeastSquares.getClass)
   private val completedGames: List[(Game, Result)] = s.games.flatMap(g => s.resultMap.get(g.id).map(r => g -> r))
   private val dates = completedGames.map(_._1.date.plusDays(1)).distinct.sortBy(_.toEpochDay)
-  val data: Map[LocalDate, Map[Team, LSCalc]] = {
+  val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
     dates.map(d => {
       log.info("Starting "+d)
 
       val results: (List[(Int, Game, Result)]) = completedGames.filter(_._1.date.isBefore(d)).zipWithIndex.map(t=>(t._2,t._1._1,t._1._2))
       if (results.isEmpty) {
-        d -> Map.empty[Team, LSCalc]
+        d -> Map.empty[Team, LSAccumulator]
       } else {
         val uniqueTeams = results.map(_._2.homeTeamId).toSet ++ results.map(_._2.awayTeamId).toSet
         val teamMap: Map[Long, Int] = uniqueTeams.zipWithIndex.toMap
@@ -57,7 +51,7 @@ case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
         log.info("Completed "+d)
         d -> teamMap.map((tuple: (Long, Int)) => {
           val team = s.teamsMap(tuple._1)
-          team -> LSCalc(xs(0)(tuple._2),xs(1)(tuple._2),xs(2)(tuple._2),xs(3)(tuple._2),xs(4)(tuple._2),xs(5)(tuple._2))
+          team -> LSAccumulator(xs(0)(tuple._2),xs(1)(tuple._2),xs(2)(tuple._2),xs(3)(tuple._2),xs(4)(tuple._2),xs(5)(tuple._2))
         })
       }
     }).toMap
@@ -90,14 +84,7 @@ case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
   }
   private def logPropNoTiesResult(r: Result): Double = math.log(r.homeScore.toDouble/r.awayScore.toDouble)
 
-  override val stats: List[Stat[LSCalc]] = List(
-    Stat[LSCalc]("X-margin[Ties]", "x-margin-ties", 0, higherIsBetter = true, _.xTies),
-    Stat[LSCalc]("X-margin[No Ties]", "x-margin-no-ties", 0, higherIsBetter = true, _.xNoTies),
-    Stat[LSCalc]("X-wins[Ties]", "x-wins-ties", 0, higherIsBetter = true, _.xScaledTies),
-    Stat[LSCalc]("X-wins[No Ties]", "x-wins-no-ties", 0, higherIsBetter = true, _.xScaledNoTies),
-    Stat[LSCalc]("X-log proportion[Ties]", "x-log-proportion-ties", 0, higherIsBetter = true, _.xLogPropTies),
-    Stat[LSCalc]("X-log proportion[No Ties]", "x-log-proportion-no-ties", 0, higherIsBetter = true, _.xLogPropNoTies)
-  )
+
 
   def solve(A: DenseMatrix[Double], bs: List[DenseVector[Double]]): List[DenseVector[Double]] = {
     val svd1: DenseSVD = svd(A)
@@ -106,9 +93,28 @@ case class LeastSquares(s: Schedule) extends Analyzer[LSCalc] {
 
     bs.map(b=>svd1.rightVectors.t * sigma * svd1.leftVectors.t * b)
   }
-  
+
+  override val name: String = LeastSquares.name
+  override val desc: String = LeastSquares.desc
+  override val key: String = LeastSquares.key
+  override val stats: List[Stat[LSAccumulator]] = LeastSquares.stats
 }
 
-case class LSCalc(xTies: Double, xNoTies:Double, xScaledTies: Double, xScaledNoTies:Double, xLogPropTies: Double, xLogPropNoTies:Double)
+
+case object LeastSquares extends Model[LSAccumulator] {
+   val name: String = "Least Squares"
+   val desc: String = "Simple regression model"
+   val key: String = "least-squares"
+   val stats: List[Stat[LSAccumulator]] = List(
+    Stat[LSAccumulator]("X-margin[Ties]", "x-margin-ties", 0, higherIsBetter = true, _.xTies),
+    Stat[LSAccumulator]("X-margin[No Ties]", "x-margin-no-ties", 0, higherIsBetter = true, _.xNoTies),
+    Stat[LSAccumulator]("X-wins[Ties]", "x-wins-ties", 0, higherIsBetter = true, _.xScaledTies),
+    Stat[LSAccumulator]("X-wins[No Ties]", "x-wins-no-ties", 0, higherIsBetter = true, _.xScaledNoTies),
+    Stat[LSAccumulator]("X-log proportion[Ties]", "x-log-proportion-ties", 0, higherIsBetter = true, _.xLogPropTies),
+    Stat[LSAccumulator]("X-log proportion[No Ties]", "x-log-proportion-no-ties", 0, higherIsBetter = true, _.xLogPropNoTies)
+  )
+}
+
+
 
 

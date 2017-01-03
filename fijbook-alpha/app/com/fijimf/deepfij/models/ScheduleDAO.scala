@@ -67,4 +67,6 @@ trait ScheduleDAO {
   def saveStatValues(stats:List[StatValue]):Future[Option[Int]]
 
   def deleteAlias(id: Long): Future[Int]
+
+  def loadStatValues(statKey:String, modelKey:String):Future[List[StatValue]]
 }
