@@ -102,7 +102,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
         transforms.map(f => f(n)).toSet.map((k: String) => {
           logger.info("Trying " + k)
           val u = TestUrl("http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + k + ".70.png")
-          (teamLoad ? u).mapTo[Option[Int]].map(oi => k -> oi)
+          (throttler ? u).mapTo[Option[Int]].map(oi => k -> oi)
         })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
 
       val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
