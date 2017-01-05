@@ -3,6 +3,7 @@ package controllers
 import java.time.LocalDateTime
 
 import akka.actor.ActorRef
+import akka.contrib.throttle.Throttler
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
@@ -20,12 +21,13 @@ import utils.DefaultEnv
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv],val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv],val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
   implicit val timeout = Timeout(600.seconds)
+  throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def scrapeTeams(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading aliases from database")
@@ -57,7 +59,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   def scrapeKeyList(is: Iterable[(String, String)], userTag: String, aliasMap: Map[String, String]): Iterable[Team] = {
     val futureTeams: Iterable[Future[Option[Team]]] = is.map {
       case (key, shortName) => {
-        (teamLoad ? TeamDetail(aliasMap.getOrElse(key, key), shortName, userTag))
+        (throttler ? TeamDetail(aliasMap.getOrElse(key, key), shortName, userTag))
           .mapTo[Either[Throwable, Team]]
           .map(_.fold(thr => None, t => Some(t)))
       }
@@ -69,7 +71,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     pagination.foldLeft(Future.successful(Seq.empty[(String, String)]))((data: Future[Seq[(String, String)]], p: Int) => {
       for (
         t0 <- data;
-        t1 <- (teamLoad ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable, Seq[(String, String)]]].map(_.fold(
+        t1 <- (throttler ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable, Seq[(String, String)]]].map(_.fold(
           thr => Seq.empty,
           seq => seq
         ))
@@ -136,6 +138,44 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     }).flatMap(lcm => {
       Future.sequence(lcm.map(cm => teamDao.saveConferenceMap(cm)))
     }).map(_ => Redirect(routes.AdminController.index()))
+  }
+
+  def conferenceTourneySolver(sch:Schedule):List[Game]={
+    List.empty[Game]
+  }
+
+  def neutralSiteSolver() = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+    teamDao.loadSchedules().foreach(_.foreach(sch => {
+      val locationData: Map[Long, Map[String, Int]] = sch.games.filter(_.tourneyKey.isEmpty).foldLeft(Map.empty[Long, Map[String, Int]])((locationData: Map[Long, Map[String, Int]], game: Game) => {
+        game.location match {
+          case Some(loc) => {
+            locationData.get(game.homeTeamId) match {
+              case Some(map) => {
+                val count = map.getOrElse(loc, 0) + 1
+                locationData + (game.homeTeamId -> (map + (loc -> count)))
+              }
+              case None => {
+                locationData + (game.homeTeamId -> Map(loc->1))
+              }
+            }
+          }
+          case None => locationData
+        }
+      })
+      sch.games.foreach(g=>{
+        g.location.foreach(loc=>{
+          locationData.get(g.homeTeamId).foreach(map=>{
+            if (map.contains(loc)){
+              teamDao.saveGame(g.copy(isNeutralSite = true),sch.resultMap.get(g.id))
+            }
+          })
+
+        })
+      })
+    }))
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updated games at a neutral site"))
+
   }
 
   def scrapeOne() = silhouette.SecuredAction.async { implicit rs =>
