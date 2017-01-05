@@ -126,7 +126,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       tl <- teamDao.listTeams;
       cl <- teamDao.listConferences
     ) yield {
-      val confNameMap = cl.map(c => c.name -> c).toMap
+      val confNameMap = cl.map(c => c.name -> c).toMap++cl.map(c=>c.name.replace("Conference","").trim->c)++cl.map(c=>c.name.replace("The","").trim->c)
       for (
         s <- sl;
         t <- tl
