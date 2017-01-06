@@ -1,6 +1,7 @@
 package controllers
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.{ScheduleDAO, StatValue, Team}
 import com.fijimf.deepfij.models.services.StatisticWriterService
@@ -39,6 +40,18 @@ val log=Logger(this.getClass)
       }
 
     })
+
+  }
+
+  def updateAllByDate(yyyymmdd:String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    statWriterService.update(LocalDate.parse(yyyymmdd, DateTimeFormatter.ofPattern("yyyyMMdd"))).foreach(_.onComplete {
+      case Success(x) =>
+        log.info("************-->>" + x + "<<--*************")
+      case Failure(thr) =>
+        log.error("", thr)
+    })
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
+
 
   }
 

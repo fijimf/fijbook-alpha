@@ -19,9 +19,11 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
 
   def numResults: Int = games.size
 
-  def firstResult: Option[LocalDate] = results.headOption.map(r => gameMap(r.gameId).date)
+  def firstResult: Option[LocalDate] = resultDates.headOption
 
-  def lastResult: Option[LocalDate] = results.lastOption.map(r => gameMap(r.gameId).date)
+  def lastResult: Option[LocalDate] = resultDates.reverse.headOption
+
+  def resultDates:List[LocalDate] = results.map(r => gameMap(r.gameId).date).sortBy(_.toEpochDay)
 
   def teamsMapped: List[Team] = teams.filter(t => teamConference.contains(t.id))
 

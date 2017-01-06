@@ -8,11 +8,9 @@ import breeze.stats._
 import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
 import play.api.Logger
 
-case class LeastSquares(s: Schedule) extends Analyzer[LSAccumulator] {
-
+case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSAccumulator] {
   val log = Logger(LeastSquares.getClass)
   private val completedGames: List[(Game, Result)] = s.games.flatMap(g => s.resultMap.get(g.id).map(r => g -> r))
-  private val dates = completedGames.map(_._1.date.plusDays(1)).distinct.sortBy(_.toEpochDay)
   val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
     dates.map(d => {
       log.info("Starting "+d)
@@ -102,6 +100,11 @@ case class LeastSquares(s: Schedule) extends Analyzer[LSAccumulator] {
 
 
 case object LeastSquares extends Model[LSAccumulator] {
+
+  def apply(s:Schedule):LeastSquares={
+//    private val dates = completedGames.map(_._1.date.plusDays(1)).distinct.sortBy(_.toEpochDay)
+    LeastSquares(s,s.resultDates)
+  }
    val name: String = "Least Squares"
    val desc: String = "Simple regression model"
    val key: String = "least-squares"
