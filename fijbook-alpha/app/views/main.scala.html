@@ -2,7 +2,7 @@
 @import controllers.nav.StandardNavBar
 @import controllers.nav.Breadcrumbs
 @import com.fijimf.deepfij.models.User
-@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd")(content: Html)(implicit flash: Flash)
+@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd", quoteKey:Option[String]=None)(content: Html)(implicit flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -47,7 +47,7 @@
                     <a class="navbar-brand" href="index">Deep Fij</a>
 
                 </div>
-                <em id="quote-em" class="pull-left quote hidden-xs"></em>
+                <a id="quote-a" href="#"><em id="quote-em" class="pull-left quote hidden-xs"></em></a>
                     <!-- Top Menu Items -->
                 <ul class="nav navbar-right top-nav">
 
@@ -192,9 +192,21 @@
 
             <!-- jQuery -->
         <script>
+            @if(quoteKey.isEmpty) {
                 $.getJSON( "@routes.QuoteController.random()", function( data ) {
                     $("#quote-em").text(data.quote);
-                })
+                    if (data.url.length()>0){
+                        $("#quote-a").attr("href",data.url);
+                    }
+                });
+            } else {
+                $.getJSON( "@routes.QuoteController.keyed(quoteKey.get)", function( data ) {
+                    $("#quote-em").text(data.quote);
+                    if (data.url.length()>0){
+                        $("#quote-a").attr("href",data.url);
+                    }
+                });
+            }
         </script>
     </body>
 

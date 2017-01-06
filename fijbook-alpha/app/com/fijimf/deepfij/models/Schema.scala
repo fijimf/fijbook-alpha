@@ -73,7 +73,7 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   def isAwayLoser: Boolean = homeScore > awayScore
 }
 
-case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])
+case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key:Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -358,7 +358,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def url: Rep[Option[String]] = column[Option[String]]("url")
 
-    def * : ProvenShape[Quote] = (id, quote, source, url) <> (Quote.tupled, Quote.unapply)
+    def key: Rep[Option[String]] = column[Option[String]]("key", O.Length(24))
+
+    def * : ProvenShape[Quote] = (id, quote, source, url, key) <> (Quote.tupled, Quote.unapply)
 
   }
 

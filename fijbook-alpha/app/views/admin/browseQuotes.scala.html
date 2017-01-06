@@ -20,6 +20,7 @@
                     <th>Quote</th>
                     <th>Source</th>
                     <th>URL</th>
+                    <th>Key</th>
                     <th></th>
                     <th></th>
                 </tr></thead>
@@ -29,6 +30,7 @@
                         <td>@q.quote</td>
                         <td>@q.source</td>
                         <td>@q.url</td>
+                        <td>@q.key</td>
                         <td ><a href="@routes.DataController.editQuote(q.id)"><i class="fa fa-edit text-success"> </i></a> </td>
                         <td ><a href="@routes.DataController.deleteQuote(q.id)"><i class="fa fa-times text-danger"> </i></a> </td>
                     </tr>

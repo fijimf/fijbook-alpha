@@ -106,6 +106,7 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
 
   override def findQuoteById(id: Long): Future[Option[Quote]] = db.run(repo.quotes.filter(_.id === id).result.headOption)
+  override def findQuoteByKey(key:Option[String]): Future[List[Quote]] = db.run(repo.quotes.filter(_.key === key).to[List].result)
 
   override def saveQuote(q: Quote): Future[Int] = db.run(repo.quotes.insertOrUpdate(q))
 

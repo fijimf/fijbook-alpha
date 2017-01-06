@@ -11,7 +11,8 @@
     StandardNavBar.active("admin",user),
     user,
     t.logoSmUrl.getOrElse("/assets/images/deepfij.png"),
-    t.primaryColor.getOrElse("#ddd")
+    t.primaryColor.getOrElse("#ddd"),
+    Some(t.key)
 ) {
 
         <div class="row">

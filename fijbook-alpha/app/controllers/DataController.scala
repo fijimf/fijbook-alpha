@@ -97,7 +97,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
   def createQuote() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(0L,"",None,None)))))
+    Future.successful(Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(0L, "", None, None, None)))))
   }
 
   def deleteQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
@@ -106,7 +106,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def editQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.findQuoteById(id).map {
-      case Some(q) => Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(id, q.quote, q.source, q.url))))
+      case Some(q) => Ok(views.html.admin.createQuote(rs.identity, EditQuoteForm.form.fill(EditQuoteForm.Data(id, q.quote, q.source, q.url, q.key))))
       case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
     }
   }
@@ -118,7 +118,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         Future.successful(BadRequest(views.html.admin.createQuote(request.identity, form)))
       },
       data => {
-        val q = Quote(data.id, data.quote, data.source, data.url)
+        val q = Quote(data.id, data.quote, data.source, data.url, data.key)
         val future: Future[Int] = teamDao.saveQuote(q)
         future.onComplete {
           case Success(i) => logger.info("Hooray")

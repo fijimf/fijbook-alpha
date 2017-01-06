@@ -10,10 +10,11 @@ object EditQuoteForm {
       "id" -> longNumber,
       "quote" -> nonEmptyText,
       "source" -> optional(text),
-      "url"->optional(text)
+      "url"->optional(text),
+      "key"->optional(text)
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long,  quote: String, source: Option[String], url: Option[String])
+  case class Data(id: Long,  quote: String, source: Option[String], url: Option[String], key: Option[String])
 
 }

@@ -60,6 +60,8 @@ trait ScheduleDAO {
 
   def findQuoteById(id: Long): Future[Option[Quote]]
 
+  def findQuoteByKey(key:Option[String]): Future[List[Quote]]
+
   def deleteQuote(id: Long): Future[Int]
 
   def loadSchedules(): Future[List[Schedule]]
