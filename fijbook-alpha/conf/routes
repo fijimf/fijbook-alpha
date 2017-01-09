@@ -7,7 +7,9 @@ GET         /deepfij/teams                                      controllers.Team
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String)
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
-GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.view(modelKey:String, statKey:String)
+GET         /deepfij/stats                                      controllers.StatsController.viewModels()
+GET         /deepfij/stats/:modelKey                            controllers.StatsController.viewModel(modelKey:String)
+GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.viewStat(modelKey:String, statKey:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
 

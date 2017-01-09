@@ -79,6 +79,18 @@ case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: L
 
 case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double)
 
+object StatUtil {
+  def transformSnapshot(svs: List[StatValue], map: (StatValue) => Team, higherIsBetter: Boolean): List[(Int, StatValue, Team)] = {
+    svs.map(sv => map(sv) -> sv).sortBy(tup => if (higherIsBetter) -tup._2.value else tup._2.value).foldLeft(List.empty[(Int, StatValue, Team)])((accum: List[(Int, StatValue, Team)], response: (Team, StatValue)) => {
+      val rank = accum match {
+        case Nil => 1
+        case head :: tail => if (head._2.value == response._2.value) head._1 else accum.size + 1
+      }
+      (rank, response._2, response._1) :: accum
+    }).reverse
+  }
+}
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]

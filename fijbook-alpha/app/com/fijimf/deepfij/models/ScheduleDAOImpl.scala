@@ -175,4 +175,5 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def deleteAlias(id: Long): Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
 
   override def loadStatValues(statKey: String, modelKey: String):Future[List[StatValue]]= db.run(repo.statValues.filter(sv=>sv.modelKey === modelKey && sv.statKey===statKey ).to[List].result)
+  override def loadStatValues(modelKey: String):Future[List[StatValue]]= db.run(repo.statValues.filter(sv=>sv.modelKey === modelKey ).to[List].result)
 }

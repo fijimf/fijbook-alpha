@@ -1,0 +1,72 @@
+@import com.fijimf.deepfij.models.User
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@import java.time.format.DateTimeFormatter
+
+
+@(user: Option[User], t: ModelContext)(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+
+@main(
+    "deepfij",
+    t.modelName,
+    "",
+    Some(Breadcrumbs.base.appendChild("Stats", "/stats", "fa-area-chart").appendChild(t.modelName, "fa-eyeball", t.model.key)),
+    StandardNavBar.active("stats", user),
+    user,
+    "/assets/images/deepfij.png",
+    "#ddd"
+) {
+
+    <div class="row">
+        @for(s<-t.stats) {
+            <div class="col-sm-3">
+                <table class="table table-condensed table-bordered stat-summary-table">
+                    <tr>
+                        <td colspan="2" style="font-weight: bold;
+                            font-size: 110%"><a href="@routes.StatsController.viewStat(t.modelKey,s.key)">@s.name</a></td>
+                    </tr>
+                    <tr>
+                        <th >As of</th>
+                        <td >@t.latestDate.format(DateTimeFormatter.ISO_LOCAL_DATE)</td>
+                    </tr>
+                    <tr>
+                        <th >Mean</th>
+                        <td >@t.desc(s).getMean.formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th >Std. Dev.</th>
+                        <td >@t.desc(s).getStandardDeviation.formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th >Skewness</th>
+                        <td >@t.desc(s).getSkewness.formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th >Kurtosis</th>
+                        <td >@t.desc(s).getKurtosis.formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th>Min</th>
+                        <td>@t.desc(s).getMin.formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th>Q1</th>
+                        <td>@t.desc(s).getPercentile(0.25).formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th>Med</th>
+                        <td>@t.desc(s).getPercentile(0.5).formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th>Q3</th>
+                        <td>@t.desc(s).getPercentile(0.75).formatted("%12.4f")</td>
+                    </tr>
+                    <tr>
+                        <th>Max</th>
+                        <td>@t.desc(s).getMax.formatted("%12.4f")</td>
+                    </tr>
+                </table>
+            </div>
+        }
+    </div>
+}

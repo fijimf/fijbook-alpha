@@ -9,11 +9,11 @@ case class NavBar(items: List[NavItem]) {
 object StandardNavBar {
   def active(key: String = "no-active", user: Option[User] = None): NavBar = {
     val list = List(
-      NavItem("index", "/deepfij/index", "fa-dashboard", "Dashboard", key == "index"),
+      NavItem("index", "/deepfij/index", "fa-dashboard", " Dashboard", key == "index"),
       NavItem("teams", "/deepfij/teams", "fa-users", " Teams", key == "teams"),
       NavItem("conferences", "/deepfij/conferences", "fa-list", " Conferences", key == "conferences"),
-      NavItem("games", "forms.html", "fa-calendar", " Games", key == "games"),
-      NavItem("stats", "bootstrap-elements.html", "fa-area-chart", " Statistics", key == "stats"),
+      NavItem("games", "/deepfij/games", "fa-calendar", " Games", key == "games"),
+      NavItem("stats", "/deepfij/stats", "fa-area-chart", " Statistics", key == "stats"),
       NavItem("about", "/deepfij/about", "fa-question", " About", key == "about")
     )
     user.flatMap(_.email) match {

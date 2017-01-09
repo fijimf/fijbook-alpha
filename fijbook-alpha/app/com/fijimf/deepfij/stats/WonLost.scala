@@ -59,5 +59,5 @@ case object WonLost extends Model[WonLostAccumulator]{
   )
   val key = "won-lost"
   val name: String = "Won Lost"
-  val desc: String = "Won, lost, winning pct and current streaks."
+  val desc: String = "Some simple statistics compiled from team records."
 }

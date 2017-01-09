@@ -26,16 +26,16 @@
                 @for(g <-conf) {
                     <tr>
                         <td>@g.date</td>
-                        <td>@{curr.teamsMap(g.homeTeamId).name}</td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.homeTeamId).key)">@{curr.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td>@{curr.teamsMap(g.awayTeamId).name}</td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }
                 </table>
             </div>
             <div class="col-sm-5 col-sm-offset-1">
-                <h5>Inter Conference Records"</h5>
+                <h5>@c.name vs. ...</h5>
                 <table class="table table-condensed table-schedule" >
                 @for(r <-rec) {
                         <tr>
@@ -51,9 +51,9 @@
                 @for(g <-nonConf) {
                     <tr>
                         <td>@g.date</td>
-                        <td>@{curr.teamsMap(g.homeTeamId).name}</td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td>@{curr.teamsMap(g.awayTeamId).name}</td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }
