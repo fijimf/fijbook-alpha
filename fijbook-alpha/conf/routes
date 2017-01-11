@@ -10,6 +10,7 @@ GET         /deepfij/conferences/:key                           controllers.Team
 GET         /deepfij/stats                                      controllers.StatsController.viewModels()
 GET         /deepfij/stats/:modelKey                            controllers.StatsController.viewModel(modelKey:String)
 GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.viewStat(modelKey:String, statKey:String)
+GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
 
