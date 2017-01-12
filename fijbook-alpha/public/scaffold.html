@@ -5,7 +5,7 @@
     <script src="https://vega.github.io/vega-editor/vendor/d3.geo.projection.min.js"></script>
     <script src="https://vega.github.io/vega-editor/vendor/topojson.js"></script>
     <script src="https://vega.github.io/vega-editor/vendor/d3.layout.cloud.js"></script>
-    <script src="https://vega.github.io/vega/vega.min.js"></script>
+    <script src="https://vega.github.io/vega/vega.js"></script>
 </head>
 <body>
 <h1>Scaffold</h1>
@@ -17,97 +17,95 @@
         vg.parse.spec(spec, function(error, chart) { chart({el:"#vis"}).update(); });
     }
     parse({
-        "width": 400,
-        "height": 200,
-        "padding": {"top": 10, "left": 30, "bottom": 20, "right": 10},
-
-        "data": [
-            {
-                "name": "table",
-                "values": [
-                    {"category":"A", "amount":28},
-                    {"category":"B", "amount":55},
-                    {"category":"C", "amount":43},
-                    {"category":"D", "amount":91},
-                    {"category":"E", "amount":81},
-                    {"category":"F", "amount":53},
-                    {"category":"G", "amount":19},
-                    {"category":"H", "amount":87},
-                    {"category":"I", "amount":52}
-                ]
-            }
-        ],
+        "schema": {"language": "vega", "version": "3.0"},
+        "width": 500,
+        "height": 100,
+        "padding": 5,
 
         "signals": [
-            {
-                "name": "tooltip",
-                "init": {},
-                "streams": [
-                    {"type": "rect:mouseover", "expr": "datum"},
-                    {"type": "rect:mouseout", "expr": "{}"}
-                ]
-            }
-        ],
+        { "name": "binOffset", "value": 0,
+            "bind": {"input": "range", "min": -0.1, "max": 0.1} },
+        { "name": "binStep", "value": 0.1,
+            "bind": {"input": "range", "min": 0.001, "max": 0.4, "step": 0.001} },
+        { "name": "extent", "update": "[binOffset, 2+binOffset]" }
+    ],
 
-        "predicates": [
-            {
-                "name": "tooltip", "type": "==",
-                "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
-            }
-        ],
+        "data": [
+        {
+            "name": "points",
+            "url": "/api/stats/won-lost/wp"
+        },
+        {
+            "name": "binned",
+            "source": "points",
+            "transform": [
+                {
+                    "type": "bin", "field": "value",
+                    "extent": {"signal": "extent"},
+                    "step": {"signal": "binStep"},
+                    "nice": false
+                },
+                {
+                    "type": "aggregate",
+                    "key": "bin0", "groupby": ["bin0", "bin1"],
+                    "fields": ["bin0"], "ops": ["count"], "as": ["count"]
+                }
+            ]
+        }
+    ],
 
         "scales": [
-            { "name": "xscale", "type": "ordinal", "range": "width",
-                "domain": {"data": "table", "field": "category"} },
-            { "name": "yscale", "range": "height", "nice": true,
-                "domain": {"data": "table", "field": "amount"} }
-        ],
+        {
+            "name": "xscale",
+            "type": "linear",
+            "range": "width",
+            "domain": [-1, 1]
+        },
+        {
+            "name": "yscale",
+            "type": "linear",
+            "range": "height", "round": true,
+            "domain": {"data": "binned", "field": "count"},
+            "zero": true, "nice": true
+        }
+    ],
 
         "axes": [
-            { "type": "x", "scale": "xscale" },
-            { "type": "y", "scale": "yscale" }
-        ],
+        {"orient": "bottom", "scale": "xscale", "zindex": 1},
+        {"orient": "left", "scale": "yscale", "tickCount": 5, "zindex": 1}
+    ],
 
         "marks": [
-            {
-                "type": "rect",
-                "from": {"data":"table"},
-                "properties": {
-                    "enter": {
-                        "x": {"scale": "xscale", "field": "category"},
-                        "width": {"scale": "xscale", "band": true, "offset": -1},
-                        "y": {"scale": "yscale", "field": "amount"},
-                        "y2": {"scale": "yscale", "value":0}
-                    },
-                    "update": { "fill": {"value": "steelblue"} },
-                    "hover": { "fill": {"value": "red"} }
-                }
-            },
-            {
-                "type": "text",
-                "properties": {
-                    "enter": {
-                        "align": {"value": "center"},
-                        "fill": {"value": "#333"}
-                    },
-                    "update": {
-                        "x": {"scale": "xscale", "signal": "tooltip.category"},
-                        "dx": {"scale": "xscale", "band": true, "mult": 0.5},
-                        "y": {"scale": "yscale", "signal": "tooltip.amount", "offset": -5},
-                        "text": {"signal": "tooltip.amount"},
-                        "fillOpacity": {
-                            "rule": [
-                                {
-                                    "predicate": {"name": "tooltip", "id": {"value": null}},
-                                    "value": 0
-                                },
-                                {"value": 1}
-                            ]
-                        }
-                    }
+        {
+            "type": "rect",
+            "from": {"data": "binned"},
+            "encode": {
+                "update": {
+                    "x": {"scale": "xscale", "field": "bin0"},
+                    "x2": {"scale": "xscale", "field": "bin1",
+                        "offset": {"signal": "binStep > 0.02 ? -0.5 : 0"}},
+                    "y": {"scale": "yscale", "field": "count"},
+                    "y2": {"scale": "yscale", "value": 0},
+                    "fill": {"value": "steelblue"}
+                },
+                "hover": { "fill": {"value": "firebrick"} }
+            }
+        },
+        {
+            "type": "rect",
+            "from": {"data": "points"},
+            "encode": {
+                "enter": {
+                    "x": {"scale": "xscale", "field": "u"},
+                    "width": {"value": 1},
+                    "y": {"value": 25, "offset": {"signal": "height"}},
+                    "height": {"value": 5},
+                    "fill": {"value": "steelblue"},
+                    "fillOpacity": {"value": 0.4}
                 }
             }
-        ]
-    });
+        }
+    ]
+       });
 </script>
 </html>

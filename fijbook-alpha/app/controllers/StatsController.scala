@@ -152,31 +152,30 @@ case class ModelContext(model: Model[_], stats: List[Stat[_]], xs: Map[LocalDate
 
 case class StatContext(model: Model[_], stat: Stat[_], xs: Map[LocalDate, List[StatValue]], teamMap: Map[Long, Team]) {
 
-  def asMap = {
-    val jsString = JsString(latestDate.toString)
-    JsObject(Seq(
-      "model" -> JsObject(Seq(
-        "name" -> JsString(model.name),
-        "key" -> JsString(model.key)
-      )),
-      "stat" -> JsObject(Seq(
-        "name" -> JsString(stat.name),
-        "key" -> JsString(stat.key),
-        "higherIsBetter" -> JsBoolean(stat.higherIsBetter)
-      )),
-      "asOf" -> jsString,
-      "descriptiveStats" -> JsObject(Seq(
-        "mean" -> JsNumber(desc.getMean),
-        "var" -> JsNumber(desc.getVariance),
-        "min" -> JsNumber(desc.getMin),
-        "q1" -> JsNumber(desc.getPercentile(25.0)),
-        "med" -> JsNumber(desc.getPercentile(50.0)),
-        "q3" -> JsNumber(desc.getPercentile(75.0)),
-        "max" -> JsNumber(desc.getMax)
-      )),
-      "values" -> JsArray(latestValues.map { case (rk: Int, value: StatValue, team: Team) => JsObject(Seq("rank" -> JsNumber(rk), "value" -> JsNumber(value.value), "team" -> JsString(team.name), "teamKey" -> JsString(team.key))) }.toSeq)
-    ))
-  }
+  def asMap2 = JsObject(Seq(
+    "model" -> JsObject(Seq(
+      "name" -> JsString(model.name),
+      "key" -> JsString(model.key)
+    )),
+    "stat" -> JsObject(Seq(
+      "name" -> JsString(stat.name),
+      "key" -> JsString(stat.key),
+      "higherIsBetter" -> JsBoolean(stat.higherIsBetter)
+    )),
+    "asOf" -> JsString(latestDate.toString),
+    "descriptiveStats" -> JsObject(Seq(
+      "mean" -> JsNumber(desc.getMean),
+      "var" -> JsNumber(desc.getVariance),
+      "min" -> JsNumber(desc.getMin),
+      "q1" -> JsNumber(desc.getPercentile(25.0)),
+      "med" -> JsNumber(desc.getPercentile(50.0)),
+      "q3" -> JsNumber(desc.getPercentile(75.0)),
+      "max" -> JsNumber(desc.getMax)
+    )),
+    "values" -> JsArray(latestValues.map { case (rk: Int, value: StatValue, team: Team) => JsObject(Seq("rank" -> JsNumber(rk), "value" -> JsNumber(value.value), "team" -> JsString(team.name), "teamKey" -> JsString(team.key))) }.toSeq)
+  ))
+
+  def asMap = JsArray(latestValues.map { case (rk: Int, value: StatValue, team: Team) => JsObject(Seq("rank" -> JsNumber(rk), "value" -> JsNumber(value.value), "team" -> JsString(team.name), "teamKey" -> JsString(team.key))) }.toSeq)
 
   def modelName = model.name
 

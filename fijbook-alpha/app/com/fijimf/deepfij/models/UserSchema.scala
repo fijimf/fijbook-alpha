@@ -66,7 +66,7 @@ case class DBOpenIDAttribute(
                             )
 
 class UserRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
-  val log = Logger("schedule-repo")
+  val log = Logger(this.getClass)
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
