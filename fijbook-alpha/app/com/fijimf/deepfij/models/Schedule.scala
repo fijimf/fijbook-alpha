@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models
 
-import java.time.LocalDate
+import java.time.{LocalDate, Month}
 
 case class Schedule(season: Season, teams: List[Team], conferences: List[Conference], conferenceMap: List[ConferenceMap], gameResults: List[(Game, Option[Result])]) {
   val conferenceKeyMap: Map[String, Conference] = conferences.map(t => t.key -> t).toMap
@@ -23,7 +23,7 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
 
   def lastResult: Option[LocalDate] = resultDates.reverse.headOption
 
-  def resultDates:List[LocalDate] = results.map(r => gameMap(r.gameId).date).sortBy(_.toEpochDay)
+  def resultDates: List[LocalDate] = results.map(r => gameMap(r.gameId).date).sortBy(_.toEpochDay)
 
   def teamsMapped: List[Team] = teams.filter(t => teamConference.contains(t.id))
 
@@ -59,15 +59,16 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
     }
   }
 
-  def winner(g:Game):Option[Team]={
+  def winner(g: Game): Option[Team] = {
     resultMap.get(g.id) match {
-      case Some(r) => if (r.homeScore>r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
+      case Some(r) => if (r.homeScore > r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
       case None => None
     }
   }
-  def loser(g:Game):Option[Team]={
+
+  def loser(g: Game): Option[Team] = {
     resultMap.get(g.id) match {
-      case Some(r) => if (r.homeScore<r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
+      case Some(r) => if (r.homeScore < r.awayScore) teamsMap.get(g.homeTeamId) else teamsMap.get(g.awayTeamId)
       case None => None
     }
   }
@@ -103,16 +104,16 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
     WonLostRecord(w, l)
   }
 
-  def interConfRecord(conf:Conference):List[(Conference, WonLostRecord)] ={
-    val confGames: Map[Long, List[Game]] = nonConferenceSchedule(conf).groupBy(g=>if (teamConference(g.awayTeamId)==conf.id) teamConference(g.homeTeamId) else teamConference(g.awayTeamId))
-    confGames.mapValues(gl=>
-       gl.foldLeft(0,0)((wl: (Int, Int), game: Game) =>{
-         winner(game) match {
-           case Some(w)=> if (teamConference(w.id)==conf.id) (wl._1+1,wl._2) else (wl._1,wl._2+1)
-           case _=>wl
-         }
-       })
-    ).map((tuple: (Long, (Int, Int))) => (conferenceIdMap(tuple._1), WonLostRecord(tuple._2._1,tuple._2._2))).toList.sortBy(tup=>(tup._2.lost-tup._2.won, -tup._2.won,tup._1.name))
+  def interConfRecord(conf: Conference): List[(Conference, WonLostRecord)] = {
+    val confGames: Map[Long, List[Game]] = nonConferenceSchedule(conf).groupBy(g => if (teamConference(g.awayTeamId) == conf.id) teamConference(g.homeTeamId) else teamConference(g.awayTeamId))
+    confGames.mapValues(gl =>
+      gl.foldLeft(0, 0)((wl: (Int, Int), game: Game) => {
+        winner(game) match {
+          case Some(w) => if (teamConference(w.id) == conf.id) (wl._1 + 1, wl._2) else (wl._1, wl._2 + 1)
+          case _ => wl
+        }
+      })
+    ).map((tuple: (Long, (Int, Int))) => (conferenceIdMap(tuple._1), WonLostRecord(tuple._2._1, tuple._2._2))).toList.sortBy(tup => (tup._2.lost - tup._2.won, -tup._2.won, tup._1.name))
 
   }
 
@@ -128,7 +129,19 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
 
   def neutralRecord(team: Team): WonLostRecord = record(team, g => g.isNeutralSite)
 
+  def last5Record(team: Team): WonLostRecord = record(team, g => true, 5)
 
+  def last10Record(team: Team): WonLostRecord = record(team, g => true, 10)
+
+  def novRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.NOVEMBER)
+
+  def decRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.DECEMBER)
+
+  def janRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.JANUARY)
+
+  def febRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.FEBRUARY)
+
+  def marRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.MARCH)
 
   def conferenceStandings(conference: Conference): ConferenceStandings = {
     val list = conferenceTeams(conference.id).map(tid => teamsMap(tid)).map(t => (conferenceRecord(t), overallRecord(t), t))

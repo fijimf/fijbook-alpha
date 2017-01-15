@@ -15,41 +15,148 @@
     Some(t.key)
 ) {
 
-        <div class="row">
-            <div class="col-sm-4">
-                <h5>Schedule</h5>
-                <table class="table table-condensed table-schedule" >
-                @for(g <-curr.games(t)) {
-                    @defining(curr.gameLine(t,g._1,g._2)){ (gl:GameLine) =>
-                        <tr>
-                            <td>@gl.date</td>
-                            <td>@gl.vsAt</td>
-                            <td><a href="@routes.TeamController.team(gl.opp.key)">@gl.opp.name</a></td>
-                            @if(gl.wl=="W"){
-                                <td><strong class="text-success">@gl.wl</strong></td>
-                            } else {
-                                <td><strong class="text-danger">@gl.wl</strong></td>
-                            }
-                            <td>@gl.literalScore</td>
+    <div class="row">
+        <div class="col-sm-4">
+            <h5>Schedule</h5>
+            <table class="table table-condensed table-schedule" >
+            @for(g <-curr.games(t)) {
+                @defining(curr.gameLine(t,g._1,g._2)){ (gl:GameLine) =>
+                    <tr>
+                        <td>@gl.date</td>
+                        <td>@gl.vsAt</td>
+                        <td><a href="@routes.TeamController.team(gl.opp.key)">@gl.opp.name</a></td>
+                        @if(gl.wl=="W"){
+                            <td><strong class="text-success">@gl.wl</strong></td>
+                        } else {
+                            <td><strong class="text-danger">@gl.wl</strong></td>
+                        }
+                        <td>@gl.literalScore</td>
 
-                        </tr>
-                    }
+                    </tr>
                 }
-                </table>
-            </div>
-            <div class="col-sm-4">
-                <h5>@{curr.conference(t).name+" Standings"}</h5>
-                <table class="table table-condensed table-schedule" >
-                @for(r <-curr.conferenceStandings(curr.conference(t)).records) {
-                        <tr>
-                            <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
-                            <td>@r._1.won</td>
-                            <td>@r._1.lost</td>
-                            <td>@r._2.won</td>
-                            <td>@r._2.lost</td>
-                        </tr>
-                }
-                </table>
-            </div>
+            }
+            </table>
         </div>
-    }
+        <div class="col-sm-4">
+            <h5>@{curr.conference(t).name+" Standings"}</h5>
+            <table class="table table-condensed table-schedule" >
+            @for(r <-curr.conferenceStandings(curr.conference(t)).records) {
+                <tr>
+                    <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
+                    <td>@r._1.won</td>
+                    <td>@r._1.lost</td>
+                    <td>@r._2.won</td>
+                    <td>@r._2.lost</td>
+                </tr>
+            }
+            </table>
+            <h5>Contextual Records</h5>
+            <table class="table table-condensed table-schedule" >
+            @defining(curr.overallRecord(t)) { wl =>
+                <tr>
+                    <td>Overall</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.conferenceRecord(t)) { wl =>
+                <tr>
+                    <td>Conference</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.nonConferenceRecord(t)) { wl =>
+                <tr>
+                    <td>Non-Conference</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.homeRecord(t)) { wl =>
+                <tr>
+                    <td>Home</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.awayRecord(t)) { wl =>
+                <tr>
+                    <td>Away</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.neutralRecord(t)) { wl =>
+                <tr>
+                    <td>Neutral</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+                </tr>
+            }
+            @defining(curr.last5Record(t)) { wl =>
+                <tr>
+                    <td>Last 5</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+            @defining(curr.last10Record(t)) { wl =>
+                <tr>
+                    <td>Last 10</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+           @defining(curr.novRecord(t)) { wl =>
+                <tr>
+                    <td>November</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+           @defining(curr.decRecord(t)) { wl =>
+                <tr>
+                    <td>December</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+           @defining(curr.janRecord(t)) { wl =>
+                <tr>
+                    <td>January</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+           @defining(curr.febRecord(t)) { wl =>
+                <tr>
+                    <td>February</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+           @defining(curr.marRecord(t)) { wl =>
+                <tr>
+                    <td>Last 10</td>
+                    <td>@wl.won</td>
+                    <td>@wl.lost</td>
+                    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("")</td>
+                </tr>
+            }
+            </table>
+        </div>
+    </div>
+}
