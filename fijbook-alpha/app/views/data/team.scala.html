@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.{Schedule, Team, User,GameLine}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: Option[User], t: Team, curr: Schedule, back: List[Schedule])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@(user: Option[User], t: Team, curr: Schedule, back: List[Schedule], stats:List[ModelTeamContext])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 
 @main(
@@ -158,5 +158,66 @@
             }
             </table>
         </div>
+        <div class="col-sm-4">
+            <h5>Modeled Statistics</h5>
+            @for(tms <-stats) {
+                <div class="panel-group" id="accordion" style="padding-bottom:0; margin-bottom:0;  border-top:1px solid #ddd;">
+                    <div class="panel">
+                        <div class="panel-heading" style="padding:0; ">
+                            <h5 style="padding:0;">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse-@tms.modelKey"> @tms.model.name</a>
+                            </h5>
+                        </div>
+                        <div id="collapse-@tms.modelKey" class="panel-collapse collapse">
+                            <div class="panel-body" style="padding:0; border-top:0;">
+                                <table class="table table-condensed table-schedule" >
+                                    <tr>
+                                        <th></th>
+                                        <th>Date</th>
+                                        <th >Rank</th>
+                                        <th >Value</th>
+                                    </tr>
+                                    @for(sms<-tms.stats) {
+                                        @defining(tms.values(sms)) { ss =>
+                                            <tr>
+                                                <th><a href="@routes.StatsController.viewStat(tms.modelKey, sms.key)"> @sms.name</a></th>
+                                                <td>@ss(0)._1</td>
+                                                <td>@ss(0)._2</td>
+                                                <td>@ss(0)._3.value.formatted("%8.3f")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right text-muted">Previous</td>
+                                                <td>@ss(1)._1</td>
+                                                <td>@ss(1)._2</td>
+                                                <td>@ss(1)._3.value.formatted("%8.3f")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right text-muted">Week Ago</td>
+                                                <td>@ss(2)._1</td>
+                                                <td>@ss(2)._2</td>
+                                                <td>@ss(2)._3.value.formatted("%8.3f")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right text-muted">Best</td>
+                                                <td>@ss(3)._1</td>
+                                                <td>@ss(3)._2</td>
+                                                <td>@ss(3)._3.value.formatted("%8.3f")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right text-muted">Worst</td>
+                                                <td>@ss(4)._1</td>
+                                                <td>@ss(4)._2</td>
+                                                <td>@ss(4)._3.value.formatted("%8.3f")</td>
+                                            </tr>
+                                        }
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
     </div>
 }

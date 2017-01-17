@@ -19,5 +19,5 @@ case class RpiAccumulator(wins: Int = 0, losses: Int = 0, oppWins: Int = 0, oppL
 
   def rpi(x: Int = 1, y: Int = 1, z: Int = 1): Double = (x * winPct + y * oppWinPct + z * oppOppWinPct) / (x + y + z)
 
-  def rpig(x: Int = 1, y: Int = 1, z: Int = 1): Double = math.pow(math.pow(winPct, x) * math.pow(oppWinPct, y) * math.pow(oppOppWinPct, z), 1/(x + y + z))
+  def rpig(x: Int = 1, y: Int = 1, z: Int = 1): Double = math.pow(math.pow(winPct, x) * math.pow(oppWinPct, y) * math.pow(oppOppWinPct, z), 1.0/(x + y + z).toDouble)
 }
