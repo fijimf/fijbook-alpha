@@ -5,5 +5,5 @@ import java.time.LocalDate
 import scala.language.postfixOps
 
 trait ScheduleUpdateService {
-  def update(optDates:Option[List[LocalDate]])
+  def update(optDates:Option[List[LocalDate]], mailReport:Boolean)
 }

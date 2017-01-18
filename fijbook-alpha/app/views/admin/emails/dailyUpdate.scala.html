@@ -1,0 +1,8 @@
+@(dates:List[LocalDate])(implicit messages: Messages)
+
+<html>
+    <body>
+        <p>@messages("email.daily.update.txt.text", dates.map(_.toString).mkString(", "))</p>
+        <p>@Html(messages("email.daily.update.html.text", dates.map(_.toString).mkString(", ")))</p>
+    </body>
+</html>

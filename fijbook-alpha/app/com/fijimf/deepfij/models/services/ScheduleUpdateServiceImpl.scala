@@ -13,23 +13,35 @@ import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
 import play.api.Logger
+import play.api.i18n.Messages
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.mailer.{Email, MailerClient}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService {
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient,@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService {
   val logger = Logger(this.getClass)
 
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
-  def update(optDates:Option[List[LocalDate]]=None) {
+  def update(optDates:Option[List[LocalDate]]=None, mailReport:Boolean = false) {
+    val startTime = LocalDateTime.now()
     dao.findSeasonByYear(activeYear).map {
       case None =>
         logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
+        if (mailReport) {
+          mailerClient.send(Email(
+            subject = Messages("email.already.signed.up.subject"),
+            from = Messages("email.from"),
+            to = Seq(data.email),
+            bodyText = Some(views.txt.silhouette.emails.alreadySignedUp(user, url).body),
+            bodyHtml = Some(views.html.silhouette.emails.alreadySignedUp(user, url).body)
+          ))
+        }
       case Some(s) =>
         if (dao.checkAndSetLock(s.id)) {
           val updatedBy: String = "Scraper[Updater]"
