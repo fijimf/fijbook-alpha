@@ -26,27 +26,26 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, @Named("data-load-ac
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
-  def update() {
-
-    val season = dao.findSeasonByYear(activeYear)
-    season.map {
+  def update(optDates:Option[List[LocalDate]]=None) {
+    dao.findSeasonByYear(activeYear).map {
       case None =>
+        logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
       case Some(s) =>
-
         if (dao.checkAndSetLock(s.id)) {
-
           val updatedBy: String = "Scraper[Updater]"
-          scrapeSeasonGames(s, updatedBy).onComplete {
-            case Success(ssr) => {
-              ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
-            }
-              completeScrape(s.id)
-            case Failure(thr) => logger.error("Failed update ", thr)
-              completeScrape(s.id)
+          scrapeSeasonGames(s, optDates, updatedBy).onComplete {
+            case Success(ssr: SeasonScrapeResult) =>
+              logger.info("Schedule update scrape complete.")
+              if (ssr.unmappedTeamCount.nonEmpty) {
+                logger.info("The following teams had no games mapped")
+                ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
+              }
+              dao.unlockSeason(s.id)
+            case Failure(thr) =>
+              logger.error("Schedule update scrape failed.", thr)
+              dao.unlockSeason(s.id)
           }
-
         }
-
     }
   }
 
@@ -55,10 +54,10 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, @Named("data-load-ac
   }
 
 
-  def scrapeSeasonGames(season: Season, updatedBy: String): Future[SeasonScrapeResult] = {
+  def scrapeSeasonGames(season: Season, optDates:Option[List[LocalDate]], updatedBy: String): Future[SeasonScrapeResult] = {
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.flatMap(teamDictionary => {
-        val dateList: List[LocalDate] = season.dates.filter(d => season.status.canUpdate(d))
+        val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
         Await.result(Future.sequence(dateList.map(dd => dao.clearGamesByDate(dd))), 15.seconds)
         val map: List[Future[(LocalDate, GameScrapeResult)]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(d -> _))
         Future.sequence(map).map(lgsr => SeasonScrapeResult(lgsr))
