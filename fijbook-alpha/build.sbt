@@ -13,6 +13,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
+  cache,
   "com.typesafe.play" %% "play-slick" % "2.0.0",
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
