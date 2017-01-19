@@ -13,7 +13,7 @@ import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
 import play.api.Logger
-import play.api.i18n.Messages
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 
@@ -22,25 +22,19 @@ import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient,@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService {
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient,override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport{
   val logger = Logger(this.getClass)
 
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
-  def update(optDates:Option[List[LocalDate]]=None, mailReport:Boolean = false) {
+  def update(optDates: Option[List[LocalDate]] = None, mailReport: Boolean = false) {
     val startTime = LocalDateTime.now()
     dao.findSeasonByYear(activeYear).map {
       case None =>
         logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
         if (mailReport) {
-          mailerClient.send(Email(
-            subject = Messages("email.already.signed.up.subject"),
-            from = Messages("email.from"),
-            to = Seq(data.email),
-            bodyText = Some(views.txt.silhouette.emails.alreadySignedUp(user, url).body),
-            bodyHtml = Some(views.html.silhouette.emails.alreadySignedUp(user, url).body)
-          ))
+          maillErrorReport(optDates)
         }
       case Some(s) =>
         if (dao.checkAndSetLock(s.id)) {
@@ -52,13 +46,37 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
                 logger.info("The following teams had no games mapped")
                 ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
               }
+              if (mailReport) {
+                mailSuccessReport(optDates)
+              }
               dao.unlockSeason(s.id)
             case Failure(thr) =>
               logger.error("Schedule update scrape failed.", thr)
+              if (mailReport) {
+                maillErrorReport(optDates)
+              }
               dao.unlockSeason(s.id)
           }
         }
     }
+  }
+
+  private def mailSuccessReport(optDates: Option[List[LocalDate]]) = {
+    mailerClient.send(Email(
+      subject = Messages("email.daily.update.subject"),
+      from = Messages("email.from"),
+      to = Seq(System.getProperty("admin.user", "nope@nope.com")),
+      bodyHtml = Some(views.html.admin.emails.dailyUpdate(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
+    ))
+  }
+
+  private def maillErrorReport(optDates: Option[List[LocalDate]]) = {
+    mailerClient.send(Email(
+      subject = Messages("email.daily.updateError.subject"),
+      from = Messages("email.from"),
+      to = Seq(System.getProperty("admin.user", "nope@nope.com")),
+      bodyHtml = Some(views.html.admin.emails.dailyUpdateError(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
+    ))
   }
 
   def completeScrape(seasonId: Long): Future[Int] = {
@@ -66,7 +84,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  def scrapeSeasonGames(season: Season, optDates:Option[List[LocalDate]], updatedBy: String): Future[SeasonScrapeResult] = {
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[SeasonScrapeResult] = {
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.flatMap(teamDictionary => {
         val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))

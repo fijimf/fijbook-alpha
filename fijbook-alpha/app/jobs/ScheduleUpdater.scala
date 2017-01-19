@@ -7,19 +7,19 @@ import akka.actor.Actor
 import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import jobs.ScheduleUpdater.Update
 
-class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor {
+class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
 
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case Update(od) => svc.update(od)
+    case Update(od, sendEmail)=> svc.update(od, sendEmail)
 
   }
 }
 
 object ScheduleUpdater {
 
-  case class Update(date: Option[List[LocalDate]] = None)
+  case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
 
   def forAll = Update()
 

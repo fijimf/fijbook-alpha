@@ -103,5 +103,9 @@ email.activate.account.html.text = Please follow <a href="{0}">this link</a> to 
 email.activate.account.txt.text = Please follow the link to confirm and activate your new account: {0}
 
 # Daily update
+email.daily.update.subject = Daily schedule update: SUCCESS
 email.daily.update.html.text = Daily schedule update was has completed games and results were updated for the following dates: {0}
 email.daily.update.txt.text = Daily schedule update was has completed games and results were updated for the following dates: {0}
+email.daily.updateError.subject = Daily schedule update: ERROR
+email.daily.updateError.html.text = Daily schedule update for the following dates: {0} has completed with an error!
+email.daily.updateError.txt.text = Daily schedule update for the following dates: {0} has completed with an error!
