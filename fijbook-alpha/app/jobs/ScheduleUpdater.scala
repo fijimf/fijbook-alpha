@@ -25,7 +25,7 @@ object ScheduleUpdater {
 
   def forNow = Update(Some((-1).to(1).map(n => LocalDate.now().plusDays(n)).toList))
 
-  def forDailyUpdate = Update(Some((-7).to(7).map(n => LocalDate.now().plusDays(n)).toList))
+  def forDailyUpdate = Update(Some((-7).to(7).map(n => LocalDate.now().plusDays(n)).toList), sendEmail = true)
 
 }
 
