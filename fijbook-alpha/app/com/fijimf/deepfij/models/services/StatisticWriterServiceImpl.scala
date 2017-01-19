@@ -7,9 +7,8 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.stats._
 import play.api.Logger
 
+import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWriterService {
@@ -20,28 +19,28 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
 
   val activeYear = 2017
 
-  val models:List[Model[_]] = List(WonLost, Scoring, Rpi, LeastSquares)
+  val models: List[Model[_]] = List(WonLost, Scoring, Rpi, LeastSquares)
 
-  val statMap: Map[String, Map[String, Stat[_]]] = models.map(m=>m.key->m.stats.map(s=>s.key->s).toMap).toMap
-  val modelMap: Map[String, Model[_]] = models.map(m=>m.key->m).toMap
+  val statMap: Map[String, Map[String, Stat[_]]] = models.map(m => m.key -> m.stats.map(s => s.key -> s).toMap).toMap
+  val modelMap: Map[String, Model[_]] = models.map(m => m.key -> m).toMap
 
-  def update(): Option[Future[Option[Int]]] ={
+  def update(): Option[Future[Unit]] = {
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
     result.map(sch => {
       updateForSchedule(sch)
     })
   }
 
-  def update(date:LocalDate): Option[Future[Option[Int]]] ={
+  def update(date: LocalDate): Option[Future[Unit]] = {
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
     result.map(sch => {
       val dates = (-2).to(3).map(i => date.plusDays(i)).toList
-      updateDatesForSchedule(sch, dates,List(WonLost(sch), Scoring(sch), Rpi(sch), LeastSquares(sch, dates)) )
+      updateDatesForSchedule(sch, dates, List(WonLost(sch), Scoring(sch), Rpi(sch), LeastSquares(sch, dates)))
     })
   }
 
-  def updateForSchedule(sch: Schedule): Future[Option[Int]] = {
-//    val models: List[Analyzer[_]] = List( LeastSquares(sch))
+  def updateForSchedule(sch: Schedule): Future[Unit] = {
+    //    val models: List[Analyzer[_]] = List( LeastSquares(sch))
     val dates = sch.lastResult match {
       case Some(d) => sch.season.dates.filter(sd => sd.isBefore(d))
       case None => List.empty
@@ -51,9 +50,8 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
     updateDatesForSchedule(sch, dates, models)
   }
 
-  private def updateDatesForSchedule(sch: Schedule, dates: List[LocalDate], models: List[Analyzer[_]]): Future[Option[Int]] = {
-    logger.info("Updating stats for dates "+dates.take(5).mkString(", ")+(if (dates.size>5) "..." else ""))
-    Await.result(dao.deleteStatValues(dates, models.map(_.key)), 5.minutes)
+  private def updateDatesForSchedule(sch: Schedule, dates: List[LocalDate], models: List[Analyzer[_]]): Future[Unit] = {
+    logger.info("Updating stats for dates " + dates.take(5).mkString(", ") + (if (dates.size > 5) "..." else ""))
 
     val values: List[StatValue] = (for (m <- models;
                                         s <- m.stats;
@@ -72,13 +70,14 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
         }
       )
     }).flatten
-    dao.saveStatValues(values)
+    dao.saveStatValues(dates, models.map(_.key), values)
   }
 
-  override def lookupStat(modelKey: String, statKey: String): Option[Stat[_]]={
-    statMap.get(modelKey).flatMap(m=>m.get(statKey))
+  override def lookupStat(modelKey: String, statKey: String): Option[Stat[_]] = {
+    statMap.get(modelKey).flatMap(m => m.get(statKey))
   }
-  override def lookupModel(modelKey: String): Option[Model[_]]={
+
+  override def lookupModel(modelKey: String): Option[Model[_]] = {
     modelMap.get(modelKey)
   }
 }

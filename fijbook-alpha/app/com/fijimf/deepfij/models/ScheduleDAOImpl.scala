@@ -168,8 +168,13 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def saveAlias(a: Alias): Future[Int] = db.run(repo.aliases.insertOrUpdate(a))
 
-  override def saveStatValues(stats: List[StatValue]): Future[Option[Int]] = {
-    db.run(repo.statValues.forceInsertAll(stats))
+  override def saveStatValues(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
+    val inserts = List(repo.statValues.forceInsertAll(stats))
+    val deletes: List[DBIOAction[_, NoStream, Write]]=
+      for (m <- models; d <- dates) yield {
+        repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
+      }
+    db.run(DBIO.seq(deletes:::inserts: _*).transactionally)
   }
 
   override def deleteAlias(id: Long): Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
