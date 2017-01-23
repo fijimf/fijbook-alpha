@@ -1,12 +1,31 @@
 @import com.fijimf.deepfij.models.{Schedule,User,Game}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
+@import java.time.format.DateTimeFormatter
 @(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate)(implicit flash: Flash)
 @main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
     @if(currOpt.isDefined){
         <div class="row">
             <div class="col-sm-5">
-                <h5>Today's Games</h5>
+                <h4 class="text-center">
+                    Today's Games
+
+                </h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+            <h5>    <a class="text-left" href="@routes.GamesController.gamesByDate(yesterday.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                    <i class="fa fa-arrow-left small"></i>@yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE)</a>
+            </h5> </div>
+            <div class="col-sm-2 col-sm-offset-1 text-right">
+                <h5><a class="text-right" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                    @tomorrow.format(DateTimeFormatter.ISO_LOCAL_DATE)<i class="small fa fa-arrow-right"></i></a>
+                </h5>
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-sm-5">
                 <table class="table table-condensed table-schedule" >
                 @for(g <-todayGames) {
                     <tr>

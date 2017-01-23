@@ -47,12 +47,14 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
                 ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
               }
               if (mailReport) {
+                logger.info("Mailing summary")
                 mailSuccessReport(optDates)
               }
               dao.unlockSeason(s.id)
             case Failure(thr) =>
               logger.error("Schedule update scrape failed.", thr)
               if (mailReport) {
+                logger.info("Mailing summary")
                 maillErrorReport(optDates)
               }
               dao.unlockSeason(s.id)
