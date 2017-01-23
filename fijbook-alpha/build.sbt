@@ -11,6 +11,7 @@ routesGenerator := InjectedRoutesGenerator
 resolvers += "Atlassian Releases" at "https://maven.atlassian.com/content/repositories/atlassian-public/"
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
 
 libraryDependencies ++= Seq(
   cache,
@@ -40,7 +41,13 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
-  "org.scalanlp" %% "breeze" % "0.12"
+  "org.scalanlp" %% "breeze" % "0.12",
+  "io.kamon" %% "kamon-core" % "0.6.3",
+  "io.kamon" %% "kamon-scala" % "0.6.3",
+  "io.kamon" %% "kamon-play-25" % "0.6.3",
+  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
+  "org.aspectj" % "aspectjweaver" % "1.8.9"
+
 )
 
 
