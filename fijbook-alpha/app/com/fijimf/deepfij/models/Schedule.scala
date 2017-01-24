@@ -96,7 +96,7 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
   }
 
   def record(team: Team, predicate: Game => Boolean = _ => true, lastN: Int = 0): WonLostRecord = {
-    val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(predicate)
+    val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(g=>resultMap.contains(g.id) && predicate(g))
     val (w, l) = (lastN match {
       case 0 => g1
       case n => g1.takeRight(n)
