@@ -99,7 +99,7 @@ case class Schedule(season: Season, teams: List[Team], conferences: List[Confere
     val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(predicate)
     val (w, l) = (lastN match {
       case 0 => g1
-      case n => g1.take(n)
+      case n => g1.takeRight(n)
     }).foldLeft(0, 0)((wl: (Int, Int), game: Game) => if (isWinner(team, game)) (wl._1 + 1, wl._2) else if (isLoser(team, game)) (wl._1, wl._2 + 1) else wl)
     WonLostRecord(w, l)
   }
