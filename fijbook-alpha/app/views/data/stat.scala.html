@@ -18,6 +18,37 @@
 
     <div class="row">
         <div class="col-sm-3">
+            <div id="histogram">
+
+            </div>
+            <script type="text/javascript">
+                    vg.embed("#histogram", {
+                        mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
+                        spec:  {
+                            "data": { "url":"/api/stats/@t.model.key/@t.stat.key"
+                            },
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"bin": {"maxbins":25},
+                                    "field": "value",
+                                    "type": "quantitative",
+                                    "axis": {
+                                        "title":"@t.statName"
+                                    }
+                                },
+                                "y": {
+                                    "aggregate": "count",
+                                    "field": "*",
+                                    "type": "quantitative",
+                                    "axis": {
+                                        "title":"Teams"
+                                    }
+                                }
+                            }
+                        }
+                    }, function(error, result) { });
+
+            </script>
             <table class="table table-condensed table-bordered stat-summary-table">
                 <tr>
                     <td colspan="2" style="font-weight: bold;

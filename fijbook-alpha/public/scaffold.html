@@ -25,13 +25,20 @@
         },
         "mark": "bar",
         "encoding": {
-            "y": {"bin": {"maxbins":25},
+            "x": {"bin": {"maxbins":25},
                 "field": "value",
-                "type": "quantitative"},
-            "x": {
+                "type": "quantitative",
+                "axis": {
+                    "title":"RPI"
+                }
+            },
+            "y": {
                 "aggregate": "count",
                 "field": "*",
-                "type": "quantitative"
+                "type": "quantitative",
+                "axis": {
+                    "title":"Teams"
+                }
             }
         }
     };
