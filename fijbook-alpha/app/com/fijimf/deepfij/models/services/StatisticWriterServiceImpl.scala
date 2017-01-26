@@ -24,14 +24,14 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
   val statMap: Map[String, Map[String, Stat[_]]] = models.map(m => m.key -> m.stats.map(s => s.key -> s).toMap).toMap
   val modelMap: Map[String, Model[_]] = models.map(m => m.key -> m).toMap
 
-  def update(): Option[Future[Unit]] = {
+  def update(): Option[List[Unit]] = {
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
     result.map(sch => {
       updateForSchedule(sch)
     })
   }
 
-  def update(date: LocalDate): Option[Future[Unit]] = {
+  def update(date: LocalDate): Option[List[Unit]] = {
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
     result.map(sch => {
       val dates = (-2).to(3).map(i => date.plusDays(i)).toList
@@ -39,7 +39,7 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
     })
   }
 
-  def updateForSchedule(sch: Schedule): Future[Unit] = {
+  def updateForSchedule(sch: Schedule): List[Unit] = {
     //    val models: List[Analyzer[_]] = List( LeastSquares(sch))
     val dates = sch.lastResult match {
       case Some(d) => sch.season.dates.filter(sd => sd.isBefore(d))
@@ -50,27 +50,30 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
     updateDatesForSchedule(sch, dates, models)
   }
 
-  private def updateDatesForSchedule(sch: Schedule, dates: List[LocalDate], models: List[Analyzer[_]]): Future[Unit] = {
+  private def updateDatesForSchedule(sch: Schedule, dates: List[LocalDate], models: List[Analyzer[_]]): List[Unit] = {
     logger.info("Updating stats for dates " + dates.take(5).mkString(", ") + (if (dates.size > 5) "..." else ""))
 
-    val values: List[StatValue] = (for (m <- models;
-                                        s <- m.stats;
-                                        d <- dates;
-                                        t <- sch.teams
-    ) yield {
-      m.value(s.key, t, d).map(x =>
-        if (x.isInfinity) {
-          logger.warn("For " + d + ", " + s.key + ", " + t.name + " value is Infinity.  Setting to default value " + s.defaultValue)
-          StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
-        } else if (x.isNaN) {
-          logger.warn("For " + d + ", " + s.key + ", " + t.name + " value is NaN.  Setting to default value " + s.defaultValue)
-          StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
-        } else {
-          StatValue(0L, m.key, s.key, t.id, d, x)
-        }
-      )
-    }).flatten
-    dao.saveStatValues(dates, models.map(_.key), values)
+
+      for (m <- models;
+           s <- m.stats) yield {
+        val values: List[StatValue] = (for (d <- dates;
+                                            t <- sch.teams) yield {
+          m.value(s.key, t, d).map(x =>
+            if (x.isInfinity) {
+              logger.warn("For " + d + ", " + s.key + ", " + t.name + " value is Infinity.  Setting to default value " + s.defaultValue)
+              StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
+            } else if (x.isNaN) {
+              logger.warn("For " + d + ", " + s.key + ", " + t.name + " value is NaN.  Setting to default value " + s.defaultValue)
+              StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
+            } else {
+              StatValue(0L, m.key, s.key, t.id, d, x)
+            }
+          )
+        }).flatten
+        dao.saveStatValues(5, dates, models.map(_.key), values)
+
+      }
+
   }
 
   override def lookupStat(modelKey: String, statKey: String): Option[Stat[_]] = {

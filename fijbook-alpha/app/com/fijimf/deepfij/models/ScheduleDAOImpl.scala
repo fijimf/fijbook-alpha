@@ -11,6 +11,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.dbio.Effect.Write
 
 import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick {
@@ -168,7 +169,14 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def saveAlias(a: Alias): Future[Int] = db.run(repo.aliases.insertOrUpdate(a))
 
-  override def saveStatValues(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
+  override def saveStatValues(batchSize:Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
+    dates.grouped(batchSize).foreach(d=>{
+       Await.result(saveStatBatch(d,models, stats.filter(s=>d.contains(s.date))), 1.minute)
+    })
+
+  }
+
+   def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
     val inserts = List(repo.statValues.forceInsertAll(stats))
     val deletes: List[DBIOAction[_, NoStream, Write]]=
       for (m <- models; d <- dates) yield {

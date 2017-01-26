@@ -11,10 +11,10 @@ import scala.language.postfixOps
 
 trait StatisticWriterService {
   val models:List[Model[_]]
-  def update(): Option[Future[Unit]]
-  def update(date:LocalDate): Option[Future[Unit]]
+  def update(): Option[List[Unit]]
+  def update(date:LocalDate): Option[List[Unit]]
 
-  def updateForSchedule(sch: Schedule): Future[Unit]
+  def updateForSchedule(sch: Schedule): List[Unit]
 
   def lookupModel(modelKey:String):Option[Model[_]]
   def lookupStat(modelKey:String,statKey:String):Option[Stat[_]]

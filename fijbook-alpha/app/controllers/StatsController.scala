@@ -31,13 +31,6 @@ class StatsController @Inject()(val teamDao: ScheduleDAO, val statWriterService:
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) => {
-          statWriterService.updateForSchedule(sch).onComplete {
-            case Success(x) =>
-              log.info("************-->>" + x + "<<--*************")
-            case Failure(thr) =>
-              log.error("", thr)
-              Redirect(routes.AdminController.index()).flashing("error" -> "Exception while updating models")
-          }
           Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule")
         }
         case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
@@ -47,17 +40,6 @@ class StatsController @Inject()(val teamDao: ScheduleDAO, val statWriterService:
 
   }
 
-  def updateAllByDate(yyyymmdd: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
-    statWriterService.update(LocalDate.parse(yyyymmdd, DateTimeFormatter.ofPattern("yyyyMMdd"))).foreach(_.onComplete {
-      case Success(x) =>
-        log.info("************-->>" + x + "<<--*************")
-      case Failure(thr) =>
-        log.error("", thr)
-    })
-    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
-
-
-  }
 
   def viewStat(modelKey: String, statKey: String) = silhouette.UserAwareAction.async { implicit request =>
     statWriterService.lookupModel(modelKey).flatMap(m => statWriterService.lookupStat(modelKey, statKey).map((m, _))) match {
