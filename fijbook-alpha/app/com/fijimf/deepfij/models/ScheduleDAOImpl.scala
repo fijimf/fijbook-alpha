@@ -10,9 +10,9 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.dbio.Effect.Write
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
+import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success, Try}
 
 class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick {
   val log = Logger(getClass)
@@ -107,7 +107,8 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
 
   override def findQuoteById(id: Long): Future[Option[Quote]] = db.run(repo.quotes.filter(_.id === id).result.headOption)
-  override def findQuoteByKey(key:Option[String]): Future[List[Quote]] = db.run(repo.quotes.filter(_.key === key).to[List].result)
+
+  override def findQuoteByKey(key: Option[String]): Future[List[Quote]] = db.run(repo.quotes.filter(_.key === key).to[List].result)
 
   override def saveQuote(q: Quote): Future[Int] = db.run(repo.quotes.insertOrUpdate(q))
 
@@ -158,10 +159,10 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 
   override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Unit] = {
-    val map: List[DBIOAction[Int, NoStream, Write]]=
-    for (m <- models; d <- dates) yield {
-      repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
-    }
+    val map: List[DBIOAction[Int, NoStream, Write]] =
+      for (m <- models; d <- dates) yield {
+        repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
+      }
     db.run(DBIO.seq(map: _*).transactionally)
   }
 
@@ -169,24 +170,38 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def saveAlias(a: Alias): Future[Int] = db.run(repo.aliases.insertOrUpdate(a))
 
-  override def saveStatValues(batchSize:Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
-    dates.grouped(batchSize).foreach(d=>{
-       Await.result(saveStatBatch(d,models, stats.filter(s=>d.contains(s.date))), 1.minute)
+  override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
+    val grouped = dates.grouped(batchSize)
+    grouped.foreach(d => {
+      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))),3 minutes)
     })
 
   }
 
-   def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
+  def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
+    val key = s"[${models.mkString(", ")}] x [${dates.head} .. ${dates.last}] "
+    val start = System.currentTimeMillis()
+    log.info(s"Saving stat batch for $key (${stats.size} rows)")
     val inserts = List(repo.statValues.forceInsertAll(stats))
-    val deletes: List[DBIOAction[_, NoStream, Write]]=
+    val deletes: List[DBIOAction[_, NoStream, Write]] =
       for (m <- models; d <- dates) yield {
         repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
       }
-    db.run(DBIO.seq(deletes:::inserts: _*).transactionally)
+    val action = DBIO.seq(deletes ::: inserts: _*).transactionally
+    val future: Future[Unit] = db.run(action)
+    future.onComplete((t: Try[Unit]) =>{
+      val dur = System.currentTimeMillis()-start
+      t match {
+
+      case Success(_)=>log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
+      case Failure(ex)=>log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
+    }})
+    future
   }
 
   override def deleteAlias(id: Long): Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
 
-  override def loadStatValues(statKey: String, modelKey: String):Future[List[StatValue]]= db.run(repo.statValues.filter(sv=>sv.modelKey === modelKey && sv.statKey===statKey ).to[List].result)
-  override def loadStatValues(modelKey: String):Future[List[StatValue]]= db.run(repo.statValues.filter(sv=>sv.modelKey === modelKey ).to[List].result)
+  override def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.statKey === statKey).to[List].result)
+
+  override def loadStatValues(modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey).to[List].result)
 }

@@ -7,7 +7,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
+case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulator] {
 
   val log = Logger(Rpi.getClass)
   val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
@@ -34,8 +34,9 @@ case class Rpi(s: Schedule) extends Analyzer[RpiAccumulator] {
         })._2
     } match {
       case Success(x) =>
-        log.info("Stat configuration succeeded wuth " + x.size + " dates")
-        x
+        val data = x.filterKeys(dates.contains(_))
+        log.info(s"Computing Rpi succeeded with ${data.size} dates.")
+        data
       case Failure(thr) =>
         log.error("Stat computation failed", thr)
         zero._2

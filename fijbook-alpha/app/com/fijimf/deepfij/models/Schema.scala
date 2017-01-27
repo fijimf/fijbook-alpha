@@ -380,9 +380,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def modelKey: Rep[String] = column[String]("model_key")
+    def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
 
-    def statKey: Rep[String] = column[String]("stat_key")
+    def statKey: Rep[String] = column[String]("stat_key", O.Length(32))
 
     def teamId: Rep[Long] = column[Long]("team_id")
 
@@ -391,6 +391,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def value: Rep[Double] = column[Double]("value")
 
     def * : ProvenShape[StatValue] = (id, modelKey, statKey, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
+
+    def idx1: Index = index("stat_value_idx1", (date, modelKey, statKey, teamId), unique = true)
+    def idx2: Index = index("stat_value_idx2", (date, modelKey), unique = false)
+    def idx3: Index = index("stat_value_idx3", (modelKey, statKey), unique = false)
+    def idx4: Index = index("stat_value_idx4", (modelKey), unique = false)
 
   }
 

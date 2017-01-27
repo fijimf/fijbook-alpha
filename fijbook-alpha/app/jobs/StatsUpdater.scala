@@ -12,8 +12,7 @@ class StatsUpdater @Inject()(svc:StatisticWriterService) extends Actor {
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case Update => svc.update(LocalDate.now)
-
+    case Update => svc.update(Some(7))//<-Rerun the last week
   }
 }
 

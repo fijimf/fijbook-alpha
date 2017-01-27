@@ -7,7 +7,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class WonLost(s: Schedule) extends Analyzer[WonLostAccumulator] {
+case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostAccumulator] {
   val log = Logger(WonLost.getClass)
 
   val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {
@@ -34,14 +34,13 @@ case class WonLost(s: Schedule) extends Analyzer[WonLostAccumulator] {
         })._2
     } match {
       case Success(x) =>
-        log.info("Computing WonLost succeeded with " + x.size + " dates.")
-        x
+        val data = x.filterKeys(dates.contains(_))
+        log.info(s"Computing WonLost succeeded with ${data.size} dates.")
+        data
       case Failure(thr) =>
         log.info("Computing stat failed" + thr)
         zero._2
     }
-
-
   }
   override val name: String = WonLost.name
   override val key: String = WonLost.key

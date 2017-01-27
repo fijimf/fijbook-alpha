@@ -42,10 +42,10 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.scalanlp" %% "breeze" % "0.12",
-  "io.kamon" %% "kamon-core" % "0.6.3",
-  "io.kamon" %% "kamon-scala" % "0.6.3",
-  "io.kamon" %% "kamon-play-25" % "0.6.3",
-  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
+//  "io.kamon" %% "kamon-core" % "0.6.3",
+//  "io.kamon" %% "kamon-scala" % "0.6.3",
+//  "io.kamon" %% "kamon-play-25" % "0.6.3",
+//  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
   "org.aspectj" % "aspectjweaver" % "1.8.9"
 
 )

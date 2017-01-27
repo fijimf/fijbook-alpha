@@ -8,7 +8,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class Scoring(s: Schedule) extends Analyzer[ScoringAccumulator] {
+case class Scoring(s: Schedule, dates:List[LocalDate]) extends Analyzer[ScoringAccumulator] {
 val log = Logger(Scoring.getClass)
   val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
     val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
@@ -33,8 +33,9 @@ val log = Logger(Scoring.getClass)
         }
       })._2} match {
       case Success(x)=>
-        log.info("Stat configuration succeeded wuth "+ x.size+" dates")
-        x
+        val data = x.filterKeys(dates.contains(_))
+        log.info(s"Computing Scoring succeeded with ${data.size} dates.")
+        data
       case Failure(thr)=>
         log.error("Stat computation failed",thr)
         zero._2

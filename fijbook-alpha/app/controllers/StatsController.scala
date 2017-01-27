@@ -31,6 +31,7 @@ class StatsController @Inject()(val teamDao: ScheduleDAO, val statWriterService:
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) => {
+          statWriterService.update()
           Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule")
         }
         case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
