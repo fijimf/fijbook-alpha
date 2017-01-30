@@ -3,7 +3,7 @@
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
 @(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate)(implicit flash: Flash)
-@main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
+@main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user,datebook=Some(today)) {
     @if(currOpt.isDefined){
         <div class="row">
             <div class="col-sm-5">

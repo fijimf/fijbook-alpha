@@ -2,7 +2,9 @@
 @import controllers.nav.StandardNavBar
 @import controllers.nav.Breadcrumbs
 @import com.fijimf.deepfij.models.User
-@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd", quoteKey:Option[String]=None)(content: Html)(implicit flash: Flash)
+@import java.time.LocalDate
+@import java.time.format._
+@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd", quoteKey:Option[String]=None, datebook:Option[LocalDate]=None)(content: Html)(implicit flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -85,9 +87,21 @@
 
                         <!-- Page Heading -->
                     <div class="row">
-                        <div class="col-lg-1">
-                            <img class="spin" src=@icon>
-                        </div>
+                        @if(datebook.isDefined){
+                            <div class="col-lg-1" style=" border: 1px solid black; padding-left: 0px; padding-right: 0px; margin-left: 15px; margin-right: 0px; width: 66px; ">
+                                <h5 style="text-align: center;margin-bottom: 0px;">
+                                @datebook.get.format( DateTimeFormatter.ofPattern("MMMM"))
+                            </h5>
+                                <h1 style=" font-size: 200%; text-align: center; margin-top: 0px; font-weight: bold; ">
+                                @datebook.get.format(DateTimeFormatter.ofPattern("d"))
+
+                                </h1>
+                            </div>
+                        } else {
+                            <div class="col-lg-1">
+                                <img class="spin" src=@icon>
+                            </div>
+                        }
                         <div class="col-lg-11">
                             <h3 class="page-header" style="margin-top:15px; border-bottom: 3px solid @lineColor;">
                                 @pageHead
