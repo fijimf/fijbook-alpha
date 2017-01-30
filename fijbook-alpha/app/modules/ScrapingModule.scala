@@ -20,6 +20,7 @@ class ScrapingModule extends AbstractModule with ScalaModule with AkkaGuiceSuppo
     bind[ScheduleDAO].to[ScheduleDAOImpl]
     bind[ScheduleUpdateService].to[ScheduleUpdateServiceImpl]
     bind[StatisticWriterService].to[StatisticWriterServiceImpl]
+    bind[MemoryMonitorService].to[MemoryMonitorServiceImpl]
   }
 
 }

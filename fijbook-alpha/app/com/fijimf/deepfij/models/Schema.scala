@@ -91,6 +91,8 @@ object StatUtil {
   }
 }
 
+case class GamePrediction(id: Long, gameId: Long, modelKey:String, favoriteId:Option[Long], probability:Option[Double], spread:Option[Double], overUnder:Option[Double] )
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -399,6 +401,18 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
+  class GamePredictionTable(tag:Tag) extends Table[GamePrediction](tag,"game_prediction"){
+    def id: Rep[Long]=column[Long]("id", O.AutoInc, O.PrimaryKey)
+    def gameId: Rep[Long]=column[Long]("game_id")
+    def modelKey:Rep[String]=column[String]("model_key", O.Length(32))
+    def favoriteId:Rep[Option[Long]] = column[Option[Long]]("favorite_id")
+    def probability:Rep[Option[Double]]=column[Option[Double]]("probability")
+    def spread:Rep[Option[Double]] = column[Option[Double]]("spread")
+    def overUnder:Rep[Option[Double]] = column[Option[Double]]("over_under")
+    def * : ProvenShape[GamePrediction] = (id, gameId, modelKey, favoriteId, probability, spread, overUnder) <> (GamePrediction.tupled, GamePrediction.unapply)
+    def idx1: Index = index("game_pred_idx1", (gameId, modelKey), unique = true)
+  }
+
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
@@ -409,7 +423,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferenceMaps: TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
   lazy val quotes: TableQuery[QuoteTable] = TableQuery[QuoteTable]
   lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
-
+  lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
 
   lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statValues.schema
