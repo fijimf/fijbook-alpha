@@ -10,6 +10,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.dbio.Effect.Write
 
+import scala.collection.immutable.Seq
 import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
@@ -58,7 +59,7 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def saveSeason(s: Season): Future[Int] = db.run(repo.seasons.insertOrUpdate(s))
 
   override def findSeasonById(id: Long): Future[Option[Season]] = {
-    val q: Query[repo.SeasonsTable, Season, Seq] = repo.seasons.filter(season => season.id === id)
+    val q = repo.seasons.filter(season => season.id === id)
     db.run(q.result.headOption)
   }
 
@@ -204,4 +205,15 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   override def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.statKey === statKey).to[List].result)
 
   override def loadStatValues(modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey).to[List].result)
+
+  override def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]] = {
+    Future.sequence(games.map(g => {
+      db.run(repo.gamePredictions.filter(gp => gp.gameId === g.id && gp.modelKey === modelKey).to[List].result)
+    })).map(_.flatten)
+  }
+  override def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]] = {
+    Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
+  }
+
+
 }

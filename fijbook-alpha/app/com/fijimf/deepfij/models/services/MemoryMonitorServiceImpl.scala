@@ -14,7 +14,6 @@ import scala.language.postfixOps
 class MemoryMonitorServiceImpl @Inject()(mailerClient: MailerClient, override val messagesApi: MessagesApi) extends MemoryMonitorService with I18nSupport {
   val logger = Logger(this.getClass)
   val mxMemBean = ManagementFactory.getMemoryMXBean
-  ManagementFactory.
 
   def check() {
     val heap = mxMemBean.getHeapMemoryUsage

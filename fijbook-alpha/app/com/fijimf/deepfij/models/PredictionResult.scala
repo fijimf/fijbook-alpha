@@ -22,9 +22,9 @@ case class PredictionResult(g: Game, p: GamePrediction, res: Option[Result]) {
   def absSpreadError = spreadError.map(math.abs)
 
 
-  def actualHomeWinner = res.map(r => bool2Int(r.homeScore > r.awayScore))
+  def actualHomeWinner: Option[Int] = res.map(r => bool2Int(r.homeScore > r.awayScore))
 
-  def predictedHomeWinner = for {f <- p.favoriteId
+  def predictedHomeWinner: Option[Double] = for {f <- p.favoriteId
   } yield {
     if (f == g.homeTeamId) {
       p.probability.getOrElse(1)
@@ -35,7 +35,7 @@ case class PredictionResult(g: Game, p: GamePrediction, res: Option[Result]) {
 
   def winnerError = for {actual <- actualHomeWinner
                          predicted <- predictedHomeWinner} yield {
-    math.abs(actual - predicted)
+    math.abs(actual.toDouble - predicted)
   }
 
   def bool2Int(b: Boolean) = if (b) 1 else 0

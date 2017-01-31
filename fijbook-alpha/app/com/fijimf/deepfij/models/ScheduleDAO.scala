@@ -5,6 +5,9 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
+
+  def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]]
   def findSeasonByYear(year:Int):Future[Option[Season]]
 
   def deleteAliases():Future[Int]
