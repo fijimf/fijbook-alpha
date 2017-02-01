@@ -1,19 +1,19 @@
 package com.fijimf.deepfij.stats.predictor
 
 import java.time.LocalDate
-
 import com.fijimf.deepfij.models.{Game, GamePrediction, Schedule, ScheduleDAO}
-
 import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class NaiveLinearRegressionPredictor(dao:ScheduleDAO) {
+case class NaiveLinearRegressionPredictor(dao:ScheduleDAO) extends SchedulePredictor {
 
-  val key = "naive-regression"
+  override val key = "naive-regression"
 
-  def predictDate(gs:List[Game], d: LocalDate, sch: Schedule): Future[List[GamePrediction]] = {
-    dao.loadStatValues("least-squares", "x-margin-no-ties").map(sv => {
+  override def predictDate(gs:List[Game], d: LocalDate, sch: Schedule): Future[List[GamePrediction]] = {
+    logger.info(s"Generating predictions for $d.  Have ${gs.size} games")
+    dao.loadStatValues("x-margin-no-ties","least-squares").map(sv => {
+      logger.info(s"Loaded ${sv.size} model values")
       val values = sv.groupBy(_.date).mapValues(_.map(s => s.teamID -> s).toMap)
       val xs = values(values.keys.filter(_.isBefore(d)).maxBy(_.toEpochDay))
       gs.flatMap(g => {
@@ -28,18 +28,6 @@ case class NaiveLinearRegressionPredictor(dao:ScheduleDAO) {
         }
       })
     })
-  }
-
-
-  def predictAndSaveDate(d: LocalDate, sch: Schedule): Future[List[Int]] = {
-    val games = sch.games.filter(_.date == d)
-    val predictions: Future[List[GamePrediction]] = dao.loadGamePredictions(games, key).flatMap(ops => {
-      predictDate(games, d, sch).map(nps => {
-        val idMap = ops.map(op => op.gameId -> op.id).toMap
-        nps.map((np: GamePrediction) => np.copy(id = idMap.getOrElse(np.gameId, 0L)))
-      })
-    })
-    predictions.flatMap(dao.saveGamePredictions)
   }
 
 
