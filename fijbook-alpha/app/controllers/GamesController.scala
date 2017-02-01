@@ -37,6 +37,7 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       val sch = sortedSchedules.headOption
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
+
       Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow))
     })
   }

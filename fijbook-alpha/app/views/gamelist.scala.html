@@ -1,4 +1,4 @@
-@import com.fijimf.deepfij.models.{Schedule,User,Game}
+@import com.fijimf.deepfij.models.{Schedule,User,Game, GamePrediction}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
@@ -15,9 +15,9 @@
             </div>
         </div>
             <div class="row">
-                <div class="col-sm-5">
+                <div class="col-sm-12">
                 <table class="table table-condensed table-schedule" >
-                    <thead><tr><th/><th>Home</th><th></th><th>Away</th><th/></tr></thead>
+                    <thead><tr><th/><th>Home</th><th></th><th>Away</th><th/><th>Favorite</th><th>Spread</th></tr></thead>
                 @for(g <-todayGames) {
                     <tr>
                         <td>@g.date</td>
@@ -25,6 +25,9 @@
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
                         <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
+                        <td>@{currOpt.get.predictionMap.get(g.id).flatMap(zz=>  zz.favoriteId.map(currOpt.get.teamsMap(_))).map(_.name).getOrElse("")}</td>
+                        <td>@{currOpt.get.predictionMap.get(g.id).map(zz=>zz.spread).getOrElse("")}</td>
+
                     </tr>
                 }
                 </table>
