@@ -1,38 +1,110 @@
-@import com.fijimf.deepfij.models.{Schedule,User,Game, GamePrediction}
+@import com.fijimf.deepfij.models.{Schedule,User,Game, GamePrediction,GprCohort}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
 @(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate)(implicit flash: Flash)
 @main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user,datebook=Some(today)) {
     @if(currOpt.isDefined){
-        <div class="row">
-            <div class="col-sm-2">
-            <p>    <a class="text-left" style="margin: 3px;" href="@routes.GamesController.gamesByDate(yesterday.format(DateTimeFormatter.BASIC_ISO_DATE))">
-                    <i class="fa fa-arrow-circle-o-left small" style="margin: 3px;"></i>Previous</a>
-            <a class="text-right" style="margin: 3px;" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE))">
-                    Next<i class="small fa fa-arrow-circle-o-right" style="margin: 3px;"></i></a>
-                </p>
-            </div>
-        </div>
+        @defining(GprCohort(currOpt.get, today)) { gs =>
             <div class="row">
-                <div class="col-sm-12">
-                <table class="table table-condensed table-schedule" >
-                    <thead><tr><th/><th>Home</th><th></th><th>Away</th><th/><th>Favorite</th><th>Spread</th></tr></thead>
-                @for(g <-todayGames) {
-                    <tr>
-                        <td>@g.date</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.homeTeamId).name}</a></td>
-                        <td>@{currOpt.get.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
-                        <td>@{currOpt.get.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
-                        <td>@{currOpt.get.predictionMap.get(g.id).flatMap(zz=>  zz.favoriteId.map(currOpt.get.teamsMap(_))).map(_.name).getOrElse("")}</td>
-                        <td>@{currOpt.get.predictionMap.get(g.id).map(zz=>zz.spread).getOrElse("")}</td>
+                <div class="col-sm-2">
+                    <p>    <a class="text-left" style="margin: 3px;" href="@routes.GamesController.gamesByDate(yesterday.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                        <i class="fa fa-arrow-circle-o-left small" style="margin: 3px;"></i>Previous</a>
+                        <a class="text-right" style="margin: 3px;" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                            Next<i class="small fa fa-arrow-circle-o-right" style="margin: 3px;"></i></a>
+                    </p>
+                </div>
+                <div class="col-sm-4 col-sm-offset-5">
+<table class="table table-condensed table-schedule">
+    <tr><th colspan="4">Naive Linear Regression Estimate</th> </tr>
+    <tr>
+        <td>% predicted</td>
+        <td class="text-right">@{gs.pctPredicted.map(p=>(p * 100.0).formatted("%4.1f")).getOrElse("")}</td>
+        <td>Avg. Spread Error</td>
+        <td class="text-right">@{gs.avgSpreadErr.map(_.formatted("%5.2f")).getOrElse("")}</td>
+    </tr>
+    <tr>
+        <td>% correct</td>
+        <td class="text-right">@{gs.pctRight.map(p=>(p * 100.0).formatted("%4.1f")).getOrElse("")}</td>
+        <td>Avg. Absolute Spread Error</td>
+        <td class="text-right">@{gs.avgAbsSpreadErr.map(_.formatted("%5.2f")).getOrElse("")}</td>
+    </tr>
+    <tr>
+        <td>% incorrect</td>
+        <td class="text-right">@{gs.pctWrong.map(p=>(p * 100.0).formatted("%4.1f")).getOrElse("")}</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Accuracy</td>
+        <td class="text-right">@{gs.accuracy.map(p=>(p * 100.0).formatted("%4.1f")).getOrElse("")}</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
 
-                    </tr>
-                }
-                </table>
+                </div>
             </div>
-        </div>
+            <div class="row">
+
+
+                <div class="col-sm-12">
+                    <table class="table table-condensed table-schedule" >
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Home</th>
+                                <th></th>
+                                <th>Away</th>
+                                <th></th>
+                                <th>Correct?</th>
+                                <th>Favorite</th>
+                                <th class="text-right">Spread</th>
+                                <th class="text-right">Error</th>
+                            </tr>
+                        </thead>
+                        @for(g <- gs.gprls) {
+                            <tr>
+                                <td>@g.date</td>
+                                <td><a href="@routes.TeamController.team(g.awayKey)">@{
+                                    g.awayTeam
+                                }</a>
+                                </td>
+                                <td class="text-right">@{
+                                    g.awayScore.getOrElse("")
+                                }</td>
+                                <td><a href="@routes.TeamController.team(g.homeKey)">@{
+                                    g.homeTeam
+                                }</a>
+                                </td>
+                                <td class="text-right">@{
+                                    g.homeScore.getOrElse("")
+                                }</td>
+                                <td>
+                                @if(g.isFavoriteCorrect.isDefined) {
+                                    @if(g.isFavoriteCorrect.get) {
+                                        <span class="fa fa-check-circle text-success text-center"></span>
+                                    } else {
+                                        <span class="fa fa-times-circle text-danger text-center"></span>
+                                    }
+                                }
+                                </td>
+                                <td>@{
+                                    g.favorite.getOrElse("")
+                                }</td>
+                                <td class="text-right">@{
+                                    g.spread.getOrElse("")
+                                }</td>
+
+                                <td class="text-right">@{
+                                    g.error.map(_.toString).getOrElse("")
+                                }</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        }
     } else {
         <div class="row">
             <div class="col-sm-8">
