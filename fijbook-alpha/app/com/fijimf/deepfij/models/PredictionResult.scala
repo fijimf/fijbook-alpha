@@ -8,30 +8,30 @@ case class GprCohort(gprls:List[GprLine], pctPredicted:Option[Double], pctRight:
 
 object GprLine {
   def apply(g: Game, sch: Schedule): GprLine = {
-    val d = g.date.toString
-    val ht = sch.teamsMap.get(g.homeTeamId).map(_.name).getOrElse("")
-    val hk = sch.teamsMap.get(g.homeTeamId).map(_.key).getOrElse("")
-    val hs = sch.resultMap.get(g.id).map(_.homeScore)
-    val at = sch.teamsMap.get(g.awayTeamId).map(_.name).getOrElse("")
-    val ak = sch.teamsMap.get(g.awayTeamId).map(_.key).getOrElse("")
-    val as = sch.resultMap.get(g.id).map(_.awayScore)
+    val date = g.date.toString
+    val homeTeam = sch.teamsMap.get(g.homeTeamId).map(_.name).getOrElse("")
+    val homeKey = sch.teamsMap.get(g.homeTeamId).map(_.key).getOrElse("")
+    val homeScore = sch.resultMap.get(g.id).map(_.homeScore)
+    val awayTeam = sch.teamsMap.get(g.awayTeamId).map(_.name).getOrElse("")
+    val awayKey = sch.teamsMap.get(g.awayTeamId).map(_.key).getOrElse("")
+    val awayScore = sch.resultMap.get(g.id).map(_.awayScore)
     val fav = sch.predictionMap.get(g.id).flatMap(_.favoriteId).flatMap(fi => sch.teamsMap.get(fi).map(_.name))
-    val corr = for {
-      h <- hs
-      a <- as
+    val correct = for {
+      h <- homeScore
+      a <- awayScore
       f <- fav} yield {
-      (h > a && f == ht) || (h < a && f == at)
+      (h > a && f == homeTeam) || (h < a && f == awayTeam)
     }
-    val spr = sch.predictionMap.get(g.id).flatMap(_.spread)
-    val err = for {
-      h <- hs
-      a <- as
+    val spread = sch.predictionMap.get(g.id).flatMap(_.spread)
+    val error = for {
+      h <- homeScore
+      a <- awayScore
       f <- fav
-      s <- spr
+      s <- spread
     } yield {
-      if (f == ht) (a - h) - s else (h - a) - s
+      if (f == homeTeam) (a - h) - s else (h - a) - s
     }
-    GprLine(d, ht, hk, hs, at, ak, as, fav, corr, spr, err)
+    GprLine(date, homeTeam, homeKey, homeScore, awayTeam, awayKey, awayScore, fav, correct, spread, error)
   }
 }
 

@@ -214,7 +214,12 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     })).map(_.flatten)
   }
   override def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]] = {
-    Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
+    val saveResults = Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
+    saveResults.onComplete {
+      case Success(is) => log.info("Save results: " + is.mkString(","))
+      case Failure(ex) => log.error("Failed saving results", ex)
+    }
+    saveResults
   }
 
 
