@@ -24,7 +24,7 @@ class IndexController @Inject()(val teamDao: ScheduleDAO,val userService: UserSe
       val sch = sortedSchedules.headOption
       val yesterdayGames = sch.map(_.games.filter(_.date == yesterday)).getOrElse(List.empty[Game])
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
-      Ok(views.html.index(rs.identity, today, sch, yesterdayGames, todayGames))
+      Ok(views.html.frontPage(rs.identity, today, sch, yesterdayGames, todayGames))
 
     })
   }
