@@ -51,7 +51,7 @@ object GprLine {
           val pctPredicted = Some(predicted.size.toDouble / gprls.size.toDouble)
           val pctRight = Some(predicted.count(_.isFavoriteCorrect.get).toDouble / gprls.size.toDouble)
           val pctWrong = Some(predicted.count(!_.isFavoriteCorrect.get).toDouble / gprls.size.toDouble)
-          val accuracy = Some(predicted.count(!_.isFavoriteCorrect.get).toDouble / predicted.size.toDouble)
+          val accuracy = Some(predicted.count(_.isFavoriteCorrect.get).toDouble / predicted.size.toDouble)
           val avgSpreadError = Some(predicted.map(_.error.getOrElse(0.0)).sum / predicted.size.toDouble)
           val avgAbsSpreadError = Some(predicted.map(p => math.abs(p.error.getOrElse(0.0))).sum / predicted.size.toDouble)
           GprCohort(gprls, pctPredicted, pctRight, pctWrong, accuracy, avgSpreadError, avgAbsSpreadError)
