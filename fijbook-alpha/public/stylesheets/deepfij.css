@@ -92,3 +92,16 @@ img.spin:hover {
         -moz-transform: rotate(360deg);
     }
 }
+
+.jumbofridge {
+    background: #780206; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #780206 , #061161); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #780206 , #061161); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    border-radius: 35px;
+}
+
+.jumbofridge h1{
+    color: white;
+    font-size: 128px;
+    font-weight: bold;
+}
