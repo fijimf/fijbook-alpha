@@ -52,16 +52,33 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey:String, updatedAt: LocalDateTime, updatedBy: String) {
+  def signature = (datetime.hashCode(), homeTeamId, awayTeamId)
+
+  def sameData(g: Game): Boolean = (g.seasonId == seasonId
+    && g.homeTeamId == homeTeamId
+    && g.awayTeamId == awayTeamId
+    && g.date == date
+    && g.datetime == datetime
+    && g.location == location
+    )
+
 }
 
-case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
+case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
   override def compare(x: Team, y: Team): Int = x.name.compare(y.name)
 }
 
 case class Alias(id: Long, alias: String, key: String)
 
-case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, updatedAt: LocalDateTime, updatedBy: String) {
+
+  def sameData(r: Result): Boolean = (r.gameId == gameId
+    && r.homeScore == homeScore
+    && r.awayScore == awayScore
+    && r.periods == periods
+    )
+
   def margin: Int = Math.abs(homeScore - awayScore)
 
   def isHomeWinner: Boolean = homeScore > awayScore
@@ -73,7 +90,7 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   def isAwayLoser: Boolean = homeScore > awayScore
 }
 
-case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key:Option[String])
+case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key: Option[String])
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
@@ -91,7 +108,7 @@ object StatUtil {
   }
 }
 
-case class GamePrediction(id: Long, gameId: Long, modelKey:String, favoriteId:Option[Long], probability:Option[Double], spread:Option[Double], overUnder:Option[Double] )
+case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
@@ -142,7 +159,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
                  logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
                  primaryColor: Option[String] = None, secondaryColor: Option[String] = None,
                  officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
-    val t = Team(0, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
+    val t = Team(0, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook,  LocalDateTime.now(), updatedBy)
     db.run(teams returning teams.map(_.id) += t)
   }
 
@@ -189,13 +206,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def officialFacebook: Rep[Option[String]] = column[Option[String]]("official_facebook", O.Length(144))
 
-    def lockRecord: Rep[Boolean] = column[Boolean]("lock_record")
-
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Team] = (id, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Team.tupled, Team.unapply)
+    def * : ProvenShape[Team] = (id, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Team.tupled, Team.unapply)
 
     def idx1: Index = index("team_idx1", key, unique = true)
 
@@ -281,13 +296,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def awayTeamSeed: Rep[Option[Int]] = column[Option[Int]]("away_team_seed")
 
-    def lockRecord: Rep[Boolean] = column[Boolean]("lock_record")
+    def sourceKey: Rep[String] = column[String]("source_key", O.Length(32))
 
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Game] = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, isNeutralSite, tourneyKey, homeTeamSeed, awayTeamSeed, lockRecord, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
+    def * : ProvenShape[Game] = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, isNeutralSite, tourneyKey, homeTeamSeed, awayTeamSeed, sourceKey, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
   }
 
@@ -305,13 +320,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def periods: Rep[Int] = column[Int]("periods")
 
-    def lockRecord: Rep[Boolean] = column[Boolean]("lock_record")
-
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Result] = (id, gameId, homeScore, awayScore, periods, lockRecord, updatedAt, updatedBy) <> (Result.tupled, Result.unapply)
+    def * : ProvenShape[Result] = (id, gameId, homeScore, awayScore, periods, updatedAt, updatedBy) <> (Result.tupled, Result.unapply)
 
     def idx1: Index = index("result_idx1", gameId, unique = true)
 
@@ -395,21 +408,32 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[StatValue] = (id, modelKey, statKey, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
 
     def idx1: Index = index("stat_value_idx1", (date, modelKey, statKey, teamId), unique = true)
+
     def idx2: Index = index("stat_value_idx2", (date, modelKey), unique = false)
+
     def idx3: Index = index("stat_value_idx3", (modelKey, statKey), unique = false)
+
     def idx4: Index = index("stat_value_idx4", (modelKey), unique = false)
 
   }
 
-  class GamePredictionTable(tag:Tag) extends Table[GamePrediction](tag,"game_prediction"){
-    def id: Rep[Long]=column[Long]("id", O.AutoInc, O.PrimaryKey)
-    def gameId: Rep[Long]=column[Long]("game_id")
-    def modelKey:Rep[String]=column[String]("model_key", O.Length(32))
-    def favoriteId:Rep[Option[Long]] = column[Option[Long]]("favorite_id")
-    def probability:Rep[Option[Double]]=column[Option[Double]]("probability")
-    def spread:Rep[Option[Double]] = column[Option[Double]]("spread")
-    def overUnder:Rep[Option[Double]] = column[Option[Double]]("over_under")
+  class GamePredictionTable(tag: Tag) extends Table[GamePrediction](tag, "game_prediction") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def gameId: Rep[Long] = column[Long]("game_id")
+
+    def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
+
+    def favoriteId: Rep[Option[Long]] = column[Option[Long]]("favorite_id")
+
+    def probability: Rep[Option[Double]] = column[Option[Double]]("probability")
+
+    def spread: Rep[Option[Double]] = column[Option[Double]]("spread")
+
+    def overUnder: Rep[Option[Double]] = column[Option[Double]]("over_under")
+
     def * : ProvenShape[GamePrediction] = (id, gameId, modelKey, favoriteId, probability, spread, overUnder) <> (GamePrediction.tupled, GamePrediction.unapply)
+
     def idx1: Index = index("game_pred_idx1", (gameId, modelKey), unique = true)
   }
 

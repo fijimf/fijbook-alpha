@@ -46,7 +46,6 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           data.officialUrl,
           data.officialTwitter,
           data.officialUrl,
-          true,
           LocalDateTime.now(),
           request.identity.userID.toString)
         teamDao.saveTeam(t).map(i => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))

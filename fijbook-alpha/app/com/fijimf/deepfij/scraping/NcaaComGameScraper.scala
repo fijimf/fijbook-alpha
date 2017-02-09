@@ -117,7 +117,7 @@ trait NcaaComGameScraper {
   }
 
 
-    def getGameData(v: JsValue): Option[GameData] = {
+    def getGameData(v: JsValue, sourceKey:String): Option[GameData] = {
       val optResult = for (
         gs <- (v \ "gameState").asOpt[String] if gs.equalsIgnoreCase("final");
         ps <- (v \ "scoreBreakdown").asOpt[JsArray];
@@ -145,7 +145,7 @@ trait NcaaComGameScraper {
         ak <- pullKeyFromLink(at)
       ) yield {
 
-        GameData(sd, hk, ak, optResult, (v \ "location").asOpt[String], optTourneyInfo, cn)
+        GameData(sd, hk, ak, optResult, (v \ "location").asOpt[String], optTourneyInfo, cn, sourceKey)
       }
     }
 

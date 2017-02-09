@@ -17,49 +17,53 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient,override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport{
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
   def update(optDates: Option[List[LocalDate]] = None, mailReport: Boolean = false) {
-    val startTime = LocalDateTime.now()
     dao.findSeasonByYear(activeYear).map {
       case None =>
-        logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
-        if (mailReport) {
-          maillErrorReport(optDates)
-        }
+        scheduleNotFound(optDates, mailReport)
       case Some(s) =>
-        if (dao.checkAndSetLock(s.id)) {
-          val updatedBy: String = "Scraper[Updater]"
-          scrapeSeasonGames(s, optDates, updatedBy).onComplete {
-            case Success(ssr: SeasonScrapeResult) =>
-              logger.info("Schedule update scrape complete.")
-              if (ssr.unmappedTeamCount.nonEmpty) {
-                logger.info("The following teams had no games mapped")
-                ssr.unmappedTeamCount.foreach((tuple: (String, Int)) => if (tuple._2 > 9) println(tuple._1 + "\t" + tuple._2))
-              }
-              if (mailReport) {
-                logger.info("Mailing summary")
-                mailSuccessReport(optDates)
-              }
-              dao.unlockSeason(s.id)
-            case Failure(thr) =>
-              logger.error("Schedule update scrape failed.", thr)
-              if (mailReport) {
-                logger.info("Mailing summary")
-                maillErrorReport(optDates)
-              }
-              dao.unlockSeason(s.id)
+        updateSeason(optDates, s, mailReport)
+    }
+  }
+
+  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean) = {
+    logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
+    if (dao.checkAndSetLock(s.id)) {
+      val updatedBy: String = "Scraper[Updater]"
+      scrapeSeasonGames(s, optDates, updatedBy).onComplete {
+        case Success(_) =>
+          logger.info("Schedule update scrape complete.")
+          if (mailReport) {
+            logger.info("Mailing summary")
+            mailSuccessReport(optDates)
           }
-        }
+          dao.unlockSeason(s.id)
+        case Failure(thr) =>
+          logger.error("Schedule update scrape failed.", thr)
+          if (mailReport) {
+            logger.info("Mailing summary")
+            maillErrorReport(optDates)
+          }
+          dao.unlockSeason(s.id)
+      }
+    }
+  }
+
+  private def scheduleNotFound(optDates: Option[List[LocalDate]], mailReport: Boolean): Unit = {
+    logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
+    if (mailReport) {
+      maillErrorReport(optDates)
     }
   }
 
@@ -86,45 +90,120 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[SeasonScrapeResult] = {
+  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]) = {
+    val gameToGameIdMap: Map[(Int, Long, Long), Game] = oldGameList.map(t => (t._1.datetime.hashCode(), t._1.homeTeamId, t._1.awayTeamId) -> t._1).toMap
+    val gameIdToResultIdMap: Map[Long, Result] = oldGameList.flatMap(t => t._2.map(u => t._1.id -> u)).toMap
+
+    val (remainingGames, remainingResults) = updateData.foldLeft((gameToGameIdMap, gameIdToResultIdMap))((tuple: (Map[(Int, Long, Long), Game], Map[Long, Result]), mapping: GameMapping) => {
+      val (gIdMap, rIdMap) = tuple
+      mapping match {
+        case MappedGame(g: Game) => handleMappedGame(gIdMap, rIdMap, g)
+        case MappedGameAndResult(g: Game, r: Result) => handleMappedGameAndResult(gIdMap, rIdMap, g, r)
+        case UnmappedGame(keys: List[String]) => {
+          logger.info(s"Failed to map ${keys.mkString(", ")}")
+          (gIdMap, rIdMap)
+        }
+      }
+    })
+    dao.deleteGames(remainingGames.values.map(_.id).toList)
+    dao.deleteResults(remainingResults.values.map(_.id).toList)
+  }
+
+  private def handleMappedGameAndResult(gIdMap: Map[(Int, Long, Long), Game], rIdMap: Map[Long, Result], g: Game, r: Result) = {
+    gIdMap.get(g.signature) match {
+      case Some(h) if h.sameData(g) => //This is an existing game with no changes
+        val r1=r.copy(gameId = h.id)
+        rIdMap.get(h.id) match {
+          case Some(s) if s.sameData(r1) => //This is an existing result with no changes
+            (gIdMap - g.signature, rIdMap - h.id)
+          case Some(s) => //This is an existing result to be updated
+            dao.upsertResult(r1.copy(id = s.id))
+            (gIdMap - g.signature, rIdMap - h.id)
+          case None => //This is a new result
+            dao.upsertResult(r1)
+            (gIdMap - g.signature, rIdMap)
+        }
+      case Some(h) => //This is an existing game to be updated
+        dao.upsertGame(g.copy(id = h.id))
+        val r1=r.copy(gameId = h.id)
+        rIdMap.get(h.id) match {
+          case Some(s) if s.sameData(r1) => //This is an existing result with no changes
+            (gIdMap - g.signature, rIdMap - h.id)
+          case Some(s) => //This is an existing result to be updated
+            dao.upsertResult(r1.copy(id = s.id))
+            (gIdMap - g.signature, rIdMap - h.id)
+          case None => //This is a new result
+            dao.upsertResult(r1)
+            (gIdMap - g.signature, rIdMap)
+        }
+      case None => //This is a new game
+        dao.upsertGame(g).map(gameId => r.copy(gameId = gameId))
+        (gIdMap, rIdMap)
+    }
+  }
+
+  private def handleMappedGame(gIdMap: Map[(Int, Long, Long), Game], rIdMap: Map[Long, Result], g: Game) = {
+    gIdMap.get(g.signature) match {
+      case Some(h) if h.sameData(g) => //This is an existing game with no changes
+        (gIdMap - g.signature, rIdMap)
+      case Some(h) => //This is an existing game to be updated
+        dao.upsertGame(g.copy(id = h.id))
+        (gIdMap - g.signature, rIdMap)
+      case None => //This is a new game
+        dao.upsertGame(g)
+        (gIdMap, rIdMap)
+    }
+  }
+
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String) = {
+    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
-      dao.listTeams.flatMap(teamDictionary => {
-        val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
-        Await.result(Future.sequence(dateList.map(dd => dao.clearGamesByDate(dd))), 15.seconds)
-        val map: List[Future[(LocalDate, GameScrapeResult)]] = dateList.map(d => scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(d -> _))
-        Future.sequence(map).map(lgsr => SeasonScrapeResult(lgsr))
+      dao.listTeams.map(teamDictionary => {
+        dateList.foreach(d => {
+          for (
+            updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d);
+            oldGameList <- dao.gamesBySource(d.toString)
+          ) yield {
+            logger.info(s"For date $d database held ${oldGameList.size} records, scrape resulted in ${updateData.size} candidates.  Verifying changes.")
+            updateDb(oldGameList, updateData)
+          }
+        })
       })
+
     })
   }
 
-  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[GameScrapeResult] = {
+  def gameDataDates(gds: List[GameMapping]): List[LocalDate] = {
+    gds.flatMap {
+      case MappedGame(g) => Some(g.date)
+      case MappedGameAndResult(g, r) => Some(g.date)
+      case UnmappedGame(_) => None
+    }.distinct
+  }
+
+
+  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
+    val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
+    logger.info("Loading date " + d)
+    (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]].map {
+      case Left(thr) if thr == EmptyBodyException =>
+        logger.warn("For date " + d + " scraper returned an empty body")
+        List.empty[GameMapping]
+      case Left(thr) =>
+        logger.error("For date " + d + " scraper returned an exception ", thr)
+        List.empty[GameMapping]
+      case Right(lgd) => lgd.map(gameDataToGame(seasonId, updatedBy, masterDict, _))
+    }
+  }
+
+
+  private def createMasterDictionary(teams: List[Team], aliases: List[Alias]) = {
     val teamDict = teams.map(t => t.key -> t).toMap
     val aliasDict = aliases.filter(a => teamDict.contains(a.key)).map(a => a.alias -> teamDict(a.key))
 
     val masterDict = teamDict ++ aliasDict
-    logger.info("Loading date " + d)
-    val future: Future[Either[Throwable, List[GameData]]] = (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]]
-    val results: Future[List[GameMapping]] = future.map(_.fold(
-      thr => {
-        if (thr == EmptyBodyException) {
-          logger.warn("For date " + d + " scraper returned an empty body")
-        } else {
-          logger.error("For date " + d + " scraper returned an exception ", thr)
-        }
-        List.empty[GameMapping]
-      },
-      lgd => lgd.map(gameDataToGame(seasonId, updatedBy, masterDict, _))
-    ))
-    results.flatMap(gameList => {
-      val z = Future.successful(GameScrapeResult())
-      gameList.foldLeft(z)((fgsr: Future[GameScrapeResult], mapping: GameMapping) => {
-        fgsr.flatMap(_.acc(dao, mapping))
-      })
-
-    })
-
+    masterDict
   }
-
 
   def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
     val atk = gd.awayTeamKey
@@ -151,7 +230,6 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       homeScore = r.homeScore,
       awayScore = r.awayScore,
       periods = r.periods,
-      lockRecord = false,
       updatedAt = LocalDateTime.now(),
       updatedBy = updatedBy)
   }
@@ -169,7 +247,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       tourneyKey = gd.tourneyInfo.map(_.region),
       homeTeamSeed = gd.tourneyInfo.map(_.homeTeamSeed),
       awayTeamSeed = gd.tourneyInfo.map(_.awayTeamSeed),
-      lockRecord = false,
+      sourceKey = gd.sourceKey,
       updatedAt = LocalDateTime.now(),
       updatedBy = updatedBy
     )

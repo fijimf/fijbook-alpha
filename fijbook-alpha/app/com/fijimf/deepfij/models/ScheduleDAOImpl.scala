@@ -5,12 +5,12 @@ import java.time.{LocalDate, LocalDateTime}
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.dbio.Effect.Write
 
-import scala.collection.immutable.Seq
 import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
@@ -41,7 +41,7 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(repo.teams.filter(t => t.key === team.key).result.flatMap(ts =>
       ts.headOption match {
         case Some(t) =>
-          if (!t.lockRecord) repo.teams.insertOrUpdate(team.copy(id = t.id)) else repo.teams.filter(z => z.id === -1L).update(team)
+          repo.teams.insertOrUpdate(team.copy(id = t.id))
         case None =>
           repo.teams.insertOrUpdate(team)
       }
@@ -49,10 +49,6 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   }
 
   override def deleteTeam(id: Long): Future[Int] = db.run(repo.teams.filter(team => team.id === id).delete)
-
-  override def unlockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(false))
-
-  override def lockTeam(key: String): Future[Int] = db.run(repo.teams.filter(t => t.key === key).map(_.lockRecord).update(true))
 
   //******* Season
 
@@ -101,6 +97,11 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
         ) yield qid).transactionally)
     }
   }
+
+  override def gamesByDate(ds:List[LocalDate]):Future[List[(Game,Option[Result])]] =
+    db.run(repo.gameResults.filter(_._1.date inSet ds).to[List].result)
+ override def gamesBySource(sourceKey:String):Future[List[(Game,Option[Result])]] =
+    db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
 
 
   // Quote
@@ -217,10 +218,78 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     val saveResults = Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
     saveResults.onComplete {
       case Success(is) => log.info("Save results: " + is.mkString(","))
-      case Failure(ex) => log.error("Failed saving results", ex)
+      case Failure(ex) => log.error("Failed upserting prediction", ex)
     }
     saveResults
   }
 
+  override def upsertGame(game: Game): Future[Long] = {
 
+    val response = db.run(for (
+      id <- (repo.games returning repo.games.map(_.id)).insertOrUpdate(game)
+    ) yield id)
+
+    response.onComplete {
+      case Success(id) => log.info("Saved game " +id.getOrElse(game.id))
+      case Failure(ex) => log.error("Failed upserting game ", ex)
+    }
+    response.map(_.getOrElse(0L))
+  }
+
+  final def runWithRetry[R](a: DBIOAction[R, NoStream, Nothing], n:Int): Future[R] =
+    db.run(a).recoverWith{
+      case ex:MySQLTransactionRollbackException=> {
+        if (n==0) {
+          Future.failed(ex)
+        } else {
+          log.info(s"Caught MySQLTransactionRollbackException.  Retrying ($n)")
+          runWithRetry(a, n - 1)
+        }
+      }
+    }
+
+  override def upsertResult(result:Result) :Future[Long] = {
+    val action = for (
+      id <- (repo.results returning repo.results.map(_.id)).insertOrUpdate(result)
+    ) yield id
+    val r = runWithRetry(action, 10)
+    r.onComplete {
+      case Success(_) => log.info("Saved result " + result.id + " (" + result.gameId + ")")
+      case Failure(ex) => log.error(s"Failed upserting result ${result.id} --> ${result.gameId}", ex)
+    }
+    r.map(_.getOrElse(0L))
+  }
+
+  def deleteGames(ids:List[Long]) = {
+    if (ids.nonEmpty) {
+      val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.games.filter(_.id === id).delete)
+
+      val action = DBIO.seq(deletes: _*).transactionally
+      val future: Future[Unit] = db.run(action)
+      future.onComplete((t: Try[Unit]) => {
+        t match {
+          case Success(_) => log.info(s"Deleted ${ids.size} games")
+          case Failure(ex) => log.error(s"Deleting games failed with error: ${ex.getMessage}", ex)
+        }
+      })
+    } else {
+      log.info("Delete games called with empty list")
+    }
+  }
+  def deleteResults(ids:List[Long]) = {
+    if (ids.nonEmpty) {
+      val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.results.filter(_.id === id).delete)
+
+      val action = DBIO.seq(deletes: _*).transactionally
+      val future: Future[Unit] = db.run(action)
+      future.onComplete((t: Try[Unit]) => {
+        t match {
+          case Success(_) => log.info(s"Deleted ${ids.size} results")
+          case Failure(ex) => log.error(s"Deleting results failed with error: ${ex.getMessage}", ex)
+        }
+      })
+    } else {
+      log.info("Delete results called with empty list")
+    }
+  }
 }

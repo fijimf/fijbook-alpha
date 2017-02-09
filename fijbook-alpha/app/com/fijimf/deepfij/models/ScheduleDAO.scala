@@ -2,9 +2,17 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDate
 
+import com.mohiva.play.silhouette.api.services.IdentityService
+
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def deleteGames(ids: List[Long])
+  def deleteResults(ids: List[Long])
+
+  def upsertGame(game: Game): Future[Long]
+  def upsertResult(result: Result): Future[Long]
+
   def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
 
   def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]]
@@ -50,12 +58,13 @@ trait ScheduleDAO {
 
   def saveSeason(season: Season): Future[Int]
 
+  def gamesByDate(d:List[LocalDate]):Future[List[(Game,Option[Result])]]
+
+  def gamesBySource(sourceKey:String):Future[List[(Game,Option[Result])]]
+
   def findSeasonById(id: Long): Future[Option[Season]]
+
   def listSeasons: Future[List[Season]]
-
-  def unlockTeam(key: String): Future[Int]
-
-  def lockTeam(key: String): Future[Int]
 
   def listTeams: Future[List[Team]]
 

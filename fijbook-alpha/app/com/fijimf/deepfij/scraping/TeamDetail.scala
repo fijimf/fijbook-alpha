@@ -38,7 +38,6 @@ case class TeamDetail(key: String, shortName:String, user:String) extends HtmlSc
       officialUrl,
       officialTwitter,
       officialFacebook,
-      false,
       LocalDateTime.now(),
       user
     )

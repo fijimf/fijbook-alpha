@@ -13,7 +13,7 @@ case class ScoreboardByDateReq(date:LocalDate) extends JsonScrapeRequest[List[Ga
   override def scrape(js:JsValue):List[GameData] = {
     getGames(js) match {
       case Success(jsa) =>
-        jsa.value.toList.flatMap(getGameData)
+        jsa.value.toList.flatMap(v=>getGameData(v, date.toString))
       case Failure(ex) =>
         logger.error("Failed scraping data ", ex)
         List.empty
