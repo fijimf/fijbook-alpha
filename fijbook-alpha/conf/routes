@@ -7,6 +7,7 @@ GET         /deepfij/teams                                      controllers.Team
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String)
 GET         /deepfij/games                                      controllers.GamesController.games
 GET         /deepfij/games/:yyyymmdd                            controllers.GamesController.gamesByDate(yyyymmdd:String)
+GET         /api/games/:yyyymmdd                                controllers.GamesController.gamesApi(yyyymmdd:String)
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
 GET         /deepfij/stats                                      controllers.StatsController.viewModels()

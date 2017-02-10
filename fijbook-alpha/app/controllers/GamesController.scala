@@ -5,13 +5,12 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models.services.UserService
-import com.fijimf.deepfij.models.{Game, ScheduleDAO, User}
+import com.fijimf.deepfij.models.{Game, GprCohort, ScheduleDAO}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Controller, Result}
+import play.api.libs.json.{JsArray, Json}
+import play.api.mvc.Controller
 import utils.DefaultEnv
-
-import scala.concurrent.Future
 
 class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
   extends Controller {
@@ -42,6 +41,14 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
     })
   }
 
+  def gamesApi(yyyymmdd:String) = silhouette.UserAwareAction.async { implicit rs =>
+    val today = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
+    teamDao.loadSchedules().map(ss => {
+      ss.sortBy(s => -s.season.year).headOption.map(sch => {
+        Json.toJson(GprCohort(sch, today).toJson)
+      }).getOrElse(Json.toJson(JsArray(Seq.empty)))
+    }).map(js=>Ok(js))
+  }
 
 
 }
