@@ -20,18 +20,18 @@ case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: O
       "awayKey" -> JsString(awayKey),
       "awayScore" -> JsNumber(as),
       "favorite" -> JsString(favorite.getOrElse("")),
-      "isFavoriteCorrect" -> JsBoolean(isFavoriteCorrect.getOrElse(false)),
+      "isFavoriteCorrect" -> JsString(if(isFavoriteCorrect.getOrElse(false)) "Yes" else "No"),
       "spread" -> JsNumber(sp),
       "actual" -> JsNumber(act),
-      "error" -> JsNumber(er)
+      "error" -> JsNumber(er),
+      "absError" -> JsNumber(math.abs(er))
     ))
   }
 }
 
 case class GprCohort(gprls: List[GprLine], pctPredicted: Option[Double], pctRight: Option[Double], pctWrong: Option[Double], accuracy: Option[Double], avgSpreadErr: Option[Double], avgAbsSpreadErr: Option[Double]) {
-  def toJson = JsObject(Seq(
-    "games" -> JsArray(gprls.map(_.toJson))
-  ))
+  def toJson = JsArray(gprls.map(_.toJson))
+
 
 
 }

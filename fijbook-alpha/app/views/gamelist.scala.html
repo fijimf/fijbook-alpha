@@ -14,7 +14,37 @@
                             Next<i class="small fa fa-arrow-circle-o-right" style="margin: 3px;"></i></a>
                     </p>
                 </div>
-                <div class="col-sm-4 col-sm-offset-5">
+                <div class="col-sm-5">
+                    <div id="scatter">
+
+                    </div>
+                    <script type="text/javascript">
+                            vg.embed("#scatter", {
+                                mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
+                                spec: {
+                                    "data": {
+                                        "url": "/api/games/@today.format(DateTimeFormatter.BASIC_ISO_DATE)"
+                                    } ,
+                                    "mark": "point",
+                                    "encoding": {
+                                        "y": {"field": "spread", "type": "quantitative", "title":"Spread"},
+                                        "x": {"field": "actual", "type": "quantitative", "title":"Actual"},
+                                        "color": {"field": "error", "type": "quantitative", "scale":{
+                                            "domain":[-25,0,25],
+                                            "range": ["#ee2222", "#22ff22", "#ee2222"]
+                                        }, "title":"Spread Error"},
+                                        "shape": {"field": "isFavoriteCorrect", "type": "nominal", "title":"Picked Winner?"}
+                                    }
+
+                                },
+                                "actions":false
+
+
+                            }, function(error, result) { });
+
+                    </script>
+                </div>
+                <div class="col-sm-4">
 <table class="table table-condensed table-schedule">
     <tr><th colspan="4">Naive Linear Regression Estimate</th> </tr>
     <tr>
