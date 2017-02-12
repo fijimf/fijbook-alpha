@@ -22,18 +22,18 @@
                             vg.embed("#scatter", {
                                 mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
                                 spec: {
+                                    "height":160,
                                     "data": {
                                         "url": "/api/games/@today.format(DateTimeFormatter.BASIC_ISO_DATE)"
                                     } ,
                                     "mark": "point",
                                     "encoding": {
-                                        "y": {"field": "spread", "type": "quantitative", "title":"Spread"},
+                                        "y": {"field": "spread", "type": "quantitative", "title":"Spread","axis":{"ticks":5}},
                                         "x": {"field": "actual", "type": "quantitative", "title":"Actual"},
                                         "color": {"field": "error", "type": "quantitative", "scale":{
-                                            "domain":[-25,0,25],
-                                            "range": ["#ee2222", "#22ff22", "#ee2222"]
-                                        }, "title":"Spread Error"},
-                                        "shape": {"field": "isFavoriteCorrect", "type": "nominal", "title":"Picked Winner?"}
+                                            "domain":[-25,-12.5,0,12.5,25],
+                                            "range": ["#f30000", "#f3f300","#00f300" ,"#f3f300","#f30000"]
+                                        }, "title":"Spread Error"}
                                     }
 
                                 },
