@@ -9,9 +9,9 @@ case class LogisticRegression(rate: Double, maxIterations: Int) {
     0.to(maxIterations).foldLeft(List.empty[Double])((weights: List[Double], i: Int) => {
       data.foldLeft((0.0, weights))((accum: (Double, List[Double]), item: (List[Double], Int)) => {
         val xs = item._1
-        val label = item._2;
+        val label = item._2
         val zip = weights.zip(xs)
-        val predicted = classify(zip);
+        val predicted = classify(zip)
 
         val newWeights = zip.map(t => t._1 + rate * (label - predicted) * t._2)
 
