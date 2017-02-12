@@ -52,8 +52,8 @@ case object WonLost extends Model[WonLostAccumulator]{
   val stats: List[Stat[WonLostAccumulator]] = List(
     Stat[WonLostAccumulator]("Wins", "wins", 0, higherIsBetter = true, _.wins),
     Stat[WonLostAccumulator]("Losses", "losses", 0, higherIsBetter = false, _.losses),
-    Stat[WonLostAccumulator]("Winning Streak", "wstreak", 0, higherIsBetter = true, _.lossStreak),
-    Stat[WonLostAccumulator]("Losing Streak", "lstreak", 0, higherIsBetter = false, _.winStreak),
+    Stat[WonLostAccumulator]("Winning Streak", "wstreak", 0, higherIsBetter = true, _.winStreak),
+    Stat[WonLostAccumulator]("Losing Streak", "lstreak", 0, higherIsBetter = false, _.lossStreak),
     Stat[WonLostAccumulator]("Winning Pct.", "wp", 0, higherIsBetter = true, _.winPct)
   )
   val key = "won-lost"
