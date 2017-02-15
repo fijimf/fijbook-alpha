@@ -32,6 +32,7 @@ case class LogisticReg[T](fm: FeatureMapper[T], cat: Categorizer[T]) {
       trainingSet.foreach(obs => {
         logisticRegression.train(obs._2, obs._1)
       })
+      logger.info(logisticRegression.getBeta.toString)
     })
     val beta: Matrix = logisticRegression.getBeta
     0.until(fm.featureDimension).map { i =>
@@ -42,6 +43,6 @@ case class LogisticReg[T](fm: FeatureMapper[T], cat: Categorizer[T]) {
   }
 
   def classify(v:Vector) = {
-    logisticRegression.classify(v).get(1)
+    logisticRegression.classifyFull(v).get(1)
   }
 }
