@@ -77,6 +77,7 @@ trait ScheduleDAO {
   def deleteQuote(id: Long): Future[Int]
 
   def loadSchedules(): Future[List[Schedule]]
+  def loadLatestSchedule(): Future[Option[Schedule]]
 
   def saveStatValues(batchSize:Int, dates:List[LocalDate], model:List[String], stats:List[StatValue]):Unit
 

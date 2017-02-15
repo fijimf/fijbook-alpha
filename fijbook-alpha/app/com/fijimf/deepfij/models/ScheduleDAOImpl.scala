@@ -158,6 +158,10 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     )
   }
 
+  override def loadLatestSchedule(): Future[Option[Schedule]] = {
+   loadSchedules().map(_.sortBy(s=> -s.season.year).headOption)
+  }
+
   // Aliases
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)

@@ -12,6 +12,7 @@ resolvers += "Atlassian Releases" at "https://maven.atlassian.com/content/reposi
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
+resolvers += "Apache" at "https://repository.apache.org/content/repositories/releases"
 
 libraryDependencies ++= Seq(
   cache,
@@ -43,8 +44,9 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.scalanlp" %% "breeze" % "0.12",
   "org.scalanlp" %% "breeze-natives" % "0.12",
-//  "org.apache.mahout" % "mahout-math" % "0.12.2",
-//  "org.apache.mahout" % "mahout-core" % "0.12.2",
+  "org.apache.mahout" % "mahout-math" % "0.12.2",
+  "org.apache.mahout" % "mahout-mr" % "0.12.2",
+  "org.apache.hadoop" % "hadoop-client" % "2.7.3",
 
 //  "io.kamon" %% "kamon-core" % "0.6.3",
 //  "io.kamon" %% "kamon-scala" % "0.6.3",

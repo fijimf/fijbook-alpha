@@ -1,26 +1,47 @@
 package com.fijimf.deepfij.stats.predictor
 
+import org.apache.mahout.classifier.sgd.{L1, OnlineLogisticRegression}
+import org.apache.mahout.math.{Matrix, Vector}
+import play.api.Logger
 
-case class LogisticRegression(rate: Double, maxIterations: Int) {
 
-  def sigmoid(z: Double) = 1 / (1 + math.exp(-z))
+trait FeatureMapper[T] {
+  def featureDimension: Int
 
-  def train(data: List[(List[Double], Int)]): List[Double] = {
-    0.to(maxIterations).foldLeft(List.empty[Double])((weights: List[Double], i: Int) => {
-      data.foldLeft((0.0, weights))((accum: (Double, List[Double]), item: (List[Double], Int)) => {
-        val xs = item._1
-        val label = item._2
-        val zip = weights.zip(xs)
-        val predicted = classify(zip)
+  def featureName(i: Int): String
 
-        val newWeights = zip.map(t => t._1 + rate * (label - predicted) * t._2)
+  def feature(t: T): Option[Vector]
+}
 
-        (0, newWeights)
+trait Categorizer[T] {
+  def numCategories: Int
+
+  def categorize(t: T): Option[Int]
+}
+
+case class LogisticReg[T](fm: FeatureMapper[T], cat: Categorizer[T]) {
+  val logger = Logger(this.getClass)
+  val logisticRegression: OnlineLogisticRegression = new OnlineLogisticRegression(cat.numCategories, fm.featureDimension, new L1()).lambda(0.0).learningRate(1)
+
+
+  def regress(data: List[T], numPasses: Int = 25): List[Double] = {
+    val trainingSet = for (d <- data; feat <- fm.feature(d); c <- cat.categorize(d)) yield feat -> c
+    logger.info(s"Training set size ${trainingSet.size}")
+    1.to(numPasses).foreach(i => {
+      logger.info(s"Pass #$i")
+      trainingSet.foreach(obs => {
+        logisticRegression.train(obs._2, obs._1)
       })
-      weights
     })
+    val beta: Matrix = logisticRegression.getBeta
+    0.until(fm.featureDimension).map { i =>
+      val b: Double = beta.get(0, i)
+      logger.info(f" ${fm.featureName(i)}%-20s  $b%7.4f")
+      b
+    }.toList
   }
 
-  def classify(wxs: List[(Double, Double)]): Double = sigmoid(wxs.map(t => t._1 * t._2).sum)
-
+  def classify(v:Vector) = {
+    logisticRegression.classify(v).get(1)
+  }
 }
