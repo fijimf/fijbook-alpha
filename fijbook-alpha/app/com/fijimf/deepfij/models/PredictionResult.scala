@@ -2,14 +2,16 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDate
 
+import org.apache.mahout.math.stats.LogLikelihood
 import play.api.libs.json._
 
-case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], error: Option[Double]) {
+case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], probability:Option[Double], error: Option[Double],logLikelihood: Option[Double]) {
   def toJson = {
     val hs: Int = homeScore.getOrElse(-1)
     val as: Int = awayScore.getOrElse(-1)
     val sp: Double = spread.getOrElse(Double.NaN)
     val er: Double = error.getOrElse(Double.NaN)
+    val pr: Double = probability.getOrElse(Double.NaN)
     val act = sp + er
     JsObject(Seq(
       "date" -> JsString(date),
@@ -20,7 +22,8 @@ case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: O
       "awayKey" -> JsString(awayKey),
       "awayScore" -> JsNumber(as),
       "favorite" -> JsString(favorite.getOrElse("")),
-      "isFavoriteCorrect" -> JsString(if(isFavoriteCorrect.getOrElse(false)) "Yes" else "No"),
+      "probability"-> JsNumber(pr),
+      "isFavoriteCorrect" -> JsString(if (isFavoriteCorrect.getOrElse(false)) "Yes" else "No"),
       "spread" -> JsNumber(sp),
       "actual" -> JsNumber(act),
       "error" -> JsNumber(er),
@@ -29,15 +32,14 @@ case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: O
   }
 }
 
-case class GprCohort(gprls: List[GprLine], pctPredicted: Option[Double], pctRight: Option[Double], pctWrong: Option[Double], accuracy: Option[Double], avgSpreadErr: Option[Double], avgAbsSpreadErr: Option[Double]) {
+case class GprCohort(gprls: List[GprLine], pctPredicted: Option[Double], pctRight: Option[Double], pctWrong: Option[Double], accuracy: Option[Double], avgSpreadErr: Option[Double], avgAbsSpreadErr: Option[Double], logLikelihood: Option[Double]) {
   def toJson = JsArray(gprls.map(_.toJson))
-
 
 
 }
 
 object GprLine {
-  def apply(g: Game, sch: Schedule): GprLine = {
+  def apply(g: Game, sch: Schedule, key: String): GprLine = {
     val date = g.date.toString
     val homeTeam = sch.teamsMap.get(g.homeTeamId).map(_.name).getOrElse("")
     val homeKey = sch.teamsMap.get(g.homeTeamId).map(_.key).getOrElse("")
@@ -45,39 +47,69 @@ object GprLine {
     val awayTeam = sch.teamsMap.get(g.awayTeamId).map(_.name).getOrElse("")
     val awayKey = sch.teamsMap.get(g.awayTeamId).map(_.key).getOrElse("")
     val awayScore = sch.resultMap.get(g.id).map(_.awayScore)
-    val fav = sch.predictionMap.get(g.id).flatMap(_.favoriteId).flatMap(fi => sch.teamsMap.get(fi).map(_.name))
+
+    val fav = for {
+      w <- sch.predictionMap.get(g.id)
+      x <- w.get(key)
+      y <- x.favoriteId
+      z <- sch.teamsMap.get(y)
+    } yield z.name
+
     val correct = for {
       h <- homeScore
       a <- awayScore
-      f <- fav} yield {
-      (h > a && f == homeTeam) || (h < a && f == awayTeam)
-    }
-    val spread = sch.predictionMap.get(g.id).flatMap(_.spread)
+      f <- fav
+    } yield (h > a && f == homeTeam) || (h < a && f == awayTeam)
+
+    val spread: Option[Double] = for {
+      w <- sch.predictionMap.get(g.id)
+      x <- w.get(key)
+      y<-x.spread
+    } yield y
+
+    val prob: Option[Double] = for {
+      w <- sch.predictionMap.get(g.id)
+      x <- w.get(key)
+      y<-x.probability
+    } yield y
+
     val error = for {
       h <- homeScore
       a <- awayScore
       f <- fav
       s <- spread
     } yield {
-      if (f == homeTeam) (a - h) - s else (h - a) - s
+      if (f == homeTeam) {
+        (a - h) - s
+      } else {
+        (h - a) - s
+      }
     }
-    GprLine(date, homeTeam, homeKey, homeScore, awayTeam, awayKey, awayScore, fav, correct, spread, error)
+    val logLikelihood = for {
+      t<-correct
+      p<-prob
+    } yield {
+      -(if (t) math.log(p) else math.log(1 - p))/math.log(2.0)
+    }
+
+      GprLine(date, homeTeam, homeKey, homeScore, awayTeam, awayKey, awayScore, fav, correct, spread, prob, error, logLikelihood)
+
   }
 }
 
 object GprCohort {
-  def apply(sch: Schedule): GprCohort = cohort(sch, sch.games)
+  def apply(sch: Schedule, modelKey:String): GprCohort = cohort(sch, sch.games, modelKey)
 
-  def apply(sch: Schedule, d: LocalDate): GprCohort = cohort(sch, sch.games.filter(_.date == d))
+  def apply(sch: Schedule, d: LocalDate, modelKey:String): GprCohort = cohort(sch, sch.games.filter(_.date == d), modelKey)
 
-  def cohort(sch: Schedule, gs: List[Game]): GprCohort = {
-    val gprls = gs.map(GprLine(_, sch))
+  def cohort(sch: Schedule, gs: List[Game], modelKey:String): GprCohort = {
+    val gprls = gs.map(GprLine(_, sch, modelKey))
     if (gprls.isEmpty) {
-      GprCohort(gprls, None, None, None, None, None, None)
+      GprCohort(gprls, None, None, None, None, None, None,None)
     } else {
       val predicted = gprls.filter(_.isFavoriteCorrect.isDefined)
       if (predicted.isEmpty) {
-        GprCohort(gprls, Some(0), Some(0), Some(0), None, None, None)
+        GprCohort(gprls, Some(0), Some(0), Some(0), None, None, None,None)
       } else {
         val pctPredicted = Some(predicted.size.toDouble / gprls.size.toDouble)
         val pctRight = Some(predicted.count(_.isFavoriteCorrect.get).toDouble / gprls.size.toDouble)
@@ -85,7 +117,11 @@ object GprCohort {
         val accuracy = Some(predicted.count(_.isFavoriteCorrect.get).toDouble / predicted.size.toDouble)
         val avgSpreadError = Some(predicted.map(_.error.getOrElse(0.0)).sum / predicted.size.toDouble)
         val avgAbsSpreadError = Some(predicted.map(p => math.abs(p.error.getOrElse(0.0))).sum / predicted.size.toDouble)
-        GprCohort(gprls, pctPredicted, pctRight, pctWrong, accuracy, avgSpreadError, avgAbsSpreadError)
+        val logLikelihood = predicted.flatMap(p => p.logLikelihood) match {
+          case Nil => None
+          case lst=>Some(lst.sum)
+        }
+        GprCohort(gprls, pctPredicted, pctRight, pctWrong, accuracy, avgSpreadError, avgAbsSpreadError,logLikelihood)
       }
     }
   }

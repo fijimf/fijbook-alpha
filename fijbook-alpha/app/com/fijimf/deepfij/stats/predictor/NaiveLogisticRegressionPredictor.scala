@@ -12,7 +12,7 @@ case class NaiveLogisticRegressionPredictor(statKey: String, modelKey: String, d
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override val key = "logistic-regression" + statKey
+  override val key = "logistic-" + statKey
 
   private val featureMapper = StatValueGameFeatureMapper(statKey, modelKey, dao)
   private val logisticReg = LogisticReg(featureMapper, StraightWinCategorizer)

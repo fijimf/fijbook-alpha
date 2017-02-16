@@ -16,7 +16,12 @@ case class Schedule
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
   val results: List[Result] = gameResults.filter(_._2.isDefined).sortBy(_._1.date.toEpochDay).map(_._2.get)
   val resultMap: Map[Long, Result] = results.map(r => r.gameId -> r).toMap
-  val predictionMap: Map[Long, GamePrediction] = predictions.filter(_._2.isDefined).map(r => r._2.get.gameId -> r._2.get).toMap
+  val predictionMap: Map[Long, Map[String,GamePrediction]] =
+    predictions.filter(_._2.isDefined)
+      .groupBy(r => r._2.get.gameId)
+      .mapValues(
+        _.map(t=>t._2.get.modelKey->t._2.get).toMap
+      )
   val conferenceIdMap: Map[Long, Conference] = conferences.map(r => r.id -> r).toMap
   val teamConference: Map[Long, Long] = conferenceMap.map(c => c.teamId -> c.conferenceId).toMap
   val conferenceTeams: Map[Long, List[Long]] = conferenceMap.groupBy(_.conferenceId).map(c => c._1 -> c._2.map(_.teamId)).toMap

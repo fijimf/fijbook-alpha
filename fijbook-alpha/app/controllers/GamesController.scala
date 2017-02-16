@@ -24,7 +24,7 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       val sch = sortedSchedules.headOption
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
-      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow))
+      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow, "naive-regression"))
     })
   }
 
@@ -37,7 +37,7 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
       val sch = sortedSchedules.headOption
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
 
-      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow))
+      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow,"logistic-x-margin-ties"))
     })
   }
 
@@ -45,7 +45,7 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
     val today = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
     teamDao.loadSchedules().map(ss => {
       ss.sortBy(s => -s.season.year).headOption.map(sch => {
-        Json.toJson(GprCohort(sch, today).toJson)
+        Json.toJson(GprCohort(sch, today,"naive-regression").toJson)
       }).getOrElse(Json.toJson(JsArray(Seq.empty)))
     }).map(js=>Ok(js))
   }
