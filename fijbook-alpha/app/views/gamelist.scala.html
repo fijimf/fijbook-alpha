@@ -2,17 +2,27 @@
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
-@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate, modelKey:String)(implicit flash: Flash)
+@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate, modelKey:String, predictors:List[(String, String)])(implicit flash: Flash)
 @main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user,datebook=Some(today)) {
     @if(currOpt.isDefined){
         @defining(GprCohort(currOpt.get, today, modelKey)) { gs =>
             <div class="row">
-                <div class="col-sm-2">
-                    <p>    <a class="text-left" style="margin: 3px;" href="@routes.GamesController.gamesByDate(yesterday.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                <div class="col-sm-3">
+                    <p>    <a class="text-left" style="margin: 3px;" href="@routes.GamesController.gamesByDate(yesterday.format(DateTimeFormatter.BASIC_ISO_DATE), Some(modelKey))">
                         <i class="fa fa-arrow-circle-o-left small" style="margin: 3px;"></i>Previous</a>
-                        <a class="text-right" style="margin: 3px;" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                        <a class="text-right" style="margin: 3px;" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE), Some(modelKey))">
                             Next<i class="small fa fa-arrow-circle-o-right" style="margin: 3px;"></i></a>
                     </p>
+                    <table class="table table-condensed table-schedule">
+                        <tr><th colspan="2">Prediction models</th></tr>
+                    @for(tp<-predictors){
+                        @if(tp._1==modelKey){
+                            <tr><td><span class="fa fa-check-circle"></span></td><td>@tp._2</td></tr>
+                        } else {
+                            <tr><td></td><td><a href="@routes.GamesController.gamesByDate(today.format(DateTimeFormatter.BASIC_ISO_DATE), Some(tp._1))">@tp._2</a></td></tr>
+                        }
+                    }
+                    </table>
                 </div>
                 <div class="col-sm-5">
                     <div id="scatter">
@@ -24,7 +34,7 @@
                                 spec: {
                                     "height":160,
                                     "data": {
-                                        "url": "/api/games/@today.format(DateTimeFormatter.BASIC_ISO_DATE)"
+                                        "url": "/api/games/@today.format(DateTimeFormatter.BASIC_ISO_DATE)?modelKey=@modelKey"
                                     } ,
                                     "mark": "point",
                                     "encoding": {

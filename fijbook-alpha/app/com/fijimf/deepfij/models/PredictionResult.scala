@@ -2,7 +2,6 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDate
 
-import org.apache.mahout.math.stats.LogLikelihood
 import play.api.libs.json._
 
 case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], probability:Option[Double], error: Option[Double],logLikelihood: Option[Double]) {
@@ -22,7 +21,7 @@ case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: O
       "awayKey" -> JsString(awayKey),
       "awayScore" -> JsNumber(as),
       "favorite" -> JsString(favorite.getOrElse("")),
-      "probability"-> JsNumber(pr),
+     // "probability"-> JsNumber(pr),
       "isFavoriteCorrect" -> JsString(if (isFavoriteCorrect.getOrElse(false)) "Yes" else "No"),
       "spread" -> JsNumber(sp),
       "actual" -> JsNumber(act),
@@ -70,8 +69,9 @@ object GprLine {
     val prob: Option[Double] = for {
       w <- sch.predictionMap.get(g.id)
       x <- w.get(key)
-      y<-x.probability
-    } yield y
+      y <- x.probability
+      z <- Option(y)
+    } yield z
 
     val error = for {
       h <- homeScore

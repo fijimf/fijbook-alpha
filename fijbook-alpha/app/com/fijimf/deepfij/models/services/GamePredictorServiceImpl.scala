@@ -21,7 +21,8 @@ class GamePredictorServiceImpl @Inject()(dao: ScheduleDAO) extends GamePredictor
   val models: List[ScheduleDAO=>SchedulePredictor] = List(
     (scheduleDao:ScheduleDAO)=>NaiveLinearRegressionPredictor(scheduleDao),
     (scheduleDao:ScheduleDAO)=> NaiveLogisticRegressionPredictor("wp","won-lost", scheduleDao),
-    (scheduleDao:ScheduleDAO)=> NaiveLogisticRegressionPredictor("x-margin-ties","least-squares", scheduleDao)
+    (scheduleDao:ScheduleDAO)=> NaiveLogisticRegressionPredictor("x-margin-ties","least-squares", scheduleDao),
+    (scheduleDao:ScheduleDAO)=> NaiveLogisticRegressionPredictor("rpi121","rpi", scheduleDao)
   )
 
   override def update() = {

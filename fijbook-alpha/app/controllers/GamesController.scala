@@ -15,8 +15,14 @@ import utils.DefaultEnv
 class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
   extends Controller {
 
+val predictors = List(
+  "naive-regression"->"Linear Regressor",
+  "logistic-wp"->"Logistic Regressor (win %)",
+  "logistic-x-margin-ties"->"Logistic Regressor (linear estimator)",
+  "logistic-rpi121"->"Logistic Regressor (rpi 121)"
+)
 
-  def games = silhouette.UserAwareAction.async { implicit rs =>
+  def games(modelKey:Option[String]) = silhouette.UserAwareAction.async { implicit rs =>
     val today = LocalDate.now()
     val tomorrow = today.plusDays(1)
     val yesterday = today.minusDays(1)
@@ -24,11 +30,11 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       val sch = sortedSchedules.headOption
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
-      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow, "naive-regression"))
+      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow, modelKey.getOrElse("naive-regression"),predictors))
     })
   }
 
-  def gamesByDate(yyyymmdd:String) = silhouette.UserAwareAction.async { implicit rs =>
+  def gamesByDate(yyyymmdd:String, modelKey:Option[String]) = silhouette.UserAwareAction.async { implicit rs =>
     val today = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
      val tomorrow = today.plusDays(1)
     val yesterday = today.minusDays(1)
@@ -37,15 +43,15 @@ class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
       val sch = sortedSchedules.headOption
       val todayGames = sch.map(_.games.filter(_.date == today)).getOrElse(List.empty[Game])
 
-      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow,"logistic-x-margin-ties"))
+      Ok(views.html.gamelist(rs.identity, today, sch, todayGames, yesterday, tomorrow,modelKey.getOrElse("naive-regression"),predictors))
     })
   }
 
-  def gamesApi(yyyymmdd:String) = silhouette.UserAwareAction.async { implicit rs =>
+  def gamesApi(yyyymmdd:String, modelKey:Option[String]) = silhouette.UserAwareAction.async { implicit rs =>
     val today = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
     teamDao.loadSchedules().map(ss => {
       ss.sortBy(s => -s.season.year).headOption.map(sch => {
-        Json.toJson(GprCohort(sch, today,"naive-regression").toJson)
+        Json.toJson(GprCohort(sch, today,modelKey.getOrElse("naive-regression")).toJson)
       }).getOrElse(Json.toJson(JsArray(Seq.empty)))
     }).map(js=>Ok(js))
   }
