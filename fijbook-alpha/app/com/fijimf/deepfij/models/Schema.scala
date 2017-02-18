@@ -143,43 +143,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     db.run(ddl.drop.transactionally)
   }
 
-  def all(tableQuery: TableQuery[_]): Future[List[_]] = db.run(tableQuery.to[List].result)
-
-  def createSeason(year: Int): Future[Long] = {
-    val s = Season(0, year, "open", None)
-    db.run(seasons returning seasons.map(_.id) += s)
-  }
-
-  def createConference(key: String, name: String,
-                       logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
-                       officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
-    val t = Conference(0, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, false, LocalDateTime.now(), updatedBy)
-    db.run(conferences returning conferences.map(_.id) += t)
-  }
-
-  def createTeam(key: String, name: String, longName: String, nickname: String, optConference: String,
-                 logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
-                 primaryColor: Option[String] = None, secondaryColor: Option[String] = None,
-                 officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
-    val t = Team(0, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, LocalDateTime.now(), updatedBy)
-    db.run(teams returning teams.map(_.id) += t)
-  }
-
-  def getTeams(implicit ec: ExecutionContext): Future[Map[String, Team]] = db.run(teams.to[List].map(t => t.key -> t).result).map(_.toMap)
-
-
-  def mapTeam(seasonId: Long, teamId: Long, confId: Long, updatedBy: String)(implicit ec: ExecutionContext): Future[Long] = {
-    val q = conferenceMaps.withFilter(cm => cm.seasonId === seasonId && cm.teamId === teamId)
-    val action = q.result.headOption.flatMap((cm: Option[ConferenceMap]) => {
-      cm match {
-        case Some(a) => q.map(_.conferenceId).update(confId).andThen(DBIO.successful(a.id))
-        case None => conferenceMaps returning conferenceMaps.map(_.id) += ConferenceMap(0L, seasonId, confId, teamId, false, LocalDateTime.now(), updatedBy)
-      }
-    })
-    db.run(action)
-  }
-
-
   class TeamsTable(tag: Tag) extends Table[Team](tag, "team") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -458,7 +421,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def idx1: Index = index("log_param_idx1", (modelName, parameterName, fittedAsOf), unique = true)
   }
-
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
