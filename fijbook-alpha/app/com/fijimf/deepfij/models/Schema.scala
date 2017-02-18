@@ -52,7 +52,7 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey:String, updatedAt: LocalDateTime, updatedBy: String) {
+case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
   def signature = (datetime.hashCode(), homeTeamId, awayTeamId)
 
   def sameData(g: Game): Boolean = (g.seasonId == seasonId
@@ -108,7 +108,7 @@ object StatUtil {
   }
 }
 
-case class LogisticModelParameter(id:Long, modelName:String, parameterName:String, normShift:Double, normScale:Double, coefficient:Double, fittedAsOf:LocalDate)
+case class LogisticModelParameter(id: Long, modelName: String, parameterName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 
@@ -161,7 +161,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
                  logoLgUrl: Option[String] = None, logoSmUrl: Option[String] = None,
                  primaryColor: Option[String] = None, secondaryColor: Option[String] = None,
                  officialUrl: Option[String] = None, officialTwitter: Option[String] = None, officialFacebook: Option[String] = None, updatedBy: String): Future[Long] = {
-    val t = Team(0, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook,  LocalDateTime.now(), updatedBy)
+    val t = Team(0, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, LocalDateTime.now(), updatedBy)
     db.run(teams returning teams.map(_.id) += t)
   }
 
@@ -472,7 +472,17 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
-  lazy val logisticModels:  TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
+  lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statValues.schema ++ gamePredictions.schema ++ logisticModels.schema
+  lazy val ddl = conferenceMaps.schema ++
+    games.schema ++
+    results.schema ++
+    teams.schema ++
+    conferences.schema ++
+    seasons.schema ++
+    quotes.schema ++
+    aliases.schema ++
+    statValues.schema ++
+    gamePredictions.schema ++
+    logisticModels.schema
 }
