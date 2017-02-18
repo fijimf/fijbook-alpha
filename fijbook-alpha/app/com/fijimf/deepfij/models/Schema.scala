@@ -108,6 +108,8 @@ object StatUtil {
   }
 }
 
+case class LogisticModelParameter(id:Long, modelName:String, parameterName:String, normShift:Double, normScale:Double, coefficient:Double, fittedAsOf:LocalDate)
+
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
@@ -437,6 +439,26 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx1: Index = index("game_pred_idx1", (gameId, modelKey), unique = true)
   }
 
+  class LogisticModelParameterTable(tag: Tag) extends Table[LogisticModelParameter](tag, "logistic_model_parameter") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def modelName: Rep[String] = column[String]("model_name", O.Length(64))
+
+    def parameterName: Rep[String] = column[String]("parameter_name", O.Length(64))
+
+    def normShift: Rep[Double] = column[Double]("norm_shift")
+
+    def normScale: Rep[Double] = column[Double]("norm_scale")
+
+    def coefficient: Rep[Double] = column[Double]("coefficient")
+
+    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of")
+
+    def * : ProvenShape[LogisticModelParameter] = (id, modelName, parameterName, normShift, normScale, coefficient, fittedAsOf) <> (LogisticModelParameter.tupled, LogisticModelParameter.unapply)
+
+    def idx1: Index = index("log_param_idx1", (modelName, parameterName, fittedAsOf), unique = true)
+  }
+
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
@@ -450,6 +472,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
+  lazy val logisticModels:  TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
 
-  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statValues.schema ++ gamePredictions.schema
+  lazy val ddl = conferenceMaps.schema ++ games.schema ++ results.schema ++ teams.schema ++ conferences.schema ++ seasons.schema ++ quotes.schema ++ aliases.schema ++ statValues.schema ++ gamePredictions.schema ++ logisticModels.schema
 }
