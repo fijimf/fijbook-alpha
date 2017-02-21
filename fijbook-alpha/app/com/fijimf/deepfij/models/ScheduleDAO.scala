@@ -76,7 +76,7 @@ trait ScheduleDAO {
 
   def listSeasons: Future[List[Season]]
 
-  def listTeams(predicate: Team => Boolean = { _ => true }): Future[List[Team]]
+  def listTeams: Future[List[Team]]
 
   def listQuotes: Future[List[Quote]]
 

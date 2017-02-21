@@ -32,7 +32,7 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
 
-  override def listTeams(predicate: Team=>Boolean):Future[List[Team]] = db.run(repo.teams.to[List].result)
+  override def listTeams:Future[List[Team]] = db.run(repo.teams.to[List].result)
 
   override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
 

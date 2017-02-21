@@ -65,7 +65,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   def browseTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading preliminary team keys.")
 
-    teamDao.listTeams().map(ot => Ok(views.html.admin.browseTeams(rs.identity, ot.sortBy(_.name))))
+    teamDao.listTeams.map(ot => Ok(views.html.admin.browseTeams(rs.identity, ot.sortBy(_.name))))
   }
 
   def createSeason() = silhouette.SecuredAction.async { implicit rs =>

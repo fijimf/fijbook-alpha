@@ -158,7 +158,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String) = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
-      dao.listTeams().map(teamDictionary => {
+      dao.listTeams.map(teamDictionary => {
         dateList.foreach(d => {
           for (
             updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d);
