@@ -4,9 +4,21 @@ import java.time.LocalDate
 
 import com.mohiva.play.silhouette.api.services.IdentityService
 
-import scala.concurrent.Future
+import scala.concurrent.{Awaitable, Future}
 
 trait ScheduleDAO {
+  def listStatValues: Future[List[StatValue]]
+
+  def listResults : Future[List[Result]]
+
+  def listLogisticModel : Future[List[LogisticModelParameter]]
+
+  def listGames : Future[List[Game]]
+
+  def listGamePrediction : Future[List[GamePrediction]]
+
+  def listConferenceMaps :Future[List[ConferenceMap]]
+
   def deleteGames(ids: List[Long])
   def deleteResults(ids: List[Long])
 

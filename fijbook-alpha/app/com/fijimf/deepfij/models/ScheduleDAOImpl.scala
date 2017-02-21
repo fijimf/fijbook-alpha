@@ -32,6 +32,16 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   //**** Team
   override def listTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
+  override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
+
+  override def listResults: Future[List[Result]] =  db.run(repo.results.to[List].result)
+
+  override def listLogisticModel: Future[List[LogisticModelParameter]] =  db.run(repo.logisticModels.to[List].result)
+
+  override def listGames: Future[List[Game]] =  db.run(repo.games.to[List].result)
+
+  override def listGamePrediction: Future[List[GamePrediction]] =  db.run(repo.gamePredictions.to[List].result)
+  override def listStatValues: Future[List[StatValue]] =  db.run(repo.statValues.to[List].result)
 
   override def findTeamByKey(key: String): Future[Option[Team]] = db.run(repo.teams.filter(team => team.key === key).result.headOption)
 
@@ -296,4 +306,6 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
       log.info("Delete results called with empty list")
     }
   }
+
+
 }
