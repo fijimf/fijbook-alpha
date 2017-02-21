@@ -37,15 +37,15 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def findTeamById(id: Long): Future[Option[Team]] = db.run(repo.teams.filter(team => team.id === id).result.headOption)
 
-  override def saveTeam(team: Team): Future[Int] = {
+  override def saveTeam(team: Team): Future[Team] = {
     db.run(repo.teams.filter(t => t.key === team.key).result.flatMap(ts =>
       ts.headOption match {
         case Some(t) =>
-          repo.teams.insertOrUpdate(team.copy(id = t.id))
+          (repo.teams returning repo.teams.map(_.id)).insertOrUpdate(team.copy(id = t.id))
         case None =>
-          repo.teams.insertOrUpdate(team)
+          (repo.teams returning repo.teams.map(_.id)).insertOrUpdate(team)
       }
-    ).transactionally)
+    ).flatMap(_=>repo.teams.filter(t => t.key === team.key).result.head).transactionally)
   }
 
   override def deleteTeam(id: Long): Future[Int] = db.run(repo.teams.filter(team => team.id === id).delete)

@@ -54,7 +54,7 @@ trait ScheduleDAO {
 
   def findTeamById(id: Long): Future[Option[Team]]
 
-  def saveTeam(team: Team): Future[Int]
+  def saveTeam(team: Team): Future[Team]
 
   def saveSeason(season: Season): Future[Int]
 

@@ -134,12 +134,12 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
   def createSchema() = {
-    log.warn("Creating schedule schema")
+    log.debug("Creating schedule schema")
     db.run(ddl.create.transactionally)
   }
 
   def dropSchema() = {
-    log.warn("Dropping schedule schema")
+    log.debug("Dropping schedule schema")
     db.run(ddl.drop.transactionally)
   }
 

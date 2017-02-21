@@ -16,7 +16,7 @@ resolvers += "Apache" at "https://repository.apache.org/content/repositories/rel
 
 libraryDependencies ++= Seq(
   cache,
-  "com.typesafe.play" %% "play-slick" % "2.0.0",
+  "com.typesafe.play" %% "play-slick" % "2.0.2",
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
