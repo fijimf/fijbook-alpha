@@ -2,9 +2,7 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDate
 
-import com.mohiva.play.silhouette.api.services.IdentityService
-
-import scala.concurrent.{Awaitable, Future}
+import scala.concurrent.Future
 
 trait ScheduleDAO {
   def listStatValues: Future[List[StatValue]]
@@ -78,7 +76,7 @@ trait ScheduleDAO {
 
   def listSeasons: Future[List[Season]]
 
-  def listTeams: Future[List[Team]]
+  def listTeams(predicate: Team => Boolean = { _ => true }): Future[List[Team]]
 
   def listQuotes: Future[List[Quote]]
 

@@ -29,24 +29,24 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
   "Teams " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listTeams, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listTeams(), Duration.Inf).isEmpty)
     }
 
     "return the new ID when inserted" in new WithApplication(FakeApplication()) {
       private val t = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       private val fi = Await.result(dao.saveTeam(t), Duration.Inf)
-      assert(Await.result(dao.listTeams, Duration.Inf).size == 1)
+      assert(Await.result(dao.listTeams(), Duration.Inf).size == 1)
       assert(fi.id > 0)
     }
 
     "return the old ID when updated" in new WithApplication(FakeApplication()) {
       private val t = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       private val fi = Await.result(dao.saveTeam(t), Duration.Inf)
-      assert(Await.result(dao.listTeams, Duration.Inf).size == 1)
+      assert(Await.result(dao.listTeams(), Duration.Inf).size == 1)
       assert(fi.id > 0)
       private val s = t.copy(id = fi.id, nickname = "foos")
       private val fj = Await.result(dao.saveTeam(s), Duration.Inf)
-      private val teamList = Await.result(dao.listTeams, Duration.Inf)
+      private val teamList = Await.result(dao.listTeams(), Duration.Inf)
       assert(teamList.size == 1)
       assert(teamList.head.id == fi.id)
       assert(teamList.head.id == fj.id)
@@ -141,11 +141,11 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
       private val rr = Await.result(dao.deleteTeam(id.id), Duration.Inf)
       assert(rr==1)
-      assert(Await.result(dao.listTeams, Duration.Inf).size == 2)
+      assert(Await.result(dao.listTeams(), Duration.Inf).size == 2)
 
       private val ss = Await.result(dao.deleteTeam(-99), Duration.Inf)
       assert(ss==0)
-      assert(Await.result(dao.listTeams, Duration.Inf).size == 2)
+      assert(Await.result(dao.listTeams(), Duration.Inf).size == 2)
 
 
 

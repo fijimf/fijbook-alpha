@@ -94,7 +94,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
 
     val transforms = List(basicKey, dropThe, dropConference, dropThe.andThen(dropConference), dropLeague, dropThe.andThen(dropLeague), initials, dropThe.andThen(initials), dropEllipsis, tryConf, dropAthletic, tryAthletic)
     logger.info("Loading preliminary team keys.")
-    val teamList = Await.result(teamDao.listTeams, 600.seconds)
+    val teamList = Await.result(teamDao.listTeams(), 600.seconds)
 
     val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
     val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, false, LocalDateTime.now(), userTag) :: names.map(n => {
@@ -123,7 +123,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
     (for (
       sl <- teamDao.listSeasons;
-      tl <- teamDao.listTeams;
+      tl <- teamDao.listTeams();
       cl <- teamDao.listConferences
     ) yield {
       val confNameMap = cl.map(c => c.name -> c).toMap++cl.map(c=>c.name.replace("Conference","").trim->c)++cl.map(c=>c.name.replace("The","").trim->c)

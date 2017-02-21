@@ -30,18 +30,28 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
 
-  //**** Team
-  override def listTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
   override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
 
-  override def listResults: Future[List[Result]] =  db.run(repo.results.to[List].result)
+  override def listTeams(predicate: Team=>Boolean):Future[List[Team]] = db.run(repo.teams.to[List].result)
 
-  override def listLogisticModel: Future[List[LogisticModelParameter]] =  db.run(repo.logisticModels.to[List].result)
+  override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
 
-  override def listGames: Future[List[Game]] =  db.run(repo.games.to[List].result)
+  override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
 
-  override def listGamePrediction: Future[List[GamePrediction]] =  db.run(repo.gamePredictions.to[List].result)
-  override def listStatValues: Future[List[StatValue]] =  db.run(repo.statValues.to[List].result)
+  override def listGames: Future[List[Game]] = db.run(repo.games.to[List].result)
+
+  override def listGamePrediction: Future[List[GamePrediction]] = db.run(repo.gamePredictions.to[List].result)
+
+  override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
+
+  override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
+
+  override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
+
+  override def listConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
+
+  override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
+
 
   override def findTeamByKey(key: String): Future[Option[Team]] = db.run(repo.teams.filter(team => team.key === key).result.headOption)
 
@@ -69,7 +79,6 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
     db.run(q.result.headOption)
   }
 
-  override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
 
   override def unlockSeason(seasonId: Long): Future[Int] = {
     log.info("Unlocking season " + seasonId)
@@ -116,7 +125,7 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   // Quote
 
-  override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
+
 
   override def findQuoteById(id: Long): Future[Option[Quote]] = db.run(repo.quotes.filter(_.id === id).result.headOption)
 
@@ -138,7 +147,6 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   override def deleteConference(id: Long): Future[Int] = db.run(repo.conferences.filter(_.id === id).delete)
 
-  override def listConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
 
   override def saveConference(c: Conference): Future[Int] = db.run(repo.conferences.insertOrUpdate(c))
 
@@ -174,7 +182,6 @@ class ScheduleDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   // Aliases
 
-  override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 
   override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Unit] = {
     val map: List[DBIOAction[Int, NoStream, Write]] =
