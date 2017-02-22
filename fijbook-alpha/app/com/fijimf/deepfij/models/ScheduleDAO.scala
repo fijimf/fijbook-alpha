@@ -5,32 +5,35 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 trait ScheduleDAO {
+  def deleteSeason(id: Long): Future[Int]
+
   def listStatValues: Future[List[StatValue]]
 
-  def listResults : Future[List[Result]]
+  def listResults: Future[List[Result]]
 
-  def listLogisticModel : Future[List[LogisticModelParameter]]
+  def listLogisticModel: Future[List[LogisticModelParameter]]
 
-  def listGames : Future[List[Game]]
+  def listGames: Future[List[Game]]
 
-  def listGamePrediction : Future[List[GamePrediction]]
+  def listGamePrediction: Future[List[GamePrediction]]
 
-  def listConferenceMaps :Future[List[ConferenceMap]]
+  def listConferenceMaps: Future[List[ConferenceMap]]
 
   def deleteGames(ids: List[Long])
+
   def deleteResults(ids: List[Long])
 
   def upsertGame(game: Game): Future[Long]
+
   def upsertResult(result: Result): Future[Long]
 
   def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
 
-  def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]]
-  def findSeasonByYear(year:Int):Future[Option[Season]]
+  def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]]
 
-  def deleteAliases():Future[Int]
+  def deleteAliases(): Future[Int]
 
-  def saveConferenceMap(cm: ConferenceMap):Future[Int]
+  def saveConferenceMap(cm: ConferenceMap): Future[Int]
 
   def findConferenceById(id: Long): Future[Option[Conference]]
 
@@ -50,7 +53,7 @@ trait ScheduleDAO {
 
   def listAliases: Future[List[Alias]]
 
-  def deleteStatValues(dates:List[LocalDate], model:List[String]): Future[Unit]
+  def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Unit]
 
   def deleteTeam(id: Long): Future[Int]
 
@@ -66,13 +69,15 @@ trait ScheduleDAO {
 
   def saveTeam(team: Team): Future[Team]
 
-  def saveSeason(season: Season): Future[Int]
+  def saveSeason(season: Season): Future[Season]
 
-  def gamesByDate(d:List[LocalDate]):Future[List[(Game,Option[Result])]]
+  def gamesByDate(d: List[LocalDate]): Future[List[(Game, Option[Result])]]
 
-  def gamesBySource(sourceKey:String):Future[List[(Game,Option[Result])]]
+  def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]]
 
   def findSeasonById(id: Long): Future[Option[Season]]
+
+  def findSeasonByYear(year: Int): Future[Option[Season]]
 
   def listSeasons: Future[List[Season]]
 
@@ -82,17 +87,19 @@ trait ScheduleDAO {
 
   def findQuoteById(id: Long): Future[Option[Quote]]
 
-  def findQuoteByKey(key:Option[String]): Future[List[Quote]]
+  def findQuoteByKey(key: Option[String]): Future[List[Quote]]
 
   def deleteQuote(id: Long): Future[Int]
 
   def loadSchedules(): Future[List[Schedule]]
+
   def loadLatestSchedule(): Future[Option[Schedule]]
 
-  def saveStatValues(batchSize:Int, dates:List[LocalDate], model:List[String], stats:List[StatValue]):Unit
+  def saveStatValues(batchSize: Int, dates: List[LocalDate], model: List[String], stats: List[StatValue]): Unit
 
   def deleteAlias(id: Long): Future[Int]
 
-  def loadStatValues(statKey:String, modelKey:String):Future[List[StatValue]]
-  def loadStatValues(modelKey:String):Future[List[StatValue]]
+  def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
+
+  def loadStatValues(modelKey: String): Future[List[StatValue]]
 }

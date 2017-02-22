@@ -81,10 +81,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       },
       data => {
         val s = Season(data.id, data.year, data.lock, data.lockBefore)
-        val future: Future[Int] = teamDao.saveSeason(s)
+        val future: Future[Season] = teamDao.saveSeason(s)
         future.onComplete {
-          case Success(i) => logger.info("Hooray")
-          case Failure(thr) => logger.error("Boo", thr)
+          case Success(ss) => logger.info("Saved season: "+ss)
+          case Failure(thr) => logger.error("Failed to save season: "+s, thr)
         }
         future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
       }
