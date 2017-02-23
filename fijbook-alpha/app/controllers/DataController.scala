@@ -118,10 +118,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       },
       data => {
         val q = Quote(data.id, data.quote, data.source, data.url, data.key)
-        val future: Future[Int] = teamDao.saveQuote(q)
+        val future: Future[Quote] = teamDao.saveQuote(q)
         future.onComplete {
-          case Success(i) => logger.info("Hooray")
-          case Failure(thr) => logger.error("Boo", thr)
+          case Success(q) => logger.info(s"Saved quote: '${q.quote}' (${q.id})")
+          case Failure(thr) => logger.error(s"Failed saving quote $q", thr)
         }
         val flashMsg = if (q.id==0) "Created quote "+q.id else "Updated quote"+q.id
         future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))

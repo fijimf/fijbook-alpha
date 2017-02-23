@@ -6,7 +6,7 @@ import scala.concurrent.Future
   */
 trait QuoteDAO {
 
-  def saveQuote(q: Quote): Future[Int]
+  def saveQuote(q: Quote): Future[Quote]
 
   def listQuotes: Future[List[Quote]]
 

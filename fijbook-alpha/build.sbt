@@ -58,5 +58,6 @@ libraryDependencies ++= Seq(
 
 
 
-fork in Test := true
+fork in Test := false
+parallelExecution in Test := false
 javaOptions in Test += "-Dconfig.resource=application-test.conf"

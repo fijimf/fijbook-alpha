@@ -15,7 +15,11 @@ import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 
-class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository) extends ScheduleDAO with DAOSlick with TeamDAOImpl {
+class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)
+  extends ScheduleDAO with DAOSlick
+    with TeamDAOImpl
+    with QuoteDAOImpl
+    with SeasonDAOImpl{
   val log = Logger(getClass)
 
   import dbConfig.driver.api._
@@ -46,7 +50,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
 
   override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
 
-  override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)
+
 
   override def listConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
 
@@ -56,39 +60,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
 
   //******* Season
 
-  override def saveSeason(s: Season): Future[Season] = {
-    db.run(
-      (repo.seasons returning repo.seasons.map(_.id)).insertOrUpdate(s)
-        .flatMap(i => {
-          repo.seasons.filter(ss => ss.id === i.getOrElse(s.id)).result.head
-        })
-    )
-  }
-
-  override def findSeasonById(id: Long): Future[Option[Season]] = {
-    val q = repo.seasons.filter(season => season.id === id)
-    db.run(q.result.headOption)
-  }
-
-  override def findSeasonByYear(year: Int): Future[Option[Season]] = {
-    val q = repo.seasons.filter(season => season.year === year)
-    db.run(q.result.headOption)
-  }
-
-  override def deleteSeason(id: Long): Future[Int] = db.run(repo.seasons.filter(season => season.id === id).delete)
-
-  override def unlockSeason(seasonId: Long): Future[Int] = {
-    log.info("Unlocking season " + seasonId)
-    db.run(repo.seasons.filter(s => s.id === seasonId).map(_.lock).update("open"))
-  }
-
-  override def checkAndSetLock(seasonId: Long): Boolean = {
-    // Note this function blocks
-    val run: Future[Int] = db.run(repo.seasons.filter(s => s.id === seasonId && s.lock =!= "lock" && s.lock =!= "update").map(_.lock).update("update"))
-    val map: Future[Boolean] = run.map(n => n == 1)
-    log.info("Locking season " + seasonId + " for update")
-    Await.result(map, Duration(15, TimeUnit.SECONDS))
-  }
 
   //******* Game
 
@@ -122,15 +93,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
 
   // Quote
 
-
-
-  override def findQuoteById(id: Long): Future[Option[Quote]] = db.run(repo.quotes.filter(_.id === id).result.headOption)
-
-  override def findQuoteByKey(key: Option[String]): Future[List[Quote]] = db.run(repo.quotes.filter(_.key === key).to[List].result)
-
-  override def saveQuote(q: Quote): Future[Int] = db.run(repo.quotes.insertOrUpdate(q))
-
-  override def deleteQuote(id: Long): Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
   // Conference
 
