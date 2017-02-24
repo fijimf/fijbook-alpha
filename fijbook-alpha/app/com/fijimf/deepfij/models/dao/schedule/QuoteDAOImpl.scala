@@ -1,5 +1,6 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
+import com.fijimf.deepfij.models.{DAOSlick, Quote, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -12,6 +13,7 @@ trait QuoteDAOImpl extends QuoteDAO with DAOSlick {
   val repo: ScheduleRepository
 
   import dbConfig.driver.api._
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override def listQuotes: Future[List[Quote]] = db.run(repo.quotes.to[List].result)

@@ -1,5 +1,6 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
+import com.fijimf.deepfij.models.{DAOSlick, ScheduleRepository, Team}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -11,6 +12,7 @@ trait TeamDAOImpl extends TeamDAO with DAOSlick {
 
   val repo: ScheduleRepository
   import dbConfig.driver.api._
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override def listTeams:Future[List[Team]] = db.run(repo.teams.to[List].result)

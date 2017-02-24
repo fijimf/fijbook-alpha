@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.stats.predictor
 
-import com.fijimf.deepfij.models.{Game, Result, ScheduleDAO}
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.{Game, Result}
 import org.apache.mahout.math.{DenseVector, Vector}
 import play.api.Logger
 

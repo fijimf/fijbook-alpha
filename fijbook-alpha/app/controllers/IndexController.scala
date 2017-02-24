@@ -3,8 +3,9 @@ package controllers
 import java.time.LocalDate
 import javax.inject.Inject
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
-import com.fijimf.deepfij.models.{Game, ScheduleDAO, ScheduleRepository, User}
+import com.fijimf.deepfij.models.{Game, ScheduleRepository, User}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.Controller

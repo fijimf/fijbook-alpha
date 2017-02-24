@@ -7,6 +7,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.scraping.ScoreboardByDateReq
 import com.fijimf.deepfij.scraping.modules.scraping.EmptyBodyException
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}

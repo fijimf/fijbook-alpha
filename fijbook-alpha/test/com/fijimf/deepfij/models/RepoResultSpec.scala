@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDateTime
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}

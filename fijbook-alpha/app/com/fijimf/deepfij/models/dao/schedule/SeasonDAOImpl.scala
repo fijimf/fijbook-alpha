@@ -1,7 +1,8 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
 import java.util.concurrent.TimeUnit
 
+import com.fijimf.deepfij.models.{DAOSlick, ScheduleRepository, Season}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.duration.Duration

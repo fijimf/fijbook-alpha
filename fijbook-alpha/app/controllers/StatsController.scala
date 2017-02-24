@@ -3,8 +3,9 @@ package controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.StatisticWriterService
-import com.fijimf.deepfij.models.{ScheduleDAO, StatUtil, StatValue, Team}
+import com.fijimf.deepfij.models.{StatUtil, StatValue, Team}
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette

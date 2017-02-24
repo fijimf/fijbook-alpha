@@ -1,8 +1,9 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
+import com.fijimf.deepfij.models._
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future

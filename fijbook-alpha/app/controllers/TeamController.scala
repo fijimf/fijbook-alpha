@@ -3,6 +3,7 @@ package controllers
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.StatisticWriterService
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
@@ -14,7 +15,6 @@ import play.api.mvc.Controller
 import utils.DefaultEnv
 
 import scala.concurrent.duration._
-
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 

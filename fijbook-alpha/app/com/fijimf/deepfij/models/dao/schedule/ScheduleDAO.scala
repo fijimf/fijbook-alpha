@@ -1,6 +1,6 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
-import java.time.LocalDate
+import com.fijimf.deepfij.models._
 
 import scala.concurrent.Future
 

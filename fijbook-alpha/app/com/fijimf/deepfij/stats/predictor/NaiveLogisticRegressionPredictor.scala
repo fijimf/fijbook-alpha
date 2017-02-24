@@ -3,6 +3,7 @@ package com.fijimf.deepfij.stats.predictor
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

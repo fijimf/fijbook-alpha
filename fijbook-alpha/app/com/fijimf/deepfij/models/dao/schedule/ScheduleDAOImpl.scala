@@ -1,9 +1,9 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDate
 import javax.inject.Inject
 
+import com.fijimf.deepfij.models._
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider

@@ -3,8 +3,8 @@ package modules
 import akka.actor.Props
 import akka.contrib.throttle.Throttler.Rate
 import akka.contrib.throttle.TimerBasedThrottler
+import com.fijimf.deepfij.models.dao.schedule.{ScheduleDAO, ScheduleDAOImpl}
 import com.fijimf.deepfij.models.services._
-import com.fijimf.deepfij.models.{AuthTokenDAO, AuthTokenDAOImpl, ScheduleDAO, ScheduleDAOImpl}
 import com.fijimf.deepfij.scraping.modules.scraping.ScrapingActor
 import com.google.inject.AbstractModule
 import net.codingwell.scalaguice.ScalaModule

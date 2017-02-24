@@ -2,7 +2,8 @@ package com.fijimf.deepfij.stats.predictor
 
 import java.time.LocalDate
 
-import com.fijimf.deepfij.models.{Game, GamePrediction, Schedule, ScheduleDAO}
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.{Game, GamePrediction, Schedule}
 import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global

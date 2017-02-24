@@ -1,6 +1,6 @@
 package controllers
 
-import com.fijimf.deepfij.models.ScheduleDAO
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.GamePredictorService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette

@@ -3,7 +3,7 @@ package controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import com.fijimf.deepfij.models.ScheduleDAO
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette

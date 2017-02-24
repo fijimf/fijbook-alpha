@@ -4,6 +4,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.stats._
 import play.api.Logger
 

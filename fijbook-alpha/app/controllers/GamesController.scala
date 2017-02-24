@@ -4,8 +4,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
-import com.fijimf.deepfij.models.{Game, GprCohort, ScheduleDAO}
+import com.fijimf.deepfij.models.{Game, GprCohort}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.{JsArray, Json}

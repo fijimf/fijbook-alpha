@@ -1,5 +1,6 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
 
+import com.fijimf.deepfij.models._
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -11,8 +12,6 @@ trait ConferenceDAOImpl extends ConferenceDAO with DAOSlick {
 
   val repo: ScheduleRepository
   import dbConfig.driver.api._
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
 

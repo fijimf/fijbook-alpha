@@ -1,6 +1,6 @@
 package controllers
 
-import com.fijimf.deepfij.models.ScheduleDAO
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 
 import scala.concurrent.{ExecutionContext, Future}
 

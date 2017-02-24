@@ -1,5 +1,6 @@
-package com.fijimf.deepfij.models
-import play.api.db.slick.DatabaseConfigProvider
+package com.fijimf.deepfij.models.dao.schedule
+
+import com.fijimf.deepfij.models.Team
 
 import scala.concurrent.Future
 

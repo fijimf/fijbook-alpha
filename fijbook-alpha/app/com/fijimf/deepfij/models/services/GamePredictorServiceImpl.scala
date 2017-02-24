@@ -3,6 +3,7 @@ package com.fijimf.deepfij.models.services
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.stats.predictor.{NaiveLinearRegressionPredictor, NaiveLogisticRegressionPredictor, SchedulePredictor}
 import play.api.Logger
 

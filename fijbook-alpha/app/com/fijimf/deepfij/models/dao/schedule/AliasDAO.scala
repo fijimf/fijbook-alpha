@@ -1,4 +1,7 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.schedule
+
+import com.fijimf.deepfij.models.Alias
+
 import scala.concurrent.Future
 
 /**
