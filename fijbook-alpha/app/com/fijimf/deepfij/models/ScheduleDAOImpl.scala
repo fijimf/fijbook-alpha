@@ -2,7 +2,6 @@ package com.fijimf.deepfij.models
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
@@ -11,7 +10,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.dbio.Effect.Write
 
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -19,7 +18,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
     with QuoteDAOImpl
-    with SeasonDAOImpl{
+    with SeasonDAOImpl
+    with ConferenceDAOImpl {
   val log = Logger(getClass)
 
   import dbConfig.driver.api._
@@ -33,9 +33,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     ldt => ldt.format(DateTimeFormatter.ISO_DATE),
     str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
-
-  override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
-
 
 
   override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
@@ -51,11 +48,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
 
 
-
-  override def listConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
-
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
-
 
 
   //******* Season
@@ -85,9 +78,10 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
-  override def gamesByDate(ds:List[LocalDate]):Future[List[(Game,Option[Result])]] =
+  override def gamesByDate(ds: List[LocalDate]): Future[List[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.date inSet ds).to[List].result)
- override def gamesBySource(sourceKey:String):Future[List[(Game,Option[Result])]] =
+
+  override def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
 
 
@@ -97,15 +91,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   // Conference
 
   override def deleteAliases(): Future[Int] = db.run(repo.aliases.delete)
-
-  override def saveConferenceMap(cm: ConferenceMap) = db.run(repo.conferenceMaps.insertOrUpdate(cm))
-
-  override def findConferenceById(id: Long): Future[Option[Conference]] = db.run(repo.conferences.filter(_.id === id).result.headOption)
-
-  override def deleteConference(id: Long): Future[Int] = db.run(repo.conferences.filter(_.id === id).delete)
-
-
-  override def saveConference(c: Conference): Future[Int] = db.run(repo.conferences.insertOrUpdate(c))
 
 
   // Schedule
@@ -134,7 +119,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def loadLatestSchedule(): Future[Option[Schedule]] = {
-   loadSchedules().map(_.sortBy(s=> -s.season.year).headOption)
+    loadSchedules().map(_.sortBy(s => -s.season.year).headOption)
   }
 
   // Aliases
@@ -155,7 +140,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
     val grouped = dates.grouped(batchSize)
     grouped.foreach(d => {
-      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))),3 minutes)
+      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))), 3 minutes)
     })
 
   }
@@ -171,13 +156,14 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       }
     val action = DBIO.seq(deletes ::: inserts: _*).transactionally
     val future: Future[Unit] = db.run(action)
-    future.onComplete((t: Try[Unit]) =>{
-      val dur = System.currentTimeMillis()-start
+    future.onComplete((t: Try[Unit]) => {
+      val dur = System.currentTimeMillis() - start
       t match {
 
-      case Success(_)=>log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
-      case Failure(ex)=>log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
-    }})
+        case Success(_) => log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
+        case Failure(ex) => log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
+      }
+    })
     future
   }
 
@@ -192,7 +178,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       db.run(repo.gamePredictions.filter(gp => gp.gameId === g.id && gp.modelKey === modelKey).to[List].result)
     })).map(_.flatten)
   }
-  override def saveGamePredictions(gps:List[GamePrediction]): Future[List[Int]] = {
+
+  override def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]] = {
     val saveResults = Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
     saveResults.onComplete {
       case Success(is) => log.info("Save results: " + is.mkString(","))
@@ -208,16 +195,16 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     ) yield id)
 
     response.onComplete {
-      case Success(id) => log.info("Saved game " +id.getOrElse(game.id))
+      case Success(id) => log.info("Saved game " + id.getOrElse(game.id))
       case Failure(ex) => log.error("Failed upserting game ", ex)
     }
     response.map(_.getOrElse(0L))
   }
 
-  final def runWithRetry[R](a: DBIOAction[R, NoStream, Nothing], n:Int): Future[R] =
-    db.run(a).recoverWith{
-      case ex:MySQLTransactionRollbackException=> {
-        if (n==0) {
+  final def runWithRetry[R](a: DBIOAction[R, NoStream, Nothing], n: Int): Future[R] =
+    db.run(a).recoverWith {
+      case ex: MySQLTransactionRollbackException => {
+        if (n == 0) {
           Future.failed(ex)
         } else {
           log.info(s"Caught MySQLTransactionRollbackException.  Retrying ($n)")
@@ -226,7 +213,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       }
     }
 
-  override def upsertResult(result:Result) :Future[Long] = {
+  override def upsertResult(result: Result): Future[Long] = {
     val action = for (
       id <- (repo.results returning repo.results.map(_.id)).insertOrUpdate(result)
     ) yield id
@@ -238,7 +225,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     r.map(_.getOrElse(0L))
   }
 
-  def deleteGames(ids:List[Long]) = {
+  def deleteGames(ids: List[Long]) = {
     if (ids.nonEmpty) {
       val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.games.filter(_.id === id).delete)
 
@@ -254,7 +241,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       log.info("Delete games called with empty list")
     }
   }
-  def deleteResults(ids:List[Long]) = {
+
+  def deleteResults(ids: List[Long]) = {
     if (ids.nonEmpty) {
       val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.results.filter(_.id === id).delete)
 
