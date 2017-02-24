@@ -10,7 +10,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models.User
-import com.fijimf.deepfij.models.models.daos.UserDAO
+import com.fijimf.deepfij.models.dao.silhouette.UserDAO
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import play.api.libs.concurrent.Execution.Implicits._

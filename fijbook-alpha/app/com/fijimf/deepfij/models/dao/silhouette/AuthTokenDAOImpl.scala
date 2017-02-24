@@ -1,7 +1,8 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.silhouette
 
 import java.util.UUID
 
+import com.fijimf.deepfij.models.AuthToken
 import org.joda.time.DateTime
 
 import scala.collection.mutable

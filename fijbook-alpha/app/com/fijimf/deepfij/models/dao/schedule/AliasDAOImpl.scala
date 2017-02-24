@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
-import com.fijimf.deepfij.models.{Alias, DAOSlick, ScheduleRepository}
+import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.{Alias, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future

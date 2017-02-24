@@ -1,8 +1,8 @@
-package com.fijimf.deepfij.models
-package models.daos
+package com.fijimf.deepfij.models.dao.silhouette
 
 import java.util.UUID
 
+import com.fijimf.deepfij.models.User
 import com.mohiva.play.silhouette.api.LoginInfo
 
 import scala.concurrent.Future

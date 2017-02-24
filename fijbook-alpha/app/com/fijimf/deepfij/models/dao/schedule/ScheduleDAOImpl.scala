@@ -4,6 +4,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.DAOSlick
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider

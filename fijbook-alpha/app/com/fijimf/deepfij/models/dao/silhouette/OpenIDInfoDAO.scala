@@ -1,15 +1,14 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.silhouette
 
-package models.daos
-
-import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.impl.providers.OpenIDInfo
 import javax.inject.Inject
 
-import com.mohiva.play.silhouette.api.util.PasswordInfo
+import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.{DBOpenIDAttribute, DBOpenIDInfo, UserRepository}
+import com.mohiva.play.silhouette.api.LoginInfo
+import com.mohiva.play.silhouette.impl.providers.OpenIDInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.Future
 

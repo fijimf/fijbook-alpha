@@ -1,16 +1,13 @@
-package com.fijimf.deepfij.models
+package com.fijimf.deepfij.models.dao.silhouette
 
 import java.util.UUID
-
-import com.mohiva.play.silhouette.api.LoginInfo
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import slick.dbio.DBIOAction
 import javax.inject.Inject
 
-import com.fijimf.deepfij.models.models.daos.UserDAO
-import play.api.Logger
+import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.DAOSlick
+import com.mohiva.play.silhouette.api.LoginInfo
 import play.api.db.slick.DatabaseConfigProvider
-import slick.driver.JdbcProfile
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import scala.concurrent.Future
 

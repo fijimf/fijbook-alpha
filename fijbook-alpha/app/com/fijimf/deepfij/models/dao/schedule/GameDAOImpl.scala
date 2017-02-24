@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.models.dao.DAOSlick
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future

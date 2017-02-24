@@ -3,7 +3,8 @@ package com.fijimf.deepfij.models.services
 import java.util.UUID
 import javax.inject.Inject
 
-import com.fijimf.deepfij.models.{AuthToken, AuthTokenDAO}
+import com.fijimf.deepfij.models.AuthToken
+import com.fijimf.deepfij.models.dao.silhouette.AuthTokenDAO
 import com.mohiva.play.silhouette.api.util.Clock
 import org.joda.time.DateTimeZone
 import play.api.libs.concurrent.Execution.Implicits._
