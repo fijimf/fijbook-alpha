@@ -50,6 +50,7 @@ trait SeasonDAOImpl extends SeasonDAO with DAOSlick {
     Await.result(map, Duration(15, TimeUnit.SECONDS))
   }
 
+  override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
 
 
 }

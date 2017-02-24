@@ -17,38 +17,26 @@ import scala.util.{Failure, Success, Try}
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
+    with GameDAOImpl
     with QuoteDAOImpl
     with SeasonDAOImpl
-    with ConferenceDAOImpl {
+    with ConferenceDAOImpl
+    with AliasDAOImpl {
   val log = Logger(getClass)
 
   import dbConfig.driver.api._
 
 
-  implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
-    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
-  )
-  implicit val JavaLocalDateMapper: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
-    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
-  )
 
 
   override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
 
   override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
 
-  override def listGames: Future[List[Game]] = db.run(repo.games.to[List].result)
 
   override def listGamePrediction: Future[List[GamePrediction]] = db.run(repo.gamePredictions.to[List].result)
 
   override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
-
-  override def listSeasons: Future[List[Season]] = db.run(repo.seasons.to[List].result)
-
-
-  override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 
 
   //******* Season
@@ -56,41 +44,10 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
 
   //******* Game
 
-  override def clearGamesByDate(d: LocalDate): Future[Int] = {
-    val dateGames = repo.games.filter(g => g.date === d)
-    val dateResults = repo.results.filter(_.gameId in dateGames.map(_.id))
-    db.run((dateResults.delete andThen dateGames.delete).transactionally)
-  }
 
-  override def saveGame(gt: (Game, Option[Result])): Future[Long] = {
-    val (game, optResult) = gt
-
-    optResult match {
-      case Some(result) =>
-        db.run((for (
-          qid <- (repo.games returning repo.games.map(_.id)) += game;
-          _ <- repo.results returning repo.results.map(_.id) += result.copy(gameId = qid)
-        ) yield qid).transactionally)
-      case None =>
-        db.run((for (
-          qid <- (repo.games returning repo.games.map(_.id)) += game
-        ) yield qid).transactionally)
-    }
-  }
-
-  override def gamesByDate(ds: List[LocalDate]): Future[List[(Game, Option[Result])]] =
-    db.run(repo.gameResults.filter(_._1.date inSet ds).to[List].result)
-
-  override def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
-    db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
-
-
-  // Quote
 
 
   // Conference
-
-  override def deleteAliases(): Future[Int] = db.run(repo.aliases.delete)
 
 
   // Schedule
@@ -132,10 +89,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       }
     db.run(DBIO.seq(map: _*).transactionally)
   }
-
-  override def findAliasById(id: Long): Future[Option[Alias]] = db.run(repo.aliases.filter(_.id === id).result.headOption)
-
-  override def saveAlias(a: Alias): Future[Int] = db.run(repo.aliases.insertOrUpdate(a))
 
   override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
     val grouped = dates.grouped(batchSize)
