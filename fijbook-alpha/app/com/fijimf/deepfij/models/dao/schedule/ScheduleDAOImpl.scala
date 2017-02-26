@@ -22,7 +22,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with QuoteDAOImpl
     with SeasonDAOImpl
     with ConferenceDAOImpl
-    with AliasDAOImpl {
+    with AliasDAOImpl
+with UserProfileDAOImpl {
   val log = Logger(getClass)
 
   import dbConfig.driver.api._

@@ -112,6 +112,8 @@ case class LogisticModelParameter(id: Long, modelName: String, parameterName: St
 
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 
+case class UserProfileData(id:Long, userID:String, key:String, value:String)
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -422,6 +424,18 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx1: Index = index("log_param_idx1", (modelName, parameterName, fittedAsOf), unique = true)
   }
 
+  class UserProfileDataTable(tag: Tag) extends Table[UserProfileData](tag, "user_profile_data") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def userId = column[String]("user_id", O.Length(144))
+
+    def key = column[String]("key")
+
+    def value = column[String]("value")
+
+    def * = (id, userId, key, value) <> (UserProfileData.tupled, UserProfileData.unapply)
+  }
+
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
   lazy val results: TableQuery[ResultsTable] = TableQuery[ResultsTable]
@@ -435,6 +449,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
   lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
+  lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]
 
   lazy val ddl = conferenceMaps.schema ++
     games.schema ++
@@ -446,5 +461,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     aliases.schema ++
     statValues.schema ++
     gamePredictions.schema ++
-    logisticModels.schema
+    logisticModels.schema ++
+    userProfiles.schema
 }
