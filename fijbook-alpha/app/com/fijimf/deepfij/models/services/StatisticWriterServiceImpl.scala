@@ -8,7 +8,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.stats._
 import play.api.Logger
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -27,7 +27,7 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
   val statMap: Map[String, Map[String, Stat[_]]] = models.map(m => m.key -> m.stats.map(s => s.key -> s).toMap).toMap
   val modelMap: Map[String, Model[_]] = models.map(m => m.key -> m).toMap
 
-  override def update(lastNDays: Option[Int]): Option[List[Unit]] = {
+  override def update(lastNDays: Option[Int]): Option[List[Future[Any]]] = {
     logger.info("Updating calculated statistics for the latest schedule")
     val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
     result.map(sch => {
@@ -40,12 +40,12 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
         logger.info(s"Models will be run and saved for the ${dates.size} between ${dates.head} and ${dates.last}, inclusive")
         updateForSchedule(sch, dates)
       } else {
-        List.empty[Unit]
+        List.empty[Future[Any]]
       }
     })
   }
 
-  def updateForSchedule(sch: Schedule, dates: List[LocalDate]): List[Unit] = {
+  def updateForSchedule(sch: Schedule, dates: List[LocalDate]): List[Future[Any]] = {
     val batchSize = 15
     (for (ds <- dates.grouped(batchSize);
           m <- List(WonLost(sch, ds), Scoring(sch, ds), Rpi(sch, ds), LeastSquares(sch, ds))

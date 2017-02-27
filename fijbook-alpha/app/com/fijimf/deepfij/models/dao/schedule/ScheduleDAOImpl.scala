@@ -92,29 +92,29 @@ with UserProfileDAOImpl {
     db.run(DBIO.seq(map: _*).transactionally)
   }
 
-  override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Unit = {
-    val grouped = dates.grouped(batchSize)
-    grouped.foreach(d => {
-      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))), 3 minutes)
-    })
-
+  override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Any] = {
+    //    grouped.foreach(d => {
+//      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))), 3 minutes)
+//    })
+    def batchReq(ds:List[LocalDate]) = saveStatBatch(ds, models, stats.filter(s => ds.contains(s.date)))
+    val g = dates.grouped(batchSize).toList
+    g.tail.foldLeft(batchReq(g.head)){case (future: Future[_], dates: List[LocalDate]) => future.flatMap(_=>batchReq(dates))}
   }
 
-  def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Unit] = {
+  def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Any] = {
     val key = s"[${models.mkString(", ")}] x [${dates.head} .. ${dates.last}] "
     val start = System.currentTimeMillis()
     log.info(s"Saving stat batch for $key (${stats.size} rows)")
-    val inserts = List(repo.statValues.forceInsertAll(stats))
+    val inserts: DBIOAction[_, NoStream, Write] = repo.statValues ++= stats
     val deletes: List[DBIOAction[_, NoStream, Write]] =
       for (m <- models; d <- dates) yield {
         repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
       }
-    val action = DBIO.seq(deletes ::: inserts: _*).transactionally
-    val future: Future[Unit] = db.run(action)
-    future.onComplete((t: Try[Unit]) => {
+    val delete = DBIO.seq(deletes :_*)
+    val future: Future[Any] = db.run(delete.andThen(inserts).transactionally)
+    future.onComplete((t: Try[_]) => {
       val dur = System.currentTimeMillis() - start
       t match {
-
         case Success(_) => log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
         case Failure(ex) => log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
       }

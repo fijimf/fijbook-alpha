@@ -20,7 +20,7 @@ trait AnalyticsDAO {
 
   def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Unit]
 
-  def saveStatValues(batchSize: Int, dates: List[LocalDate], model: List[String], stats: List[StatValue]): Unit
+  def saveStatValues(batchSize: Int, dates: List[LocalDate], model: List[String], stats: List[StatValue]): Future[Any]
 
   def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
 
