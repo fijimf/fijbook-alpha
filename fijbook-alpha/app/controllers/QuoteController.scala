@@ -16,7 +16,7 @@ import scala.util.Random
 class QuoteController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
   extends Controller {
 
-  val DEFAULT_QUOTE = Map("quote" -> "Fridge rules.", "url" -> "")
+  val DEFAULT_QUOTE = Map("quote" -> "Fridge rules.", "url" -> "", "source"->"")
 
   def random = Action.async {
     teamDao.listQuotes.map(qs => {
@@ -39,7 +39,7 @@ class QuoteController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
         } else {
           val n = Random.nextInt(unkeyedQuotes.size)
           val quote = unkeyedQuotes(n)
-          Ok(Json.toJson(Map("quote" -> quote.quote, "url" -> quote.url.getOrElse(""))))
+          Ok(Json.toJson(Map("quote" -> quote.quote, "url" -> quote.url.getOrElse(""), "source"->quote.source.getOrElse(""))))
         }
       } else {
         Ok(Json.toJson(randomQuote(matchedQuotes)))
@@ -50,7 +50,7 @@ class QuoteController @Inject()(val teamDao: ScheduleDAO, val userService: UserS
 
   private def randomQuote(unkeyedQuotes: List[Quote]) = {
     val quote = unkeyedQuotes(Random.nextInt(unkeyedQuotes.size))
-    Map("quote" -> quote.quote, "url" -> quote.url.getOrElse(""))
+    Map("quote" -> quote.quote, "url" -> quote.url.getOrElse(""), "source"->quote.source.getOrElse(""))
   }
 
 }

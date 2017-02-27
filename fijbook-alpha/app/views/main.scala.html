@@ -130,6 +130,7 @@
             @if(quoteKey.isEmpty) {
                 $.getJSON( "@routes.QuoteController.random()", function( data ) {
                     $("#quote-em").text(data.quote);
+                    $("#quote-a").attr("title", data.source);
                     if (data.url.length>0){
                         $("#quote-a").attr("href",data.url).attr("target","_blank");
                     }
@@ -137,6 +138,7 @@
             } else {
                 $.getJSON( "@routes.QuoteController.keyed(quoteKey.get)", function( data ) {
                     $("#quote-em").text(data.quote);
+                    $("#quote-a").attr("title", data.source);
                     if (data.url.length>0){
                         $("#quote-a").attr("href",data.url).attr("target","_blank");
                     }
