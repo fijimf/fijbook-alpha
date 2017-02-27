@@ -4,9 +4,6 @@ import com.fijimf.deepfij.models.Quote
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait QuoteDAO {
 
   def saveQuote(q: Quote): Future[Quote]

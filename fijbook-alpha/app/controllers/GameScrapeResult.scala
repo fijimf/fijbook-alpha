@@ -4,9 +4,6 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Created by jimfrohnhofer on 12/1/16.
-  */
 case class GameScrapeResult(ids: List[Long] = List.empty[Long], unmappedKeys: List[String] = List.empty[String]) {
   def acc(dao: ScheduleDAO, gm: GameMapping)(implicit ec: ExecutionContext): Future[GameScrapeResult] = {
     gm match {

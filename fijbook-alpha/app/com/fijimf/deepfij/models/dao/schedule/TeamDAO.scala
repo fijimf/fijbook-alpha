@@ -4,9 +4,6 @@ import com.fijimf.deepfij.models.Team
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait TeamDAO {
 
   def deleteTeam(id: Long): Future[Int]

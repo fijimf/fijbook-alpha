@@ -4,9 +4,6 @@ import com.fijimf.deepfij.models.{Conference, ConferenceMap}
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait ConferenceDAO {
 
   def listConferenceMaps: Future[List[ConferenceMap]]

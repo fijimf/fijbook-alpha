@@ -6,9 +6,6 @@ import com.fijimf.deepfij.models.{Game, GamePrediction, LogisticModelParameter, 
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait AnalyticsDAO {
 
   def listStatValues: Future[List[StatValue]]

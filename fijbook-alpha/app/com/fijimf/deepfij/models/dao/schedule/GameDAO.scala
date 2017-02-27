@@ -6,9 +6,6 @@ import com.fijimf.deepfij.models.{Game, Result}
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait GameDAO {
 
   def listGames: Future[List[Game]]

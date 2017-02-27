@@ -4,9 +4,6 @@ import com.fijimf.deepfij.models.Season
 
 import scala.concurrent.Future
 
-/**
-  * Created by jimfrohnhofer on 2/22/17.
-  */
 trait SeasonDAO {
 
   def deleteSeason(id: Long): Future[Int]

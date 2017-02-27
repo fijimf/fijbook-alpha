@@ -2,9 +2,6 @@ package controllers
 
 import java.time.LocalDate
 
-/**
-  * Created by jimfrohnhofer on 12/1/16.
-  */
 object SeasonScrapeResult {
   def apply(list: List[(LocalDate, GameScrapeResult)]): SeasonScrapeResult = {
     val gameCounts: Map[LocalDate, Int] = list.map(tup => tup._1 -> tup._2.ids.size).toMap

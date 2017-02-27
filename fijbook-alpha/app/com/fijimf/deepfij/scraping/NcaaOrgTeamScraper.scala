@@ -1,8 +1,5 @@
 package com.fijimf.deepfij.scraping
 
-/**
-  * Created by jimfrohnhofer on 9/25/16.
-  */
 
 import scala.xml.Node
 
