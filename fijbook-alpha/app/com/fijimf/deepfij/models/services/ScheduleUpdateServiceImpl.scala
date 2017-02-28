@@ -91,7 +91,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]) = {
+  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Unit = {
     val gameToGameIdMap: Map[(Int, Long, Long), Game] = oldGameList.map(t => (t._1.datetime.hashCode(), t._1.homeTeamId, t._1.awayTeamId) -> t._1).toMap
     val gameIdToResultIdMap: Map[Long, Result] = oldGameList.flatMap(t => t._2.map(u => t._1.id -> u)).toMap
 
