@@ -19,14 +19,8 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
-    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
-  )
-  implicit val JavaLocalDateMapper: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
-    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
-  )
+  implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime]
+  implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
   override def listGames: Future[List[Game]] = db.run(repo.games.to[List].result)
   override def clearGamesByDate(d: LocalDate): Future[Int] = {
