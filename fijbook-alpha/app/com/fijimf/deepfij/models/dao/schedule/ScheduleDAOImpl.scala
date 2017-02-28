@@ -180,7 +180,7 @@ with UserProfileDAOImpl {
     r.map(_.getOrElse(0L))
   }
 
-  def deleteGames(ids: List[Long]) = {
+  def deleteGames(ids: List[Long]):Future[Unit] = {
     if (ids.nonEmpty) {
       val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.games.filter(_.id === id).delete)
 
@@ -192,12 +192,14 @@ with UserProfileDAOImpl {
           case Failure(ex) => log.error(s"Deleting games failed with error: ${ex.getMessage}", ex)
         }
       })
+      future
     } else {
       log.info("Delete games called with empty list")
+      Future.successful(Unit)
     }
   }
 
-  def deleteResults(ids: List[Long]) = {
+  def deleteResults(ids: List[Long]):Future[Unit] = {
     if (ids.nonEmpty) {
       val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.results.filter(_.id === id).delete)
 
@@ -209,8 +211,10 @@ with UserProfileDAOImpl {
           case Failure(ex) => log.error(s"Deleting results failed with error: ${ex.getMessage}", ex)
         }
       })
+      future
     } else {
       log.info("Delete results called with empty list")
+      Future.successful(Unit)
     }
   }
 

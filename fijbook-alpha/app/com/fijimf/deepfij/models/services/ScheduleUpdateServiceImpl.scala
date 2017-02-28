@@ -91,11 +91,11 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Unit = {
-    val gameToGameIdMap: Map[(Int, Long, Long), Game] = oldGameList.map(t => (t._1.datetime.hashCode(), t._1.homeTeamId, t._1.awayTeamId) -> t._1).toMap
+  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Future[Unit] = {
+    val gameToGameIdMap: Map[GameSignature, Game] = oldGameList.map(t => t._1.signature-> t._1).toMap
     val gameIdToResultIdMap: Map[Long, Result] = oldGameList.flatMap(t => t._2.map(u => t._1.id -> u)).toMap
 
-    val (remainingGames, remainingResults) = updateData.foldLeft((gameToGameIdMap, gameIdToResultIdMap))((tuple: (Map[(Int, Long, Long), Game], Map[Long, Result]), mapping: GameMapping) => {
+    val (remainingGames, remainingResults) = updateData.foldLeft((gameToGameIdMap, gameIdToResultIdMap))((tuple: (Map[GameSignature, Game], Map[Long, Result]), mapping: GameMapping) => {
       val (gIdMap, rIdMap) = tuple
       mapping match {
         case MappedGame(g: Game) => handleMappedGame(gIdMap, rIdMap, g)
@@ -106,57 +106,52 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
         }
       }
     })
-    dao.deleteGames(remainingGames.values.map(_.id).toList)
-    dao.deleteResults(remainingResults.values.map(_.id).toList)
+    dao.deleteResults(remainingResults.values.map(_.id).toList).flatMap(_ => dao.deleteGames(remainingGames.values.map(_.id).toList))
   }
 
-  private def handleMappedGameAndResult(gIdMap: Map[(Int, Long, Long), Game], rIdMap: Map[Long, Result], g: Game, r: Result) = {
+  private def handleMappedGameAndResult(gIdMap: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game, r: Result) = {
     gIdMap.get(g.signature) match {
       case Some(h) if h.sameData(g) => //This is an existing game with no changes
-        val r1=r.copy(gameId = h.id)
-        rIdMap.get(h.id) match {
-          case Some(s) if s.sameData(r1) => //This is an existing result with no changes
-            (gIdMap - g.signature, rIdMap - h.id)
-          case Some(s) => //This is an existing result to be updated
-            dao.upsertResult(r1.copy(id = s.id))
-            (gIdMap - g.signature, rIdMap - h.id)
-          case None => //This is a new result
-            dao.upsertResult(r1)
-            (gIdMap - g.signature, rIdMap)
-        }
+        handleResult(gIdMap-g.signature, rIdMap, g, r, h)
       case Some(h) => //This is an existing game to be updated
         dao.upsertGame(g.copy(id = h.id))
-        val r1=r.copy(gameId = h.id)
-        rIdMap.get(h.id) match {
-          case Some(s) if s.sameData(r1) => //This is an existing result with no changes
-            (gIdMap - g.signature, rIdMap - h.id)
-          case Some(s) => //This is an existing result to be updated
-            dao.upsertResult(r1.copy(id = s.id))
-            (gIdMap - g.signature, rIdMap - h.id)
-          case None => //This is a new result
-            dao.upsertResult(r1)
-            (gIdMap - g.signature, rIdMap)
-        }
+        handleResult(gIdMap-g.signature, rIdMap, g,r,h)
       case None => //This is a new game
-        dao.upsertGame(g).map(gameId => r.copy(gameId = gameId))
+        dao.upsertGame(g).flatMap(gameId => dao.upsertResult(r.copy(gameId = gameId)))
         (gIdMap, rIdMap)
     }
   }
 
-  private def handleMappedGame(gIdMap: Map[(Int, Long, Long), Game], rIdMap: Map[Long, Result], g: Game) = {
-    gIdMap.get(g.signature) match {
+  private def handleResult(gIdMapRv: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game, r: Result, h: Game) = {
+    val r1 = r.copy(gameId = h.id)
+    val hIdMap = rIdMap.get(h.id) match {
+      case Some(s) if s.sameData(r1) => //This is an existing result with no changes
+        rIdMap - h.id
+      case Some(s) => //This is an existing result to be updated
+        dao.upsertResult(r1.copy(id = s.id))
+        rIdMap - h.id
+      case None => //This is a new result
+        dao.upsertResult(r1)
+        rIdMap
+    }
+    (gIdMapRv,hIdMap)
+  }
+
+  private def handleMappedGame(gIdMap: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game) = {
+    val fIdMap = gIdMap.get(g.signature) match {
       case Some(h) if h.sameData(g) => //This is an existing game with no changes
-        (gIdMap - g.signature, rIdMap)
+        gIdMap - g.signature
       case Some(h) => //This is an existing game to be updated
         dao.upsertGame(g.copy(id = h.id))
-        (gIdMap - g.signature, rIdMap)
+        gIdMap - g.signature
       case None => //This is a new game
         dao.upsertGame(g)
-        (gIdMap, rIdMap)
+        gIdMap
     }
+    (fIdMap, rIdMap)
   }
 
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String) = {
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.map(teamDictionary => {

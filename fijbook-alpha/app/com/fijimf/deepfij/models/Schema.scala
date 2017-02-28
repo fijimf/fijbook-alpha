@@ -52,8 +52,10 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
+case class GameSignature (dateHash:Int, homeId:Long, awayId:Long)
 case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
-  def signature = (datetime.hashCode(), homeTeamId, awayTeamId)
+
+  def signature:GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
   def sameData(g: Game): Boolean = (g.seasonId == seasonId
     && g.homeTeamId == homeTeamId
@@ -61,6 +63,7 @@ case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, da
     && g.date == date
     && g.datetime == datetime
     && g.location == location
+    && g.isNeutralSite == isNeutralSite
     )
 
 }

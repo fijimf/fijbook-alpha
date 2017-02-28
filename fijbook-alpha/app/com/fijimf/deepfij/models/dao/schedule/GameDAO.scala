@@ -10,7 +10,7 @@ trait GameDAO {
 
   def listGames: Future[List[Game]]
 
-  def deleteGames(ids: List[Long])
+  def deleteGames(ids: List[Long]):Future[Unit]
 
   def upsertGame(game: Game): Future[Long]
 

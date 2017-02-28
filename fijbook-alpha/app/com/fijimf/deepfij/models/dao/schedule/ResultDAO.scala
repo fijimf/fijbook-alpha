@@ -8,7 +8,7 @@ trait ResultDAO {
 
   def listResults: Future[List[Result]]
 
-  def deleteResults(ids: List[Long])
+  def deleteResults(ids: List[Long]): Future[Unit]
 
   def upsertResult(result: Result): Future[Long]
 }
