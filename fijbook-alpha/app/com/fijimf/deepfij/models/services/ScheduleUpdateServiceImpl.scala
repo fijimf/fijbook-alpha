@@ -106,7 +106,11 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
         }
       }
     })
-    dao.deleteResults(remainingResults.values.map(_.id).toList).flatMap(_ => dao.deleteGames(remainingGames.values.map(_.id).toList))
+    val resultsToDelete = remainingResults.values.map(_.id).toList
+    val gamesToDelete = remainingGames.values.map(_.id).toList
+    dao.deleteResultsByGameId(resultsToDelete).flatMap(_ => {
+      dao.deleteGames(gamesToDelete)
+    })
   }
 
   private def handleMappedGameAndResult(gIdMap: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game, r: Result) = {

@@ -159,5 +159,24 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
+  def deleteResultsByGameId(gameIds: List[Long]):Future[Unit] = {
+    if (gameIds.nonEmpty) {
+      val deletes: List[DBIOAction[_, NoStream, Write]] = gameIds.map(id => repo.results.filter(_.id === id).delete)
+
+      val action = DBIO.seq(deletes: _*).transactionally
+      val future: Future[Unit] = db.run(action)
+      future.onComplete((t: Try[Unit]) => {
+        t match {
+          case Success(_) => log.info(s"Deleted ${gameIds.size} results")
+          case Failure(ex) => log.error(s"Deleting results failed with error: ${ex.getMessage}", ex)
+        }
+      })
+      future
+    } else {
+      log.info("Delete results called with empty list")
+      Future.successful(Unit)
+    }
+  }
+
 
 }

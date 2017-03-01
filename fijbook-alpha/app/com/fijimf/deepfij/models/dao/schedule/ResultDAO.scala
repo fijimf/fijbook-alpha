@@ -10,5 +10,7 @@ trait ResultDAO {
 
   def deleteResults(ids: List[Long]): Future[Unit]
 
+  def deleteResultsByGameId(gameIds: List[Long]): Future[Unit]
+
   def upsertResult(result: Result): Future[Long]
 }
