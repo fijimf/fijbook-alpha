@@ -20,6 +20,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
     with GameDAOImpl
+    with ResultDAOImpl
     with QuoteDAOImpl
     with SeasonDAOImpl
     with ConferenceDAOImpl
@@ -41,7 +42,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   )
 
 
-  override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
 
   override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
 
@@ -91,35 +91,12 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     ) yield id)
 
     response.onComplete {
-      case Success(id) => log.info("Saved game " + id.getOrElse(game.id))
+      case Success(id) => log.trace("Saved game " + id.getOrElse(game.id))
       case Failure(ex) => log.error("Failed upserting game ", ex)
     }
     response.map(_.getOrElse(0L))
   }
 
-  final def runWithRetry[R](a: DBIOAction[R, NoStream, Nothing], n: Int): Future[R] =
-    db.run(a).recoverWith {
-      case ex: MySQLTransactionRollbackException => {
-        if (n == 0) {
-          Future.failed(ex)
-        } else {
-          log.info(s"Caught MySQLTransactionRollbackException.  Retrying ($n)")
-          runWithRetry(a, n - 1)
-        }
-      }
-    }
-
-  override def upsertResult(result: Result): Future[Long] = {
-    val action = for (
-      id <- (repo.results returning repo.results.map(_.id)).insertOrUpdate(result)
-    ) yield id
-    val r = runWithRetry(action, 10)
-    r.onComplete {
-      case Success(_) => log.info("Saved result " + result.id + " (" + result.gameId + ")")
-      case Failure(ex) => log.error(s"Failed upserting result ${result.id} --> ${result.gameId}", ex)
-    }
-    r.map(_.getOrElse(0L))
-  }
 
   def deleteGames(ids: List[Long]):Future[Unit] = {
     if (ids.nonEmpty) {
@@ -140,43 +117,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
-  def deleteResults(ids: List[Long]):Future[Unit] = {
-    if (ids.nonEmpty) {
-      val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.results.filter(_.id === id).delete)
-
-      val action = DBIO.seq(deletes: _*).transactionally
-      val future: Future[Unit] = db.run(action)
-      future.onComplete((t: Try[Unit]) => {
-        t match {
-          case Success(_) => log.info(s"Deleted ${ids.size} results")
-          case Failure(ex) => log.error(s"Deleting results failed with error: ${ex.getMessage}", ex)
-        }
-      })
-      future
-    } else {
-      log.info("Delete results called with empty list")
-      Future.successful(Unit)
-    }
-  }
-
-  def deleteResultsByGameId(gameIds: List[Long]):Future[Unit] = {
-    if (gameIds.nonEmpty) {
-      val deletes: List[DBIOAction[_, NoStream, Write]] = gameIds.map(id => repo.results.filter(_.id === id).delete)
-
-      val action = DBIO.seq(deletes: _*).transactionally
-      val future: Future[Unit] = db.run(action)
-      future.onComplete((t: Try[Unit]) => {
-        t match {
-          case Success(_) => log.info(s"Deleted ${gameIds.size} results")
-          case Failure(ex) => log.error(s"Deleting results failed with error: ${ex.getMessage}", ex)
-        }
-      })
-      future
-    } else {
-      log.info("Delete results called with empty list")
-      Future.successful(Unit)
-    }
-  }
 
 
 }

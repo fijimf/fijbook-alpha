@@ -8,7 +8,6 @@ trait ResultDAO {
 
   def listResults: Future[List[Result]]
 
-  def deleteResults(ids: List[Long]): Future[Unit]
 
   def deleteResultsByGameId(gameIds: List[Long]): Future[Unit]
 
