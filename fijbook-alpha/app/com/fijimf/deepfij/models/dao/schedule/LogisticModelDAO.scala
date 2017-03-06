@@ -1,19 +1,25 @@
 package com.fijimf.deepfij.models.dao.schedule
 
+import java.time.LocalDate
+
 import com.fijimf.deepfij.models._
 
 import scala.concurrent.Future
 
 trait LogisticModelDAO {
 
-  def listLogisticModel: Future[List[LogisticModelParameter]]
+  def listLogisticModelParameters: Future[List[LogisticModelParameter]]
 
-  def deleteLogisticModels(): Future[Int]
+  def saveLogisticModelParameter(lm: LogisticModelParameter): Future[Int]
 
-  def saveLogisticModel(lm: LogisticModelParameter): Future[Int]
+  def findLogisticModel(model: String): Future[Map[LocalDate, List[LogisticModelParameter]]]
 
-  def findLogisticModelById(id: Long): Future[Option[Alias]]
+  def findLogisticModelDate(model: String, asOf: LocalDate): Future[List[LogisticModelParameter]]
 
-  def deleteLogisticModel(id: Long): Future[Int]
+  def findLatestLogisticModel(model: String): Future[List[LogisticModelParameter]]
+
+  def deleteLogisticModel(model: String): Future[List[Int]]
+
+  def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[List[Int]]
 
 }

@@ -17,12 +17,34 @@ trait LogisticModelDAOImpl extends LogisticModelDAO with DAOSlick {
 
   val repo: ScheduleRepository
 
+  import scala.concurrent.ExecutionContext.Implicits.global
   import dbConfig.driver.api._
 
   implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime]
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
-  override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
+  override def listLogisticModelParameters: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
 
+  override def saveLogisticModelParameter(lm: LogisticModelParameter): Future[Int] = ???
+
+  override def findLogisticModel(model: String): Future[Map[LocalDate, List[LogisticModelParameter]]] = db.run(repo.logisticModels.filter(lm => lm.modelName === model).to[List].result).map(_.groupBy(_.fittedAsOf))
+
+  override def findLogisticModelDate(model: String, asOf: LocalDate): Future[List[LogisticModelParameter]] = findLogisticModel(model).map(_.getOrElse(asOf,List.empty[LogisticModelParameter]))
+
+  override def findLatestLogisticModel(model: String): Future[List[LogisticModelParameter]] = {
+    findLogisticModel(model).map(f=> {
+      if (f.isEmpty) {
+        List.empty[LogisticModelParameter]
+      } else {
+        val k = f.keys.maxBy(_.toEpochDay)
+        f(k)
+      }
+    })
+  }
+
+
+  override def deleteLogisticModel(model: String): Future[List[Int]] = ???
+
+  override def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[List[Int]] = ???
 }

@@ -30,7 +30,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
 
   "LogisticModels " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listLogisticModel, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listLogisticModelParameters, Duration.Inf).isEmpty)
     }
   }
 

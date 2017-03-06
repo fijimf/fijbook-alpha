@@ -10,14 +10,6 @@ trait StatValueDAO {
 
   def listStatValues: Future[List[StatValue]]
 
-  def listLogisticModel: Future[List[LogisticModelParameter]]
-
-  def listGamePrediction: Future[List[GamePrediction]]
-
-  def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
-
-  def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]]
-
   def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Unit]
 
   def saveStatValues(batchSize: Int, dates: List[LocalDate], model: List[String], stats: List[StatValue]): Future[Any]
