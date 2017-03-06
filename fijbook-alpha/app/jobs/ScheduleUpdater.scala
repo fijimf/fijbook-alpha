@@ -19,13 +19,17 @@ class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
 
 object ScheduleUpdater {
 
-  case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
+  case class Update(dates: Option[List[Int]] = None, sendEmail:Boolean=false)
 
   def forAll = Update()
 
-  def forNow = Update(Some((-1).to(1).map(n => LocalDate.now().plusDays(n)).toList))
+  def forNow() = {
+    Update(Some((-1).to(1).toList))
+  }
 
-  def forDailyUpdate = Update(Some((-7).to(7).map(n => LocalDate.now().plusDays(n)).toList), sendEmail = true)
+  def forDailyUpdate() = {
+    Update(Some((-7).to(7).toList), sendEmail = true)
+  }
 
 }
 

@@ -29,13 +29,14 @@ class GameScrapeController @Inject()(val scheduleDao: ScheduleDAO, scheduleUpdat
   }}
 
   def scrapeToday() = silhouette.SecuredAction.async { implicit rs => {
-    scheduleUpdateService.update(Some(List(LocalDate.now())), false)
+    scheduleUpdateService.update(Some(List(0)), false)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Scraping today "))
   }}
 
+  //TODO test me
   def scrapeForDay(yyyymmdd:String) = silhouette.SecuredAction.async { implicit rs => {
     val d = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
-    scheduleUpdateService.update(Some(List(d)), false)
+    scheduleUpdateService.update(Some(List(LocalDate.now().until(d).getDays)), false)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping ${yyyymmdd} "))
   }}
 }

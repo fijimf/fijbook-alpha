@@ -16,8 +16,8 @@ class Scheduler @Inject() (
                             @Named("memory-monitor") memoryMonitor: ActorRef) {
   QuartzSchedulerExtension(system).schedule("AuthTokenCleaner", authTokenCleaner, AuthTokenCleaner.Clean)
   authTokenCleaner ! AuthTokenCleaner.Clean
-  QuartzSchedulerExtension(system).schedule("DailyScheduleUpdater", scheduleUpdater, ScheduleUpdater.forDailyUpdate)
-  QuartzSchedulerExtension(system).schedule("IntradayScheduleUpdater", scheduleUpdater, ScheduleUpdater.forNow)
+  QuartzSchedulerExtension(system).schedule("DailyScheduleUpdater", scheduleUpdater, ScheduleUpdater.forDailyUpdate())
+  QuartzSchedulerExtension(system).schedule("IntradayScheduleUpdater", scheduleUpdater, ScheduleUpdater.forNow())
   QuartzSchedulerExtension(system).schedule("DailyStatsUpdater", statsUpdater, StatsUpdater.Update(Some(7)))
   QuartzSchedulerExtension(system).schedule("DailyPredictionsUpdater", predictionsUpdater, PredictionsUpdater.Update)
   QuartzSchedulerExtension(system).schedule("MemoryWatchdog", memoryMonitor, MemoryMonitor.CheckMemory)

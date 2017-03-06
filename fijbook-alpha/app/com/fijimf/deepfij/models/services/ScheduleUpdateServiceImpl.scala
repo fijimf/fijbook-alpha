@@ -29,7 +29,9 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
-  def update(optDates: Option[List[LocalDate]] = None, mailReport: Boolean = false) {
+  def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false) {
+    val now = LocalDate.now()
+    val optDates = optOffsets.map(_.map(i=>now.plusDays(i)))
     dao.findSeasonByYear(activeYear).map {
       case None =>
         scheduleNotFound(optDates, mailReport)
