@@ -42,13 +42,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   )
 
 
-
-  override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
-
-  override def listGamePrediction: Future[List[GamePrediction]] = db.run(repo.gamePredictions.to[List].result)
-
-  override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
-
   def loadSchedule(s: Season): Future[Schedule] = {
     val fTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
     val fConferences: Future[List[Conference]] = db.run(repo.conferences.to[List].result)
@@ -75,48 +68,5 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   override def loadLatestSchedule(): Future[Option[Schedule]] = {
     loadSchedules().map(_.sortBy(s => -s.season.year).headOption)
   }
-
-  // Aliases
-
-
-
-  override def deleteAlias(id: Long): Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
-
-
-
-  override def upsertGame(game: Game): Future[Long] = {
-
-    val response = db.run(for (
-      id <- (repo.games returning repo.games.map(_.id)).insertOrUpdate(game)
-    ) yield id)
-
-    response.onComplete {
-      case Success(id) => log.trace("Saved game " + id.getOrElse(game.id))
-      case Failure(ex) => log.error("Failed upserting game ", ex)
-    }
-    response.map(_.getOrElse(0L))
-  }
-
-
-  def deleteGames(ids: List[Long]):Future[Unit] = {
-    if (ids.nonEmpty) {
-      val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.games.filter(_.id === id).delete)
-
-      val action = DBIO.seq(deletes: _*).transactionally
-      val future: Future[Unit] = db.run(action)
-      future.onComplete((t: Try[Unit]) => {
-        t match {
-          case Success(_) => log.info(s"Deleted ${ids.size} games")
-          case Failure(ex) => log.error(s"Deleting games failed with error: ${ex.getMessage}", ex)
-        }
-      })
-      future
-    } else {
-      log.info("Delete games called with empty list")
-      Future.successful(Unit)
-    }
-  }
-
-
 
 }

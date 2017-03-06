@@ -5,12 +5,17 @@ import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
+import slick.dbio.Effect.Write
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 
 trait GameDAOImpl extends GameDAO with DAOSlick {
+
+  val log:Logger
 
   val dbConfigProvider: DatabaseConfigProvider
 
@@ -51,4 +56,36 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
   override def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
 
+  override def upsertGame(game: Game): Future[Long] = {
+
+    val response = db.run(for (
+      id <- (repo.games returning repo.games.map(_.id)).insertOrUpdate(game)
+    ) yield id)
+
+    response.onComplete {
+      case Success(id) => log.trace("Saved game " + id.getOrElse(game.id))
+      case Failure(ex) => log.error("Failed upserting game ", ex)
+    }
+    response.map(_.getOrElse(0L))
+  }
+
+
+  def deleteGames(ids: List[Long]):Future[Unit] = {
+    if (ids.nonEmpty) {
+      val deletes: List[DBIOAction[_, NoStream, Write]] = ids.map(id => repo.games.filter(_.id === id).delete)
+
+      val action = DBIO.seq(deletes: _*).transactionally
+      val future: Future[Unit] = db.run(action)
+      future.onComplete((t: Try[Unit]) => {
+        t match {
+          case Success(_) => log.info(s"Deleted ${ids.size} games")
+          case Failure(ex) => log.error(s"Deleting games failed with error: ${ex.getMessage}", ex)
+        }
+      })
+      future
+    } else {
+      log.info("Delete games called with empty list")
+      Future.successful(Unit)
+    }
+  }
 }

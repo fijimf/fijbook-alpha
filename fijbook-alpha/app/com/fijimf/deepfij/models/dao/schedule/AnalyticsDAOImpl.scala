@@ -28,6 +28,10 @@ trait AnalyticsDAOImpl extends AnalyticsDAO with DAOSlick {
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
+
+  //Stat values
+  override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
+
   override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Unit] = {
     val map: List[DBIOAction[Int, NoStream, Write]] =
       for (m <- models; d <- dates) yield {
@@ -37,9 +41,6 @@ trait AnalyticsDAOImpl extends AnalyticsDAO with DAOSlick {
   }
 
   override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Any] = {
-    //    grouped.foreach(d => {
-    //      Await.result(saveStatBatch(d, models, stats.filter(s => d.contains(s.date))), 3 minutes)
-    //    })
     def batchReq(ds:List[LocalDate]) = saveStatBatch(ds, models, stats.filter(s => ds.contains(s.date)))
     val g = dates.grouped(batchSize).toList
     g.tail.foldLeft(batchReq(g.head)){case (future: Future[_], dates: List[LocalDate]) => future.flatMap(_=>batchReq(dates))}
@@ -69,6 +70,15 @@ trait AnalyticsDAOImpl extends AnalyticsDAO with DAOSlick {
   override def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.statKey === statKey).to[List].result)
 
   override def loadStatValues(modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey).to[List].result)
+
+
+  //Logistic model
+  override def listLogisticModel: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
+
+
+  //Game prediction
+
+  override def listGamePrediction: Future[List[GamePrediction]] = db.run(repo.gamePredictions.to[List].result)
 
   override def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]] = {
     Future.sequence(games.map(g => {

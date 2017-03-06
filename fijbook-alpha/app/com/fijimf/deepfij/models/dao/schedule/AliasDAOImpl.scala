@@ -23,4 +23,6 @@ trait AliasDAOImpl extends AliasDAO with DAOSlick {
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 
+  override def deleteAlias(id: Long): Future[Int] = db.run(repo.aliases.filter(_.id === id).delete)
+
 }
