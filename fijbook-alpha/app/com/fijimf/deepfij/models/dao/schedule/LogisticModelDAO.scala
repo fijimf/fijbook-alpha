@@ -10,7 +10,7 @@ trait LogisticModelDAO {
 
   def listLogisticModelParameters: Future[List[LogisticModelParameter]]
 
-  def saveLogisticModelParameter(lm: LogisticModelParameter): Future[Int]
+  def saveLogisticModelParameter(lm: LogisticModelParameter): Future[LogisticModelParameter]
 
   def findLogisticModel(model: String): Future[Map[LocalDate, List[LogisticModelParameter]]]
 
@@ -18,8 +18,8 @@ trait LogisticModelDAO {
 
   def findLatestLogisticModel(model: String): Future[List[LogisticModelParameter]]
 
-  def deleteLogisticModel(model: String): Future[List[Int]]
+  def deleteLogisticModel(model: String): Future[Int]
 
-  def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[List[Int]]
+  def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[Int]
 
 }

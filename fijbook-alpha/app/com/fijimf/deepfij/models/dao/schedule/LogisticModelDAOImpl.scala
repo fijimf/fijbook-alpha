@@ -26,7 +26,12 @@ trait LogisticModelDAOImpl extends LogisticModelDAO with DAOSlick {
 
   override def listLogisticModelParameters: Future[List[LogisticModelParameter]] = db.run(repo.logisticModels.to[List].result)
 
-  override def saveLogisticModelParameter(lm: LogisticModelParameter): Future[Int] = ???
+  override def saveLogisticModelParameter(lm: LogisticModelParameter): Future[LogisticModelParameter] = db.run(
+    (repo.logisticModels returning repo.logisticModels.map(_.id)).insertOrUpdate(lm)
+      .flatMap(i => {
+        repo.logisticModels.filter(ss => ss.id === i.getOrElse(lm.id)).result.head
+      })
+  )
 
   override def findLogisticModel(model: String): Future[Map[LocalDate, List[LogisticModelParameter]]] = db.run(repo.logisticModels.filter(lm => lm.modelName === model).to[List].result).map(_.groupBy(_.fittedAsOf))
 
@@ -44,7 +49,7 @@ trait LogisticModelDAOImpl extends LogisticModelDAO with DAOSlick {
   }
 
 
-  override def deleteLogisticModel(model: String): Future[List[Int]] = ???
+  override def deleteLogisticModel(model: String): Future[Int] = db.run(repo.logisticModels.filter(_.modelName === model).delete)
 
-  override def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[List[Int]] = ???
+  override def deleteLogisticModelDate(model: String, asOf: LocalDate): Future[Int] = db.run(repo.logisticModels.filter(lm => lm.modelName === model && lm.fittedAsOf === asOf).delete)
 }
