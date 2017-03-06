@@ -6,15 +6,11 @@ import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import slick.dbio.Effect.Write
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)
   extends ScheduleDAO with DAOSlick
@@ -24,10 +20,12 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with QuoteDAOImpl
     with SeasonDAOImpl
     with ConferenceDAOImpl
+    with ConferenceMapDAOImpl
     with AliasDAOImpl
-    with AnalyticsDAOImpl
+    with StatValueDAOImpl
+    with GamePredictionDAOImpl
+    with LogisticModelDAOImpl
     with UserProfileDAOImpl {
-  //val log = Logger(getClass)
 
   import dbConfig.driver.api._
 
@@ -41,6 +39,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
 
+  val log = Logger(this.getClass)
 
   def loadSchedule(s: Season): Future[Schedule] = {
     val fTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)

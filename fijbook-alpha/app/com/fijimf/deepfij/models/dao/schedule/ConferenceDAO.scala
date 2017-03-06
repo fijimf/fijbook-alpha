@@ -1,14 +1,10 @@
 package com.fijimf.deepfij.models.dao.schedule
 
-import com.fijimf.deepfij.models.{Conference, ConferenceMap}
+import com.fijimf.deepfij.models.Conference
 
 import scala.concurrent.Future
 
 trait ConferenceDAO {
-
-  def listConferenceMaps: Future[List[ConferenceMap]]
-
-  def saveConferenceMap(cm: ConferenceMap): Future[Int]
 
   def findConferenceById(id: Long): Future[Option[Conference]]
 
