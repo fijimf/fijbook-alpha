@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-case class NaiveLinearRegressionPredictor(dao:ScheduleDAO) extends SchedulePredictor {
+case class LinearRegressionPredictor(dao:ScheduleDAO) extends SchedulePredictor {
 
   override val key = "naive-regression"
 

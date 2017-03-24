@@ -97,7 +97,11 @@ case class Quote(id: Long, quote: String, source: Option[String], url: Option[St
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double)
+case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double){
+  require(!modelKey.contains(":") && !modelKey.contains(" "), "Model key cannot contain ':' or ' '")
+  require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
+}
+
 
 object StatUtil {
   def transformSnapshot(svs: List[StatValue], map: (StatValue) => Team, higherIsBetter: Boolean): List[(Int, StatValue, Team)] = {
@@ -111,7 +115,7 @@ object StatUtil {
   }
 }
 
-case class LogisticModelParameter(id: Long, modelName: String, parameterName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
+case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 

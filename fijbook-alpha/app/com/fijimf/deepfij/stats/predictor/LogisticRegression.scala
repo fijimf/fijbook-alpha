@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.stats.predictor
 
+import com.fijimf.deepfij.models.{Game, Result}
 import org.apache.mahout.classifier.sgd.{L1, OnlineLogisticRegression}
 import org.apache.mahout.math.{Matrix, Vector}
 import play.api.Logger
@@ -11,6 +12,13 @@ trait FeatureMapper[T] {
   def featureName(i: Int): String
 
   def feature(t: T): Option[Vector]
+
+  def featureMap(t: T): Option[Map[String, Double]] = {
+    feature(t).map(v=>{
+      0.until(v.size).map(n=>featureName(n)->v.get(n)).toMap
+    })
+  }
+
 }
 
 trait Categorizer[T] {
