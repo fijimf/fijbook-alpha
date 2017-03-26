@@ -12,18 +12,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 
-class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
+class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  with RebuildDatabaseMixin with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[ScheduleRepository]
   val dao = Injector.inject[ScheduleDAO]
-
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), Duration.Inf)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), Duration.Inf)
-  }
 
   "Seasons " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
