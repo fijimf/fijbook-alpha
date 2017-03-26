@@ -9,3 +9,5 @@ addSbtPlugin("com.jamesward" %% "play-auto-refresh" % "0.0.14")
 
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "1.2.1")
 
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+
