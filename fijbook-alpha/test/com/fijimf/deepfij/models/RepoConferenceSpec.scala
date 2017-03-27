@@ -9,7 +9,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
-
+import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
@@ -20,7 +20,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
   "Conferences " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listConferences, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listConferences, 10 seconds).isEmpty)
     }
 
   }

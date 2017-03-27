@@ -12,7 +12,7 @@ import testhelpers.Injector
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-
+import scala.concurrent.duration._
 
 class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
@@ -20,7 +20,7 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
 
   "Results " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listResults, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listResults, 10 seconds).isEmpty)
     }
 
 
