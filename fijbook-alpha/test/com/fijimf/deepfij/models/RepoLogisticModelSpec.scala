@@ -10,7 +10,7 @@ import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
 
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
