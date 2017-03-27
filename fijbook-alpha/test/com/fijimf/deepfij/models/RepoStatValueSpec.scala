@@ -11,7 +11,6 @@ import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 
 class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {

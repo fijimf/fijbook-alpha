@@ -9,7 +9,6 @@ import play.api.test.{FakeApplication, WithApplication}
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 
 class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {

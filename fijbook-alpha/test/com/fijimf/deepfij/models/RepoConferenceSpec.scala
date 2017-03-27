@@ -1,7 +1,5 @@
 package com.fijimf.deepfij.models
 
-import java.time.LocalDateTime
-
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
@@ -9,9 +7,9 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
+
+import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
 
 
 class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
