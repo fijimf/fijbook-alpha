@@ -10,82 +10,73 @@ import testhelpers.Injector
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
-
-class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
+class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  with RebuildDatabaseMixin with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[ScheduleRepository]
   val dao = Injector.inject[ScheduleDAO]
-
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), Duration.Inf)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), Duration.Inf)
-  }
 
   "Seasons " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listSeasons, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listSeasons, 10 seconds).isEmpty)
     }
 
     "be able to be saved" in new WithApplication(FakeApplication()) {
       val s = Season(0L, 2017, "", None)
-      val ss = Await.result(dao.saveSeason(s), Duration.Inf)
-      assert(Await.result(dao.listSeasons, Duration.Inf).size == 1)
+      val ss = Await.result(dao.saveSeason(s), 10 seconds)
+      assert(Await.result(dao.listSeasons, 10 seconds).size == 1)
     }
 
     "not be able to save the same year" in new WithApplication(FakeApplication()) {
       val s = Season(0L, 2017, "", None)
-      val ss = Await.result(dao.saveSeason(s), Duration.Inf)
+      val ss = Await.result(dao.saveSeason(s), 10 seconds)
       val t = Season(0L, 2017, "", None)
       try {
-        Await.result(dao.saveSeason(t), Duration.Inf)
+        Await.result(dao.saveSeason(t), 10 seconds)
         fail
       } catch {
-        case _: Throwable => assert(Await.result(dao.listSeasons, Duration.Inf).size == 1)
+        case _: Throwable => assert(Await.result(dao.listSeasons, 10 seconds).size == 1)
       }
     }
     "find a season by id" in new WithApplication(FakeApplication()) {
-      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), Duration.Inf)
-      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), Duration.Inf)
-      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), Duration.Inf)
-      val m =Await.result(dao.findSeasonById(k.id), Duration.Inf)
+      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), 10 seconds)
+      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), 10 seconds)
+      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), 10 seconds)
+      val m =Await.result(dao.findSeasonById(k.id), 10 seconds)
       assert(m.isDefined)
       assert(m.get.id == k.id)
       assert(m.get.year == 2017)
 
-      assert(Await.result(dao.findSeasonById(-999), Duration.Inf).isEmpty)
+      assert(Await.result(dao.findSeasonById(-999), 10 seconds).isEmpty)
     }
 
     "find a season by year" in new WithApplication(FakeApplication()) {
-      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), Duration.Inf)
-      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), Duration.Inf)
-      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), Duration.Inf)
-      val m =Await.result(dao.findSeasonByYear(2017), Duration.Inf)
+      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), 10 seconds)
+      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), 10 seconds)
+      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), 10 seconds)
+      val m =Await.result(dao.findSeasonByYear(2017), 10 seconds)
       assert(m.isDefined)
       assert(m.get.id == k.id)
       assert(m.get.year == 2017)
 
-      assert(Await.result(dao.findSeasonByYear(2025), Duration.Inf).isEmpty)
+      assert(Await.result(dao.findSeasonByYear(2025), 10 seconds).isEmpty)
     }
 
     "delete a season" in new WithApplication(FakeApplication()) {
-      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), Duration.Inf)
-      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), Duration.Inf)
-      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), Duration.Inf)
-      assert(Await.result(dao.listSeasons, Duration.Inf).size == 3)
+      Await.result(dao.saveSeason(Season(0L, 2016, "", None)), 10 seconds)
+      val k = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), 10 seconds)
+      Await.result(dao.saveSeason(Season(0L, 2018, "", None)), 10 seconds)
+      assert(Await.result(dao.listSeasons, 10 seconds).size == 3)
 
-      assert(Await.result(dao.deleteSeason(k.id), Duration.Inf)==1)
+      assert(Await.result(dao.deleteSeason(k.id), 10 seconds)==1)
 
-      assert(Await.result(dao.listSeasons, Duration.Inf).size == 2)
+      assert(Await.result(dao.listSeasons, 10 seconds).size == 2)
 
     }
 
    "lock a season for editing" in new WithApplication(FakeApplication()) {
       val s = Season(0L, 2017, "", None)
-      val ss = Await.result(dao.saveSeason(s), Duration.Inf)
+      val ss = Await.result(dao.saveSeason(s), 10 seconds)
 
      assert(dao.checkAndSetLock(ss.id))
      assert(!dao.checkAndSetLock(ss.id))
@@ -93,10 +84,10 @@ class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
 
    "unlock a season for editing" in new WithApplication(FakeApplication()) {
      val s = Season(0L, 2017, "", None)
-     val ss = Await.result(dao.saveSeason(s), Duration.Inf)
+     val ss = Await.result(dao.saveSeason(s), 10 seconds)
 
      assert(dao.checkAndSetLock(ss.id))
-     assert(Await.result(dao.unlockSeason(ss.id),Duration.Inf)>0)
+     assert(Await.result(dao.unlockSeason(ss.id),10 seconds)>0)
      assert(dao.checkAndSetLock(ss.id))
     }
 

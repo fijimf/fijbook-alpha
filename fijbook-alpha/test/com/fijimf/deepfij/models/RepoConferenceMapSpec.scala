@@ -9,28 +9,18 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
-
+import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 
-class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
+class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[ScheduleRepository]
   val dao = Injector.inject[ScheduleDAO]
-
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), Duration.Inf)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), Duration.Inf)
-  }
-
 
   "ConferenceMaps " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listConferenceMaps, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listConferenceMaps, 10 seconds).isEmpty)
     }
 
   }
