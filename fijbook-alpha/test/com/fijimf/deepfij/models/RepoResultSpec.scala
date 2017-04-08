@@ -1,7 +1,5 @@
 package com.fijimf.deepfij.models
 
-import java.time.LocalDateTime
-
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
@@ -10,27 +8,16 @@ import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
-
-class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
+class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[ScheduleRepository]
   val dao = Injector.inject[ScheduleDAO]
-
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), Duration.Inf)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), Duration.Inf)
-  }
-
 
   "Results " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listResults, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listResults, 10 seconds).isEmpty)
     }
 
 

@@ -11,24 +11,16 @@ import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
-class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with ScalaFutures {
+class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  with RebuildDatabaseMixin with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
-  val repo = Injector.inject[ScheduleRepository]
   val dao = Injector.inject[ScheduleDAO]
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), Duration.Inf)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), Duration.Inf)
-  }
 
   /*
 
@@ -40,11 +32,11 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
    */
   "GamePredictions " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
     }
 
     "can save a game prediction" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
 
       private val predictions = List(GamePrediction(0L, 123L, "My Model", Some(123L), Some(0.75), None, None))
       Await.result(dao.saveGamePredictions(predictions).andThen {
@@ -55,7 +47,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       }, 30.seconds)
     }
     "can save multiple a game predictions" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
 
       private val predictions = List(
         GamePrediction(0L, 123L, "My Model", Some(3), Some(0.75), None, None),
@@ -80,7 +72,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       }, 30.seconds)
     }
     "can load game predictions for a model" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
 
       private val predictions = List(
         GamePrediction(0L, 123L, "My Model", Some(3), Some(0.75), None, None),
