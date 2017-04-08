@@ -146,7 +146,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       },
       data => {
         val q = Alias(data.id, data.alias, data.key)
-        val future: Future[Int] = teamDao.saveAlias(q)
+        val future: Future[Alias] = teamDao.saveAlias(q)
         future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias + " to " + data.key)))
       }
     )

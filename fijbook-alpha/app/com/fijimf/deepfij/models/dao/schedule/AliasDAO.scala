@@ -8,7 +8,7 @@ trait AliasDAO {
 
   def deleteAliases(): Future[Int]
 
-  def saveAlias(a: Alias): Future[Int]
+  def saveAlias(a: Alias): Future[Alias]
 
   def findAliasById(id: Long): Future[Option[Alias]]
 

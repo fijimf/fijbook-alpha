@@ -18,7 +18,7 @@ class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
 
   "ConferenceMaps " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listConferenceMaps, 10 seconds).isEmpty)
+      assert(Await.result(dao.listConferenceMaps, testDbTimeout).isEmpty)
     }
 
   }

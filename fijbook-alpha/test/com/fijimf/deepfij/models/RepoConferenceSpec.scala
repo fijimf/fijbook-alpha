@@ -18,7 +18,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
   "Conferences " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listConferences, 10 seconds).isEmpty)
+      assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
     }
 
   }

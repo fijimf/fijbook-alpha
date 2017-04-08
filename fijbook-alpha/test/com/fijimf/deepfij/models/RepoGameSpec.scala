@@ -19,7 +19,7 @@ class RepoGameSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  
 
   "Games " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGames, 10 seconds).isEmpty)
+      assert(Await.result(dao.listGames, testDbTimeout).isEmpty)
     }
   }
 

@@ -32,11 +32,11 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
    */
   "GamePredictions " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
+      assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
     }
 
     "can save a game prediction" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
+      assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(GamePrediction(0L, 123L, "My Model", Some(123L), Some(0.75), None, None))
       Await.result(dao.saveGamePredictions(predictions).andThen {
@@ -47,7 +47,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       }, 30.seconds)
     }
     "can save multiple a game predictions" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
+      assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(
         GamePrediction(0L, 123L, "My Model", Some(3), Some(0.75), None, None),
@@ -72,7 +72,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       }, 30.seconds)
     }
     "can load game predictions for a model" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGamePrediction, 10 seconds).isEmpty)
+      assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(
         GamePrediction(0L, 123L, "My Model", Some(3), Some(0.75), None, None),

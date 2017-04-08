@@ -18,22 +18,55 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
   "Aliases " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listAliases, 10 seconds).isEmpty)
+      assert(Await.result(dao.listAliases, testDbTimeout).isEmpty)
     }
 
     "allow an alias to be saved"in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.saveAlias(Alias(0L,"W. Virginia", "West Virginia")),10 seconds)>0)
+      private val toBeSaved = Alias(0L, "W. Virginia", "West Virginia")
+      private val id = Await.result(dao.saveAlias(toBeSaved), testDbTimeout).id
+      assert(id>0)
+      private val aliases = Await.result(dao.listAliases, testDbTimeout)
+      assert(aliases.size==1)
+      assert(aliases(0)==toBeSaved.copy(id=id))
     }
 
-//    def deleteAliases(): Future[Int]
-//
-//    def saveAlias(a: Alias): Future[Int]
-//
-//    def findAliasById(id: Long): Future[Option[Alias]]
-//
-//    def listAliases: Future[List[Alias]]
-//
-//    def deleteAlias(id: Long): Future[Int]
+    "allow an alias to be deleted" in new WithApplication(FakeApplication()) {
+      private val idToDelete = Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout).id
+      assert(idToDelete>0)
+      private val before = Await.result(dao.listAliases, testDbTimeout)
+      assert(before.size==1)
+      Await.ready(dao.deleteAlias(idToDelete), testDbTimeout)
+      private val after = Await.result(dao.listAliases, testDbTimeout)
+      assert(after.isEmpty)
+
+    }
+
+    "find an alias by id "in new WithApplication(FakeApplication()){
+      Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout)
+      val armyId=Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout).id
+      Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)
+      private val before = Await.result(dao.listAliases, testDbTimeout)
+      assert(before.size==3)
+      Await.result(dao.findAliasById(armyId), testDbTimeout).map(_.id) match {
+        case Some(al)=>assert(al==armyId)
+        case None=> fail()
+      }
+
+
+    }
+
+    "delete all aliases "in new WithApplication(FakeApplication()){
+     Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout)
+     Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout)
+     Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)
+      private val before = Await.result(dao.listAliases, testDbTimeout)
+      assert(before.size==3)
+      Await.ready(dao.deleteAliases(), testDbTimeout)
+      private val after = Await.result(dao.listAliases, testDbTimeout)
+      assert(after.isEmpty)
+
+    }
+
   }
 
 
