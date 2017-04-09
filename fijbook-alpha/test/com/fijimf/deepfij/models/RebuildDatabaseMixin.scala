@@ -11,7 +11,7 @@ trait RebuildDatabaseMixin {
   self: BeforeAndAfterEach =>
   val repo = Injector.inject[ScheduleRepository]
 
-  val testDbTimeout = 10.seconds
+  val testDbTimeout = 20.seconds
 
   override def beforeEach() = {
     Await.result(repo.createSchema(), Duration.Inf)
