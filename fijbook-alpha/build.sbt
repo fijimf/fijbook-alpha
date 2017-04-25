@@ -52,8 +52,8 @@ libraryDependencies ++= Seq(
 //  "io.kamon" %% "kamon-scala" % "0.6.3",
 //  "io.kamon" %% "kamon-play-25" % "0.6.3",
 //  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
-  "org.aspectj" % "aspectjweaver" % "1.8.9"
-
+  "org.aspectj" % "aspectjweaver" % "1.8.9",
+    "com.amazonaws"%"aws-java-sdk"%"1.11.106"
 )
 
 

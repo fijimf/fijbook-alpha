@@ -102,3 +102,8 @@ POST        /deepfij/password/change                            controllers.Chan
 GET         /deepfij/account/email/:email                       controllers.ActivateAccountController.send(email: String)
 GET         /deepfij/account/activate/:token                    controllers.ActivateAccountController.activate(token: java.util.UUID)
 
+GET         /deepfij/blog/list                                  controllers.BlogController.list
+GET         /deepfij/blog/create                                controllers.BlogController.create
+GET         /deepfij/blog/edit/:id                              controllers.BlogController.edit(id:String)
+POST        /deepfij/blog/save                                  controllers.BlogController.save
+GET         /deepfij/blog/delete/:id                            controllers.BlogController.delete(id:String)
