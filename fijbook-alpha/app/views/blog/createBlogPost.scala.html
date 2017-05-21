@@ -1,0 +1,25 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@import helper._
+
+@(user:User)(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+@main(
+    "deepfij",
+    "Create",
+    "",
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Aliases","fa-eyeball","browseAliases").appendChild("create","fa-edit","createAlias")),
+    StandardNavBar.active("admin",Some(user)), Some(user)
+) {
+    <div class="row">
+        <div class="col-sm-8">
+            @b3.form(routes.BlogController.save()) {
+                @CSRF.formField
+            }
+        </div>
+    </div>
+}

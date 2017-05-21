@@ -47,6 +47,9 @@ libraryDependencies ++= Seq(
   "org.apache.mahout" % "mahout-math" % "0.12.2",
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
+  "io.circe" %% "circe-core" % "0.7.0",
+  "io.circe" %% "circe-generic" % "0.7.0",
+  "io.circe" %% "circe-parser" % "0.7.0",
 
 //  "io.kamon" %% "kamon-core" % "0.6.3",
 //  "io.kamon" %% "kamon-scala" % "0.6.3",

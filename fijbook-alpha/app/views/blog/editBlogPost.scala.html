@@ -1,0 +1,29 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.StandardNavBar
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@import helper._
+
+@(user:User, blogPostForm: Form[forms.EditBlogPostForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+@main(
+    "deepfij",
+    "Editing Alias",
+    "",
+    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Aliases","fa-eyeball","browseAliases").appendChild("create","fa-edit","createAlias")),
+    StandardNavBar.active("admin",Some(user)), Some(user)
+) {
+    <div class="row">
+        <div class="col-sm-8">
+            @b3.form(routes.BlogController.save()) {
+                @CSRF.formField
+                @b3.hidden( "id", blogPostForm("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( blogPostForm("title"), '_label -> "Title" )
+                @b3.text( blogPostForm("subtitle"), '_label -> "Subtitle" )
+                @b3.submit('class -> "btn btn-default"){ Submit }
+            }
+        </div>
+    </div>
+}

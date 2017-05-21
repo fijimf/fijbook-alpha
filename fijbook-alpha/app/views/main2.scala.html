@@ -1,0 +1,61 @@
+@import controllers.nav.DeepFijPageMetaData
+@import controllers.nav.PageIcon
+@import controllers.nav.DateBook
+
+@(meta:DeepFijPageMetaData)(content: Html)(implicit flash: Flash)
+<!DOCTYPE html>
+<html lang="en">
+    @head_boilerplate(meta.title)
+
+    <body>
+        <div id="wrapper">
+            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                @top_nav(meta.user)
+                @left_nav(meta.navBar)
+            </nav>
+
+            <div id="page-wrapper">
+                <div class="container-fluid">
+                        <!-- Page Heading -->
+                    <div class="row">
+                        @{ meta.pageIcon match {
+                            case PageIcon(imgSrc) => spin_img(imgSrc)
+                            case DateBook(date) => datebook_img(date)
+                        }}
+                        <div class="col-lg-11">
+                            <h3 class="page-header" style="margin-top:15px; border-bottom: 3px solid @meta.lineColor;">
+                                @meta.heading
+                            <small>@meta.subHeading</small>
+                            </h3>
+                        </div>
+                    </div>
+                    @breadcrumb_nav(meta.breadcrumbs)
+                    @flash_message(flash)
+                    <div class="row">
+                        @content
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            @if(meta.quoteKey.isEmpty) {
+                $.getJSON( "@routes.QuoteController.random()", function( data ) {
+                    $("#quote-em").text(data.quote);
+                    $("#quote-a").attr("title", data.source);
+                    if (data.url.length>0){
+                        $("#quote-a").attr("href",data.url).attr("target","_blank");
+                    }
+                });
+            } else {
+                $.getJSON( "@routes.QuoteController.keyed(meta.quoteKey.get)", function( data ) {
+                    $("#quote-em").text(data.quote);
+                    $("#quote-a").attr("title", data.source);
+                    if (data.url.length>0){
+                        $("#quote-a").attr("href",data.url).attr("target","_blank");
+                    }
+                });
+            }
+        </script>
+    </body>
+
+</html>

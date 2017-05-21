@@ -1,8 +1,9 @@
 @import com.fijimf.deepfij.models.{Schedule,User,Game}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
-@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], yesterdayGames:List[Game], todayGames:List[Game])(implicit flash: Flash)
-@main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
+@import controllers.nav.DeepFijPageMetaData
+@(meta:DeepFijPageMetaData, currOpt:Option[Schedule], yesterdayGames:List[Game], todayGames:List[Game])(implicit flash: Flash)
+@main2(meta) {
     <div class="row">
         <div class="col-sm-8 col-sm-offset-2">
             <div class="jumbotron jumbofridge" style="border-radius:35px;">
