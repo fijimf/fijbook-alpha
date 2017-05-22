@@ -1,13 +1,7 @@
-@import com.fijimf.deepfij.models.{Alias, User}
-@import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: User, as: List[Alias])(implicit flash: Flash)
-@main(
-    "deepfij",
-    "Browse Aliases",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench").appendChild("Browse Quotes", "fa-wrench", "browseQuotes")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
-) {
+@import com.fijimf.deepfij.models.Alias
+@import controllers.nav.DeepFijPageMetaData
+@(meta:DeepFijPageMetaData, as: List[Alias])(implicit flash: Flash)
+@main2(meta) {
     <div class="row">
         <div class="col-sm-3">
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>

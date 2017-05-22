@@ -6,6 +6,7 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.nav.{Breadcrumbs, DeepFijPageMetaData, StandardNavBar}
 import forms._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -84,8 +85,8 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         val s = Season(data.id, data.year, data.lock, data.lockBefore)
         val future: Future[Season] = teamDao.saveSeason(s)
         future.onComplete {
-          case Success(ss) => logger.info("Saved season: "+ss)
-          case Failure(thr) => logger.error("Failed to save season: "+s, thr)
+          case Success(ss) => logger.info("Saved season: " + ss)
+          case Failure(thr) => logger.error("Failed to save season: " + s, thr)
         }
         future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
       }
@@ -124,25 +125,34 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           case Success(q) => logger.info(s"Saved quote: '${q.quote}' (${q.id})")
           case Failure(thr) => logger.error(s"Failed saving quote $q", thr)
         }
-        val flashMsg = if (q.id==0) "Created quote "+q.id else "Updated quote"+q.id
+        val flashMsg = if (q.id == 0) "Created quote " + q.id else "Updated quote" + q.id
         future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
   }
 
   def createAlias() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form)))
+    val meta = createAdminPageMetaData(rs.identity, "Create Alias", "createAlias")
+    Future.successful(Ok(views.html.admin.createAlias(meta, EditAliasForm.form)))
   }
 
   def browseAliases() = silhouette.SecuredAction.async { implicit rs =>
-    teamDao.listAliases.map(qs => Ok(views.html.admin.browseAliases(rs.identity, qs)))
+    val meta = createAdminPageMetaData(rs.identity, "Browse Aliases", "browseAliases")
+    teamDao.listAliases.map(qs => {
+      Ok(views.html.admin.browseAliases(meta, qs))
+    })
+  }
+
+  private def createAdminPageMetaData(user: User, heading: String, linkTag: String = "", linkIcon: String = "fa-wrench") = {
+    DeepFijPageMetaData("deepfij", heading, "", Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench").appendChild(heading, linkTag, "fa-wrench")), StandardNavBar.active("admin", Some(user)))
   }
 
   def saveAlias() = silhouette.SecuredAction.async { implicit request =>
     EditAliasForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.createAlias(request.identity, form)))
+        val meta = createAdminPageMetaData(request.identity, "Create Alias", "createAlias")
+        Future.successful(BadRequest(views.html.admin.createAlias(meta, form)))
       },
       data => {
         val q = Alias(data.id, data.alias, data.key)
@@ -154,7 +164,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def editAlias(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.findAliasById(id).map {
-      case Some(q) => Ok(views.html.admin.createAlias(rs.identity, EditAliasForm.form.fill(EditAliasForm.Data(id, q.alias, q.key))))
+
+      case Some(q) =>
+        val meta = createAdminPageMetaData(rs.identity, "Create Alias", "createAlias")
+        Ok(views.html.admin.createAlias(meta, EditAliasForm.form.fill(EditAliasForm.Data(id, q.alias, q.key))))
       case None => Redirect(routes.DataController.browseAliases()).flashing("warn" -> ("No alias found with id " + id))
     }
   }
@@ -206,13 +219,13 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def initializeAliases() = silhouette.SecuredAction.async { implicit request =>
     teamDao.deleteAliases().flatMap(i => {
-      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length>0)
+      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
       Future.sequence(lines.map(s => {
         val parts = s.trim.split("\\s+")
-        if (parts.size==2) {
+        if (parts.size == 2) {
           teamDao.saveAlias(Alias(0L, parts(0), parts(1)))
         } else {
-          logger.info("Skipping '"+s+"'")
+          logger.info("Skipping '" + s + "'")
           Future.successful(0)
         }
       })

@@ -1,20 +1,12 @@
-@import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
-@import com.fijimf.deepfij.models.User
-@import com.fijimf.deepfij.models.Team
+@import controllers.nav.DeepFijPageMetaData
 @import helper._
 
-@(user:User, seasonForm: Form[forms.EditAliasForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@import controllers.nav.DeepFijPageMetaData
+@(meta:DeepFijPageMetaData, seasonForm: Form[forms.EditAliasForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@main(
-    "deepfij",
-    "Editing Alias",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Aliases","fa-eyeball","browseAliases").appendChild("create","fa-edit","createAlias")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
-) {
+@main2(meta) {
     <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.DataController.saveAlias()) {
