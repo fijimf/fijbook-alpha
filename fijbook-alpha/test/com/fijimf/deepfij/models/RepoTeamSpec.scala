@@ -110,7 +110,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(rr.get == id)
     }
 
-    "find by an key" in new WithApplication(FakeApplication()) {
+    "find by a key" in new WithApplication(FakeApplication()) {
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "bbb", "Bbb", "Bbb", "b1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
