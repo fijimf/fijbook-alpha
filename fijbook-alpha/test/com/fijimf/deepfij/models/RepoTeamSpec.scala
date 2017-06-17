@@ -138,13 +138,11 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(ss==0)
       assert(Await.result(dao.listTeams, testDbTimeout).size == 2)
 
-
-
     }
 
     "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
       import scala.concurrent.ExecutionContext.Implicits.global
-      private val teams = 0.to(1500).map(n => {
+      private val teams = 0.to(500).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }
@@ -154,15 +152,18 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
     "handle multiple concurrent inserts & updates" in new WithApplication(FakeApplication()) {
       import scala.concurrent.ExecutionContext.Implicits.global
-      private val teams0 = 0.to(500).map(n => {
-        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+      private val teams0 = 0.until(200).map(n => {
+        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }).toList
-      private val teams1 = 500.to(800).map(n => {
-        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "zzzzzzzzz", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+      private val teams1 = 200.until(400).map(n => {
+        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "B", "BB", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }).toList
-      Await.result(Future.sequence(teams1++teams0), testDbTimeout)
+      private val savedTeams = Await.result(Future.sequence(teams1++teams0), testDbTimeout)
+      assert(savedTeams.size==400)
+      assert(savedTeams.map(_.key).toSet == 0.until(400).map("team-" + _.toString).toSet)
+      assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
     }
 
     "handle multiple concurrent inserts & updates & reads" in new WithApplication(FakeApplication()) {
