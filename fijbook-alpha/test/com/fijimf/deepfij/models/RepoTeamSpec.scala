@@ -140,7 +140,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
     }
 
-    "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
+    "handle multiple inserts" in new WithApplication(FakeApplication()) {
       import scala.concurrent.ExecutionContext.Implicits.global
       private val teams = 0.to(500).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -150,7 +150,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       Await.result(Future.sequence(teams), testDbTimeout)
     }
 
-    "handle multiple concurrent inserts & updates" in new WithApplication(FakeApplication()) {
+    "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
       import scala.concurrent.ExecutionContext.Implicits.global
       private val teams0 = 0.until(200).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -164,6 +164,18 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(savedTeams.size==400)
       assert(savedTeams.map(_.key).toSet == 0.until(400).map("team-" + _.toString).toSet)
       assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
+    }
+
+    "handle multiple inserts and updates" in new WithApplication(FakeApplication()) {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      private val teams = 0.to(300).map(n => {
+        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+        dao.saveTeam(t)
+      }
+      ).toList
+
+      private val modTeams = teams.map(ts=>ts.flatMap(t=>dao.saveTeam(t.copy(nickname = "New Nickname"))))
+      Await.result(Future.sequence(modTeams), testDbTimeout)
     }
 
     "handle multiple concurrent inserts & updates & reads" in new WithApplication(FakeApplication()) {
