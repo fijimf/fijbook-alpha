@@ -14,5 +14,7 @@ trait TeamDAO {
 
   def saveTeam(team: Team): Future[Team]
 
+  def saveTeams(teams: List[Team]): Future[List[Team]]
+
   def listTeams: Future[List[Team]]
 }

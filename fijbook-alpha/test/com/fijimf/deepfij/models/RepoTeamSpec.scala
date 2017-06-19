@@ -10,7 +10,6 @@ import org.scalatestplus.play._
 import play.api.test._
 import testhelpers.Injector
 
-import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
@@ -162,6 +161,16 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       Await.result(Future.sequence(teams), testDbTimeout)
     }
 
+    "handle bulk inserts" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
+      private val teams = 0.until(500).map(n => Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test") ).toList
+      private val teams1 = Await.result(dao.saveTeams(teams), testDbTimeout)
+      assertTeamsSize(500)
+      assert(teams1.size == 500)
+      private val teams2 = Await.result(dao.listTeams, testDbTimeout)
+      assert(teams1.map(_.key).toSet == teams2.map(_.key).toSet)
+    }
+
     "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
       assertTeamsIsEmpty()
       private val teams0 = 0.until(200).map(n => {
@@ -178,18 +187,28 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
     }
 
+    "handle multiple concurrent bulk inserts" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
+      private val teams0 = dao.saveTeams(
+        0.until(200).map(n => Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")).toList
+      )
+      private val teams1 = dao.saveTeams(
+        200.until(400).map(n => Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")).toList
+      )
+      private val t3: Future[List[Team]] = teams0.flatMap(ss=> teams1.map(_++ss))
+      private val savedTeams = Await.result(t3, testDbTimeout)
+      assert(savedTeams.size==400)
+      assert(savedTeams.map(_.key).toSet == 0.until(400).map("team-" + _.toString).toSet)
+      assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
+    }
+
     "handle multiple inserts and updates" in new WithApplication(FakeApplication()) {
       assertTeamsIsEmpty()
-      private val teams = 0.until(300).map(n => {
-        val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-        dao.saveTeam(t)
-      }
-      ).toList
-
-      private val modTeams = teams.map(ts=>ts.flatMap(t=>dao.saveTeam(t.copy(nickname = "New Nickname"))))
-      private val teams1 = Await.result(Future.sequence(modTeams), testDbTimeout)
-      assert(teams1.size == 300)
-
+      private val teams = 0.until(300).map(n => Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")).toList
+      private val modTeams = dao.saveTeams(teams).flatMap(fts => dao.saveTeams(fts.map(_.copy(nickname = "New Nickname"))))
+      private val result = Await.result(modTeams, testDbTimeout)
+      assert(result.size == 300)
+      assertTeamsSize(300)
     }
 
     "handle multiple concurrent inserts & updates & reads" in new WithApplication(FakeApplication()) {
@@ -215,7 +234,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
   }
 
-  private def assertTeamsSize(size: Port) = {
+  private def assertTeamsSize(size: Int) = {
     assert(Await.result(dao.listTeams, testDbTimeout).size == size)
   }
 
