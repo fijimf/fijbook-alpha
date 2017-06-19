@@ -52,10 +52,11 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
 
 case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class GameSignature (dateHash:Int, homeId:Long, awayId:Long)
+case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
+
 case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
 
-  def signature:GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
+  def signature: GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
   def sameData(g: Game): Boolean = (g.seasonId == seasonId
     && g.homeTeamId == homeTeamId
@@ -70,6 +71,24 @@ case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, da
 
 case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
   override def compare(x: Team, y: Team): Int = x.name.compare(y.name)
+
+
+  def sameData(t: Team): Boolean = (key == t.key
+    && name == t.name
+    && longName == t.longName
+    && nickname == t.nickname
+    && optConference == t.optConference
+    && logoLgUrl == t.logoLgUrl
+    && logoSmUrl == t.logoSmUrl
+    && primaryColor == t.primaryColor
+    && secondaryColor == t.secondaryColor
+    && officialUrl == t.officialUrl
+    && officialTwitter == t.officialTwitter
+    && officialFacebook == t.officialFacebook
+    )
+
+
+
 }
 
 case class Alias(id: Long, alias: String, key: String)
@@ -97,7 +116,7 @@ case class Quote(id: Long, quote: String, source: Option[String], url: Option[St
 
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
 
-case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double){
+case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double) {
   require(!modelKey.contains(":") && !modelKey.contains(" "), "Model key cannot contain ':' or ' '")
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
@@ -119,7 +138,7 @@ case class LogisticModelParameter(id: Long, logisticModelName: String, featureNa
 
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
 
-case class UserProfileData(id:Long, userID:String, key:String, value:String)
+case class UserProfileData(id: Long, userID: String, key: String, value: String)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")

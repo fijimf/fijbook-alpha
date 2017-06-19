@@ -15,36 +15,41 @@ import scala.concurrent.{Await, Future}
 
 class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   val dao = Injector.inject[ScheduleDAO]
 
   "Teams " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listTeams, testDbTimeout).isEmpty)
+      assertTeamsIsEmpty()
     }
 
     "return the new ID when inserted" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty
       private val t = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-      private val fi = Await.result(dao.saveTeam(t), testDbTimeout)
-      assert(Await.result(dao.listTeams, testDbTimeout).size == 1)
-      assert(fi.id > 0)
+      private val s = Await.result(dao.saveTeam(t), testDbTimeout)
+      assertTeamsSize(1)
+      compareTeams(s,t)
     }
 
     "return the old ID when updated" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-      private val fi = Await.result(dao.saveTeam(t), testDbTimeout)
-      assert(Await.result(dao.listTeams, testDbTimeout).size == 1)
-      assert(fi.id > 0)
-      private val s = t.copy(id = fi.id, nickname = "foos")
-      private val fj = Await.result(dao.saveTeam(s), testDbTimeout)
-      private val teamList = Await.result(dao.listTeams, testDbTimeout)
-      assert(teamList.size == 1)
-      assert(teamList.head.id == fi.id)
-      assert(teamList.head.id == fj.id)
-      assert(teamList.head.nickname == "foos")
+      private val s = Await.result(dao.saveTeam(t), testDbTimeout)
+      assertTeamsSize(1)
+      compareTeams(s,t)
+      private val u = t.copy(id = s.id, nickname = "foos")
+      private val v = Await.result(dao.saveTeam(u), testDbTimeout)
+      assertTeamsSize(1)
+      compareTeams(u,v)
+      private val w = Await.result(dao.listTeams, testDbTimeout).head
+      assert(w.id == u.id)
+      assert(w.id == v.id)
+      assert(w.nickname == "foos")
     }
 
     "not be inserted with the same key as an existing team" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "aaa", "Xxx", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -57,6 +62,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "not be updated with the same key as an existing team" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "xxx", "Xxx", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -72,6 +78,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "not be inserted with the same name as an existing team" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "xxx", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -84,6 +91,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "not be updated with the same name as an existing team" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "xxx", "Xxx", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -99,18 +107,21 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "find by an id" in new WithApplication(FakeApplication()) {
-      private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-      Await.result(dao.saveTeam(t1), testDbTimeout)
-      private val t2 = Team(0L, "bbb", "Bbb", "Bbb", "b1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-      val id = Await.result(dao.saveTeam(t2), testDbTimeout)
-      private val t3 = Team(0L, "ccc", "Ccc", "Ccc", "c1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
-      Await.result(dao.saveTeam(t3), testDbTimeout)
+      assertTeamsIsEmpty()
+      private val r = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+      Await.result(dao.saveTeam(r), testDbTimeout)
+      private val s = Team(0L, "bbb", "Bbb", "Bbb", "b1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+      val s1 = Await.result(dao.saveTeam(s), testDbTimeout)
+      private val t = Team(0L, "ccc", "Ccc", "Ccc", "c1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
+      Await.result(dao.saveTeam(t), testDbTimeout)
+      assertTeamsSize(3)
 
-      private val rr = Await.result(dao.findTeamById(id.id), testDbTimeout)
-      assert(rr.get == id)
+      private val rr = Await.result(dao.findTeamById(s1.id), testDbTimeout)
+      assert(rr.contains(s1))
     }
 
     "find by a key" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "bbb", "Bbb", "Bbb", "b1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -123,6 +134,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "delete by an id" in new WithApplication(FakeApplication()) {
+      assertTeamsIsEmpty()
       private val t1 = Team(0L, "aaa", "Aaa", "Aaa", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
       Await.result(dao.saveTeam(t1), testDbTimeout)
       private val t2 = Team(0L, "bbb", "Bbb", "Bbb", "b1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
@@ -141,7 +153,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "handle multiple inserts" in new WithApplication(FakeApplication()) {
-      import scala.concurrent.ExecutionContext.Implicits.global
+      assertTeamsIsEmpty()
       private val teams = 0.to(500).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
@@ -151,7 +163,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
-      import scala.concurrent.ExecutionContext.Implicits.global
+      assertTeamsIsEmpty()
       private val teams0 = 0.until(200).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
@@ -167,30 +179,32 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "handle multiple inserts and updates" in new WithApplication(FakeApplication()) {
-      import scala.concurrent.ExecutionContext.Implicits.global
-      private val teams = 0.to(300).map(n => {
+      assertTeamsIsEmpty()
+      private val teams = 0.until(300).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }
       ).toList
 
       private val modTeams = teams.map(ts=>ts.flatMap(t=>dao.saveTeam(t.copy(nickname = "New Nickname"))))
-      Await.result(Future.sequence(modTeams), testDbTimeout)
+      private val teams1 = Await.result(Future.sequence(modTeams), testDbTimeout)
+      assert(teams1.size == 300)
+
     }
 
     "handle multiple concurrent inserts & updates & reads" in new WithApplication(FakeApplication()) {
-      import scala.concurrent.ExecutionContext.Implicits.global
-      private val teams0 = 0.to(500).map(n => {
+      assertTeamsIsEmpty()
+      private val teams0 = 0.until(500).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }).toList
 
-      private val teams1 = 500.to(800).map(n => {
+      private val teams1 = 500.until(800).map(n => {
         val t = Team(0L, "team-" + n.toString, "Team-" + n.toString, "A", "zzzzzzzzz", "c1", None, None, None, None, None, None, None, LocalDateTime.now(), "Test")
         dao.saveTeam(t)
       }).toList
 
-      private val teams2 = 0.to(800).map {
+      private val teams2 = 0.until(800).map {
         case x if x % 2 == 0 => dao.findTeamById(x)
         case y => dao.findTeamByKey("team-" + y.toString)
       }.toList
@@ -199,6 +213,18 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
 
+  }
+
+  private def assertTeamsSize(size: Port) = {
+    assert(Await.result(dao.listTeams, testDbTimeout).size == size)
+  }
+
+  private def assertTeamsIsEmpty() = {
+    assert(Await.result(dao.listTeams, testDbTimeout).isEmpty,"'Teams' was not empty.")
+  }
+
+  private def compareTeams(s:Team, t:Team) = {
+    assert(s.sameData(t),s"Team $s did not have the same data elements as $t")
   }
 
   "Quotes " should {
