@@ -12,5 +12,7 @@ trait ConferenceDAO {
 
   def listConferences: Future[List[Conference]]
 
-  def saveConference(c: Conference): Future[Int]
+  def saveConference(c: Conference): Future[Conference]
+
+  def saveConferences(c: List[Conference]): Future[List[Conference]]
 }

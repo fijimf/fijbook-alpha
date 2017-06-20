@@ -111,13 +111,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
       Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, false, LocalDateTime.now(), userTag)
     }).toList
-
-
-    val sequence: Future[List[Int]] = Future.sequence(conferences.map(c => {
-      teamDao.saveConference(c)
-    }))
-    sequence.map(_ => Redirect(routes.AdminController.index()))
-
+    teamDao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
   }
 
   def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>

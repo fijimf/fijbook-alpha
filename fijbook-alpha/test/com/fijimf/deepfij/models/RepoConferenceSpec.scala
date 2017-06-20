@@ -21,6 +21,17 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
       assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
     }
 
+
+
+
+
+//    def findConferenceById(id: Long): Future[Option[Conference]]
+//
+//    def deleteConference(id: Long): Future[Int]
+//
+//    def listConferences: Future[List[Conference]]
+//
+//    def saveConference(c: Conference): Future[Int]
   }
 
 

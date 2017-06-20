@@ -9,7 +9,6 @@ import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 
 
 class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
@@ -27,7 +26,7 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       assert(id>0)
       private val aliases = Await.result(dao.listAliases, testDbTimeout)
       assert(aliases.size==1)
-      assert(aliases(0)==toBeSaved.copy(id=id))
+      assert(aliases.head==toBeSaved.copy(id=id))
     }
 
     "allow an alias to be deleted" in new WithApplication(FakeApplication()) {

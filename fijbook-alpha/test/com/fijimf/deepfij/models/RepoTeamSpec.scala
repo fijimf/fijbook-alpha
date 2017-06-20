@@ -268,23 +268,8 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     assert(s.sameData(t), s"Team $s did not have the same data elements as $t")
   }
 
-  "Quotes " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listQuotes, testDbTimeout).isEmpty)
-    }
-  }
 
-  "Aliases " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listAliases, testDbTimeout).isEmpty)
-    }
-  }
 
-  "Conferences " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
-    }
-  }
   "Seasons " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
       assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)

@@ -193,10 +193,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
       data => {
         val q = Conference(data.id, data.key, data.name, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, false, LocalDateTime.now(),
           request.identity.userID.toString)
-        val future: Future[Int] = teamDao.saveConference(q)
+        val future: Future[Conference] = teamDao.saveConference(q)
         future.onComplete {
-          case Success(i) => logger.info("Hooray")
-          case Failure(thr) => logger.error("Boo", thr)
+          case Success(conference) => logger.info(s"Saved conference '${conference.name}")
+          case Failure(thr) => logger.error(s"Failed saving $q with error ${thr.getMessage}", thr)
         }
         future.map(i => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Saved " + data.name)))
       }

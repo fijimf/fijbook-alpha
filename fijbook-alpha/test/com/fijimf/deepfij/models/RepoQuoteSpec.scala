@@ -9,7 +9,6 @@ import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 
 
 class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  with RebuildDatabaseMixin with ScalaFutures {
@@ -18,7 +17,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
   "Quotes " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listQuotes, Duration.Inf).isEmpty)
+      assert(Await.result(dao.listQuotes, testDbTimeout).isEmpty)
     }
 
     "be able to be inserted" in new WithApplication(FakeApplication()) {
