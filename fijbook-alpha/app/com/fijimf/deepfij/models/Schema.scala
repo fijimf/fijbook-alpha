@@ -50,7 +50,18 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
   }.takeWhile(_.isBefore(endDate)).toList
 }
 
-case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
+//TODO -- DO we use lock record or not?
+case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String){
+  def sameData(c: Conference): Boolean = (key == c.key
+    && name == c.name
+    && logoLgUrl == c.logoLgUrl
+    && logoSmUrl == c.logoSmUrl
+    && officialUrl == c.officialUrl
+    && officialTwitter == c.officialTwitter
+    && officialFacebook == c.officialFacebook
+    )
+
+}
 
 case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
 

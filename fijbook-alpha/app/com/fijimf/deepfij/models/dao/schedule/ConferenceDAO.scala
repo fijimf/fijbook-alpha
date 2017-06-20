@@ -8,6 +8,8 @@ trait ConferenceDAO {
 
   def findConferenceById(id: Long): Future[Option[Conference]]
 
+  def findConferenceByKey(key: String): Future[Option[Conference]]
+
   def deleteConference(id: Long): Future[Int]
 
   def listConferences: Future[List[Conference]]

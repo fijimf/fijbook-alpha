@@ -25,7 +25,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
     }
 
     "return the new ID when inserted" in new WithApplication(FakeApplication()) {
-      assertTeamsIsEmpty
+      assertTeamsIsEmpty()
       val t = mkQuickTeam(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East")
       val s = Await.result(dao.saveTeam(t), testDbTimeout)
       assertTeamsSize(1)
