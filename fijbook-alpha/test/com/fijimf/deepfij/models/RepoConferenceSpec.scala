@@ -94,7 +94,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "not be bulk inserted with the same name as an existing conferfence" in new WithApplication(FakeApplication()) {
+  "not be bulk inserted with the same name as an existing confefence" in new WithApplication(FakeApplication()) {
     assertConferencesIsEmpty()
     val ts = List(
       mkQuickConf(0L, "big-east", "Big East"),
