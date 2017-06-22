@@ -65,7 +65,7 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
           }
         )
       }).flatten
-      dao.saveStatValues(batchSize, ds, List(m.key), values)
+      dao.saveStatValues(ds, List(m.key), values)
     }).toList
   }
 

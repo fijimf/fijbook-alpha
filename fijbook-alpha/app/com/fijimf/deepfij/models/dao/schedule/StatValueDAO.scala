@@ -10,9 +10,9 @@ trait StatValueDAO {
 
   def listStatValues: Future[List[StatValue]]
 
-  def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Unit]
+  def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Int]
 
-  def saveStatValues(batchSize: Int, dates: List[LocalDate], model: List[String], stats: List[StatValue]): Future[Any]
+  def saveStatValues(dates: List[LocalDate], model: List[String], stats: List[StatValue]): Future[Any]
 
   def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
 

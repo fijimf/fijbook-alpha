@@ -31,25 +31,14 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
   //Stat values
   override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
 
-  override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Unit] = {
-    val map: List[DBIOAction[Int, NoStream, Write]] =
-      for (m <- models; d <- dates) yield {
-        repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
-      }
-    db.run(DBIO.seq(map: _*).transactionally)
+  override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Int] = {
+    db.run(statValuesDeleteActions(models,dates))
   }
 
-  override def saveStatValues(batchSize: Int, dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Any] = {
-    def batchReq(ds: List[LocalDate]) = saveStatBatch(ds, models, stats.filter(s => ds.contains(s.date)))
-
-    val g = dates.grouped(batchSize).toList
-    g.tail.foldLeft(batchReq(g.head)) { case (future: Future[_], dates: List[LocalDate]) => future.flatMap(_ => batchReq(dates)) }
-  }
-
-  def saveStatBatch(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Seq[Long]] = {
+  override def saveStatValues(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Seq[Long]] = {
     val key = s"[${models.mkString(", ")}] x [${dates.head} .. ${dates.last}] "
     val start = System.currentTimeMillis()
-    log.info(s"Saving stat batch for $key (${stats.size} rows)")
+    log.debug(s"Saving stat batch for $key (${stats.size} rows)")
 
     val deletes = statValuesDeleteActions(models,dates)
     val inserts = statValuesInsertActions(stats)
@@ -61,28 +50,19 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     future.onComplete((t: Try[_]) => {
       val dur = System.currentTimeMillis() - start
       t match {
-        case Success(_) => log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
+        case Success(_) => log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
         case Failure(ex) => log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
       }
     })
     future
   }
 
-
-  def statValuesDeleteActions(models: List[String], dates: List[LocalDate]): DBIO[_] = {
-    val deleteOps = for {
-      m <- models
-      d <- dates
-    } yield {
-      repo.statValues.filter(sv => sv.date === d && sv.modelKey === m).delete
-    }
-    DBIO.sequence(deleteOps)
+  def statValuesDeleteActions(models: List[String], dates: List[LocalDate]): DBIO[Int] = {
+    repo.statValues.filter(sv => sv.date.inSetBind(dates) && sv.modelKey.inSetBind(models)).delete
   }
 
   def statValuesInsertActions(statValues: List[StatValue]) = {
-    val x = repo.statValues returning repo.statValues.map(_.id)
-    x ++= statValues //.flatMap(t1 => DBIO.sequence(t1.map(t2=>repo.statValues.filter(t => t.id === t2).result.head).toList))
-
+    (repo.statValues returning repo.statValues.map(_.id)) ++= statValues
   }
 
 
