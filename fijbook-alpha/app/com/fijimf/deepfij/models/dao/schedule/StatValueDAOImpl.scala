@@ -6,10 +6,9 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
-import slick.dbio.Effect.Write
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 
 trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
@@ -27,8 +26,6 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
-
-  //Stat values
   override def listStatValues: Future[List[StatValue]] = db.run(repo.statValues.to[List].result)
 
   override def deleteStatValues(dates: List[LocalDate], models: List[String]): Future[Int] = {
@@ -42,33 +39,24 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
     val deletes = statValuesDeleteActions(models,dates)
     val inserts = statValuesInsertActions(stats)
-    val future = db.run(
-      deletes
-        .andThen(inserts)
-        .transactionally
-    )
-    future.onComplete((t: Try[_]) => {
-      val dur = System.currentTimeMillis() - start
-      t match {
-        case Success(_) => log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
-        case Failure(ex) => log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
-      }
-    })
-    future
+    db.run(deletes.andThen(inserts).transactionally.asTry).map {
+      case Success(ids) =>
+        val dur = System.currentTimeMillis() - start
+        log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
+        ids
+      case Failure(ex) =>
+        log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
+        Seq.empty[Long]
+    }
   }
 
-  def statValuesDeleteActions(models: List[String], dates: List[LocalDate]): DBIO[Int] = {
+  private def statValuesDeleteActions(models: List[String], dates: List[LocalDate]): DBIO[Int] = {
     repo.statValues.filter(sv => sv.date.inSetBind(dates) && sv.modelKey.inSetBind(models)).delete
   }
 
-  def statValuesInsertActions(statValues: List[StatValue]) = {
+  private def statValuesInsertActions(statValues: List[StatValue]) = {
     (repo.statValues returning repo.statValues.map(_.id)) ++= statValues
   }
-
-
-
-
-
 
   override def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.statKey === statKey).to[List].result)
 
