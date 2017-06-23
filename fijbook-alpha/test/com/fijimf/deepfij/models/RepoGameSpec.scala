@@ -16,12 +16,24 @@ class RepoGameSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
   val dao = Injector.inject[ScheduleDAO]
 
+  /*
+  def listGames: Future[List[Game]]
+  def deleteGames(ids: List[Long]):Future[Unit]
+  def upsertGame(game: Game): Future[Long]
+  def clearGamesByDate(d: LocalDate): Future[Int]
+  def saveGame(gt: (Game, Option[Result])): Future[Long]
+  def gamesByDate(d: List[LocalDate]): Future[List[(Game, Option[Result])]]
+  def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]]
+   */
 
   "Games " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
-      assert(Await.result(dao.listGames, testDbTimeout).isEmpty)
+      assertGamesIsEmpty
     }
   }
 
 
+  private def assertGamesIsEmpty = {
+    assert(Await.result(dao.listGames, testDbTimeout).isEmpty)
+  }
 }

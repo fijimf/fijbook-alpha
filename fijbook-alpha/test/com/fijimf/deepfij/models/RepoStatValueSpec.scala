@@ -13,8 +13,7 @@ import testhelpers.Injector
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
-  implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
+class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
   val dao = Injector.inject[ScheduleDAO]
 
   val nextSixtyDays = {
