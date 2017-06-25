@@ -92,16 +92,10 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     dao.unlockSeason(seasonId)
   }
 
-
-  def updateDb(updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
-    Future.sequence(updateData.groupBy(_.sourceKey).map { case (sourceKey: String, data: List[GameMapping]) => dao.updateScoreboard(data, sourceKey) })
-  }
-
   def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
     val groups = updateData.groupBy(_.sourceKey)
     Future.sequence(keys.map(sourceKey => dao.updateScoreboard(groups.getOrElse(sourceKey, List.empty[GameMapping]), sourceKey)))
   }
-
 
   def scrapeSeasonGames2(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
