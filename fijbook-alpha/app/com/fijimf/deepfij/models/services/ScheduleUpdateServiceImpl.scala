@@ -93,7 +93,16 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  def updateDb(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Future[Unit] = {
+  def updateDb(updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
+    Future.sequence(updateData.groupBy(_.sourceKey).map { case (sourceKey: String, data: List[GameMapping]) => dao.updateScoreboard(data, sourceKey) })
+  }
+
+  def updateDb(keys:List[String],updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
+    val groups = updateData.groupBy(_.sourceKey)
+    Future.sequence(keys.map(sourceKey => dao.updateScoreboard(groups.getOrElse(sourceKey, List.empty[GameMapping]), sourceKey)))
+  }
+
+  def updateDbx(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Future[Unit] = {
     val gameToGameIdMap: Map[GameSignature, Game] = oldGameList.map(t => t._1.signature-> t._1).toMap
     val gameIdToResultIdMap: Map[Long, Result] = oldGameList.flatMap(t => t._2.map(u => t._1.id -> u)).toMap
 
@@ -102,7 +111,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       mapping match {
         case MappedGame(g: Game) => handleMappedGame(gIdMap, rIdMap, g)
         case MappedGameAndResult(g: Game, r: Result) => handleMappedGameAndResult(gIdMap, rIdMap, g, r)
-        case UnmappedGame(keys: List[String]) => {
+        case UnmappedGame(keys: List[String],_) => {
           logger.info(s"Failed to map ${keys.mkString(", ")}")
           (gIdMap, rIdMap)
         }
@@ -157,7 +166,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     (fIdMap, rIdMap)
   }
 
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
+  def scrapeSeasonGames2(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.map(teamDictionary => {
@@ -167,7 +176,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
             oldGameList <- dao.gamesBySource(d.toString)
           ) yield {
             logger.info(s"For date $d database held ${oldGameList.size} records, scrape resulted in ${updateData.size} candidates.  Verifying changes.")
-            updateDb(oldGameList, updateData)
+            updateDb(updateData)
           }
         })
       })
@@ -175,14 +184,22 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     })
   }
 
-  def gameDataDates(gds: List[GameMapping]): List[LocalDate] = {
-    gds.flatMap {
-      case MappedGame(g) => Some(g.date)
-      case MappedGameAndResult(g, r) => Some(g.date)
-      case UnmappedGame(_) => None
-    }.distinct
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
+    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
+    dao.listAliases.flatMap(aliasDict => {
+      dao.listTeams.map(teamDictionary => {
+        dateList.foreach(d => {
+          updateOneDate(season, updatedBy, aliasDict, teamDictionary, d)
+        })
+      })
+    })
   }
 
+  private def updateOneDate(season: Season, updatedBy: String, aliasDict: List[Alias], teamDictionary: List[Team], d: LocalDate) = {
+    scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(
+      u => dao.updateScoreboard(u, d.toString)
+    )
+  }
 
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
@@ -194,7 +211,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       case Left(thr) =>
         logger.error("For date " + d + " scraper returned an exception ", thr)
         List.empty[GameMapping]
-      case Right(lgd) => lgd.map(gameDataToGame(seasonId, updatedBy, masterDict, _))
+      case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString,  updatedBy, masterDict, _))
     }
   }
 
@@ -207,13 +224,13 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     masterDict
   }
 
-  def gameDataToGame(seasonId: Long, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
+  def gameDataToGame(seasonId: Long, sourceKey:String,  updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
     val atk = gd.awayTeamKey
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
-      case (None, None) => UnmappedGame(List(htk, atk))
-      case (Some(t), None) => UnmappedGame(List(atk))
-      case (None, Some(t)) => UnmappedGame(List(htk))
+      case (None, None) => UnmappedGame(List(htk, atk), sourceKey)
+      case (Some(t), None) => UnmappedGame(List(atk), sourceKey)
+      case (None, Some(t)) => UnmappedGame(List(htk), sourceKey)
       case (Some(ht), Some(at)) => {
         val game = populateGame(seasonId, updatedBy, gd, ht, at)
         gd.result match {

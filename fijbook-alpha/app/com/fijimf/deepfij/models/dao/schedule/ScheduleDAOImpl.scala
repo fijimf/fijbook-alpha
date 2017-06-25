@@ -6,6 +6,7 @@ import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -56,6 +57,58 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     ) yield {
       Schedule(s, teams, conferences, conferenceMap, results, predictions)
     }
+  }
+
+  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[(Seq[Long], Seq[Long])] = {
+    val mutations = updateData.map {
+      case MappedGame(g) =>
+        handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
+      case MappedGameAndResult(g, r) =>
+        handleGame(g).flatMap(g1 => handleResult(g1, r))
+      case UnmappedGame(keys, _) =>
+        DBIO.successful(None)
+    }
+    val updateAndCleanUp = DBIO.sequence(mutations).flatMap(ogs => {
+      val goodIds = ogs.flatten.map(_.id)
+      repo.games.filter(g => {
+        g.sourceKey === sourceKey && !g.id.inSet(goodIds)
+      }).map(_.id).result.flatMap(badIds => {
+        repo.results.filter(_.gameId.inSet(badIds)).delete.andThen(repo.games.filter(_.id.inSet(badIds)).delete).andThen(DBIO.successful((goodIds,badIds)))
+      })
+    }).transactionally
+
+    db.run(updateAndCleanUp)
+  }
+
+  private def handleGame(g: Game): DBIO[Option[Game]] = {
+    sameGame(g).map(_.id).result.flatMap(
+      (longs: Seq[Long]) => {
+        longs.headOption match {
+          case Some(id)=>
+            val g1 = g.copy(id = id)
+            repo.games.filter(_.id===g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
+          case None => ((repo.games returning repo.games.map(_.id))+=g).flatMap(id=>DBIO.successful(Some(g.copy(id = id))))
+        }
+      }
+    )
+  }
+
+  private def handleResult(og: Option[Game], r: Result): DBIO[Option[Game]] = {
+    og match {
+      case Some(g) =>
+        val r0 = r.copy(gameId = g.id)
+        repo.results.filter(_.gameId === g.id).map(_.id).result.flatMap(
+          (longs: Seq[Long]) => {
+            val r1 = r0.copy(id = longs.headOption.getOrElse(0))
+            repo.results.insertOrUpdate(r1).andThen(DBIO.successful(og))
+          }
+        )
+      case None => DBIO.successful(og)
+    }
+  }
+
+  private def sameGame(g: Game) = {
+    repo.games.filter(h => h.date === g.date && h.homeTeamId === g.homeTeamId && h.awayTeamId === g.awayTeamId)
   }
 
   override def loadSchedules(): Future[List[Schedule]] = {
