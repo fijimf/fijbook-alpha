@@ -26,12 +26,12 @@ import scala.util.{Failure, Success}
 class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
-  implicit val timeout = Timeout(600.seconds)
+   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
   def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false) {
     val now = LocalDate.now()
-    val optDates = optOffsets.map(_.map(i=>now.plusDays(i)))
+    val optDates = optOffsets.map(_.map(i => now.plusDays(i)))
     dao.findSeasonByYear(activeYear).map {
       case None =>
         scheduleNotFound(optDates, mailReport)
@@ -44,7 +44,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
     if (dao.checkAndSetLock(s.id)) {
       val updatedBy: String = "Scraper[Updater]"
-      scrapeSeasonGames(s, optDates, updatedBy).onComplete {
+      scrapeSeasonGames2(s, optDates, updatedBy).onComplete {
         case Success(_) =>
           logger.info("Schedule update scrape complete.")
           if (mailReport) {
@@ -97,108 +97,26 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     Future.sequence(updateData.groupBy(_.sourceKey).map { case (sourceKey: String, data: List[GameMapping]) => dao.updateScoreboard(data, sourceKey) })
   }
 
-  def updateDb(keys:List[String],updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
+  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
     val groups = updateData.groupBy(_.sourceKey)
     Future.sequence(keys.map(sourceKey => dao.updateScoreboard(groups.getOrElse(sourceKey, List.empty[GameMapping]), sourceKey)))
   }
 
-  def updateDbx(oldGameList: List[(Game, Option[Result])], updateData: List[GameMapping]): Future[Unit] = {
-    val gameToGameIdMap: Map[GameSignature, Game] = oldGameList.map(t => t._1.signature-> t._1).toMap
-    val gameIdToResultIdMap: Map[Long, Result] = oldGameList.flatMap(t => t._2.map(u => t._1.id -> u)).toMap
-
-    val (remainingGames, remainingResults) = updateData.foldLeft((gameToGameIdMap, gameIdToResultIdMap))((tuple: (Map[GameSignature, Game], Map[Long, Result]), mapping: GameMapping) => {
-      val (gIdMap, rIdMap) = tuple
-      mapping match {
-        case MappedGame(g: Game) => handleMappedGame(gIdMap, rIdMap, g)
-        case MappedGameAndResult(g: Game, r: Result) => handleMappedGameAndResult(gIdMap, rIdMap, g, r)
-        case UnmappedGame(keys: List[String],_) => {
-          logger.info(s"Failed to map ${keys.mkString(", ")}")
-          (gIdMap, rIdMap)
-        }
-      }
-    })
-    val resultsToDelete = remainingResults.values.map(_.id).toList
-    val gamesToDelete = remainingGames.values.map(_.id).toList
-    dao.deleteResultsByGameId(resultsToDelete).flatMap(_ => {
-      dao.deleteGames(gamesToDelete)
-    })
-  }
-
-  private def handleMappedGameAndResult(gIdMap: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game, r: Result) = {
-    gIdMap.get(g.signature) match {
-      case Some(h) if h.sameData(g) => //This is an existing game with no changes
-        handleResult(gIdMap-g.signature, rIdMap, g, r, h)
-      case Some(h) => //This is an existing game to be updated
-        dao.upsertGame(g.copy(id = h.id))
-        handleResult(gIdMap-g.signature, rIdMap, g,r,h)
-      case None => //This is a new game
-        dao.upsertGame(g).flatMap(gameId => dao.upsertResult(r.copy(gameId = gameId)))
-        (gIdMap, rIdMap)
-    }
-  }
-
-  private def handleResult(gIdMapRv: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game, r: Result, h: Game) = {
-    val r1 = r.copy(gameId = h.id)
-    val hIdMap = rIdMap.get(h.id) match {
-      case Some(s) if s.sameData(r1) => //This is an existing result with no changes
-        rIdMap - h.id
-      case Some(s) => //This is an existing result to be updated
-        dao.upsertResult(r1.copy(id = s.id))
-        rIdMap - h.id
-      case None => //This is a new result
-        dao.upsertResult(r1)
-        rIdMap
-    }
-    (gIdMapRv,hIdMap)
-  }
-
-  private def handleMappedGame(gIdMap: Map[GameSignature, Game], rIdMap: Map[Long, Result], g: Game) = {
-    val fIdMap = gIdMap.get(g.signature) match {
-      case Some(h) if h.sameData(g) => //This is an existing game with no changes
-        gIdMap - g.signature
-      case Some(h) => //This is an existing game to be updated
-        dao.upsertGame(g.copy(id = h.id))
-        gIdMap - g.signature
-      case None => //This is a new game
-        dao.upsertGame(g)
-        gIdMap
-    }
-    (fIdMap, rIdMap)
-  }
 
   def scrapeSeasonGames2(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.map(teamDictionary => {
         dateList.foreach(d => {
-          for (
-            updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d);
-            oldGameList <- dao.gamesBySource(d.toString)
-          ) yield {
-            logger.info(s"For date $d database held ${oldGameList.size} records, scrape resulted in ${updateData.size} candidates.  Verifying changes.")
-            updateDb(updateData)
+          for {
+            updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d)
+          } yield {
+            logger.info(s"For date $d scrape resulted in ${updateData.size} candidates.  Verifying changes.")
+            updateDb(List(d.toString), updateData)
           }
         })
       })
-
     })
-  }
-
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
-    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
-    dao.listAliases.flatMap(aliasDict => {
-      dao.listTeams.map(teamDictionary => {
-        dateList.foreach(d => {
-          updateOneDate(season, updatedBy, aliasDict, teamDictionary, d)
-        })
-      })
-    })
-  }
-
-  private def updateOneDate(season: Season, updatedBy: String, aliasDict: List[Alias], teamDictionary: List[Team], d: LocalDate) = {
-    scrape(season.id, updatedBy, teamDictionary, aliasDict, d).map(
-      u => dao.updateScoreboard(u, d.toString)
-    )
   }
 
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
@@ -211,7 +129,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       case Left(thr) =>
         logger.error("For date " + d + " scraper returned an exception ", thr)
         List.empty[GameMapping]
-      case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString,  updatedBy, masterDict, _))
+      case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
     }
   }
 
@@ -224,20 +142,19 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     masterDict
   }
 
-  def gameDataToGame(seasonId: Long, sourceKey:String,  updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
+  def gameDataToGame(seasonId: Long, sourceKey: String, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
     val atk = gd.awayTeamKey
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
       case (None, None) => UnmappedGame(List(htk, atk), sourceKey)
       case (Some(t), None) => UnmappedGame(List(atk), sourceKey)
       case (None, Some(t)) => UnmappedGame(List(htk), sourceKey)
-      case (Some(ht), Some(at)) => {
+      case (Some(ht), Some(at)) =>
         val game = populateGame(seasonId, updatedBy, gd, ht, at)
         gd.result match {
           case Some(rd) => MappedGameAndResult(game, populateResult(updatedBy, rd))
           case None => MappedGame(game)
         }
-      }
     }
   }
 
