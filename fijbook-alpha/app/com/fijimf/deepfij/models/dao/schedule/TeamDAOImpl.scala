@@ -38,6 +38,4 @@ trait TeamDAOImpl extends TeamDAO with DAOSlick {
   }
 
   override def deleteTeam(id: Long): Future[Int] = db.run(repo.teams.filter(team => team.id === id).delete)
-
-
 }

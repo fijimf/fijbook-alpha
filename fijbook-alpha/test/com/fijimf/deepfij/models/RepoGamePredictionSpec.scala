@@ -22,14 +22,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
   import scala.concurrent.ExecutionContext.Implicits.global
 
 
-  /*
 
-    def listGamePrediction: Future[List[GamePrediction]]
-
-    def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
-
-    def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]]
-   */
   "GamePredictions " should {
     "be empty initially" in new WithApplication(FakeApplication()) {
       assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)

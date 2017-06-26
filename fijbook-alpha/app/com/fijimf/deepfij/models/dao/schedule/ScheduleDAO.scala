@@ -20,7 +20,6 @@ trait ScheduleDAO
     with UserProfileDAO {
   def updateScoreboard(updateData: List[GameMapping], sourceTag: String):Future[(Seq[Long], Seq[Long])]
 
-
   def loadSchedules(): Future[List[Schedule]]
 
   def loadLatestSchedule(): Future[Option[Schedule]]
