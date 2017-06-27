@@ -56,19 +56,20 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
   override def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
 
-  override def upsertGame(game: Game): Future[Long] = {
-
-    val response = db.run(for (
-      id <- (repo.games returning repo.games.map(_.id)).insertOrUpdate(game)
-    ) yield id)
-
-    response.onComplete {
-      case Success(id) => log.trace("Saved game " + id.getOrElse(game.id))
-      case Failure(ex) => log.error("Failed upserting game ", ex)
-    }
-    response.map(_.getOrElse(0L))
+  override def updateGame(game: Game): Future[Game] = {
+    require(game.id>0L, "Cannot update a game where id is unknown")
+    db.run(
+      repo.games.insertOrUpdate(game).flatMap {
+        case 1 => DBIO.successful(game)
+        case 0 => DBIO.failed(new RuntimeException("Update unscuccessful"))
+        case m => DBIO.failed(new RuntimeException(s"Wrong number of rows affected $m"))
+      }
+    )
   }
 
+  override def insertGame(game: Game): Future[Game] = {
+    db.run(repo.games returning repo.games.map(_.id)+=game).map(i=>game.copy(id=i))
+  }
 
   def deleteGames(ids: List[Long]):Future[Unit] = {
     if (ids.nonEmpty) {

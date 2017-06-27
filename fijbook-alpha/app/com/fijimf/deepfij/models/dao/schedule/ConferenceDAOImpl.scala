@@ -6,7 +6,6 @@ import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
 
-
 trait ConferenceDAOImpl extends ConferenceDAO with DAOSlick {
 
   val dbConfigProvider: DatabaseConfigProvider
