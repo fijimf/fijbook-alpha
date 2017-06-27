@@ -59,7 +59,7 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
   override def updateGame(game: Game): Future[Game] = {
     require(game.id>0L, "Cannot update a game where id is unknown")
     db.run(
-      repo.games.insertOrUpdate(game).flatMap {
+      repo.games.insertOrUpdate(game).flatMap [Game, NoStream, Effect.Write]{
         case 1 => DBIO.successful(game)
         case 0 => DBIO.failed(new RuntimeException("Update unscuccessful"))
         case m => DBIO.failed(new RuntimeException(s"Wrong number of rows affected $m"))
