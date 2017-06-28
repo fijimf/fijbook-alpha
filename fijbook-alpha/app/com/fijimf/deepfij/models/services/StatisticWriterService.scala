@@ -9,7 +9,7 @@ import scala.language.postfixOps
 trait StatisticWriterService {
   val models: List[Model[_]]
 
-  def update(lastNDays: Option[Int]=None): Option[List[Future[Any]]]
+  def update(lastNDays: Option[Int]=None): Option[Future[Int]]
 
   def lookupModel(modelKey: String): Option[Model[_]]
 

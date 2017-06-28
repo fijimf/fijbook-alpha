@@ -12,7 +12,7 @@ trait StatValueDAO {
 
   def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Int]
 
-  def saveStatValues(dates: List[LocalDate], model: List[String], stats: List[StatValue]): Future[Any]
+  def saveStatValues(dates: List[LocalDate], model: List[String], stats: List[StatValue]):  Future[Seq[Long]]
 
   def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
 

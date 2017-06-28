@@ -11,7 +11,7 @@ import play.api.Logger
 case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSAccumulator] {
   val log = Logger(LeastSquares.getClass)
   private val completedGames: List[(Game, Result)] = s.games.flatMap(g => s.resultMap.get(g.id).map(r => g -> r))
-  val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
+  lazy val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
     dates.map(d => {
       log.info("Starting "+d)
 

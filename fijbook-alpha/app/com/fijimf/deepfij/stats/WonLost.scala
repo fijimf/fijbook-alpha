@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostAccumulator] {
   val log = Logger(WonLost.getClass)
 
-  val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {
+  lazy val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {
     log.info("Start creating WonLost")
     val zero = (Map.empty[Team, WonLostAccumulator], Map.empty[LocalDate, Map[Team, WonLostAccumulator]])
     Try {

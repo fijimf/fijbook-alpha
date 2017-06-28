@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 
 case class Scoring(s: Schedule, dates:List[LocalDate]) extends Analyzer[ScoringAccumulator] {
 val log = Logger(Scoring.getClass)
-  val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
+  lazy val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
     val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
     Try {s.games
       .sortBy(_.date.toEpochDay)

@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulator] {
 
   val log = Logger(Rpi.getClass)
-  val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
+  lazy val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
     val zero = (Map.empty[Team, RpiAccumulator], Map.empty[LocalDate, Map[Team, RpiAccumulator]])
     Try {
       s.games
