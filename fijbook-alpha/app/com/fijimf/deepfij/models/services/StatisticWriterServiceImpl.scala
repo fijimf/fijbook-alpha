@@ -76,21 +76,6 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
     )
   }
 
-  //  def updateModel(sch: Schedule, dates: List[LocalDate], model: Analyzer[_]): Future[Int] = {
-  //    dates.foldLeft(
-  //      Future.successful(0)
-  //    )(
-  //      (futInt: Future[Int], date: LocalDate) => {
-  //        futInt.flatMap(i => {
-  //
-  //          val futj = updateDay(sch, model, date)
-  //          logger.info(s"For ${model.name}, ${date.toString} ")
-  //          futj.map(_ + i)
-  //        })
-  //      }
-  //    )
-  //  }
-
   def updateDates(sch: Schedule, model: Analyzer[_], dates: List[LocalDate]): Future[Int] = {
     dao.saveStatValues(dates, List(model.key), (for {
       s <- model.stats
