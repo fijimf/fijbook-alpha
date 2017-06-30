@@ -132,19 +132,6 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-
-object StatUtil {
-  def transformSnapshot(svs: List[StatValue], map: (StatValue) => Team, higherIsBetter: Boolean): List[(Int, StatValue, Team)] = {
-    svs.map(sv => map(sv) -> sv).sortBy(tup => if (higherIsBetter) -tup._2.value else tup._2.value).foldLeft(List.empty[(Int, StatValue, Team)])((accum: List[(Int, StatValue, Team)], response: (Team, StatValue)) => {
-      val rank = accum match {
-        case Nil => 1
-        case head :: tail => if (head._2.value == response._2.value) head._1 else accum.size + 1
-      }
-      (rank, response._2, response._1) :: accum
-    }).reverse
-  }
-}
-
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
 case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])

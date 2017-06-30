@@ -18,6 +18,7 @@ trait ScheduleDAO
     with GamePredictionDAO
     with LogisticModelDAO
     with UserProfileDAO {
+
   def updateScoreboard(updateData: List[GameMapping], sourceTag: String):Future[(Seq[Long], Seq[Long])]
 
   def loadSchedules(): Future[List[Schedule]]

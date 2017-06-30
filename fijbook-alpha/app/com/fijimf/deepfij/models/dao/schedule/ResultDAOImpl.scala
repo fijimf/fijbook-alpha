@@ -1,8 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Quote, Result, ScheduleRepository}
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
+import com.fijimf.deepfij.models.{Result, ScheduleRepository}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.dbio.Effect.Write
@@ -13,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 
 trait ResultDAOImpl extends ResultDAO with DAOSlick {
 
-  val log:Logger
+  val log: Logger
   val dbConfigProvider: DatabaseConfigProvider
 
   val repo: ScheduleRepository
@@ -22,22 +21,23 @@ trait ResultDAOImpl extends ResultDAO with DAOSlick {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  final def runWithRetry[R](a: DBIOAction[R, NoStream, Nothing], n: Int): Future[R] =
-    db.run(a).recoverWith {
-      case ex: MySQLTransactionRollbackException => {
-        if (n == 0) {
-          Future.failed(ex)
-        } else {
-          log.info(s"Caught MySQLTransactionRollbackException.  Retrying ($n)")
-          runWithRetry(a, n - 1)
-        }
-      }
-    }
-
   override def listResults: Future[List[Result]] = db.run(repo.results.to[List].result)
 
+  override def saveResult(result: Result): Future[Result] = saveResults(List(result)).map(_.head)
 
-  def deleteResultsByGameId(gameIds: List[Long]):Future[Unit] = {
+  override def saveResults(results: List[Result]): Future[List[Result]] = {
+    val ops = results.map(r1 => repo.results.filter(r => r.gameId === r1.gameId).result.flatMap(rs =>
+      rs.headOption match {
+        case Some(t) =>
+          (repo.results returning repo.results.map(_.id)).insertOrUpdate(r1.copy(id = t.id))
+        case None =>
+          (repo.results returning repo.results.map(_.id)).insertOrUpdate(r1)
+      }
+    ).flatMap(_ => repo.results.filter(t => t.gameId === r1.gameId).result.head))
+    db.run(DBIO.sequence(ops).transactionally)
+  }
+
+  def deleteResultsByGameId(gameIds: List[Long]): Future[Unit] = {
     if (gameIds.nonEmpty) {
       val deletes: List[DBIOAction[_, NoStream, Write]] = gameIds.map(id => repo.results.filter(_.id === id).delete)
 
@@ -55,18 +55,4 @@ trait ResultDAOImpl extends ResultDAO with DAOSlick {
       Future.successful(Unit)
     }
   }
-
-  override def upsertResult(result: Result): Future[Long] = {
-    val action = for (
-      id <- (repo.results returning repo.results.map(_.id)).insertOrUpdate(result)
-    ) yield id
-    val r = runWithRetry(action, 10)
-    r.onComplete {
-      case Success(_) => log.trace("Saved result " + result.id + " (" + result.gameId + ")")
-      case Failure(ex) => log.error(s"Failed upserting result ${result.id} --> ${result.gameId}", ex)
-    }
-    r.map(_.getOrElse(0L))
-  }
-
-
 }
