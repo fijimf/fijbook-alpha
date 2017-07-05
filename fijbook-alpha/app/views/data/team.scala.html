@@ -20,36 +20,12 @@
             <h5>Schedule</h5>
             <table class="table table-condensed table-schedule" >
             @for(g <-curr.games(t)) {
-                @defining(curr.gameLine(t,g._1,g._2)){ (gl:GameLine) =>
-                    <tr>
-                        <td>@gl.date</td>
-                        <td>@gl.vsAt</td>
-                        <td><a href="@routes.TeamController.team(gl.opp.key)">@gl.opp.name</a></td>
-                        @if(gl.wl=="W"){
-                            <td><strong class="text-success">@gl.wl</strong></td>
-                        } else {
-                            <td><strong class="text-danger">@gl.wl</strong></td>
-                        }
-                        <td>@gl.literalScore</td>
-
-                    </tr>
-                }
+                @game_line(curr.gameLine(t,g._1,g._2))
             }
             </table>
         </div>
         <div class="col-sm-4">
-            <h5>@{curr.conference(t).name+" Standings"}</h5>
-            <table class="table table-condensed table-schedule" >
-            @for(r <-curr.conferenceStandings(curr.conference(t)).records) {
-                <tr>
-                    <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
-                    <td>@r._1.won</td>
-                    <td>@r._1.lost</td>
-                    <td>@r._2.won</td>
-                    <td>@r._2.lost</td>
-                </tr>
-            }
-            </table>
+            @conference_standings(curr.conference(t).name, curr.conferenceStandings(curr.conference(t)))
             <h5>Contextual Records</h5>
             <table class="table table-condensed table-schedule" >
             @defining(curr.overallRecord(t)) { wl =>

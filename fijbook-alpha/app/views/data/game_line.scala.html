@@ -1,0 +1,13 @@
+@import com.fijimf.deepfij.models.GameLine
+@(ganeLine: GameLine)
+<tr>
+    <td>@ganeLine.date</td>
+    <td>@ganeLine.vsAt</td>
+    <td><a href="@routes.TeamController.team(ganeLine.opp.key)">@ganeLine.opp.name</a></td>
+    @if(ganeLine.wl=="W"){
+        <td><strong class="text-success">@ganeLine.wl</strong></td>
+    } else {
+        <td><strong class="text-danger">@ganeLine.wl</strong></td>
+    }
+    <td>@ganeLine.literalScore</td>
+</tr>

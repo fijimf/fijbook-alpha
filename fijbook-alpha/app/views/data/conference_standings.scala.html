@@ -1,0 +1,16 @@
+@import com.fijimf.deepfij.models.ConferenceStandings
+@(name: String, standings: ConferenceStandings)
+<h5>@{
+    s"$name Standings"
+}</h5>
+<table class="table table-condensed table-schedule" >
+@for(r<-standings.records) {
+    <tr>
+        <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
+        <td>@r._1.won</td>
+        <td>@r._1.lost</td>
+        <td>@r._2.won</td>
+        <td>@r._2.lost</td>
+    </tr>
+}
+</table>
