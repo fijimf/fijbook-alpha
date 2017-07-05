@@ -19,8 +19,8 @@
     <logger name="play" level="INFO" />
     <logger name="play.api.libs.mailer" level="DEBUG" />
     <logger name="application" level="WARN" />
-    <!--<logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>-->
-    <logger name="slick.jdbc.JdbcBackend.statement"  level="WARN" /> <!-- Will log all statements -->
+    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>
+    <!--<logger name="slick.jdbc.JdbcBackend.statement"  level="WARN" /> &lt;!&ndash; Will log all statements &ndash;&gt;-->
     <logger name="akka.event.slf4j.Slf4jLogger"  level="WARN" /> <!-- Will log all statements -->
     <logger name="com.zaxxer.hikari"  level="WARN" /> <!-- Will log all statements -->
     <logger name="schedule-repo" level="INFO" />

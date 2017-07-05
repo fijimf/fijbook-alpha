@@ -171,4 +171,20 @@ case class Schedule
   }
 
 
+  def teamHomeGamesByLocation = games.filter(_.tourneyKey.isEmpty).foldLeft(Map.empty[Long, Map[String, Int]])((locationData: Map[Long, Map[String, Int]], game: Game) => {
+    game.location match {
+      case Some(loc) => {
+        locationData.get(game.homeTeamId) match {
+          case Some(map) => {
+            val count = map.getOrElse(loc, 0) + 1
+            locationData + (game.homeTeamId -> (map + (loc -> count)))
+          }
+          case None => {
+            locationData + (game.homeTeamId -> Map(loc->1))
+          }
+        }
+      }
+      case None => locationData
+    }
+  })
 }

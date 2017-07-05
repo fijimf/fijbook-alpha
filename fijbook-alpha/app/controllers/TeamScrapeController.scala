@@ -22,7 +22,7 @@ import utils.DefaultEnv
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv],val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -121,7 +121,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
       tl <- teamDao.listTeams;
       cl <- teamDao.listConferences
     ) yield {
-      val confNameMap = cl.map(c => c.name -> c).toMap++cl.map(c=>c.name.replace("Conference","").trim->c)++cl.map(c=>c.name.replace("The","").trim->c)
+      val confNameMap = cl.map(c => c.name -> c).toMap ++ cl.map(c => c.name.replace("Conference", "").trim -> c) ++ cl.map(c => c.name.replace("The", "").trim -> c)
       for (
         s <- sl;
         t <- tl
@@ -135,42 +135,52 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
     }).map(_ => Redirect(routes.AdminController.index()))
   }
 
-  def conferenceTourneySolver(sch:Schedule):List[Game]={
+  def conferenceTourneySolver(sch: Schedule): List[Game] = {
     List.empty[Game]
   }
 
   def neutralSiteSolver() = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-    teamDao.loadSchedules().foreach(_.foreach(sch => {
-      val locationData: Map[Long, Map[String, Int]] = sch.games.filter(_.tourneyKey.isEmpty).foldLeft(Map.empty[Long, Map[String, Int]])((locationData: Map[Long, Map[String, Int]], game: Game) => {
-        game.location match {
-          case Some(loc) => {
-            locationData.get(game.homeTeamId) match {
-              case Some(map) => {
-                val count = map.getOrElse(loc, 0) + 1
-                locationData + (game.homeTeamId -> (map + (loc -> count)))
-              }
-              case None => {
-                locationData + (game.homeTeamId -> Map(loc->1))
-              }
-            }
-          }
-          case None => locationData
-        }
-      })
-      sch.games.foreach(g=>{
-        g.location.foreach(loc=>{
-          locationData.get(g.homeTeamId).foreach(map=>{
-            if (map.contains(loc)){
-              teamDao.saveGame(g.copy(isNeutralSite = true),sch.resultMap.get(g.id))
-            }
-          })
+    teamDao.loadSchedules()
+      .map(schedules =>
+        schedules.flatMap(neutralUpdatesForSchedule)
+      )
+      .flatMap(gl =>
+        teamDao.updateGames(gl)
+      ).map(gs =>
+      Redirect(routes.AdminController.index()).flashing("info" -> s"Updated ${gs.size} at a neutral site")
+    )
+  }
 
-        })
-      })
-    }))
-    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updated games at a neutral site"))
+  private def neutralUpdatesForSchedule(sch: Schedule): List[Game] = {
+    val locationData: Map[Long, Map[String, Int]] = sch.teamHomeGamesByLocation
+    sch.games.foldLeft(List.empty[Option[Game]])((games: List[Option[Game]], game: Game) => {
+      ( for {
+        location: String <- game.location
+        homeGameSites: Map[String, Int] <- locationData.get(game.homeTeamId)
+        timesAtLocation: Int <- homeGameSites.get(location)
+        u: Game <- createNeutralUpdate(game, timesAtLocation)
+      } yield {
+        u
+      }) :: games
 
+    }).flatten
+  }
+
+  private def createNeutralUpdate(game: Game, timesAtLocation: Int): Option[Game] = {
+    if (timesAtLocation > 3) {
+      if (game.isNeutralSite) {
+        Some(game.copy(isNeutralSite = false))
+      } else {
+        None
+      }
+    } else {
+      if (game.isNeutralSite) {
+        None
+      } else {
+        Some(game.copy(isNeutralSite = true))
+      }
+    }
   }
 
   def scrapeOne() = silhouette.SecuredAction.async { implicit rs =>

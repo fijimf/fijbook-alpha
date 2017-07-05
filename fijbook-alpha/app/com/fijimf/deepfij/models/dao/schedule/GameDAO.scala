@@ -16,6 +16,8 @@ trait GameDAO {
 
   def updateGame(game: Game): Future[Game]
 
+  def updateGames(games: List[Game]): Future[List[Game]]
+
   def clearGamesByDate(d: LocalDate): Future[Int]
 
   def saveGame(gt: (Game, Option[Result])): Future[Long]
