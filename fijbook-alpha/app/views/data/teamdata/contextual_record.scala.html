@@ -1,0 +1,8 @@
+@import com.fijimf.deepfij.models.WonLostRecord
+@(name:String, wl:WonLostRecord)
+<tr>
+    <td>@name</td>
+    <td>@wl.won</td>
+    <td>@wl.lost</td>
+    <td>@wl.pct.map(_.formatted("%6.4f")).getOrElse("-")</td>
+</tr>

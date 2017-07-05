@@ -1,0 +1,9 @@
+@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.Team
+@(sch:Schedule,t:Team)
+<h5>Schedule</h5>
+<table class="table table-condensed table-schedule" >
+@for(g <-sch.games(t)) {
+    @game_line(sch.gameLine(t,g._1,g._2))
+}
+</table>

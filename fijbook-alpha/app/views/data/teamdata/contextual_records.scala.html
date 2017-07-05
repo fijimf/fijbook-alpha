@@ -1,0 +1,19 @@
+@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.Team
+@(sch:Schedule, t:Team)
+<h5>Contextual Records</h5>
+<table class="table table-condensed table-schedule" >
+    @contextual_record("Overall",sch.overallRecord(t))
+    @contextual_record("Conference",sch.conferenceRecord(t))
+    @contextual_record("Non-conference",sch.nonConferenceRecord(t))
+    @contextual_record("Home",sch.homeRecord(t))
+    @contextual_record("Away",sch.awayRecord(t))
+    @contextual_record("Neutral",sch.neutralRecord(t))
+    @contextual_record("Last 5",sch.last5Record(t))
+    @contextual_record("Last 10",sch.last10Record(t))
+    @contextual_record("November",sch.novRecord(t))
+    @contextual_record("December",sch.decRecord(t))
+    @contextual_record("January",sch.janRecord(t))
+    @contextual_record("February",sch.febRecord(t))
+    @contextual_record("March",sch.marRecord(t))
+</table>
