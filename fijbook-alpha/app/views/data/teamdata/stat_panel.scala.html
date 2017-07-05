@@ -1,0 +1,29 @@
+@(stats:List[ModelTeamContext])
+
+<h5>Modeled Statistics</h5>
+    @for(tms <-stats) {
+        <div class="panel-group" id="accordion" style="padding-bottom:0; margin-bottom:0;  border-top:1px solid #ddd;">
+            <div class="panel">
+                <div class="panel-heading" style="padding:0; ">
+                    <h5 style="padding:0;">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse-@tms.modelKey"> @tms.model.name</a>
+                    </h5>
+                </div>
+                <div id="collapse-@tms.modelKey" class="panel-collapse collapse">
+                    <div class="panel-body" style="padding:0; border-top:0;">
+                        <table class="table table-condensed table-schedule" >
+                            <tr>
+                                <th></th>
+                                <th>Date</th>
+                                <th >Rank</th>
+                                <th >Value</th>
+                            </tr>
+                            @for(sms<-tms.stats) {
+                                @stat_table(sms.name, tms.modelKey, sms.key, tms.values(sms))
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
