@@ -187,4 +187,11 @@ case class Schedule
       case None => locationData
     }
   })
+
+  def conferenceGamesByLocationDate = {
+    val conferenceToGames: Map[Conference, List[Game]] = games.filter(isConferenceGame).groupBy(g=>conference(teamsMap(g.homeTeamId)))
+    conferenceToGames.map{case (conference: Conference, games: List[Game]) => {
+      games.groupBy(g=>(g.date,g.location))
+    }}
+  }
 }

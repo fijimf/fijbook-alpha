@@ -10,6 +10,7 @@ import forms._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
+import play.twirl.api.Html
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -227,7 +228,38 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def browseConferenceMap(seasonId: Long) = play.mvc.Results.TODO
 
-  def browseGames(id: Long) = play.mvc.Results.TODO
+  def browseGames(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.loadSchedules().map(_.find(_.season.id == id) match {
+      case Some(sch)=>
+        val infos = sch.gameResults.map {
+          case (g: Game, or: Option[Result]) => {
+            GameInfo(
+              g.seasonId,
+              g.id,
+              or.map(_.id),
+              g.datetime,
+              sch.teamsMap(g.homeTeamId).name,
+              or.map(_.homeScore),
+              sch.teamsMap(g.awayTeamId).name,
+              or.map(_.awayScore),
+              or.map(_.periods),
+              g.location.getOrElse(""),
+              g.isNeutralSite,
+              g.tourneyKey.getOrElse(""),
+              g.homeTeamSeed,
+              g.awayTeamSeed,
+              g.sourceKey,
+              g.updatedAt
+            )
+          }
+        }
+
+
+
+        Ok(Html(s"<pre>${infos.mkString("\n")}</pre>"))
+      case None=>Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
+    })
+  }
 
   def lockSeason(id: Long) = play.mvc.Results.TODO
 
