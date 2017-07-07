@@ -20,10 +20,15 @@ case class Breadcrumbs(trail:List[Breadcrumb]) {
     copy(trail=Breadcrumb(display,link,Some(icon))::trail)
   }
 
+  def appendLeaf(display:String):Breadcrumbs = {
+    append(display,"")
+  }
+
 }
 
 object Breadcrumbs {
   def base=Breadcrumbs(List(Breadcrumb("Deep Fij", "/deepfij", Some("fa-circle-o"))))
+  def admin=base.appendChild("Admin","/admin","fa-wrench")
 }
 
 case class Breadcrumb(display:String, link:String, icon:Option[String]=None)

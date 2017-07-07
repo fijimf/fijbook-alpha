@@ -1,14 +1,12 @@
 @import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
+@import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Conference
 @(user:User,conferences:List[Conference])(implicit flash: Flash)
-@main(
-    "deepfij",
-    "Browse Conferences",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Browse Conferencess","fa-wrench","browseConference")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
+@mainX(
+    MainMeta.base("Browse Conferences", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Conferences"))
 ) {
     <div class="row">
         <div class="col-sm-12">

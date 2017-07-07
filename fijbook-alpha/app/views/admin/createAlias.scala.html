@@ -1,5 +1,5 @@
 @import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
+@import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
 @import helper._
@@ -8,13 +8,10 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@main(
-    "deepfij",
-    "Editing Alias",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Aliases","fa-eyeball","browseAliases").appendChild("create","fa-edit","createAlias")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
-) {
+@mainX( MainMeta.base("Edit Alias", Some(user))
+        .withNav("admin")
+        .withCrumbs(Breadcrumbs.admin.appendLeaf("Edit Alias"))
+){
     <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.DataController.saveAlias()) {

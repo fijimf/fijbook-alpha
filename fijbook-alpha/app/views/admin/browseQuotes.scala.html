@@ -1,12 +1,10 @@
 @import com.fijimf.deepfij.models.{Quote, User}
-@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@import controllers.nav.{Breadcrumbs, MainMeta}
 @(user: User, qs: List[Quote])(implicit flash: Flash)
-@main(
-    "deepfij",
-    "Browse Quotes",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin", "/admin", "fa-wrench").appendChild("Browse Quotes", "fa-wrench", "browseQuotes")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
+@mainX(
+    MainMeta.base("Browse Quotes", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Quotes"))
 ) {
     <div class="row">
         <div class="col-sm-3">
