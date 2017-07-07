@@ -1,0 +1,31 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.GameInfo
+@(user:User,gs:List[GameInfo])(implicit flash: Flash)
+@mainX(
+    MainMeta.base("Browse Games", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Games"))
+){
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-condensed table-bordered">
+               <thead><tr>
+                   <th>Season ID</th>
+                   <th>ID</th>
+                   <th>Result ID</th>
+               </tr></thead>
+                <tbody >
+                    @for(g<-gs){
+                        <tr>
+                            <td>@g.seasonId</td>
+                            <td>@g.id</td>
+                            <td>@{g.resultId.map(_.toString).getOrElse("")}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
