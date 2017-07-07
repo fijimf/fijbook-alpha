@@ -1,5 +1,5 @@
 @import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
+@import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Conference
 @import helper._
@@ -8,13 +8,10 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@main(
-    "deepfij",
-    conference.name,
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Teams","fa-eyeball","browseTeams").appendChild(conference.name,"fa-edit","editConference")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
-) {
+@mainX( MainMeta.base(conference.name, Some(user))
+        .withNav("admin")
+        .withCrumbs(Breadcrumbs.admin.appendChild("Conferences","/browseConferences","fa-eyeball").appendLeaf(conference.name))
+){
     <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.DataController.saveConference()) {

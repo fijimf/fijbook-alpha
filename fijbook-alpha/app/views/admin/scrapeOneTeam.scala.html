@@ -1,5 +1,5 @@
 @import controllers.nav.Breadcrumbs
-@import controllers.nav.StandardNavBar
+@import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
 @import helper._
@@ -8,12 +8,9 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@main(
-    "deepfij",
-    "Scrape One Team",
-    "",
-    Some(Breadcrumbs.base.appendChild("Admin","/admin","fa-wrench").appendChild("Seasons","fa-eyeball","browseSeasons").appendChild("create","fa-edit","createSeason")),
-    StandardNavBar.active("admin",Some(user)), Some(user)
+@mainX( MainMeta.base("Scrape One Team", Some(user))
+        .withNav("admin")
+        .withCrumbs(Breadcrumbs.admin.appendLeaf("Scrape One Team"))
 ) {
     <div class="row">
         <div class="col-sm-8">
