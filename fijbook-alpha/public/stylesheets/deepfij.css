@@ -7,7 +7,7 @@
 .quote {
     position: absolute;
     left: 225px;
-    top:20px;
+    top: 20px;
     width: 100%;
     color: #bbb;
     font-size: 100%;
@@ -43,25 +43,27 @@
     font-size: small;
 }
 
-.panel-heading  a{
+.panel-heading a {
     text-decoration: none;
     color: inherit;
 }
 
-.panel-heading  a:before {
+.panel-heading a:before {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    content:"\f054";
+    content: "\f054";
 }
-.panel-heading  a[aria-expanded="false"]:before {
-    content:"\f054";
+
+.panel-heading a[aria-expanded="false"]:before {
+    content: "\f054";
 }
-.panel-heading  a[aria-expanded="true"]:before {
-    content:"\f078";
+
+.panel-heading a[aria-expanded="true"]:before {
+    content: "\f078";
 }
 
 img.spin:hover {
@@ -95,13 +97,31 @@ img.spin:hover {
 
 .jumbofridge {
     background: #780206; /* fallback for old browsers */
-    background: -webkit-linear-gradient(to left, #780206 , #061161); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to left, #780206 , #061161); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: -webkit-linear-gradient(to left, #780206, #061161); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #780206, #061161); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     border-radius: 35px;
 }
 
-.jumbofridge h1{
+.jumbofridge h1 {
     color: white;
     font-size: 128px;
     font-weight: bold;
+}
+
+.table-smushed > thead > tr > th,
+.table-smushed > tbody > tr > th,
+.table-smushed > tfoot > tr > th,
+.table-smushed > thead > tr > td,
+.table-smushed > tbody > tr > td,
+.table-smushed > tfoot > tr > td {
+    padding: 1px 1px 0px 1px;
+    font-size: 80%;
+    overflow: hidden;
+    white-space:nowrap;
+}
+
+.table-smushed table > thead > tr > th {
+    padding: 1px 1px 0px 1px;
+    font-size: 66%;
+
 }

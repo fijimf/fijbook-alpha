@@ -2,6 +2,8 @@
 @import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.GameInfo
+@import java.time.format.DateTimeFormatter
+@import org.apache.commons.lang3.StringUtils
 @(user:User,gs:List[GameInfo])(implicit flash: Flash)
 @mainX(
     MainMeta.base("Browse Games", Some(user))
@@ -10,18 +12,52 @@
 ){
     <div class="row">
         <div class="col-sm-12">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-smushed table-bordered">
                <thead><tr>
-                   <th>Season ID</th>
+                   <th>S</th>
                    <th>ID</th>
-                   <th>Result ID</th>
+                   <th>Res</th>
+                   <th>Game Time</th>
+                   <th>Home</th>
+                   <th></th>
+                   <th>Away</th>
+                   <th></th>
+                   <th>P</th>
+                   <th>Ntr</th>
+                   <th>Loc</th>
+                   <th>Tourney</th>
+                   <th>Source</th>
+                   <th>Updated</th>
                </tr></thead>
                 <tbody >
                     @for(g<-gs){
                         <tr>
                             <td>@g.seasonId</td>
-                            <td>@g.id</td>
+                            <td><a href="@routes.DataController.editGame(g.id)">@g.id</a></td>
                             <td>@{g.resultId.map(_.toString).getOrElse("")}</td>
+                            <td>@{g.datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}</td>
+                            <td>@g.homeTeamName</td>
+                            <td>@{g.homeTeamScore.map(_.toString).getOrElse("")}</td>
+                            <td>@g.awayTeamName</td>
+                            <td>@{g.awayTeamScore.map(_.toString).getOrElse("")}</td>
+                            <td>@{g.periods.map(_.toString).getOrElse("")}</td>
+                            <td>@{if (g.isNeutralSite) "Y" else "N"}</td>
+                            <td>@{StringUtils.abbreviate(g.location,24)}</td>
+                            <td>@{s"${g.tourney} ${g.homeSeed.map(_.toString).getOrElse("")} ${g.awaySeed.map(_.toString).getOrElse("")}"} </td>
+                            <td>@g.source &emsp;
+                                @for(su<-g.sourceUrl) {
+                                    <a href="@su" target="_blank">
+                                        <span class="fa fa-eye"></span> &emsp;
+                                    </a>
+                                }
+                                @for(dk<-g.sourceDate) {
+                                    <a href="@routes.GameScrapeController.scrapeForDay(dk.format(DateTimeFormatter.ofPattern("yyyyMMdd")))">
+                                        <span class="fa fa-refresh"></span>
+                                    </a>
+                                }
+                            </td>
+                            <td>@{g.updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}</td>
+                            <td><a href="@routes.DataController.deleteGame(g.id)"><span class="fa fa-times text-danger"></span></a></td>
                         </tr>
                     }
                 </tbody>

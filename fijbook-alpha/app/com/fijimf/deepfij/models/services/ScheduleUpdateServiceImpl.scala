@@ -40,7 +40,19 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     }
   }
 
-  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean) = {
+  def updateSeason(optDates: Option[List[LocalDate]], mailReport: Boolean) = {
+    dao.listSeasons.map(ss=>{
+      optDates match {
+        case Some(ds)=>
+          ds.groupBy(d => ss.find(s => s.dates.contains(d)))
+            .filter{case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty}
+            .foreach{case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates),ms.get,mailReport)}
+        case None=> updateSeason(None, ss.maxBy(_.year),mailReport)
+      }
+    })
+  }
+
+  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean): Unit = {
     logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
     if (dao.checkAndSetLock(s.id)) {
       val updatedBy: String = "Scraper[Updater]"

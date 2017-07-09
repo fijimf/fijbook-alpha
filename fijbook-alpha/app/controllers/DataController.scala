@@ -1,6 +1,6 @@
 package controllers
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
@@ -228,7 +228,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def browseConferenceMap(seasonId: Long) = play.mvc.Results.TODO
 
-  def browseGames(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def browseGames(id: Long, query:Option[String]) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.loadSchedules().map(_.find(_.season.id == id) match {
       case Some(sch)=>
         val infos = sch.gameResults.map {
@@ -252,11 +252,14 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
               g.updatedAt
             )
           }
+        }.sortBy(g=>(g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
+
+        query match {
+          case   Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str))))
+          case  None => Ok(views.html.admin.browseGames(rs.identity, infos))
+
         }
 
-
-
-        Ok(views.html.admin.browseGames(rs.identity, infos))
       case None=>Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
     })
   }
@@ -264,4 +267,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   def lockSeason(id: Long) = play.mvc.Results.TODO
 
   def deleteSeason(id: Long) = play.mvc.Results.TODO
+
+  def editGame(id: Long) = play.mvc.Results.TODO
+  def deleteGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
+  }
+
 }

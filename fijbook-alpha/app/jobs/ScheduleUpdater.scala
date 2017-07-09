@@ -12,23 +12,26 @@ class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case Update(od, sendEmail)=> svc.update(od, sendEmail)
-
+    case Update(od, sendEmail)=> svc.updateSeason(od, sendEmail)
   }
 }
 
 object ScheduleUpdater {
+  val nowDays = (-1).to(1).toList
+  val dailyDays = (-7).to(7).toList
 
-  case class Update(dates: Option[List[Int]] = None, sendEmail:Boolean=false)
+  case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
 
   def forAll = Update()
 
   def forNow() = {
-    Update(Some((-1).to(1).toList))
+    val d = LocalDate.now()
+    Update(Some(nowDays.map(d.plusDays(_))))
   }
 
   def forDailyUpdate() = {
-    Update(Some((-7).to(7).toList), sendEmail = true)
+    val d = LocalDate.now()
+    Update(Some(dailyDays.map(d.plusDays(_))))
   }
 
 }
