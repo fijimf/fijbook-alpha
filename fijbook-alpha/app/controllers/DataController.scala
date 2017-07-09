@@ -255,8 +255,8 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         }.sortBy(g=>(g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
 
         query match {
-          case   Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str))))
-          case  None => Ok(views.html.admin.browseGames(rs.identity, infos))
+          case   Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str)),Some(str)))
+          case  None => Ok(views.html.admin.browseGames(rs.identity, infos, None))
 
         }
 

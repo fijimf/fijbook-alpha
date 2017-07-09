@@ -26,7 +26,7 @@ import scala.util.{Failure, Success}
 class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
-   implicit val timeout = Timeout(600.seconds)
+  implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
   def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false) {
@@ -41,37 +41,33 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
   def updateSeason(optDates: Option[List[LocalDate]], mailReport: Boolean) = {
-    dao.listSeasons.map(ss=>{
+    dao.listSeasons.map(ss => {
       optDates match {
-        case Some(ds)=>
+        case Some(ds) =>
           ds.groupBy(d => ss.find(s => s.dates.contains(d)))
-            .filter{case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty}
-            .foreach{case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates),ms.get,mailReport)}
-        case None=> updateSeason(None, ss.maxBy(_.year),mailReport)
+            .filter { case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty }
+            .foreach { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get, mailReport) }
+        case None => updateSeason(None, ss.maxBy(_.year), mailReport)
       }
     })
   }
 
   def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean): Unit = {
     logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
-    if (dao.checkAndSetLock(s.id)) {
-      val updatedBy: String = "Scraper[Updater]"
-      scrapeSeasonGames2(s, optDates, updatedBy).onComplete {
-        case Success(_) =>
-          logger.info("Schedule update scrape complete.")
-          if (mailReport) {
-            logger.info("Mailing summary")
-            mailSuccessReport(optDates)
-          }
-          dao.unlockSeason(s.id)
-        case Failure(thr) =>
-          logger.error("Schedule update scrape failed.", thr)
-          if (mailReport) {
-            logger.info("Mailing summary")
-            maillErrorReport(optDates)
-          }
-          dao.unlockSeason(s.id)
-      }
+    val updatedBy: String = "Scraper[Updater]"
+    scrapeSeasonGames(s, optDates, updatedBy).onComplete {
+      case Success(_) =>
+        logger.info("Schedule update scrape complete.")
+        if (mailReport) {
+          logger.info("Mailing summary")
+          mailSuccessReport(optDates)
+        }
+      case Failure(thr) =>
+        logger.error("Schedule update scrape failed.", thr)
+        if (mailReport) {
+          logger.info("Mailing summary")
+          maillErrorReport(optDates)
+        }
     }
   }
 
@@ -109,7 +105,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     Future.sequence(keys.map(sourceKey => dao.updateScoreboard(groups.getOrElse(sourceKey, List.empty[GameMapping]), sourceKey)))
   }
 
-  def scrapeSeasonGames2(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.map(teamDictionary => {
