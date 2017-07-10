@@ -25,4 +25,7 @@ trait GameDAO {
   def gamesByDate(d: List[LocalDate]): Future[List[(Game, Option[Result])]]
 
   def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]]
+
+  def gamesById(id:Long): Future[Option[(Game, Option[Result])]]
+
 }

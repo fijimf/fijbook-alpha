@@ -67,6 +67,7 @@ GET         /deepfij/admin/browseConferenceMap/:seasonId        controllers.Data
 ##### GAMES
 GET         /deepfij/admin/browseGames/:seasonId                controllers.DataController.browseGames(seasonId:Long, query:Option[String])
 GET         /deepfij/admin/editGame/:id                         controllers.DataController.editGame(id:Long)
+POST        /deepfij/admin/saveGame                             controllers.DataController.saveGame
 GET         /deepfij/admin/deleteGame/:id                       controllers.DataController.deleteGame(id:Long)
 
 ##### QUOTES

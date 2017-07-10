@@ -267,7 +267,15 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def deleteSeason(id: Long) = play.mvc.Results.TODO
 
-  def editGame(id: Long) = play.mvc.Results.TODO
+  def editGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.gamesById(id).map {
+      case Some(c) =>
+        Ok(views.html.admin.editGame(rs.identity, c._1, EditGameForm.form.fill(EditGameForm.team2Data(c._1))))
+      case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
+    }
+  }
+
+  def saveGame = play.mvc.Results.TODO
   def deleteGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
   }

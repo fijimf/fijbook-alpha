@@ -64,6 +64,9 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
   override def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
 
+  override def gamesById(id:Long): Future[Option[(Game, Option[Result])]] =
+    db.run(repo.gameResults.filter(_._1.id === id).to[List].result.headOption)
+
   override def updateGame(game: Game): Future[Game] = {
     updateGames(List(game)).map(_.head)
   }
