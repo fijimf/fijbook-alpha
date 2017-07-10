@@ -257,7 +257,6 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         query match {
           case   Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str)),Some(str)))
           case  None => Ok(views.html.admin.browseGames(rs.identity, infos, None))
-
         }
 
       case None=>Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
