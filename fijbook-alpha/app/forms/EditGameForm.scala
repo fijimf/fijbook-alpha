@@ -21,8 +21,6 @@ object EditGameForm {
       "location" -> optional(text),
       "isNeutral" -> boolean,
       "tourney" -> optional(text),
-      "homeTeamSeed" -> optional(number(min = 1, max = 16)),
-      "awayTeamSeed" -> optional(number(min = 1, max = 16)),
       "sourceKey" -> text
     )(Data.apply)(Data.unapply)
   )
@@ -39,8 +37,6 @@ object EditGameForm {
                    location: Option[String],
                    isNeutral: Boolean,
                    tourney: Option[String],
-                   homeTeamSeed: Option[Int],
-                   awayTeamSeed: Option[Int],
                    sourceKey: String
                  )
 
@@ -57,8 +53,6 @@ object EditGameForm {
       g.location,
       g.isNeutralSite,
       g.tourneyKey,
-      g.homeTeamSeed,
-      g.awayTeamSeed,
       g.sourceKey
     )
   }

@@ -127,22 +127,16 @@ img.spin:hover {
 }
 
 
-.team-name-input, .team-score-input  {
+.deepfij75-25-input  {
     padding-top:5px;
 }
 
-.team-name-input > label {
+.deepfij75-25-input > label {
     width: 20%;
 }
 
-.team-name-input > select {
+.deepfij75-25-input > select,
+.deepfij75-25-input > text,
+.deepfij75-25-input > input {
     width: 70% !important;%
-}
-
-.team-score-input > label {
-    width: 25%
-}
-
-.team-score-input > text {
-    width: 75%
 }
