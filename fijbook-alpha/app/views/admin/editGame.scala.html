@@ -1,28 +1,38 @@
-@import controllers.nav.Breadcrumbs
-@import controllers.nav.MainMeta
-@import com.fijimf.deepfij.models.User
-@import com.fijimf.deepfij.models.Game
+@import com.fijimf.deepfij.models.{Game, User}
+@import controllers.nav.{Breadcrumbs, MainMeta}
 @import helper._
 
-@(user:User,game:Game, gameForm: Form[forms.EditGameForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@(user: User, game: Game, gameForm: Form[forms.EditGameForm.Data], teamData: List[(String, String)])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
-@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+@implicitFieldConstructor = @{
+    b3.inline.fieldConstructor
+}
 
-@mainX( MainMeta.base(s"Game ${game.id}", Some(user))
+@mainX(MainMeta.base(s"Game ${game.id}", Some(user))
         .withNav("admin")
         .withCrumbs(Breadcrumbs.admin
-        .appendChild("Games","/browseGames","fa-eyeball")
+        .appendChild("Games", "/browseGames", "fa-eyeball")
         .appendLeaf(s"Game ${game.id}"))
 ) {
     <div class="row">
-        <div class="col-sm-8">
-            @b3.form(routes.DataController.saveGame()) {
-                @CSRF.formField
-                @b3.hidden( "id", gameForm("id").value.getOrElse(""), '_label -> "ID" )
-                @b3.text( gameForm("homeTeamId"), '_label -> "homeTeamId" )
-                @b3.text( gameForm("awayTeamId"), '_label -> "awayTeamId" )
-                @b3.submit('class -> "btn btn-default"){ Submit }
-            }
+        <div class="col-sm-12">
+        @b3.form(routes.DataController.saveGame()) {
+            @CSRF.formField
+            @b3.hidden("id", gameForm("id").value.getOrElse(""), '_label -> "ID")
+            @b3.hidden("seasonId", gameForm("seasonId").value.getOrElse(""), '_label -> "SeasonID")
+            @b3.select(gameForm("homeTeamId"), options = teamData, '_label -> "Home Team", '_class -> "col-sm-7 team-name-input")
+            @b3.number(gameForm("homeTeamScore"), '_label -> "Home Score", '_class -> "col-sm-5 team-score-input")
+            @b3.select(gameForm("awayTeamId"), options = teamData, '_label -> "Away Team", '_class -> "col-sm-7 team-name-input")
+            @b3.number(gameForm("awayTeamScore"), '_label -> "Away Score", '_class -> "col-sm-5 team-score-input")
+            @b3.datetime(gameForm("datetime"), '_label -> "Date Time")
+            @b3.number(gameForm("periods"), '_label -> "Num Periods")
+            @b3.checkbox(gameForm("isNeutral"), '_label -> "Neutral")
+            @b3.text(gameForm("tourney"), '_label -> "Tourney?")
+            @b3.text(gameForm("homeTeamSeed"), '_label -> "Home Seed")
+            @b3.text(gameForm("awayTeamSeed"), '_label -> "Away Seed")
+            @b3.text(gameForm("sourceKey"), '_label -> "Source")
+            @b3.submit('class -> "btn btn-default") { Submit }
+        }
         </div>
     </div>
 }

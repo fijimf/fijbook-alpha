@@ -1,6 +1,6 @@
 package forms
 
-import com.fijimf.deepfij.models.Game
+import com.fijimf.deepfij.models.{Game, Result}
 import play.api.data.Form
 import play.api.data.Forms._
 
@@ -13,7 +13,10 @@ object EditGameForm {
       "id" -> longNumber,
       "seasonId" -> longNumber,
       "homeTeamId" -> longNumber,
+      "homeTeamScore" -> optional(number),
       "awayTeamId" -> longNumber,
+      "awayTeamScore" -> optional(number),
+      "numPeriods" -> optional(number),
       "datetime" -> nonEmptyText,
       "location" -> optional(text),
       "isNeutral" -> boolean,
@@ -28,7 +31,10 @@ object EditGameForm {
                    id: Long,
                    seasonId: Long,
                    homeTeamId: Long,
+                   homeScore:Option[Int],
                    awayTeamId: Long,
+                   awayScore:Option[Int],
+                   periods:Option[Int],
                    datetime: String,
                    location: Option[String],
                    isNeutral: Boolean,
@@ -38,12 +44,15 @@ object EditGameForm {
                    sourceKey: String
                  )
 
-  def team2Data(g: Game) = {
+  def team2Data(g: Game, r:Option[Result]) = {
     Data(
       g.id,
       g.seasonId,
       g.homeTeamId,
+      r.map(_.homeScore),
       g.awayTeamId,
+      r.map(_.awayScore),
+      r.map(_.periods),
       g.datetime.toString,
       g.location,
       g.isNeutralSite,

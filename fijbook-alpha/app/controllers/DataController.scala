@@ -10,7 +10,6 @@ import forms._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Controller
-import play.twirl.api.Html
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -27,11 +26,10 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
     EditTeamForm.form.bindFromRequest.fold(
       form => {
         val formId: Int = form("id").value.getOrElse("0").toInt
-        val fot: Future[Option[Team]] = teamDao.findTeamById(formId)
-        fot.map(ot => ot match {
+        teamDao.findTeamById(formId).map {
           case Some(t) => BadRequest(views.html.admin.editTeam(request.identity, t, form))
           case None => Redirect(routes.DataController.browseTeams()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
-        })
+        }
       },
       data => {
         val t = Team(
@@ -85,8 +83,8 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
         val s = Season(data.id, data.year, data.lock, data.lockBefore)
         val future: Future[Season] = teamDao.saveSeason(s)
         future.onComplete {
-          case Success(ss) => logger.info("Saved season: "+ss)
-          case Failure(thr) => logger.error("Failed to save season: "+s, thr)
+          case Success(ss) => logger.info("Saved season: " + ss)
+          case Failure(thr) => logger.error("Failed to save season: " + s, thr)
         }
         future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
       }
@@ -125,7 +123,7 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
           case Success(q) => logger.info(s"Saved quote: '${q.quote}' (${q.id})")
           case Failure(thr) => logger.error(s"Failed saving quote $q", thr)
         }
-        val flashMsg = if (q.id==0) "Created quote "+q.id else "Updated quote"+q.id
+        val flashMsg = if (q.id == 0) "Created quote " + q.id else "Updated quote" + q.id
         future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
@@ -207,13 +205,13 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def initializeAliases() = silhouette.SecuredAction.async { implicit request =>
     teamDao.deleteAliases().flatMap(i => {
-      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length>0)
+      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
       Future.sequence(lines.map(s => {
         val parts = s.trim.split("\\s+")
-        if (parts.size==2) {
+        if (parts.size == 2) {
           teamDao.saveAlias(Alias(0L, parts(0), parts(1)))
         } else {
-          logger.info("Skipping '"+s+"'")
+          logger.info("Skipping '" + s + "'")
           Future.successful(0)
         }
       })
@@ -228,9 +226,9 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
 
   def browseConferenceMap(seasonId: Long) = play.mvc.Results.TODO
 
-  def browseGames(id: Long, query:Option[String]) = silhouette.SecuredAction.async { implicit rs =>
+  def browseGames(id: Long, query: Option[String]) = silhouette.SecuredAction.async { implicit rs =>
     teamDao.loadSchedules().map(_.find(_.season.id == id) match {
-      case Some(sch)=>
+      case Some(sch) =>
         val infos = sch.gameResults.map {
           case (g: Game, or: Option[Result]) => {
             GameInfo(
@@ -252,14 +250,14 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
               g.updatedAt
             )
           }
-        }.sortBy(g=>(g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
+        }.sortBy(g => (g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
 
         query match {
-          case   Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str)),Some(str)))
-          case  None => Ok(views.html.admin.browseGames(rs.identity, infos, None))
+          case Some(str) => Ok(views.html.admin.browseGames(rs.identity, infos.filter(_.matches(str)), Some(str)))
+          case None => Ok(views.html.admin.browseGames(rs.identity, infos, None))
         }
 
-      case None=>Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
+      case None => Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
     })
   }
 
@@ -268,16 +266,25 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   def deleteSeason(id: Long) = play.mvc.Results.TODO
 
   def editGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
-    teamDao.gamesById(id).map {
-      case Some(c) =>
-        Ok(views.html.admin.editGame(rs.identity, c._1, EditGameForm.form.fill(EditGameForm.team2Data(c._1))))
-      case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
+    for {
+      ot <- teamDao.gamesById(id)
+      lt <- teamDao.listTeams
+    } yield {
+      ot match {
+        case Some(c) =>
+          val teamData = lt.map(t => t.id.toString -> t.name).sortBy(_._2)
+          Ok(views.html.admin.editGame(rs.identity, c._1, EditGameForm.form.fill(EditGameForm.team2Data(c._1, c._2)), teamData))
+        case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
+      }
     }
   }
 
+
   def saveGame = play.mvc.Results.TODO
-  def deleteGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
-    teamDao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
+
+  def deleteGame(id: Long) = silhouette.SecuredAction.async {
+    implicit rs =>
+      teamDao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
   }
 
 }

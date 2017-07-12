@@ -125,3 +125,24 @@ img.spin:hover {
     font-size: 66%;
 
 }
+
+
+.team-name-input, .team-score-input  {
+    padding-top:5px;
+}
+
+.team-name-input > label {
+    width: 20%;
+}
+
+.team-name-input > select {
+    width: 70% !important;%
+}
+
+.team-score-input > label {
+    width: 25%
+}
+
+.team-score-input > text {
+    width: 75%
+}
