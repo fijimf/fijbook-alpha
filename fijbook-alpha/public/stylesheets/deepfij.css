@@ -128,7 +128,7 @@ img.spin:hover {
 
 
 .deepfij75-25-input  {
-    padding-top:5px;
+    margin-bottom:15px !important;
 }
 
 .deepfij75-25-input > label {
@@ -139,4 +139,18 @@ img.spin:hover {
 .deepfij75-25-input > text,
 .deepfij75-25-input > input {
     width: 70% !important;%
+}
+
+.deepfij50-50-input  {
+    margin-bottom:15px !important;
+}
+
+.deepfij50-50-input > label {
+    width: 45%;
+}
+
+.deepfij50-50-input > select,
+.deepfij50-50-input > text,
+.deepfij50-50-input > input {
+    width: 45% !important;%
 }
