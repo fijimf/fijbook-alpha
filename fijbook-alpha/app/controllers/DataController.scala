@@ -280,7 +280,31 @@ class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[
   }
 
 
-  def saveGame = play.mvc.Results.TODO
+  def saveGame =  silhouette.SecuredAction.async { implicit rs =>
+    teamDao.listTeams.flatMap(td=> {
+      val teamData = td.map(t => t.id.toString -> t.name).sortBy(_._2)
+      EditGameForm.form.bindFromRequest.fold(
+        form => {
+          val formId: Int = form("id").value.getOrElse("0").toInt
+          val formSeasonId: Int = form("seasonId").value.getOrElse("0").toInt
+          val fot: Future[Option[(Game, Option[Result])]] = teamDao.gamesById(formId)
+          fot.map {
+            case Some(tup) => BadRequest(views.html.admin.editGame(rs.identity, tup._1, form, teamData))
+            case None => Redirect(routes.DataController.browseGames(formSeasonId, None)).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
+          }
+        },
+        data => {
+          val gr: (Game, Option[Result]) = data.toGameResult(rs.identity.userID.toString)
+          val future: Future[Option[Game]] = teamDao.saveGameResult(gr._1,gr._2)
+          future.onComplete {
+            case Success(conference) => logger.info(s"Saved game '${gr._1.id}")
+            case Failure(thr) => logger.error(s"Failed saving ${gr._1.id} with error ${thr.getMessage}", thr)
+          }
+          future.map(i => Redirect(routes.DataController.browseGames(data.seasonId,None)).flashing("info" -> ("Saved " + data.id)))
+        }
+      )
+    })
+  }
 
   def deleteGame(id: Long) = silhouette.SecuredAction.async {
     implicit rs =>

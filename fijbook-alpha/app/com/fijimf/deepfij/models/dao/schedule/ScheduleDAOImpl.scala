@@ -59,6 +59,15 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
+  override def saveGameResult(g:Game,r:Option[Result]): Future[Option[Game]] = {
+    db.run(((g,r) match {
+      case (g, None) =>
+        handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
+      case (g, Some(r)) =>
+        handleGame(g).flatMap(g1 => handleResult(g1, r))
+    }).transactionally)
+  }
+
   override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[(Seq[Long], Seq[Long])] = {
     val mutations = updateData.map {
       case MappedGame(g) =>

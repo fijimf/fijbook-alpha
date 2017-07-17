@@ -1,5 +1,7 @@
 package forms
 
+import java.time.LocalDateTime
+
 import com.fijimf.deepfij.models.{Game, Result}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -29,18 +31,29 @@ object EditGameForm {
                    id: Long,
                    seasonId: Long,
                    homeTeamId: Long,
-                   homeScore:Option[Int],
+                   homeScore: Option[Int],
                    awayTeamId: Long,
-                   awayScore:Option[Int],
-                   periods:Option[Int],
+                   awayScore: Option[Int],
+                   periods: Option[Int],
                    datetime: String,
                    location: Option[String],
                    isNeutral: Boolean,
                    tourney: Option[String],
                    sourceKey: String
-                 )
+                 ) {
+    def toGameResult(user: String): (Game, Option[Result]) = {
+      val gametime = LocalDateTime.parse(datetime)
+      (Game(id, seasonId, homeTeamId, awayTeamId, gametime.toLocalDate, gametime, location, isNeutral, tourney, None, None, sourceKey, LocalDateTime.now(), user),
+        for {
+          hts <- homeScore
+          ats <- awayScore
+        } yield {
+          Result(0L, id, hts, ats, periods.getOrElse(2), LocalDateTime.now(), user)
+        })
+    }
+  }
 
-  def team2Data(g: Game, r:Option[Result]) = {
+  def team2Data(g: Game, r: Option[Result]) = {
     Data(
       g.id,
       g.seasonId,
