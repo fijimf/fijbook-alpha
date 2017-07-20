@@ -16,7 +16,7 @@ GET         /deepfij/stats/:modelKey/:statKey                   controllers.Stat
 GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
-
+GET         /deepfij/s/:folder/:slug                            controllers.S3BlockController.blog(folder:String, slug:String)
 ########### ASSETS
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)

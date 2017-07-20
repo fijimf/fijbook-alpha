@@ -1,0 +1,11 @@
+@import com.fijimf.deepfij.models.{Schedule,User,Game}
+@import controllers.nav.{Breadcrumbs, StandardNavBar,MainMeta}
+@import java.time.LocalDate
+@(user:Option[User],title:String, slug:String, content:String)(implicit flash: Flash)
+@mainX(
+    MainMeta.base(title, user)
+            .withNav("blog")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf(title))
+){
+@Html(content)
+}
