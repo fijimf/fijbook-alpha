@@ -1,0 +1,35 @@
+@import com.fijimf.deepfij.models.{Quote, User}
+@import controllers.nav.{Breadcrumbs, MainMeta}
+@import com.fijimf.deepfij.models.StaticBlockInfo
+@(user: User, infos: List[StaticBlockInfo])(implicit flash: Flash)
+@mainX(
+    MainMeta.base("Browse Static Blocks", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Static Pages "))
+) {
+    <div class="row">
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createQuote()">Create Quote</a></p>
+        </div>
+        </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-condensed table-bordered">
+                <thead><tr>
+                    <th>Slug</th>
+                    <th>Last Mod</th>
+                    <th>Tags</th>
+                </tr></thead>
+                <tbody >
+                @for(in <- infos) {
+                    <tr>
+                        <td>@in.key</td>
+                        <td>@in.lastModified.toString()</td>
+                        <td>@in.tags</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

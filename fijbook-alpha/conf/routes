@@ -77,6 +77,8 @@ POST        /deepfij/admin/saveQuote                            controllers.Data
 GET         /deepfij/admin/editQuote/:id                        controllers.DataController.editQuote(id:Long)
 GET         /deepfij/admin/deleteQuote/:id                      controllers.DataController.deleteQuote(id:Long)
 
+
+GET         /deepfij/admin/listStaticPages/:folder              controllers.S3BlockAdminController.listStaticBlockPages(folder:String)
 ##### ALIASES
 GET         /deepfij/admin/browseAliases                        controllers.DataController.browseAliases
 GET         /deepfij/admin/initializeAliases                    controllers.DataController.initializeAliases()
