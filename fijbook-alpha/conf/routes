@@ -78,7 +78,11 @@ GET         /deepfij/admin/editQuote/:id                        controllers.Data
 GET         /deepfij/admin/deleteQuote/:id                      controllers.DataController.deleteQuote(id:Long)
 
 
-GET         /deepfij/admin/listStaticPages/:folder              controllers.S3BlockAdminController.listStaticBlockPages(folder:String)
+GET         /deepfij/admin/staticPages/list                     controllers.S3AdminController.listStaticPages
+GET         /deepfij/admin/staticPages/create                   controllers.S3AdminController.createStaticPage
+GET         /deepfij/admin/staticPages/edit/:slug               controllers.S3AdminController.editStaticPage(slug:String)
+GET         /deepfij/admin/staticPages/save                     controllers.S3AdminController.saveStaticPage
+GET         /deepfij/admin/staticPages/delete/:slug             controllers.S3AdminController.deleteStaticPage(slug:String)
 ##### ALIASES
 GET         /deepfij/admin/browseAliases                        controllers.DataController.browseAliases
 GET         /deepfij/admin/initializeAliases                    controllers.DataController.initializeAliases()

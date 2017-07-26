@@ -1,15 +1,15 @@
 @import com.fijimf.deepfij.models.{Quote, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
-@import com.fijimf.deepfij.models.StaticBlockInfo
-@(user: User, infos: List[StaticBlockInfo])(implicit flash: Flash)
+@import com.fijimf.deepfij.models.S3StaticAsset
+@(user: User, infos: List[S3StaticAsset])(implicit flash: Flash)
 @mainX(
-    MainMeta.base("Browse Static Blocks", Some(user))
+    MainMeta.base("Browse Static Pages", Some(user))
             .withNav("admin")
             .withCrumbs(Breadcrumbs.admin.appendLeaf("Static Pages "))
 ) {
     <div class="row">
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createQuote()">Create Quote</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.S3AdminController.createStaticPage()">Create Static Page</a></p>
         </div>
         </div>
     <div class="row">
@@ -23,8 +23,8 @@
                 <tbody >
                 @for(in <- infos) {
                     <tr>
-                        <td>@in.key</td>
-                        <td>@in.lastModified.toString()</td>
+                        <td><a href="@routes.S3AdminController.editStaticPage(in.relativeKey)">@in.key</a></td>
+                        <td>@in.lastModified.toString</td>
                         <td>@in.tags</td>
                     </tr>
                 }

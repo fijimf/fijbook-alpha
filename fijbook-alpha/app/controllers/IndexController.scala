@@ -17,7 +17,7 @@ class IndexController @Inject()(val teamDao: ScheduleDAO,val userService: UserSe
   extends Controller {
 
   def index = silhouette.UserAwareAction.async { implicit rs =>
-   s3BlockController.index("index")(rs)
+   s3BlockController.staticPage("index")(rs)
   }
 
   def redirect = silhouette.UserAwareAction.async { implicit rs =>
