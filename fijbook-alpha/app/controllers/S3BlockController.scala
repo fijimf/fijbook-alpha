@@ -13,6 +13,7 @@ import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
 import play.api.mvc.Controller
+import play.twirl.api.Html
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -38,7 +39,7 @@ class S3BlockController @Inject()(val teamDao: ScheduleDAO, val userService: Use
     })
   }
 
-  def staticPage(slug: String) = silhouette.UserAwareAction.async { implicit rs =>
+  def staticBlock(slug: String) = silhouette.UserAwareAction.async { implicit rs =>
     val key = s"${S3StaticAsset.staticPageFolder}$slug"
     Future.successful(if (s.doesObjectExist(S3StaticAsset.bucket, key)) {
       val obj = s.getObject(S3StaticAsset.bucket, key)
@@ -47,6 +48,16 @@ class S3BlockController @Inject()(val teamDao: ScheduleDAO, val userService: Use
     } else {
       NotFound
     })
+  }
 
+  def staticPage(slug: String) = silhouette.UserAwareAction.async { implicit rs =>
+    val key = s"${S3StaticAsset.staticPageFolder}$slug"
+    Future.successful(if (s.doesObjectExist(S3StaticAsset.bucket, key)) {
+      val obj = s.getObject(S3StaticAsset.bucket, key)
+      val content = new String(IOUtils.toByteArray(obj.getObjectContent))
+      Ok(Html(content))
+    } else {
+      NotFound
+    })
   }
 }
