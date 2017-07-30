@@ -2,8 +2,7 @@
 <head>
     <title>Vega Scaffold</title>
     <meta charset="utf-8">
-
-    <script src="//d3js.org/d3.v3.min.js"></script>
+    <link rel="stylesheet" media="screen" href="/assets/lib/foundation-sites/dist/css/foundation.css"></link>
     <script src="//vega.github.io/vendor/vega.js" charset="utf-8"></script>
     <script src="//vega.github.io/vendor/vega-lite.js" charset="utf-8"></script>
     <script src="//vega.github.io/vendor/vega-embed.js" charset="utf-8"></script>
@@ -16,45 +15,10 @@
     </style>
 </head>
 <body>
-<h1>Scaffold</h1>
-<div id="vis"></div>
+<div class="grid-x" style="background-color: #050505; color: #c5c5c5;">
+    <div class="cell small-3"><h2><strong>deepfij</strong></h2></div>
+    <div class="cell small-9"><p>They smelled of pubs and Wormwood Scrubs.</p></div>
+</div>
 
-<script type="text/javascript">
-    var vlSpec = {
-        "data": { "url":"/api/stats/rpi/rpi321"
-        },
-        "mark": "bar",
-        "encoding": {
-            "x": {"bin": {"maxbins":25},
-                "field": "value",
-                "type": "quantitative",
-                "axis": {
-                    "title":"RPI"
-                }
-            },
-            "y": {
-                "aggregate": "count",
-                "field": "*",
-                "type": "quantitative",
-                "axis": {
-                    "title":"Teams"
-                }
-            }
-        }
-    };
-
-    var embedSpec = {
-        mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
-        spec: vlSpec
-        // You can add more vega-embed configuration properties here.
-        // See https://github.com/vega/vega/wiki/Embed-Vega-Web-Components#configuration-propeties for more information.
-    };
-
-    // Embed the visualization in the container with id `vis`
-    vg.embed("#vis", embedSpec, function(error, result) {
-        // Callback receiving the View instance and parsed Vega spec
-        // result.view is the View, which resides under the '#vis' element
-    });
-</script>
 </body>
 </html>
