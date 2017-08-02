@@ -6,17 +6,23 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import forms._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-class DataController @Inject()(val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class DataController @Inject()(
+                                val controllerComponents:ControllerComponents,
+                                val teamDao: ScheduleDAO,
+                                silhouette: Silhouette[DefaultEnv]
+                              )
+  extends BaseController with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

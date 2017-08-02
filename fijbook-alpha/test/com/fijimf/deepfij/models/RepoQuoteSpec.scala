@@ -16,11 +16,11 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
   val dao = Injector.inject[ScheduleDAO]
 
   "Quotes " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listQuotes, testDbTimeout).isEmpty)
     }
 
-    "be able to be inserted" in new WithApplication(FakeApplication()) {
+    "be able to be inserted" in new WithApplication() {
       val q = Quote(0L, "The quote", None, None, None)
       val r = Await.result(dao.saveQuote(q), testDbTimeout)
 
@@ -29,7 +29,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       assert(Await.result(dao.listQuotes, testDbTimeout).size == 1)
     }
 
-    "be able to be updated" in new WithApplication(FakeApplication()) {
+    "be able to be updated" in new WithApplication() {
       val q = Quote(0L, "The quote", None, None, None)
       val r = Await.result(dao.saveQuote(q), testDbTimeout)
 
@@ -44,7 +44,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       assert(Await.result(dao.listQuotes, testDbTimeout).size == 1)
     }
 
-    "be able to be retrieved by id" in new WithApplication(FakeApplication()) {
+    "be able to be retrieved by id" in new WithApplication() {
       Await.result(dao.saveQuote(Quote(0L, "The quote #1", None, None, None)), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #2", None, None, None)), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #3", None, None, None)), testDbTimeout)
@@ -60,7 +60,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       assert(t.isEmpty)
     }
 
-    "be able to be retrieved by key" in new WithApplication(FakeApplication()) {
+    "be able to be retrieved by key" in new WithApplication() {
       Await.result(dao.saveQuote(Quote(0L, "The quote #1", None, None, Some("A"))), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #2", None, None, Some("A"))), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #3", None, None, Some("A"))), testDbTimeout)
@@ -77,7 +77,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
     }
 
-    "be able to be deleted" in new WithApplication(FakeApplication()) {
+    "be able to be deleted" in new WithApplication() {
       Await.result(dao.saveQuote(Quote(0L, "The quote #1", None, None, None)), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #2", None, None, None)), testDbTimeout)
       Await.result(dao.saveQuote(Quote(0L, "The quote #3", None, None, None)), testDbTimeout)

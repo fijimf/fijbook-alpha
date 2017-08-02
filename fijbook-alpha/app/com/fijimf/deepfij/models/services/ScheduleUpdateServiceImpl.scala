@@ -14,7 +14,7 @@ import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 
@@ -80,17 +80,21 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
 
   private def mailSuccessReport(optDates: Option[List[LocalDate]]) = {
     mailerClient.send(Email(
-      subject = Messages("email.daily.update.subject"),
-      from = Messages("email.from"),
+      subject = ms("email.daily.update.subject"),
+      from = ms("email.from"),
       to = Seq(System.getProperty("admin.user", "nope@nope.com")),
       bodyHtml = Some(views.html.admin.emails.dailyUpdate(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
     ))
   }
 
+  implicit def ms: Messages = {
+    messagesApi.preferred(Seq(Lang.defaultLang))
+  }
+
   private def maillErrorReport(optDates: Option[List[LocalDate]]) = {
     mailerClient.send(Email(
-      subject = Messages("email.daily.updateError.subject"),
-      from = Messages("email.from"),
+      subject = ms("email.daily.updateError.subject"),
+      from = ms("email.from"),
       to = Seq(System.getProperty("admin.user", "nope@nope.com")),
       bodyHtml = Some(views.html.admin.emails.dailyUpdateError(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
     ))

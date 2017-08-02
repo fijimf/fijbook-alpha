@@ -11,7 +11,7 @@ import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.silhouette.ChangePasswordForm
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.{DefaultEnv, WithProvider}
 
 import scala.concurrent.Future
@@ -19,7 +19,6 @@ import scala.concurrent.Future
 /**
   * The `Change Password` controller.
   *
-  * @param messagesApi            The Play messages API.
   * @param silhouette             The Silhouette stack.
   * @param userService            The user service implementation.
   * @param credentialsProvider    The credentials provider.
@@ -28,14 +27,15 @@ import scala.concurrent.Future
   * @param webJarAssets           The WebJar assets locator.
   */
 class ChangePasswordController @Inject() (
-                                           val messagesApi: MessagesApi,
+                                           val controllerComponents:ControllerComponents,
+
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
                                            credentialsProvider: CredentialsProvider,
                                            authInfoRepository: AuthInfoRepository,
                                            passwordHasherRegistry: PasswordHasherRegistry,
                                            implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+  extends BaseController with I18nSupport {
 
   /**
     * Views the `Change Password` page.

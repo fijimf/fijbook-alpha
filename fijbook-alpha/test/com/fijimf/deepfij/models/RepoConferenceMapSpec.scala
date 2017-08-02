@@ -17,7 +17,7 @@ class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
   val dao = Injector.inject[ScheduleDAO]
 
   "ConferenceMaps " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listConferenceMaps, testDbTimeout).isEmpty)
     }
 

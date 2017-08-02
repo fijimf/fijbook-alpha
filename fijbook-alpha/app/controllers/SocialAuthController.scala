@@ -9,7 +9,7 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.providers._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -17,7 +17,6 @@ import scala.concurrent.Future
 /**
   * The social auth controller.
   *
-  * @param messagesApi The Play messages API.
   * @param silhouette The Silhouette stack.
   * @param userService The user service implementation.
   * @param authInfoRepository The auth info service implementation.
@@ -25,13 +24,14 @@ import scala.concurrent.Future
   * @param webJarAssets The webjar assets implementation.
   */
 class SocialAuthController @Inject() (
-                                       val messagesApi: MessagesApi,
+                                       val controllerComponents:ControllerComponents,
+
                                        silhouette: Silhouette[DefaultEnv],
                                        userService: UserService,
                                        authInfoRepository: AuthInfoRepository,
                                        socialProviderRegistry: SocialProviderRegistry,
                                        implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport with Logger {
+  extends BaseController with I18nSupport with Logger {
 
   /**
     * Authenticates a user against a social provider.

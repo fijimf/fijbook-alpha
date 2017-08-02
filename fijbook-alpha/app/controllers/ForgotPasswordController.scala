@@ -10,7 +10,7 @@ import forms.silhouette.ForgotPasswordForm
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.Controller
+import play.api.mvc._
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -18,7 +18,6 @@ import scala.concurrent.Future
 /**
   * The `Forgot Password` controller.
   *
-  * @param messagesApi      The Play messages API.
   * @param silhouette       The Silhouette stack.
   * @param userService      The user service implementation.
   * @param authTokenService The auth token service implementation.
@@ -26,14 +25,18 @@ import scala.concurrent.Future
   * @param webJarAssets     The WebJar assets locator.
   */
 class ForgotPasswordController @Inject() (
-                                           val messagesApi: MessagesApi,
+                                           val controllerComponents:ControllerComponents,
+
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
                                            authTokenService: AuthTokenService,
                                            mailerClient: MailerClient,
                                            implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+  extends BaseController with I18nSupport {
 
+  def zzz = Action { (rs: Request[AnyContent]) =>
+    Ok("OK")
+  }
   /**
     * Views the `Forgot Password` page.
     *

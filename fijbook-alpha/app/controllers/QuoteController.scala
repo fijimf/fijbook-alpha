@@ -8,13 +8,17 @@ import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.util.Random
 
-class QuoteController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
-  extends Controller {
+class QuoteController @Inject()(
+                                 val controllerComponents:ControllerComponents,
+                                 val teamDao: ScheduleDAO,
+                                 val userService: UserService,
+                                 val silhouette: Silhouette[DefaultEnv])
+  extends BaseController {
 
   val DEFAULT_QUOTE = Map("quote" -> "Fridge rules.", "url" -> "", "source"->"")
 

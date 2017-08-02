@@ -15,14 +15,18 @@ import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.{EditQuoteForm, EditStaticPageForm}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success}
-class S3AdminController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi)
-  extends Controller with I18nSupport  {
+class S3AdminController @Inject()(
+                                   val controllerComponents:ControllerComponents,
+                                   val teamDao: ScheduleDAO,
+                                   val userService: UserService,
+                                   val silhouette: Silhouette[DefaultEnv])
+  extends BaseController with I18nSupport  {
 
 
   val s: AmazonS3 = AmazonS3ClientBuilder.standard()

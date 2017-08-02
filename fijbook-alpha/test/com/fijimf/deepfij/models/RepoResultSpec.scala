@@ -18,11 +18,11 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
   val dao = Injector.inject[ScheduleDAO]
 
   "Results " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
     }
 
-    "save a result " in new WithApplication(FakeApplication()) {
+    "save a result " in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
       val ss = Await.result(dao.saveSeason(Season(0L, 2017,"", None)), testDbTimeout)
       val ts = Await.result(dao.saveTeams(List(
@@ -36,7 +36,7 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
       assert(r.id>0)
 
     }
-    "not save a bogus result " in new WithApplication(FakeApplication()) {
+    "not save a bogus result " in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
 
       try {
@@ -48,7 +48,7 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
 
     }
 
-    "not save two results to a game " in new WithApplication(FakeApplication()) {
+    "not save two results to a game " in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
       val ss = Await.result(dao.saveSeason(Season(0L, 2017,"", None)), testDbTimeout)
       val ts = Await.result(dao.saveTeams(List(

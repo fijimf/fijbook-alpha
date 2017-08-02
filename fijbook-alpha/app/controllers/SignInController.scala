@@ -15,7 +15,7 @@ import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -25,7 +25,6 @@ import scala.language.postfixOps
 /**
   * The `Sign In` controller.
   *
-  * @param messagesApi The Play messages API.
   * @param silhouette The Silhouette stack.
   * @param userService The user service implementation.
   * @param authInfoRepository The auth info repository implementation.
@@ -36,7 +35,8 @@ import scala.language.postfixOps
   * @param webJarAssets The webjar assets implementation.
   */
 class SignInController @Inject() (
-                                   val messagesApi: MessagesApi,
+                                   val controllerComponents:ControllerComponents,
+
                                    silhouette: Silhouette[DefaultEnv],
                                    userService: UserService,
                                    authInfoRepository: AuthInfoRepository,
@@ -45,7 +45,7 @@ class SignInController @Inject() (
                                    configuration: Configuration,
                                    clock: Clock,
                                    implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+  extends BaseController with I18nSupport {
 
   /**
     * Views the `Sign In` page.

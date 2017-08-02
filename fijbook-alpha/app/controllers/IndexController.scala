@@ -8,13 +8,18 @@ import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{Game, ScheduleRepository, User}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 
-class IndexController @Inject()(val teamDao: ScheduleDAO,val userService: UserService, val silhouette: Silhouette[DefaultEnv], val s3BlockController:S3BlockController )
-  extends Controller {
+class IndexController @Inject()(
+                                 val controllerComponents:ControllerComponents,
+                                 val teamDao: ScheduleDAO,
+                                 val userService: UserService,
+                                 val silhouette: Silhouette[DefaultEnv],
+                                 val s3BlockController:S3BlockController )
+  extends BaseController {
 
   def index = silhouette.UserAwareAction.async { implicit rs =>
    s3BlockController.staticBlock("index")(rs)

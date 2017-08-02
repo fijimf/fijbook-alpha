@@ -11,14 +11,21 @@ import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
 import play.api.cache.CacheApi
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 
-class TeamController @Inject()(val teamDao: ScheduleDAO, val statWriterService: StatisticWriterService, cache: CacheApi, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class TeamController @Inject()(
+                                val controllerComponents:ControllerComponents,
+                                val teamDao: ScheduleDAO,
+                                val statWriterService: StatisticWriterService,
+                                cache: CacheApi,
+                                silhouette: Silhouette[DefaultEnv]
+                                )
+  extends BaseController with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

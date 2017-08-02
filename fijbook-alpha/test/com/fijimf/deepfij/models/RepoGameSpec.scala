@@ -19,7 +19,7 @@ class RepoGameSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  
 
 
   "Games " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assertGamesIsEmpty
     }
   }

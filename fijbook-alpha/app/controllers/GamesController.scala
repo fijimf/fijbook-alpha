@@ -10,11 +10,15 @@ import com.fijimf.deepfij.models.{Game, GprCohort}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.{JsArray, Json}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
-class GamesController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
-  extends Controller {
+class GamesController @Inject()(
+                                 val controllerComponents:ControllerComponents,
+                                 val teamDao: ScheduleDAO,
+                                 val userService: UserService,
+                                 val silhouette: Silhouette[DefaultEnv])
+  extends BaseController {
 
 val predictors = List(
   "naive-regression"->"Linear Regressor",

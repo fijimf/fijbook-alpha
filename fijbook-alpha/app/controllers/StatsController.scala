@@ -13,20 +13,25 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json._
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc._
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class StatsController @Inject()(val teamDao: ScheduleDAO, val statWriterService: StatisticWriterService, val silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class StatsController @Inject()(
+                                 val controllerComponents:ControllerComponents,
+                                 val teamDao: ScheduleDAO,
+                                 val statWriterService: StatisticWriterService,
+                                 val silhouette: Silhouette[DefaultEnv])
+  extends BaseController with I18nSupport {
   val log = Logger(this.getClass)
 
   import play.api.libs.json._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def updateAll(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+  def updateAll() = silhouette.SecuredAction.async { implicit rs =>
 
     teamDao.loadSchedules().map(ss => {
       val sortedSchedules = ss.sortBy(s => -s.season.year)

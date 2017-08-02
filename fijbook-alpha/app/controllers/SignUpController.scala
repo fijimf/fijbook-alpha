@@ -15,7 +15,7 @@ import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -23,7 +23,6 @@ import scala.concurrent.Future
 /**
   * The `Sign Up` controller.
   *
-  * @param messagesApi            The Play messages API.
   * @param silhouette             The Silhouette stack.
   * @param userService            The user service implementation.
   * @param authInfoRepository     The auth info repository implementation.
@@ -34,7 +33,7 @@ import scala.concurrent.Future
   * @param webJarAssets           The webjar assets implementation.
   */
 class SignUpController @Inject() (
-                                   val messagesApi: MessagesApi,
+                                   val controllerComponents:ControllerComponents,
                                    silhouette: Silhouette[DefaultEnv],
                                    userService: UserService,
                                    authInfoRepository: AuthInfoRepository,
@@ -43,7 +42,7 @@ class SignUpController @Inject() (
                                    passwordHasherRegistry: PasswordHasherRegistry,
                                    mailerClient: MailerClient,
                                    implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+  extends BaseController with I18nSupport {
  val log = Logger(this.getClass)
   /**
     * Views the `Sign Up` page.

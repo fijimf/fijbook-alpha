@@ -16,11 +16,11 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
   val dao = Injector.inject[ScheduleDAO]
 
   "Aliases " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listAliases, testDbTimeout).isEmpty)
     }
 
-    "allow an alias to be saved"in new WithApplication(FakeApplication()) {
+    "allow an alias to be saved"in new WithApplication() {
       private val toBeSaved = Alias(0L, "W. Virginia", "West Virginia")
       private val id = Await.result(dao.saveAlias(toBeSaved), testDbTimeout).id
       assert(id>0)
@@ -29,7 +29,7 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       assert(aliases.head==toBeSaved.copy(id=id))
     }
 
-    "allow an alias to be deleted" in new WithApplication(FakeApplication()) {
+    "allow an alias to be deleted" in new WithApplication() {
       private val idToDelete = Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout).id
       assert(idToDelete>0)
       private val before = Await.result(dao.listAliases, testDbTimeout)
@@ -40,7 +40,7 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
     }
 
-    "find an alias by id "in new WithApplication(FakeApplication()){
+    "find an alias by id "in new WithApplication(){
       Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout)
       val armyId=Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout).id
       Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)
@@ -54,7 +54,7 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
     }
 
-    "delete all aliases "in new WithApplication(FakeApplication()){
+    "delete all aliases "in new WithApplication(){
      Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout)
      Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout)
      Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)

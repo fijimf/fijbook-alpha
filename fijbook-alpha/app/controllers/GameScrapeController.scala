@@ -8,12 +8,17 @@ import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, Controller, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 
-class GameScrapeController @Inject()(val scheduleDao: ScheduleDAO, scheduleUpdateService: ScheduleUpdateService, silhouette: Silhouette[DefaultEnv]) extends Controller {
+class GameScrapeController @Inject()(
+                                      val controllerComponents:ControllerComponents,
+                                      val scheduleDao: ScheduleDAO,
+                                      val scheduleUpdateService: ScheduleUpdateService,
+                                      val silhouette: Silhouette[DefaultEnv])
+  extends BaseController {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

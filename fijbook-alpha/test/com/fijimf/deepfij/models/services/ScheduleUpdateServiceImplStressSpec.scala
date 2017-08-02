@@ -8,7 +8,7 @@ import controllers.{GameMapping, MappedGame, MappedGameAndResult}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.Logger
-import play.api.test.{FakeApplication, WithApplication}
+import play.api.test.{WithApplication}
 import testhelpers.Injector
 
 import scala.concurrent.{Await, Future}
@@ -88,11 +88,11 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
   }
 
   "Games & results " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assertEmptySchedule(" brand new database")
     }
 
-    "save games" in new WithApplication(FakeApplication()) {
+    "save games" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -103,7 +103,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games (update with no changes)" in new WithApplication(FakeApplication()) {
+    "re-save games (update with no changes)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -122,7 +122,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games (removeGames)" in new WithApplication(FakeApplication()) {
+    "re-save games (removeGames)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -141,7 +141,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games (add games)" in new WithApplication(FakeApplication()) {
+    "re-save games (add games)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -163,7 +163,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
     }
 
 
-    "save games & results" in new WithApplication(FakeApplication()) {
+    "save games & results" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -175,7 +175,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
     }
 
-    "re-save games & results (update with no changes)" in new WithApplication(FakeApplication()) {
+    "re-save games & results (update with no changes)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -194,7 +194,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games & results (remove games)" in new WithApplication(FakeApplication()) {
+    "re-save games & results (remove games)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -214,7 +214,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games & results (remove results)" in new WithApplication(FakeApplication()) {
+    "re-save games & results (remove results)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -237,7 +237,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }, testDbTimeout)
     }
 
-    "re-save games & results (add results)" in new WithApplication(FakeApplication()) {
+    "re-save games & results (add results)" in new WithApplication() {
       assertEmptySchedule(" new database before saving, before updating")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 350)
@@ -265,7 +265,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
     }
 
 
-    "delete games & results" in new WithApplication(FakeApplication()) {
+    "delete games & results" in new WithApplication() {
       assertEmptySchedule(" new database delete games & results ")
 
       val s = createNewSeason
@@ -310,7 +310,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
     }
 
 
-    "modify games & results" in new WithApplication(FakeApplication()) {
+    "modify games & results" in new WithApplication() {
       assertEmptySchedule("brand new schedule, before modify games and results")
 
       val s = createNewSeason
