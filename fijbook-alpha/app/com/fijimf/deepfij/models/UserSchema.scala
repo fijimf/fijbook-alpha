@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 import slick.lifted.ProvenShape.proveShapeOf
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -70,7 +70,7 @@ class UserRepository @Inject()(protected val dbConfigProvider: DatabaseConfigPro
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   def dumpSchema()(implicit ec: ExecutionContext) = {
     Future((ddl.create.statements, ddl.drop.statements))

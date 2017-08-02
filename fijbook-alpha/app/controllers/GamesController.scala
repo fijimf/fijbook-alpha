@@ -8,16 +8,17 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{Game, GprCohort}
 import com.mohiva.play.silhouette.api.Silhouette
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.{JsArray, Json}
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
+
+import scala.concurrent.ExecutionContext
 
 class GamesController @Inject()(
                                  val controllerComponents:ControllerComponents,
                                  val teamDao: ScheduleDAO,
                                  val userService: UserService,
-                                 val silhouette: Silhouette[DefaultEnv])
+                                 val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
   extends BaseController {
 
 val predictors = List(

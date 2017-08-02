@@ -18,7 +18,7 @@ trait LogisticModelDAOImpl extends LogisticModelDAO with DAOSlick {
   val repo: ScheduleRepository
 
   import scala.concurrent.ExecutionContext.Implicits.global
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime]
 

@@ -12,13 +12,12 @@ import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
 import forms.silhouette.SignUpForm
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The `Sign Up` controller.
@@ -41,7 +40,7 @@ class SignUpController @Inject() (
                                    avatarService: AvatarService,
                                    passwordHasherRegistry: PasswordHasherRegistry,
                                    mailerClient: MailerClient,
-                                   implicit val webJarAssets: WebJarAssets)
+                                   implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
  val log = Logger(this.getClass)
   /**

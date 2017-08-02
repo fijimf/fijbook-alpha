@@ -7,13 +7,12 @@ import javax.inject.Inject
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 /**
@@ -25,15 +24,15 @@ import scala.language.postfixOps
   * @param mailerClient     The mailer client.
   * @param webJarAssets     The WebJar assets locator.
   */
-class ActivateAccountController @Inject() (
-                                            val controllerComponents:ControllerComponents,
+class ActivateAccountController @Inject()(
+                                           val controllerComponents: ControllerComponents,
 
-                                            silhouette: Silhouette[DefaultEnv],
-                                            userService: UserService,
-                                            authTokenService: AuthTokenService,
-                                            mailerClient: MailerClient,
-                                            implicit val webJarAssets: WebJarAssets)
-  extends BaseController with I18nSupport{
+                                           silhouette: Silhouette[DefaultEnv],
+                                           userService: UserService,
+                                           authTokenService: AuthTokenService,
+                                           mailerClient: MailerClient,
+                                           implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+  extends BaseController with I18nSupport {
 
   /**
     * Sends an account activation email to the user with the given email.
@@ -42,7 +41,6 @@ class ActivateAccountController @Inject() (
     * @return The result to display.
     */
   def send(email: String) = silhouette.UnsecuredAction.async { implicit request =>
-    request.copy()
     val decodedEmail = URLDecoder.decode(email, "UTF-8")
     val loginInfo = LoginInfo(CredentialsProvider.ID, decodedEmail)
     val result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail))

@@ -5,14 +5,14 @@ import com.fijimf.deepfij.models.services.GamePredictorService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 
 class PredictionController @Inject()(
-                                      val controllerComponents:ControllerComponents,
+                                      val controllerComponents: ControllerComponents,
                                       val teamDao: ScheduleDAO,
                                       val gamePredictorService: GamePredictorService,
                                       val silhouette: Silhouette[DefaultEnv]

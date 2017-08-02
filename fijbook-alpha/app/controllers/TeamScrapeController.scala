@@ -15,7 +15,7 @@ import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.ScrapeOneTeamForm
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 import utils.DefaultEnv
 
@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 class TeamScrapeController @Inject()(
-                                      val controllerComponents:ControllerComponents,
+                                      val controllerComponents: ControllerComponents,
                                       @Named("data-load-actor") teamLoad: ActorRef,
                                       @Named("throttler") throttler: ActorRef,
                                       val teamDao: ScheduleDAO,
@@ -161,7 +161,7 @@ class TeamScrapeController @Inject()(
   private def neutralUpdatesForSchedule(sch: Schedule): List[Game] = {
     val locationData: Map[Long, Map[String, Int]] = sch.teamHomeGamesByLocation
     sch.games.foldLeft(List.empty[Option[Game]])((games: List[Option[Game]], game: Game) => {
-      ( for {
+      (for {
         location: String <- game.location
         homeGameSites: Map[String, Int] <- locationData.get(game.homeTeamId)
         timesAtLocation: Int <- homeGameSites.get(location)

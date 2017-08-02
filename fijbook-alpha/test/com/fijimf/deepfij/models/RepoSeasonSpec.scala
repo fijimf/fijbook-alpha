@@ -9,7 +9,6 @@ import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 
 class RepoSeasonSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach  with RebuildDatabaseMixin with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))

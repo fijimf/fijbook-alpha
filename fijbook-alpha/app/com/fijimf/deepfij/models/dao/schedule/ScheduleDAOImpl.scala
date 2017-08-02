@@ -9,11 +9,10 @@ import com.fijimf.deepfij.models.dao.DAOSlick
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)
+class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)(implicit ec: ExecutionContext)
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
     with GameDAOImpl
@@ -28,7 +27,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with LogisticModelDAOImpl
     with UserProfileDAOImpl {
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
     ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),

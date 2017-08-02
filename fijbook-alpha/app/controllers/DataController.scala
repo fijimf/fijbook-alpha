@@ -6,11 +6,10 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import forms._
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -18,7 +17,7 @@ import scala.io.Source
 import scala.util.{Failure, Success}
 
 class DataController @Inject()(
-                                val controllerComponents:ControllerComponents,
+                                val controllerComponents: ControllerComponents,
                                 val teamDao: ScheduleDAO,
                                 silhouette: Silhouette[DefaultEnv]
                               )
@@ -286,8 +285,8 @@ class DataController @Inject()(
   }
 
 
-  def saveGame =  silhouette.SecuredAction.async { implicit rs =>
-    teamDao.listTeams.flatMap(td=> {
+  def saveGame = silhouette.SecuredAction.async { implicit rs =>
+    teamDao.listTeams.flatMap(td => {
       val teamData = td.map(t => t.id.toString -> t.name).sortBy(_._2)
       EditGameForm.form.bindFromRequest.fold(
         form => {
@@ -301,12 +300,12 @@ class DataController @Inject()(
         },
         data => {
           val gr: (Game, Option[Result]) = data.toGameResult(rs.identity.userID.toString)
-          val future: Future[Option[Game]] = teamDao.saveGameResult(gr._1,gr._2)
+          val future: Future[Option[Game]] = teamDao.saveGameResult(gr._1, gr._2)
           future.onComplete {
             case Success(conference) => logger.info(s"Saved game '${gr._1.id}")
             case Failure(thr) => logger.error(s"Failed saving ${gr._1.id} with error ${thr.getMessage}", thr)
           }
-          future.map(i => Redirect(routes.DataController.browseGames(data.seasonId,None)).flashing("info" -> ("Saved " + data.id)))
+          future.map(i => Redirect(routes.DataController.browseGames(data.seasonId, None)).flashing("info" -> ("Saved " + data.id)))
         }
       )
     })

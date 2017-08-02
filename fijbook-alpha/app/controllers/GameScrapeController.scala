@@ -8,19 +8,17 @@ import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class GameScrapeController @Inject()(
-                                      val controllerComponents:ControllerComponents,
+                                      val controllerComponents: ControllerComponents,
                                       val scheduleDao: ScheduleDAO,
                                       val scheduleUpdateService: ScheduleUpdateService,
-                                      val silhouette: Silhouette[DefaultEnv])
+                                      val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
   extends BaseController {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
 
@@ -30,16 +28,19 @@ class GameScrapeController @Inject()(
         Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
       case None => Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
     }
-  }}
+  }
+  }
 
   def scrapeToday() = silhouette.SecuredAction.async { implicit rs => {
     scheduleUpdateService.updateSeason(Some(List(LocalDate.now())), mailReport = false)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Scraping today "))
-  }}
+  }
+  }
 
-  def scrapeForDay(yyyymmdd:String) = silhouette.SecuredAction.async { implicit rs => {
+  def scrapeForDay(yyyymmdd: String) = silhouette.SecuredAction.async { implicit rs => {
     val d = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
     scheduleUpdateService.updateSeason(Some(List(d)), mailReport = false)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping $yyyymmdd "))
-  }}
+  }
+  }
 }

@@ -7,30 +7,29 @@ import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.providers._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{Action, BaseController, Controller, ControllerComponents}
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The social auth controller.
   *
-  * @param silhouette The Silhouette stack.
-  * @param userService The user service implementation.
-  * @param authInfoRepository The auth info service implementation.
+  * @param silhouette             The Silhouette stack.
+  * @param userService            The user service implementation.
+  * @param authInfoRepository     The auth info service implementation.
   * @param socialProviderRegistry The social provider registry.
-  * @param webJarAssets The webjar assets implementation.
+  * @param webJarAssets           The webjar assets implementation.
   */
-class SocialAuthController @Inject() (
-                                       val controllerComponents:ControllerComponents,
+class SocialAuthController @Inject()(
+                                      val controllerComponents: ControllerComponents,
 
-                                       silhouette: Silhouette[DefaultEnv],
-                                       userService: UserService,
-                                       authInfoRepository: AuthInfoRepository,
-                                       socialProviderRegistry: SocialProviderRegistry,
-                                       implicit val webJarAssets: WebJarAssets)
+                                      silhouette: Silhouette[DefaultEnv],
+                                      userService: UserService,
+                                      authInfoRepository: AuthInfoRepository,
+                                      socialProviderRegistry: SocialProviderRegistry,
+                                      implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport with Logger {
 
   /**

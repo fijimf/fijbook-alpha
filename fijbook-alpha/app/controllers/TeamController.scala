@@ -9,22 +9,21 @@ import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.cache.CacheApi
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.cache.AsyncCacheApi
+import play.api.i18n.I18nSupport
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.duration._
-import scala.collection.immutable.Seq
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class TeamController @Inject()(
-                                val controllerComponents:ControllerComponents,
+                                val controllerComponents: ControllerComponents,
                                 val teamDao: ScheduleDAO,
                                 val statWriterService: StatisticWriterService,
-                                cache: CacheApi,
+                                cache: AsyncCacheApi,
                                 silhouette: Silhouette[DefaultEnv]
-                                )
+                              )
   extends BaseController with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,7 +38,7 @@ class TeamController @Inject()(
         case Some(sch) => {
           val t: Team = sch.keyTeam(key)
           val stats = loadTeamStats(t, sch)
-          stats.map(lstat=>{
+          stats.map(lstat => {
             Ok(views.html.data.team(request.identity, t, sch, sortedSchedules.tail, lstat))
           })
         }
@@ -50,23 +49,23 @@ class TeamController @Inject()(
 
   }
 
-  def loadTeamStats(t: Team, sch:Schedule): Future[List[ModelTeamContext]] = {
-    val futures = List("won-lost","scoring","rpi","least-squares").map(loadTeamStats(t,_, sch))
+  def loadTeamStats(t: Team, sch: Schedule): Future[List[ModelTeamContext]] = {
+    val futures = List("won-lost", "scoring", "rpi", "least-squares").map(loadTeamStats(t, _, sch))
     Future.sequence(futures).map(_.flatten)
   }
 
-  def loadTeamStats(t: Team, modelKey: String, sch:Schedule): Future[Option[ModelTeamContext]] = {
+  def loadTeamStats(t: Team, modelKey: String, sch: Schedule): Future[Option[ModelTeamContext]] = {
     statWriterService.lookupModel(modelKey) match {
       case Some(model) =>
-        cache.get[Map[String, List[StatValue]]]("model." + modelKey) match {
+        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
           case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
           case None =>
             teamDao.loadStatValues(modelKey).map(stats => {
               val byKey = stats.groupBy(_.statKey)
               cache.set("model." + modelKey, byKey, 15.minutes)
               Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
-            })
-          case None => Future.successful(Option.empty[ModelTeamContext])
+            }
+          )
         }
       case None => Future.successful(Option.empty[ModelTeamContext])
     }

@@ -1,7 +1,6 @@
 package controllers
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.StatisticWriterService
@@ -11,25 +10,22 @@ import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.libs.json._
 import play.api.mvc._
 import utils.DefaultEnv
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 class StatsController @Inject()(
-                                 val controllerComponents:ControllerComponents,
+                                 val controllerComponents: ControllerComponents,
                                  val teamDao: ScheduleDAO,
                                  val statWriterService: StatisticWriterService,
-                                 val silhouette: Silhouette[DefaultEnv])
+                                 val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
   val log = Logger(this.getClass)
 
   import play.api.libs.json._
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   def updateAll() = silhouette.SecuredAction.async { implicit rs =>
 
@@ -78,7 +74,7 @@ class StatsController @Inject()(
             case Some(sch) => {
               teamDao.loadStatValues(statKey, modelKey).map(stats => {
                 val byDate = stats.groupBy(s => s.date)
-                val statContext = StatContext(model,stat,byDate, sch.teamsMap)
+                val statContext = StatContext(model, stat, byDate, sch.teamsMap)
                 Ok(Json.toJson(statContext.asMap))
               })
             }
@@ -136,7 +132,7 @@ case class ModelContext(model: Model[_], stats: List[Stat[_]], xs: Map[LocalDate
     }
   }
 
-  def desc(stat:Stat[_]) = new DescriptiveStatistics(latestValues(stat).map(_._2.value).toArray)
+  def desc(stat: Stat[_]) = new DescriptiveStatistics(latestValues(stat).map(_._2.value).toArray)
 }
 
 case class StatContext(model: Model[_], stat: Stat[_], xs: Map[LocalDate, List[StatValue]], teamMap: Map[Long, Team]) {

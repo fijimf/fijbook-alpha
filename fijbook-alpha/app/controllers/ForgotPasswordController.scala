@@ -7,13 +7,12 @@ import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.silhouette.ForgotPasswordForm
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The `Forgot Password` controller.
@@ -24,19 +23,20 @@ import scala.concurrent.Future
   * @param mailerClient     The mailer client.
   * @param webJarAssets     The WebJar assets locator.
   */
-class ForgotPasswordController @Inject() (
-                                           val controllerComponents:ControllerComponents,
+class ForgotPasswordController @Inject()(
+                                          val controllerComponents: ControllerComponents,
 
-                                           silhouette: Silhouette[DefaultEnv],
-                                           userService: UserService,
-                                           authTokenService: AuthTokenService,
-                                           mailerClient: MailerClient,
-                                           implicit val webJarAssets: WebJarAssets)
+                                          silhouette: Silhouette[DefaultEnv],
+                                          userService: UserService,
+                                          authTokenService: AuthTokenService,
+                                          mailerClient: MailerClient,
+                                          implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
   def zzz = Action { (rs: Request[AnyContent]) =>
     Ok("OK")
   }
+
   /**
     * Views the `Forgot Password` page.
     *

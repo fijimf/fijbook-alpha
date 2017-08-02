@@ -7,16 +7,15 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
 import com.mohiva.play.silhouette.api.LoginInfo
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Give access to the user object using Slick
   */
-class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository) extends UserDAO with DAOSlick {
+class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository) (implicit ec: ExecutionContext)extends UserDAO with DAOSlick {
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
   /**
     * Finds a user by its login info.
     *

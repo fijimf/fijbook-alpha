@@ -12,7 +12,7 @@ trait UserProfileDAOImpl extends UserProfileDAO with DAOSlick {
   val dbConfigProvider: DatabaseConfigProvider
 
   val repo: ScheduleRepository
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

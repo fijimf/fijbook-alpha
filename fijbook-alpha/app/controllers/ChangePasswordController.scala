@@ -9,12 +9,11 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.silhouette.ChangePasswordForm
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.{DefaultEnv, WithProvider}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The `Change Password` controller.
@@ -34,7 +33,7 @@ class ChangePasswordController @Inject() (
                                            credentialsProvider: CredentialsProvider,
                                            authInfoRepository: AuthInfoRepository,
                                            passwordHasherRegistry: PasswordHasherRegistry,
-                                           implicit val webJarAssets: WebJarAssets)
+                                           implicit val webJarAssets: WebJarAssets)(implicit ec:ExecutionContext)
   extends BaseController with I18nSupport {
 
   /**

@@ -24,7 +24,6 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc.CookieHeaderEncoding
 import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv}
@@ -33,6 +32,7 @@ import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv
   * The Guice module which wires all Silhouette dependencies.
   */
 class SilhouetteModule extends AbstractModule with ScalaModule {
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
     * Configures the module.
@@ -286,7 +286,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   def provideCredentialsProvider(
                                   authInfoRepository: AuthInfoRepository,
                                   passwordHasherRegistry: PasswordHasherRegistry): CredentialsProvider = {
-
     new CredentialsProvider(authInfoRepository, passwordHasherRegistry)
   }
 

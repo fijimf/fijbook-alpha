@@ -3,23 +3,20 @@ package controllers
 import javax.inject.Inject
 
 import com.fijimf.deepfij.models.{ScheduleRepository, UserRepository}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
 import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.api.actions.UserAwareAction
 import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabaseConfig
-import slick.profile.BasicProfile
+import slick.basic.DatabaseConfig
+import slick.basic.BasicProfile
 import utils._
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
 
 class SchemaController @Inject()(
                                   val controllerComponents:ControllerComponents,
                                   val silhouette: Silhouette[DefaultEnv],
                                   val repo: ScheduleRepository,
-                                  val userRepo: UserRepository)
+                                  val userRepo: UserRepository)(implicit ec: ExecutionContext)
   extends BaseController {
 
   def dumpSchema() = silhouette.UserAwareAction.async { implicit rs =>

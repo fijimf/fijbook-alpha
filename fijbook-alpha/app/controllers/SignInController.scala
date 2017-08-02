@@ -13,38 +13,37 @@ import com.mohiva.play.silhouette.impl.providers._
 import forms.silhouette.SignInForm
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.{BaseController, Controller, ControllerComponents}
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 /**
   * The `Sign In` controller.
   *
-  * @param silhouette The Silhouette stack.
-  * @param userService The user service implementation.
-  * @param authInfoRepository The auth info repository implementation.
-  * @param credentialsProvider The credentials provider.
+  * @param silhouette             The Silhouette stack.
+  * @param userService            The user service implementation.
+  * @param authInfoRepository     The auth info repository implementation.
+  * @param credentialsProvider    The credentials provider.
   * @param socialProviderRegistry The social provider registry.
-  * @param configuration The Play configuration.
-  * @param clock The clock instance.
-  * @param webJarAssets The webjar assets implementation.
+  * @param configuration          The Play configuration.
+  * @param clock                  The clock instance.
+  * @param webJarAssets           The webjar assets implementation.
   */
-class SignInController @Inject() (
-                                   val controllerComponents:ControllerComponents,
+class SignInController @Inject()(
+                                  val controllerComponents: ControllerComponents,
 
-                                   silhouette: Silhouette[DefaultEnv],
-                                   userService: UserService,
-                                   authInfoRepository: AuthInfoRepository,
-                                   credentialsProvider: CredentialsProvider,
-                                   socialProviderRegistry: SocialProviderRegistry,
-                                   configuration: Configuration,
-                                   clock: Clock,
-                                   implicit val webJarAssets: WebJarAssets)
+                                  silhouette: Silhouette[DefaultEnv],
+                                  userService: UserService,
+                                  authInfoRepository: AuthInfoRepository,
+                                  credentialsProvider: CredentialsProvider,
+                                  socialProviderRegistry: SocialProviderRegistry,
+                                  configuration: Configuration,
+                                  clock: Clock,
+                                  implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
   /**

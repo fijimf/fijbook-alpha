@@ -8,10 +8,10 @@ import controllers.{GameMapping, MappedGame, MappedGameAndResult}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.Logger
-import play.api.test.{WithApplication}
+import play.api.test.WithApplication
 import testhelpers.Injector
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.util.{Failure, Random, Success}
 
 
@@ -34,18 +34,18 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
     Await.result(repo.dropSchema(), testDbTimeout)
   }
 
-  private def assertEmptySchedule(tag: String) = {
+  private def assertEmptySchedule(tag: String): Unit = {
     assertTableSizes(0, 0, 0, 0, tag)
   }
 
-  private def assertTableSizes(numSeasons: Int, numTeams: Int, numGames: Int, numResults: Int, tag: String) = {
+  private def assertTableSizes(numSeasons: Int, numTeams: Int, numGames: Int, numResults: Int, tag: String): Unit = {
     assert(Await.result(dao.listTeams, testDbTimeout).size == numTeams, s"Team table size incorrect $tag")
     assert(Await.result(dao.listGames, testDbTimeout).size == numGames, s"Game table size incorrect $tag")
     assert(Await.result(dao.listResults, testDbTimeout).size == numResults, s"Result table size incorrect $tag")
     assert(Await.result(dao.listSeasons, testDbTimeout).size == numSeasons, s"Season table size incorrect $tag")
   }
 
-  private def createNewSeason = {
+  private def createNewSeason: Season = {
     val season = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), testDbTimeout)
     val seasons = Await.result(dao.listSeasons, testDbTimeout)
     assert(seasons.size == 1)
@@ -83,7 +83,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
     (gameTimes.map(_.toLocalDate.toString), g.map(MappedGame) ++ gr.map(MappedGameAndResult(_, res())))
   }
 
-  private def quikGame(season: Season, tup: (Team, Team), gameTime: LocalDateTime) = {
+  private def quikGame(season: Season, tup: (Team, Team), gameTime: LocalDateTime): Game = {
     Game(0L, season.id, tup._1.id, tup._2.id, gameTime.toLocalDate, gameTime, None, isNeutralSite = false, None, None, None, gameTime.toLocalDate.toString, LocalDateTime.now(), "me")
   }
 
@@ -99,7 +99,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       val (keys, gameMapping) = createNDaysGamesMDaysResults(numGameDays = 120, numResultDays = 0, gamesPerDay = 30, teams, season)
       Await.result(svc.updateDb( keys, gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size, 0, " after saving games, in save games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
     }
 
@@ -111,14 +111,14 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size, 0, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
 
       Await.result(svc.updateDb(keys, gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size, 0, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
     }
 
@@ -130,14 +130,14 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size, 0, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
       val (lessGames, _) = gameMapping.splitAt(gameMapping.size / 2)
       Await.result(svc.updateDb(keys, lessGames).andThen {
         case Success(_) => assertTableSizes(1, 350, lessGames.size, 0, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
     }
 
@@ -149,7 +149,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size, 0, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
@@ -158,7 +158,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys++moreKeys, gameMapping ++ moreGames).andThen {
         case Success(_) => assertTableSizes(1, 350, gameMapping.size + moreGames.size, 0, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
     }
 
@@ -170,7 +170,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       val (keys, gameMapping) = createNDaysGamesMDaysResults(numGameDays = 120, numResultDays = 60, gamesPerDay = 30, teams, season)
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, in save games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
 
     }
@@ -183,14 +183,14 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
 
       Await.result(svc.updateDb(keys, gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception",ex)
       }, testDbTimeout)
     }
 
@@ -202,7 +202,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
@@ -210,7 +210,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, lessGames).andThen {
         case Success(_) => assertTableSizes(1, 350, 60 * 30, 60 * 30, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
     }
 
@@ -222,7 +222,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
@@ -233,7 +233,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, removeResults).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 0, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
     }
 
@@ -245,7 +245,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys,  gameMapping).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 60 * 30, " after saving games, before updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
       val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
@@ -260,7 +260,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, addResults).andThen {
         case Success(_) => assertTableSizes(1, 350, 120 * 30, 120 * 30, " after saving games, after updating in update games")
-        case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
+        case Failure(ex) => fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
     }
 
@@ -288,19 +288,17 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }).toList
 
       Await.ready(svc.updateDb(0.to(3).toList.map(today.plusDays(_).toLocalDate.toString), gameMapping), testDbTimeout).onComplete {
-        case Success(_) => {
+        case Success(_) =>
           assert(Await.result(dao.listTeams, testDbTimeout).size == 10)
           assert(Await.result(dao.listGames, testDbTimeout).size == 16)
           assert(Await.result(dao.listResults, testDbTimeout).nonEmpty)
           assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
-        }
-        case Failure(ex) => {
-          fail("svc.updateDb threw an unexpected exception")
-        }
+        case Failure(ex) =>
+          fail("svc.updateDb threw an unexpected exception", ex)
       }
-      private val keys = gameMapping.map(_.sourceKey).toSet.toList
+      private val keys = gameMapping.map(_.sourceKey).distinct
 
-      private val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
+      Await.ready(dao.loadLatestSchedule(), testDbTimeout)
       Await.result(svc.updateDb(keys, gameMapping.drop(8)), testDbTimeout)
 
       assert(Await.result(dao.listTeams, testDbTimeout).size == 10)
@@ -332,18 +330,16 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       //TODO rework this
       Await.result(svc.updateDb(keys, gameMapping).andThen {
-        case Success(_) => {
+        case Success(_) =>
           assert(Await.result(dao.listTeams, testDbTimeout).size == 350)
           assert(Await.result(dao.listGames, testDbTimeout).size == gameMapping.size)
           assert(Await.result(dao.listResults, testDbTimeout).nonEmpty)
           assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
-        }
-        case Failure(ex) => {
-          fail("svc.updateDb threw an unexpected exception")
-        }
+        case Failure(ex) =>
+          fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
-      private val schedule = Await.result(dao.loadLatestSchedule(), testDbTimeout).get
+      Await.ready(dao.loadLatestSchedule(), testDbTimeout)
       private val gameMapping2 = gameMapping.map {
         case MappedGameAndResult(g, _) => MappedGame(g)
         case x: MappedGame => x
@@ -351,16 +347,14 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       }
 
       Await.result(svc.updateDb(keys, gameMapping2).andThen {
-        case Success(_) => {
+        case Success(_) =>
           assert(Await.result(dao.listTeams, testDbTimeout).size == 350)
           assert(Await.result(dao.listGames, testDbTimeout).size == gameMapping.size)
           val result = Await.result(dao.listResults, testDbTimeout)
           assert(result.isEmpty)
           assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
-        }
-        case Failure(ex) => {
-          fail("svc.updateDb threw an unexpected exception")
-        }
+        case Failure(ex) =>
+          fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
 
     }
