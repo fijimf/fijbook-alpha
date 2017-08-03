@@ -14,7 +14,6 @@ import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, Silhou
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators._
 import com.mohiva.play.silhouette.impl.providers._
-import com.mohiva.play.silhouette.impl.providers.oauth1.secrets.{CookieSecretProvider, CookieSecretSettings}
 import com.mohiva.play.silhouette.impl.services._
 import com.mohiva.play.silhouette.impl.util._
 import com.mohiva.play.silhouette.password.BCryptPasswordHasher
@@ -32,6 +31,7 @@ import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv
   * The Guice module which wires all Silhouette dependencies.
   */
 class SilhouetteModule extends AbstractModule with ScalaModule {
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   /**
@@ -54,9 +54,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     // Replace this with the bindings to your concrete DAOs
     bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDAO]
-    bind[DelegableAuthInfoDAO[OAuth1Info]].to[OAuth1InfoDAO]
-    bind[DelegableAuthInfoDAO[OAuth2Info]].to[OAuth2InfoDAO]
-    bind[DelegableAuthInfoDAO[OpenIDInfo]].to[OpenIDInfoDAO]
   }
 
   /**
@@ -90,64 +87,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     )
   }
 
-  /**
-    * Provides the social provider registry.
-    *
-    * @return The Silhouette environment.
-    */
-  @Provides
-  def provideSocialProviderRegistry(): SocialProviderRegistry = {
-    SocialProviderRegistry(Seq.empty)
-  }
 
-  /**
-    * Provides the cookie signer for the OAuth1 token secret provider.
-    *
-    * @param configuration The Play configuration.
-    * @return The cookie signer for the OAuth1 token secret provider.
-    */
-  @Provides
-  @Named("oauth1-token-secret-cookie-signer")
-  def provideOAuth1TokenSecretCookieSigner(configuration: Configuration): Signer = {
-    val config = configuration.underlying.as[JcaSignerSettings]("silhouette.oauth1TokenSecretProvider.cookie.signer")
-
-    new JcaSigner(config)
-  }
-
-  /**
-    * Provides the crypter for the OAuth1 token secret provider.
-    *
-    * @param configuration The Play configuration.
-    * @return The crypter for the OAuth1 token secret provider.
-    */
-  @Provides
-  @Named("oauth1-token-secret-crypter")
-  def provideOAuth1TokenSecretCrypter(configuration: Configuration): Crypter = {
-    val config = configuration.underlying.as[JcaCrypterSettings]("silhouette.oauth1TokenSecretProvider.crypter")
-
-    new JcaCrypter(config)
-  }
-
-  /**
-    * Provides the cookie signer for the OAuth2 state provider.
-    *
-    * @param configuration The Play configuration.
-    * @return The cookie signer for the OAuth2 state provider.
-    */
-  @Provides
-  @Named("oauth2-state-cookie-signer")
-  def provideOAuth2StageSigner(configuration: Configuration): Signer = {
-    val config = configuration.underlying.as[JcaSignerSettings]("silhouette.oauth2StateProvider.cookie.signer")
-
-    new JcaSigner(config)
-  }
-
-  /**
-    * Provides the cookie signer for the authenticator.
-    *
-    * @param configuration The Play configuration.
-    * @return The cookie signer for the authenticator.
-    */
   @Provides
   @Named("authenticator-signer")
   def provideAuthenticatorSigner(configuration: Configuration): Signer = {
@@ -174,19 +114,13 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     * Provides the auth info repository.
     *
     * @param passwordInfoDAO The implementation of the delegable password auth info DAO.
-    * @param oauth1InfoDAO   The implementation of the delegable OAuth1 auth info DAO.
-    * @param oauth2InfoDAO   The implementation of the delegable OAuth2 auth info DAO.
-    * @param openIDInfoDAO   The implementation of the delegable OpenID auth info DAO.
     * @return The auth info repository instance.
     */
   @Provides
   def provideAuthInfoRepository(
-                                 passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo],
-                                 oauth1InfoDAO: DelegableAuthInfoDAO[OAuth1Info],
-                                 oauth2InfoDAO: DelegableAuthInfoDAO[OAuth2Info],
-                                 openIDInfoDAO: DelegableAuthInfoDAO[OpenIDInfo]): AuthInfoRepository = {
+                                 passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository = {
 
-    new DelegableAuthInfoRepository(passwordInfoDAO, oauth1InfoDAO, oauth2InfoDAO, openIDInfoDAO)
+    new DelegableAuthInfoRepository(passwordInfoDAO)
   }
 
   /**
@@ -225,51 +159,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   @Provides
   def provideAvatarService(httpLayer: HTTPLayer): AvatarService = new GravatarService(httpLayer)
 
-  /**
-    * Provides the OAuth1 token secret provider.
-    *
-    * @param Signer  The cookie signer implementation.
-    * @param crypter       The crypter implementation.
-    * @param configuration The Play configuration.
-    * @param clock         The clock instance.
-    * @return The OAuth1 token secret provider implementation.
-    */
-  @Provides
-  def provideOAuth1TokenSecretProvider(
-                                        @Named("oauth1-token-secret-cookie-signer") Signer: Signer,
-                                        @Named("oauth1-token-secret-crypter") crypter: Crypter,
-                                        configuration: Configuration,
-                                        clock: Clock): OAuth1TokenSecretProvider = {
-
-    val settings = configuration.underlying.as[CookieSecretSettings]("silhouette.oauth1TokenSecretProvider")
-    new CookieSecretProvider(settings, Signer, crypter, clock)
-  }
-
-//  /**
-//    * Provides the OAuth2 state provider.
-//    *
-//    * @param idGenerator   The ID generator implementation.
-//    * @param Signer  The cookie signer implementation.
-//    * @param configuration The Play configuration.
-//    * @param clock         The clock instance.
-//    * @return The OAuth2 state provider implementation.
-//    */
-//  @Provides
-//  def provideOAuth2StateProvider(
-//                                  idGenerator: IDGenerator,
-//                                  @Named("oauth2-state-cookie-signer") Signer: Signer,
-//                                  configuration: Configuration, clock: Clock): OAuth2StateProvider = {
-//
-//    val settings = configuration.underlying.as[CookieStateSettings]("silhouette.oauth2StateProvider")
-//    new CookieStateProvider(settings, idGenerator, Signer, clock)
-//  }
-
-  /**
-    * Provides the password hasher registry.
-    *
-    * @param passwordHasher The default password hasher implementation.
-    * @return The password hasher registry.
-    */
   @Provides
   def providePasswordHasherRegistry(passwordHasher: PasswordHasher): PasswordHasherRegistry = {
     new PasswordHasherRegistry(passwordHasher)

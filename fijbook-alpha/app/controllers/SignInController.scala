@@ -28,7 +28,6 @@ import scala.language.postfixOps
   * @param userService            The user service implementation.
   * @param authInfoRepository     The auth info repository implementation.
   * @param credentialsProvider    The credentials provider.
-  * @param socialProviderRegistry The social provider registry.
   * @param configuration          The Play configuration.
   * @param clock                  The clock instance.
   * @param webJarAssets           The webjar assets implementation.
@@ -40,7 +39,6 @@ class SignInController @Inject()(
                                   userService: UserService,
                                   authInfoRepository: AuthInfoRepository,
                                   credentialsProvider: CredentialsProvider,
-                                  socialProviderRegistry: SocialProviderRegistry,
                                   configuration: Configuration,
                                   clock: Clock,
                                   implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
@@ -52,7 +50,7 @@ class SignInController @Inject()(
     * @return The result to display.
     */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.silhouette.signIn(SignInForm.form, socialProviderRegistry)))
+    Future.successful(Ok(views.html.silhouette.signIn(SignInForm.form)))
   }
 
   /**
@@ -62,7 +60,7 @@ class SignInController @Inject()(
     */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     SignInForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.silhouette.signIn(form, socialProviderRegistry))),
+      form => Future.successful(BadRequest(views.html.silhouette.signIn(form))),
       data => {
         val credentials = Credentials(data.email, data.password)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>

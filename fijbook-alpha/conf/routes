@@ -93,7 +93,6 @@ GET         /deepfij/admin/deleteAlias/:id                      controllers.Data
 
 ############ SILHOUETTE
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
-GET         /deepfij/authenticate/:provider                     controllers.SocialAuthController.authenticate(provider)
 
 GET         /deepfij/signUp                                     controllers.SignUpController.view
 POST        /deepfij/signUp                                     controllers.SignUpController.submit
