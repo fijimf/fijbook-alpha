@@ -12,18 +12,16 @@ import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
 import forms.silhouette.SignUpForm
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The `Sign Up` controller.
   *
-  * @param messagesApi            The Play messages API.
   * @param silhouette             The Silhouette stack.
   * @param userService            The user service implementation.
   * @param authInfoRepository     The auth info repository implementation.
@@ -34,7 +32,7 @@ import scala.concurrent.Future
   * @param webJarAssets           The webjar assets implementation.
   */
 class SignUpController @Inject() (
-                                   val messagesApi: MessagesApi,
+                                   val controllerComponents:ControllerComponents,
                                    silhouette: Silhouette[DefaultEnv],
                                    userService: UserService,
                                    authInfoRepository: AuthInfoRepository,
@@ -42,8 +40,8 @@ class SignUpController @Inject() (
                                    avatarService: AvatarService,
                                    passwordHasherRegistry: PasswordHasherRegistry,
                                    mailerClient: MailerClient,
-                                   implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+                                   implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+  extends BaseController with I18nSupport {
  val log = Logger(this.getClass)
   /**
     * Views the `Sign Up` page.

@@ -18,7 +18,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
   val dao = Injector.inject[ScheduleDAO]
 
   "Conferences " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
     }
   }
@@ -28,7 +28,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
 
 
-  "return the new ID when inserted" in new WithApplication(FakeApplication()) {
+  "return the new ID when inserted" in new WithApplication() {
     assertConferencesIsEmpty()
     val t = mkQuickConf(0L, "big-east", "Big East")
     val s = Await.result(dao.saveConference(t), testDbTimeout)
@@ -36,7 +36,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     compareConferences(s, t)
   }
 
-  "return the old ID when updated" in new WithApplication(FakeApplication()) {
+  "return the old ID when updated" in new WithApplication() {
     assertConferencesIsEmpty()
     val t = mkQuickConf(0L, "big-east", "BigEast")
     val s = Await.result(dao.saveConference(t), testDbTimeout)
@@ -52,7 +52,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     assert(w.name == "Big East")
   }
 
-  "not be inserted with the same key as an existing conference" in new WithApplication(FakeApplication()) {
+  "not be inserted with the same key as an existing conference" in new WithApplication() {
     assertConferencesIsEmpty()
     val t1 = mkQuickConf(0L, "big-ten", "Big Ten")
     Await.result(dao.saveConference(t1), testDbTimeout)
@@ -65,7 +65,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "not be updated with the same key as an existing conference" in new WithApplication(FakeApplication()) {
+  "not be updated with the same key as an existing conference" in new WithApplication() {
     assertConferencesIsEmpty()
     val t1 = mkQuickConf(0L, "big-t", "Big Ten")
     Await.result(dao.saveConference(t1), testDbTimeout)
@@ -81,7 +81,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "not be inserted with the same name as an existing conference" in new WithApplication(FakeApplication()) {
+  "not be inserted with the same name as an existing conference" in new WithApplication() {
     assertConferencesIsEmpty()
     val t1 = mkQuickConf(0L, "big-ten", "Big Ten")
     Await.result(dao.saveConference(t1), testDbTimeout)
@@ -94,7 +94,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "not be bulk inserted with the same name as an existing confefence" in new WithApplication(FakeApplication()) {
+  "not be bulk inserted with the same name as an existing confefence" in new WithApplication() {
     assertConferencesIsEmpty()
     val ts = List(
       mkQuickConf(0L, "big-east", "Big East"),
@@ -110,7 +110,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "not be updated with the same name as an existing conference" in new WithApplication(FakeApplication()) {
+  "not be updated with the same name as an existing conference" in new WithApplication() {
     assertConferencesIsEmpty()
     val t1 = mkQuickConf(0L, "big-ten", "Big Ten")
     Await.result(dao.saveConference(t1), testDbTimeout)
@@ -126,7 +126,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     }
   }
 
-  "find by an id" in new WithApplication(FakeApplication()) {
+  "find by an id" in new WithApplication() {
     assertConferencesIsEmpty()
     private val cs = Await.result(dao.saveConferences(List(
       mkQuickConf(0L, "big-east", "Big East"),
@@ -142,7 +142,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
   }
 
-  "find by a key" in new WithApplication(FakeApplication()) {
+  "find by a key" in new WithApplication() {
     assertConferencesIsEmpty()
     private val cs = Await.result(dao.saveConferences(List(
       mkQuickConf(0L, "big-east", "Big East"),
@@ -158,7 +158,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
   }
 
-  "delete by an id" in new WithApplication(FakeApplication()) {
+  "delete by an id" in new WithApplication() {
     assertConferencesIsEmpty()
     private val cs = Await.result(dao.saveConferences(List(
       mkQuickConf(0L, "big-east", "Big East"),

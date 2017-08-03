@@ -9,17 +9,15 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import forms.silhouette.ResetPasswordForm
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc.Controller
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The `Reset Password` controller.
   *
-  * @param messagesApi            The Play messages API.
   * @param silhouette             The Silhouette stack.
   * @param userService            The user service implementation.
   * @param authInfoRepository     The auth info repository.
@@ -27,15 +25,16 @@ import scala.concurrent.Future
   * @param authTokenService       The auth token service implementation.
   * @param webJarAssets           The WebJar assets locator.
   */
-class ResetPasswordController @Inject() (
-                                          val messagesApi: MessagesApi,
-                                          silhouette: Silhouette[DefaultEnv],
-                                          userService: UserService,
-                                          authInfoRepository: AuthInfoRepository,
-                                          passwordHasherRegistry: PasswordHasherRegistry,
-                                          authTokenService: AuthTokenService,
-                                          implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+class ResetPasswordController @Inject()(
+                                         val controllerComponents: ControllerComponents,
+
+                                         silhouette: Silhouette[DefaultEnv],
+                                         userService: UserService,
+                                         authInfoRepository: AuthInfoRepository,
+                                         passwordHasherRegistry: PasswordHasherRegistry,
+                                         authTokenService: AuthTokenService,
+                                         implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+  extends BaseController with I18nSupport {
 
   /**
     * Views the `Reset Password` page.

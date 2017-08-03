@@ -4,7 +4,7 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 routesGenerator := InjectedRoutesGenerator
 
@@ -15,12 +15,15 @@ resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
 resolvers += "Apache" at "https://repository.apache.org/content/repositories/releases"
 
 libraryDependencies ++= Seq(
-  cache,
-  "com.typesafe.play" %% "play-slick" % "2.0.2",
+  ehcache,
+  guice,
+  "com.typesafe.play" %% "play-slick" % "3.0.0",
+  "com.typesafe.play" %% "play-json" % "2.6.2",
+  "com.typesafe.play" %% "play-iteratees" % "2.6.1",
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
-  "org.webjars" %% "webjars-play" % "2.5.0",
+  "org.webjars" %% "webjars-play" % "2.6.0-M1",
   "org.webjars" % "bootstrap" % "3.3.7-1",
   "org.webjars" % "jquery" % "3.1.1",
   "org.webjars" % "font-awesome" % "4.7.0",
@@ -29,15 +32,16 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-silhouette" % "4.0.0",
-  "com.mohiva" %% "play-silhouette-password-bcrypt" % "4.0.0",
-  "com.mohiva" %% "play-silhouette-crypto-jca" % "4.0.0",
-  "com.mohiva" %% "play-silhouette-persistence" % "4.0.0",
+  "com.mohiva" %% "play-silhouette" % "5.0.0-RC3",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.0-RC3",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.0-RC3",
+  "com.mohiva" %% "play-silhouette-persistence" % "5.0.0-RC3",
   "net.codingwell" %% "scala-guice" % "4.0.0",
   "net.ceedubs" %% "ficus" % "1.1.2",
-  "com.typesafe.play" %% "play-mailer" % "5.0.0",
+   "com.typesafe.play" %% "play-mailer" % "6.0.0",
+    "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
-  "com.adrianhurt" %% "play-bootstrap" % "1.0-P25-B3",
+  "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
   "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
   "com.chuusai" %% "shapeless" % "2.3.1",

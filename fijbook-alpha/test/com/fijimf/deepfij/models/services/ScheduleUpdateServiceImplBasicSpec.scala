@@ -8,7 +8,7 @@ import controllers.{GameMapping, MappedGame, MappedGameAndResult}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.Logger
-import play.api.test.{FakeApplication, WithApplication}
+import play.api.test.{WithApplication}
 import testhelpers.Injector
 
 import scala.concurrent.{Await, Future}
@@ -90,7 +90,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
 
   "Games & results " should {
 
-    "save 1 days games" in new WithApplication(FakeApplication()) {
+    "save 1 days games" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)
@@ -100,7 +100,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
         case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
       }, testDbTimeout)
     }
-    "save 1 days games, then erase them" in new WithApplication(FakeApplication()) {
+    "save 1 days games, then erase them" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)
@@ -114,7 +114,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
         case Failure(ex) => fail("svc.updateDb threw an unexpected exception")
       }, testDbTimeout)
     }
-    "save 1 days games, then update them" in new WithApplication(FakeApplication()) {
+    "save 1 days games, then update them" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)
@@ -139,7 +139,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
       }, testDbTimeout)
     }
 
-    "save 1 days games & results" in new WithApplication(FakeApplication()) {
+    "save 1 days games & results" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)
@@ -150,7 +150,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
       }, testDbTimeout)
     }
 
-    "save 1 days games & results, then erase both games and results" in new WithApplication(FakeApplication()) {
+    "save 1 days games & results, then erase both games and results" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)
@@ -166,7 +166,7 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
       }, testDbTimeout)
     }
 
-    "save 1 days games & results, then erase ONLY results" in new WithApplication(FakeApplication()) {
+    "save 1 days games & results, then erase ONLY results" in new WithApplication() {
       assertEmptySchedule(" new database before saving game data")
       val season = createNewSeason
       val teams = createNTeams(numTeams = 6)

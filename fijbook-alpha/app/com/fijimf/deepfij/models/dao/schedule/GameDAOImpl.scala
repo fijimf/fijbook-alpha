@@ -20,7 +20,7 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
 
   val repo: ScheduleRepository
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

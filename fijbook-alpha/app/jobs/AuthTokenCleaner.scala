@@ -6,7 +6,6 @@ import akka.actor._
 import com.fijimf.deepfij.models.services.AuthTokenService
 import com.mohiva.play.silhouette.api.util.Clock
 import jobs.AuthTokenCleaner.Clean
-import play.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

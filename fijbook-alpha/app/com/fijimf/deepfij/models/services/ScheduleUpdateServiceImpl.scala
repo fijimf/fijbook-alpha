@@ -14,16 +14,15 @@ import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.mailer.{Email, MailerClient}
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef) extends ScheduleUpdateService with I18nSupport {
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef)(implicit ec: ExecutionContext) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
   implicit val timeout = Timeout(600.seconds)
@@ -80,17 +79,21 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
 
   private def mailSuccessReport(optDates: Option[List[LocalDate]]) = {
     mailerClient.send(Email(
-      subject = Messages("email.daily.update.subject"),
-      from = Messages("email.from"),
+      subject = ms("email.daily.update.subject"),
+      from = ms("email.from"),
       to = Seq(System.getProperty("admin.user", "nope@nope.com")),
       bodyHtml = Some(views.html.admin.emails.dailyUpdate(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
     ))
   }
 
+  implicit def ms: Messages = {
+    messagesApi.preferred(Seq(Lang.defaultLang))
+  }
+
   private def maillErrorReport(optDates: Option[List[LocalDate]]) = {
     mailerClient.send(Email(
-      subject = Messages("email.daily.updateError.subject"),
-      from = Messages("email.from"),
+      subject = ms("email.daily.updateError.subject"),
+      from = ms("email.from"),
       to = Seq(System.getProperty("admin.user", "nope@nope.com")),
       bodyHtml = Some(views.html.admin.emails.dailyUpdateError(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
     ))

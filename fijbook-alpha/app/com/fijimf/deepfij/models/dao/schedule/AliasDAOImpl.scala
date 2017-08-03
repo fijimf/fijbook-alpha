@@ -13,7 +13,7 @@ trait AliasDAOImpl extends AliasDAO with DAOSlick {
 
   val repo: ScheduleRepository
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   override def deleteAliases(): Future[Int] = db.run(repo.aliases.delete)
 

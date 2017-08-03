@@ -20,11 +20,11 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
   val dao = Injector.inject[ScheduleDAO]
 
   "Teams " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assertTeamsIsEmpty()
     }
 
-    "return the new ID when inserted" in new WithApplication(FakeApplication()) {
+    "return the new ID when inserted" in new WithApplication() {
       assertTeamsIsEmpty()
       val t = mkQuickTeam(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East")
       val s = Await.result(dao.saveTeam(t), testDbTimeout)
@@ -32,7 +32,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       compareTeams(s, t)
     }
 
-    "return the old ID when updated" in new WithApplication(FakeApplication()) {
+    "return the old ID when updated" in new WithApplication() {
       assertTeamsIsEmpty()
       val t = mkQuickTeam(0L, "uconn", "UConn", "Connecticut", "Huskies", "Big East")
       val s = Await.result(dao.saveTeam(t), testDbTimeout)
@@ -48,7 +48,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(w.optConference == "American")
     }
 
-    "not be inserted with the same key as an existing team" in new WithApplication(FakeApplication()) {
+    "not be inserted with the same key as an existing team" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "usc", "South Carolina", "South Carolina", "Gamecocks", "SEC")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -61,7 +61,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       }
     }
 
-    "not be updated with the same key as an existing team" in new WithApplication(FakeApplication()) {
+    "not be updated with the same key as an existing team" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "usc", "USC", "Southern California", "Trojans", "Pac-12")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -77,7 +77,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       }
     }
 
-    "not be inserted with the same name as an existing team" in new WithApplication(FakeApplication()) {
+    "not be inserted with the same name as an existing team" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "usc", "USC", "Southern California", "Trojans", "Pac-12")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -90,7 +90,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       }
     }
 
-    "not be bulk inserted with the same name as an existing team" in new WithApplication(FakeApplication()) {
+    "not be bulk inserted with the same name as an existing team" in new WithApplication() {
       assertTeamsIsEmpty()
       val ts = List(
         mkQuickTeam(0L, "usc", "USC", "Southern California", "Trojans", "Pac-12"),
@@ -105,7 +105,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       }
     }
 
-    "not be updated with the same name as an existing team" in new WithApplication(FakeApplication()) {
+    "not be updated with the same name as an existing team" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "aaa", "Aaa", "Aaa", "a1s", "c1")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -121,7 +121,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       }
     }
 
-    "find by an id" in new WithApplication(FakeApplication()) {
+    "find by an id" in new WithApplication() {
       assertTeamsIsEmpty()
       val r = mkQuickTeam(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East")
       Await.result(dao.saveTeam(r), testDbTimeout)
@@ -135,7 +135,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(rr.contains(s1))
     }
 
-    "find by a key" in new WithApplication(FakeApplication()) {
+    "find by a key" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -148,7 +148,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(rr.get == nova)
     }
 
-    "delete by an id" in new WithApplication(FakeApplication()) {
+    "delete by an id" in new WithApplication() {
       assertTeamsIsEmpty()
       val t1 = mkQuickTeam(0L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "Big East")
       Await.result(dao.saveTeam(t1), testDbTimeout)
@@ -169,7 +169,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
     }
 
-    "handle multiple inserts" in new WithApplication(FakeApplication()) {
+    "handle multiple inserts" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams = 0.to(500).map(n => {
         val t = mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")
@@ -179,7 +179,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       Await.result(Future.sequence(teams), testDbTimeout)
     }
 
-    "handle bulk inserts" in new WithApplication(FakeApplication()) {
+    "handle bulk inserts" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams = 0.until(500).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")).toList
       val teams1 = Await.result(dao.saveTeams(teams), testDbTimeout)
@@ -189,7 +189,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(teams1.map(_.key).toSet == teams2.map(_.key).toSet)
     }
 
-    "handle multiple concurrent inserts" in new WithApplication(FakeApplication()) {
+    "handle multiple concurrent inserts" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams0 = 0.until(200).map(n => {
         val t = mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1")
@@ -205,7 +205,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
     }
 
-    "handle multiple concurrent bulk inserts" in new WithApplication(FakeApplication()) {
+    "handle multiple concurrent bulk inserts" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams0 = dao.saveTeams(
         0.until(200).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "AA", "c1")).toList
@@ -220,7 +220,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
     }
 
-    "handle multiple inserts and updates" in new WithApplication(FakeApplication()) {
+    "handle multiple inserts and updates" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams = 0.until(300).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")).toList
       val modTeams = dao.saveTeams(teams).flatMap(fts => dao.saveTeams(fts.map(_.copy(nickname = "New Nickname"))))
@@ -229,7 +229,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assertTeamsSize(300)
     }
 
-    "handle multiple concurrent inserts & updates & reads" in new WithApplication(FakeApplication()) {
+    "handle multiple concurrent inserts & updates & reads" in new WithApplication() {
       assertTeamsIsEmpty()
       val teams0 = 0.until(500).map(n => {
         val t = mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")
@@ -271,7 +271,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
 
   "Seasons " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
     }
   }

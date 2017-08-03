@@ -24,11 +24,11 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
 
 
   "GamePredictions " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
     }
 
-    "can save a game prediction" in new WithApplication(FakeApplication()) {
+    "can save a game prediction" in new WithApplication() {
       assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(GamePrediction(0L, 123L, "My Model", Some(123L), Some(0.75), None, None))
@@ -39,7 +39,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
     }
-    "can save multiple a game predictions" in new WithApplication(FakeApplication()) {
+    "can save multiple a game predictions" in new WithApplication() {
       assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(
@@ -64,7 +64,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
     }
-    "can load game predictions for a model" in new WithApplication(FakeApplication()) {
+    "can load game predictions for a model" in new WithApplication() {
       assert(Await.result(dao.listGamePrediction, testDbTimeout).isEmpty)
 
       private val predictions = List(

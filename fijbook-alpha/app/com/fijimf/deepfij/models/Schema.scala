@@ -6,8 +6,8 @@ import javax.inject.Inject
 
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabaseConfig
-import slick.driver.JdbcProfile
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 import slick.jdbc.JdbcBackend
 import slick.lifted._
 
@@ -143,7 +143,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
   val db: JdbcBackend#DatabaseDef = dbConfig.db
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
     ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
@@ -404,7 +404,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def idx3: Index = index("stat_value_idx3", (modelKey, statKey), unique = false)
 
-    def idx4: Index = index("stat_value_idx4", (modelKey), unique = false)
+    def idx4: Index = index("stat_value_idx4", modelKey, unique = false)
 
   }
 

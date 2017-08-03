@@ -21,32 +21,32 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
   }
   
   "StatValues " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assertStatValuesIsEmpty()
     }
 
-    "be able to save baby statValues" in new WithApplication(FakeApplication()) {
+    "be able to save baby statValues" in new WithApplication() {
       assertStatValuesIsEmpty()
       val dates = 1.to(2).map(d => LocalDate.now().plusDays(d)).toList
       private val statValues = 1.to(35).flatMap(t => dates.map(d => StatValue(0L, "model", "stat", t.toLong, d, 0.123))).toList
       Await.result(dao.saveStatValues( dates, List("model"), statValues), testDbTimeout)
       assert(Await.result(dao.listStatValues, testDbTimeout).size == 2 * 35)
     }
-    "be able to save large statValues" in new WithApplication(FakeApplication()) {
+    "be able to save large statValues" in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
       assert(Await.result(dao.listStatValues, testDbTimeout).size == 60 * 350 * 3)
     }
 
-    "be able to save empty list of statValues" in new WithApplication(FakeApplication()) {
+    "be able to save empty list of statValues" in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List.empty[String].map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
       assertStatValuesIsEmpty()
     }
 
-    "be able to update large statValues" in new WithApplication(FakeApplication()) {
+    "be able to update large statValues" in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues1 = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues1), testDbTimeout)
@@ -63,7 +63,7 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
     }
 
 
-    "be able to delete statValues " in new WithApplication(FakeApplication()) {
+    "be able to delete statValues " in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
@@ -80,7 +80,7 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       assert(result.size == 59 * 350 * 3)
     }
 
-    "be able to load statValues from model" in new WithApplication(FakeApplication()) {
+    "be able to load statValues from model" in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
@@ -89,7 +89,7 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       assert(result.size == 60 * 350 * 3)
     }
 
-    "be able to load statValues from model and stat key" in new WithApplication(FakeApplication()) {
+    "be able to load statValues from model and stat key" in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
@@ -98,7 +98,7 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       assert(result.size == 60 * 350)
     }
 
-    "not be able to load missing statValues from model " in new WithApplication(FakeApplication()) {
+    "not be able to load missing statValues from model " in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)
@@ -106,7 +106,7 @@ class RepoStatValueSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       private val result = Await.result(dao.loadStatValues("model-xxx"), testDbTimeout)
       assert(result.isEmpty)
     }
-    "not be able to load missing statValues from model and stat key " in new WithApplication(FakeApplication()) {
+    "not be able to load missing statValues from model and stat key " in new WithApplication() {
       assertStatValuesIsEmpty()
       private val statValues = 1.to(350).flatMap(t => nextSixtyDays.flatMap(d => List("Stat1", "Stat2", "Stat3").map(st => StatValue(0L, "model", st, t.toLong, d, 0.123)))).toList
       Await.result(dao.saveStatValues( nextSixtyDays, List("model"), statValues), testDbTimeout)

@@ -12,14 +12,18 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import play.twirl.api.Html
 import utils.DefaultEnv
 
 import scala.concurrent.Future
 
-class S3BlockController @Inject()(val teamDao: ScheduleDAO, val userService: UserService, val silhouette: Silhouette[DefaultEnv])
-  extends Controller {
+class S3BlockController @Inject()(
+                                   val controllerComponents: ControllerComponents,
+                                   val teamDao: ScheduleDAO,
+                                   val userService: UserService,
+                                   val silhouette: Silhouette[DefaultEnv])
+  extends BaseController {
 
   val log = Logger(this.getClass)
 

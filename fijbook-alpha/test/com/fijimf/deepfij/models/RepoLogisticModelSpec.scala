@@ -62,11 +62,11 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
     LogisticModelParameter(0L, "My Other Model", "param2", 0.0, 1.0, 0.9999999, LocalDate.parse("2017-02-09"))
   )
   "LogisticModels " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).isEmpty)
     }
 
-    "save logistic model parameters" in new WithApplication(FakeApplication()) {
+    "save logistic model parameters" in new WithApplication() {
 
       Future.sequence(sampleData.map(lm=>dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_)=> {
@@ -75,7 +75,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
         }
       })
     }
-    "find all parameters for all dates by model" in new WithApplication(FakeApplication()) {
+    "find all parameters for all dates by model" in new WithApplication() {
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
@@ -102,7 +102,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
-    "find all parameters for by date and model" in new WithApplication(FakeApplication()) {
+    "find all parameters for by date and model" in new WithApplication() {
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
@@ -134,7 +134,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
-   "find latest parameters for by model" in new WithApplication(FakeApplication()) {
+   "find latest parameters for by model" in new WithApplication() {
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
@@ -165,7 +165,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
     }
 
 
-    "delete all parameters for all dates by model" in new WithApplication(FakeApplication()) {
+    "delete all parameters for all dates by model" in new WithApplication() {
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
@@ -180,7 +180,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
-    "delete all parameters by date and model" in new WithApplication(FakeApplication()) {
+    "delete all parameters by date and model" in new WithApplication() {
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {

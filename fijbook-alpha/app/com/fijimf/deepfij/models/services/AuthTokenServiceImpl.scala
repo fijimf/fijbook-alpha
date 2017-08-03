@@ -7,9 +7,8 @@ import com.fijimf.deepfij.models.AuthToken
 import com.fijimf.deepfij.models.dao.silhouette.AuthTokenDAO
 import com.mohiva.play.silhouette.api.util.Clock
 import org.joda.time.DateTimeZone
-import play.api.libs.concurrent.Execution.Implicits._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -19,7 +18,7 @@ import scala.language.postfixOps
   * @param authTokenDAO The auth token DAO implementation.
   * @param clock The clock instance.
   */
-class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock) extends AuthTokenService {
+class AuthTokenServiceImpl @Inject() (authTokenDAO: AuthTokenDAO, clock: Clock)(implicit ec: ExecutionContext) extends AuthTokenService {
 
   /**
     * Creates a new auth token and saves it in the backing store.

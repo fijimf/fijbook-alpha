@@ -4,15 +4,14 @@ import javax.inject.Inject
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
-import com.fijimf.deepfij.models.{Schedule, ScheduleRepository, User}
+import com.fijimf.deepfij.models.{Schedule, User}
 import com.mohiva.play.silhouette.api.Silhouette
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class AdminController @Inject()(val userService: UserService, val scheduleDao:ScheduleDAO, val silhouette: Silhouette[DefaultEnv]) extends Controller {
+class AdminController @Inject()(val controllerComponents: ControllerComponents, val userService: UserService, val scheduleDao: ScheduleDAO, val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext) extends BaseController {
 
   def index = silhouette.UserAwareAction.async { implicit rs =>
     for (

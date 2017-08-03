@@ -5,7 +5,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
-import play.api.test.{FakeApplication, WithApplication}
+import play.api.test.WithApplication
 import testhelpers.Injector
 
 import scala.concurrent.Await
@@ -17,11 +17,11 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
 
 
   "UserProfiles " should {
-    "be empty initially" in new WithApplication(FakeApplication()) {
+    "be empty initially" in new WithApplication() {
       assert(Await.result(dao.listUserProfiles, testDbTimeout).isEmpty)
     }
 
-    "can save user profile data" in new WithApplication(FakeApplication()) {
+    "can save user profile data" in new WithApplication() {
       val userId = "user-123"
       val data = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
       assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size == 3)
@@ -30,7 +30,7 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
       assert(userProfileList.map(u => u.key -> u.value).toMap == data)
     }
 
-    "can update user profile data" in new WithApplication(FakeApplication()) {
+    "can update user profile data" in new WithApplication() {
       val userId = "user-123"
       val data = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
       assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size == 3)
@@ -44,7 +44,7 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
       assert(userProfileList2.map(u => u.key -> u.value).toMap == data2)
     }
 
-    "can load profile data for a user" in new WithApplication(FakeApplication()) {
+    "can load profile data for a user" in new WithApplication() {
       val userId1 = "user-123"
       val userId2 = "user-456"
       val data1 = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
@@ -57,7 +57,7 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
       assert(Await.result(dao.findUserProfile("user-456"), testDbTimeout) == data2)
     }
 
-    "can delete profile data for a user" in new WithApplication(FakeApplication()) {
+    "can delete profile data for a user" in new WithApplication() {
       val userId1 = "user-123"
       val userId2 = "user-456"
       val data1 = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")

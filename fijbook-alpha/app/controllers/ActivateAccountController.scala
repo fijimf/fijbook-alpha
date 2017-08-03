@@ -7,33 +7,32 @@ import javax.inject.Inject
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.Controller
+import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 /**
   * The `Activate Account` controller.
   *
-  * @param messagesApi      The Play messages API.
   * @param silhouette       The Silhouette stack.
   * @param userService      The user service implementation.
   * @param authTokenService The auth token service implementation.
   * @param mailerClient     The mailer client.
   * @param webJarAssets     The WebJar assets locator.
   */
-class ActivateAccountController @Inject() (
-                                            val messagesApi: MessagesApi,
-                                            silhouette: Silhouette[DefaultEnv],
-                                            userService: UserService,
-                                            authTokenService: AuthTokenService,
-                                            mailerClient: MailerClient,
-                                            implicit val webJarAssets: WebJarAssets)
-  extends Controller with I18nSupport {
+class ActivateAccountController @Inject()(
+                                           val controllerComponents: ControllerComponents,
+
+                                           silhouette: Silhouette[DefaultEnv],
+                                           userService: UserService,
+                                           authTokenService: AuthTokenService,
+                                           mailerClient: MailerClient,
+                                           implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+  extends BaseController with I18nSupport {
 
   /**
     * Sends an account activation email to the user with the given email.

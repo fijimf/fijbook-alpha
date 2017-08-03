@@ -15,14 +15,20 @@ import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.ScrapeOneTeamForm
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef, val teamDao: ScheduleDAO, silhouette: Silhouette[DefaultEnv], val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class TeamScrapeController @Inject()(
+                                      val controllerComponents: ControllerComponents,
+                                      @Named("data-load-actor") teamLoad: ActorRef,
+                                      @Named("throttler") throttler: ActorRef,
+                                      val teamDao: ScheduleDAO,
+                                      silhouette: Silhouette[DefaultEnv])
+  extends BaseController with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -30,7 +36,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   implicit val timeout = Timeout(600.seconds)
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
-  def scrapeTeams(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading aliases from database")
     val aliasMap: Map[String, String] = Await.result(teamDao.listAliases.map(_.map(alias => alias.alias -> alias.key)), 600.seconds).toMap
 
@@ -155,7 +161,7 @@ class TeamScrapeController @Inject()(@Named("data-load-actor") teamLoad: ActorRe
   private def neutralUpdatesForSchedule(sch: Schedule): List[Game] = {
     val locationData: Map[Long, Map[String, Int]] = sch.teamHomeGamesByLocation
     sch.games.foldLeft(List.empty[Option[Game]])((games: List[Option[Game]], game: Game) => {
-      ( for {
+      (for {
         location: String <- game.location
         homeGameSites: Map[String, Int] <- locationData.get(game.homeTeamId)
         timesAtLocation: Int <- homeGameSites.get(location)

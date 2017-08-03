@@ -1,7 +1,6 @@
 package jobs
 
 
-import java.time.LocalDate
 import javax.inject.Inject
 
 import akka.actor.Actor
