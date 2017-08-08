@@ -8,6 +8,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
 import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
 import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TestUrl}
 import com.google.inject.Inject
@@ -122,24 +123,11 @@ class TeamScrapeController @Inject()(
 
   def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-    (for (
-      sl <- teamDao.listSeasons;
-      tl <- teamDao.listTeams;
-      cl <- teamDao.listConferences
-    ) yield {
-      val confNameMap = cl.map(c => c.name -> c).toMap ++ cl.map(c => c.name.replace("Conference", "").trim -> c) ++ cl.map(c => c.name.replace("The", "").trim -> c)
-      for (
-        s <- sl;
-        t <- tl
-      ) yield {
-        val nameKey = t.optConference.replaceFirst("Athletic Association$", "Athletic...").replaceFirst("\\.\\.\\.$", "")
-        val conf = confNameMap.get(nameKey).orElse(confNameMap.get("Independents"))
-        ConferenceMap(0L, s.id, conf.map(_.id).getOrElse(0L), t.id, false, LocalDateTime.now(), userTag)
-      }
-    }).flatMap(lcm => {
+    ScheduleUtil.createConferenceMapSeeds(teamDao,userTag).flatMap(lcm => {
       Future.sequence(lcm.map(cm => teamDao.saveConferenceMap(cm)))
     }).map(_ => Redirect(routes.AdminController.index()))
   }
+
 
   def conferenceTourneySolver(sch: Schedule): List[Game] = {
     List.empty[Game]
