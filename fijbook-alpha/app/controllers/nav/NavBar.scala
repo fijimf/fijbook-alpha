@@ -14,6 +14,7 @@ object StandardNavBar {
       NavItem("conferences", "/deepfij/conferences", "fa-list", " Conferences", key == "conferences"),
       NavItem("games", "/deepfij/games", "fa-calendar", " Games", key == "games"),
       NavItem("stats", "/deepfij/stats", "fa-area-chart", " Statistics", key == "stats"),
+      NavItem("blog", "/deepfij/blog", " fa-book", " Blog", key == "blog"),
       NavItem("about", "/deepfij/about", "fa-question", " About", key == "about")
     )
     user.flatMap(_.email) match {
