@@ -8,8 +8,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.scraping.ScoreboardByDateReq
-import com.fijimf.deepfij.scraping.modules.scraping.EmptyBodyException
+import com.fijimf.deepfij.scraping.{EmptyBodyException, ScoreboardByDateReq}
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
@@ -138,13 +137,18 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     }
   }
 
+  private def createMasterDictionary(): Future[Map[String,Team]] = {
+    dao.listAliases.flatMap(aliases => {
+      dao.listTeams.map(teams => {
+        createMasterDictionary(teams, aliases)
+      })
+    })
+  }
 
-  private def createMasterDictionary(teams: List[Team], aliases: List[Alias]) = {
+  private def createMasterDictionary(teams: List[Team], aliases: List[Alias]): Map[String, Team] = {
     val teamDict = teams.map(t => t.key -> t).toMap
     val aliasDict = aliases.filter(a => teamDict.contains(a.key)).map(a => a.alias -> teamDict(a.key))
-
-    val masterDict = teamDict ++ aliasDict
-    masterDict
+    teamDict ++ aliasDict
   }
 
   def gameDataToGame(seasonId: Long, sourceKey: String, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
@@ -194,4 +198,20 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     )
   }
 
+//  def verifyRecords(seasonId: Long) = {
+//      dao.loadSchedules()
+//      val masterDict: Map[String, Team] = createMasterDictionary().map(md=>{
+//        (throttler ? Saga(d)).mapTo[Either[Throwable, List[GameData]]].map {
+//          case Left(thr) if thr == EmptyBodyException =>
+//            logger.warn("For date " + d + " scraper returned an empty body")
+//            List.empty[GameMapping]
+//          case Left(thr) =>
+//            logger.error("For date " + d + " scraper returned an exception ", thr)
+//            List.empty[GameMapping]
+//          case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
+//        }
+//
+//      })
+//    }
+//  }
 }

@@ -1,8 +1,6 @@
 package com.fijimf.deepfij.scraping
 
-package modules.scraping
-
-import java.util.concurrent.Executors
+import java.util.concurrent.{ExecutorService, Executors}
 
 import akka.actor.Actor
 import com.google.inject.Inject
@@ -15,8 +13,8 @@ import scala.util.{Failure, Success, Try}
 
 class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   val logger: Logger = Logger(this.getClass)
-  implicit val ec = new ExecutionContext {
-    val threadPool = Executors.newFixedThreadPool(4) // Limited so ncaa.com stops blocking me
+  implicit val ec:ExecutionContext = new ExecutionContext {
+    val threadPool: ExecutorService = Executors.newFixedThreadPool(4) // Limited so ncaa.com stops blocking me
 
     def execute(runnable: Runnable) {
       threadPool.submit(runnable)
@@ -107,6 +105,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
       case Success(response) =>
         mySender ! Some(response.status)
       case Failure(ex) =>
+        logger.warn(s"'GET $url' failed", ex)
         mySender ! None
     }
   }
