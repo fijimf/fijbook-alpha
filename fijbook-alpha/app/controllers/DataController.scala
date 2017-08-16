@@ -316,4 +316,5 @@ class DataController @Inject()(
       teamDao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
   }
 
+
 }

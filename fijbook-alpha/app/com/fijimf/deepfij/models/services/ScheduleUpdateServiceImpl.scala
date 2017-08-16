@@ -8,8 +8,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.scraping.{EmptyBodyException, ScoreboardByDateReq}
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
+import com.fijimf.deepfij.scraping.{EmptyBodyException, SagarinRequest, SagarinRow, ScoreboardByDateReq}
 import com.google.inject.name.Named
 import controllers._
 import play.api.Logger
@@ -137,7 +137,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     }
   }
 
-  private def createMasterDictionary(): Future[Map[String,Team]] = {
+  private def createMasterDictionary(): Future[Map[String, Team]] = {
     dao.listAliases.flatMap(aliases => {
       dao.listTeams.map(teams => {
         createMasterDictionary(teams, aliases)
@@ -198,20 +198,52 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     )
   }
 
-//  def verifyRecords(seasonId: Long) = {
-//      dao.loadSchedules()
-//      val masterDict: Map[String, Team] = createMasterDictionary().map(md=>{
-//        (throttler ? Saga(d)).mapTo[Either[Throwable, List[GameData]]].map {
-//          case Left(thr) if thr == EmptyBodyException =>
-//            logger.warn("For date " + d + " scraper returned an empty body")
-//            List.empty[GameMapping]
-//          case Left(thr) =>
-//            logger.error("For date " + d + " scraper returned an exception ", thr)
-//            List.empty[GameMapping]
-//          case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
-//        }
-//
-//      })
-//    }
-//  }
+  override def verifyRecords(y: Int) = {
+    dao.loadSchedule(y).flatMap {
+      case Some(sch) =>
+        createMasterDictionary().flatMap(md => {
+          loadVerification(y, md, sch)
+        })
+      case None => {
+        logger.error("Failed to load ")
+        Future.successful(ResultsVerification())
+      }
+    }
+  }
+
+
+  private def loadVerification(y: Int, md:Map[String,Team], sch:Schedule): Future[ResultsVerification] = {
+    (throttler ? SagarinRequest(y)).mapTo[Either[Throwable, List[SagarinRow]]].map {
+      case Left(thr) if thr == EmptyBodyException =>
+        logger.warn("For year " + y + " Sagarin scraper returned an empty body")
+        ResultsVerification()
+      case Left(thr) =>
+        logger.error("For year " + y + " Sagarin scraper returned an exception ", thr)
+        ResultsVerification()
+      case Right(lsr) =>
+        lsr.foldLeft(ResultsVerification())((v: ResultsVerification, row: SagarinRow) => {
+          val key = transformNameToKey(row.sagarinName)
+          md.get(key) match {
+            case Some(t)=>
+              val record = sch.overallRecord(t)
+              if (record.won==row.wins && record.lost==row.losses){
+                v.copy(matchedResults=t::v.matchedResults)
+              } else {
+                v.copy(unmatchedResults=t::v.unmatchedResults)
+              }
+            case None=> v.copy(unmappedKeys = key::v.unmappedKeys)
+          }
+        })
+
+    }
+  }
+   def transformNameToKey(n:String):String={
+     n.trim()
+       .toLowerCase()
+       .replace(' ','-')
+       .replace('(','-')
+       .replaceAll("[\\.&'\\)]","")
+   }
 }
+
+case class ResultsVerification(unmappedKeys:List[String] = List.empty,matchedResults:List[Team]= List.empty, unmatchedResults:List[Team]=List.empty)

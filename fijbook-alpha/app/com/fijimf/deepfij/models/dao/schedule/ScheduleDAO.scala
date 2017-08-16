@@ -25,6 +25,8 @@ trait ScheduleDAO
 
   def loadSchedules(): Future[List[Schedule]]
 
+  def loadSchedule(y:Int): Future[Option[Schedule]]
+
   def loadLatestSchedule(): Future[Option[Schedule]]
 
 }

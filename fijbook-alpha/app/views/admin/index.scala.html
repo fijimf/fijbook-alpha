@@ -155,8 +155,8 @@
                         <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseGames(s.season.id, None)">
                         Browse Games</a>
                         </p>
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.lockSeason(s.season.id)">
-                        Lock Results</a>
+                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.GameScrapeController.verifyResults(s.season.year)">
+                        Verify Results</a>
                         </p>
                         <table class="table table-bordered table-condensed">
                             <thead/>

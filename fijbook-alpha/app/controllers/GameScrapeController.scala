@@ -43,4 +43,15 @@ class GameScrapeController @Inject()(
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping $yyyymmdd "))
   }
   }
+
+  def verifyResults(y:Int) = silhouette.SecuredAction.async { implicit rs =>
+    scheduleUpdateService.verifyRecords(y).map(n =>{
+      val s = "Unmapped Keys:\n"+n.unmappedKeys.mkString("\n")
+      val t =  "Correct records:\n"+n.matchedResults.map(_.name).mkString("\n")
+      val u=  "Incorrect records:\n"+n.unmatchedResults.map(_.name).mkString("\n")
+      Ok(s"$s\n$t\n$u\n")
+    })
+  }
+
+
 }

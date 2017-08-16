@@ -14,4 +14,7 @@ trait ScheduleUpdateService {
   def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean)
 
   def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]]
+
+  def verifyRecords(y: Int):Future[ResultsVerification]
+
 }

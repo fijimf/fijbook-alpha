@@ -120,9 +120,17 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def loadSchedules(): Future[List[Schedule]] = {
-    db.run(repo.seasons.to[List].result).flatMap(seasons =>
+    val result: DBIO[List[Season]] = repo.seasons.to[List].result
+    db.run(result).flatMap(seasons =>
       Future.sequence(seasons.map(season => loadSchedule(season)))
     )
+  }
+
+  override def loadSchedule(y:Int): Future[Option[Schedule]] = {
+    db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
+      case Some(s) => loadSchedule(s).map(Some(_))
+      case None => Future.successful(None)
+    }
   }
 
   override def loadLatestSchedule(): Future[Option[Schedule]] = {
