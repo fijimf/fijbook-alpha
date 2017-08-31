@@ -1,0 +1,72 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.services.ResultsVerification
+@(user:User, gs:ResultsVerification)(implicit flash: Flash)
+@mainX(
+    MainMeta.base("Verify Results", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Games"))
+){
+
+    <div class="row">
+        <div class="col-sm-3">
+            <h3>Unmapped Deepfij teams ( @gs.notFound.size )</h3>
+            <table class="table table-smushed table-bordered table-striped">
+                <thead><tr>
+                    <th>Key</th>
+                </tr></thead>
+                    <tbody>
+                    @for(k<-gs.notFound){
+                        <tr><td>@k</td></tr>
+                    }
+                    </tbody>
+            </table>
+        </div>
+        <div class="col-sm-3">
+            <h3>Unmapped Sagarin teams ( @gs.unmappedKeys.size )</h3>
+            <table class="table table-smushed table-bordered table-striped">
+                <thead><tr>
+                    <th>Key</th>
+                </tr></thead>
+                    <tbody>
+                    @for(k<-gs.unmappedKeys){
+                        <tr><td>@k</td></tr>
+                    }
+                    </tbody>
+            </table>
+        </div>
+        <div class="col-sm-3">
+            <h3>Verified teams ( @gs.matchedResults.size )</h3>
+            <table class="table table-smushed table-bordered table-striped">
+                <thead><tr>
+                    <th>Team</th>
+                </tr></thead>
+                    <tbody>
+                    @for(t<-gs.matchedResults){
+                        <tr><td><a href="@routes.TeamController.team(t.key)">@t.name</a></td></tr>
+                    }
+                    </tbody>
+            </table>
+        </div>
+        <div class="col-sm-3">
+            <h3>Mismatched teams ( @gs.unmatchedResults.size )</h3>
+            <table class="table table-smushed table-bordered table-striped">
+                <thead><tr>
+                    <th>Team</th>
+                    <th>Sagarin Record</th>
+                    <th>Deepfij Record</th>
+                </tr></thead>
+                    <tbody>
+                    @for(t<-gs.unmatchedResults){
+                        <tr>
+                            <td><a href="@routes.TeamController.team(t._1.key)">@t._1.name</a></td>
+                            <td>@t._2.won - @t._2.lost</td>
+                            <td>@t._3.won - @t._3.lost</td>
+                        </tr>
+                    }
+                    </tbody>
+            </table>
+        </div>
+    </div>
+}

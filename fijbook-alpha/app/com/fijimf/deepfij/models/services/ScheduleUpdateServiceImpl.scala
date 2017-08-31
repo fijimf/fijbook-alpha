@@ -221,19 +221,23 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
         logger.error("For year " + y + " Sagarin scraper returned an exception ", thr)
         ResultsVerification()
       case Right(lsr) =>
-        lsr.foldLeft(ResultsVerification())((v: ResultsVerification, row: SagarinRow) => {
+        val rv = lsr.foldLeft(ResultsVerification())((v: ResultsVerification, row: SagarinRow) => {
           val key = transformNameToKey(row.sagarinName)
           md.get(key) match {
-            case Some(t)=>
-              val record = sch.overallRecord(t)
-              if (record.won==row.wins && record.lost==row.losses){
-                v.copy(matchedResults=t::v.matchedResults)
+            case Some(t) =>
+              val r = sch.overallRecord(t)
+              val s = WonLostRecord(row.wins, row.losses)
+              if (r == s) {
+                v.copy(matchedResults = t :: v.matchedResults)
               } else {
-                v.copy(unmatchedResults=t::v.unmatchedResults)
+                v.copy(unmatchedResults = (t, r, s) :: v.unmatchedResults)
               }
-            case None=> v.copy(unmappedKeys = key::v.unmappedKeys)
+            case None => v.copy(unmappedKeys = key :: v.unmappedKeys)
           }
         })
+        val found = (rv.unmatchedResults.map(_._1.key)++rv.matchedResults.map(_.key)).toSet
+        rv.copy(notFound=sch.teams.map(_.key).filterNot(found.contains))
+
 
     }
   }
@@ -246,4 +250,4 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
    }
 }
 
-case class ResultsVerification(unmappedKeys:List[String] = List.empty,matchedResults:List[Team]= List.empty, unmatchedResults:List[Team]=List.empty)
+case class ResultsVerification(unmappedKeys:List[String] = List.empty,notFound:List[String]=List.empty,matchedResults:List[Team]= List.empty, unmatchedResults:List[(Team, WonLostRecord, WonLostRecord)]=List.empty)
