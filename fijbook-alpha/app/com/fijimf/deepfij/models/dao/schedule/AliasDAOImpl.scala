@@ -19,15 +19,19 @@ trait AliasDAOImpl extends AliasDAO with DAOSlick {
 
   override def findAliasById(id: Long): Future[Option[Alias]] = db.run(repo.aliases.filter(_.id === id).result.headOption)
 
-  override def saveAlias(alias: Alias): Future[Alias] =
-    db.run(repo.aliases.filter(a => a.key === alias.key).result.flatMap(as =>
-      as.headOption match {
-        case Some(a) =>
-          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(alias.copy(id = a.id))
+  override def saveAlias(alias: Alias): Future[Alias] = saveAliases(List(alias)).map(_.head)
+
+  override def saveAliases(aliases: List[Alias]): Future[List[Alias]] = {
+    val ops = aliases.map(c1 => repo.aliases.filter(c => c.alias === c1.alias).result.flatMap(cs =>
+      cs.headOption match {
+        case Some(c) =>
+          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(c1.copy(id = c.id))
         case None =>
-          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(alias)
+          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(c1)
       }
-    ).flatMap(_=>repo.aliases.filter(t => t.key === alias.key).result.head).transactionally)
+    ).flatMap(_ => repo.aliases.filter(t => t.alias === c1.alias).result.head))
+    db.run(DBIO.sequence(ops).transactionally)
+  }
 
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)

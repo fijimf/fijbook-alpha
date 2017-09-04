@@ -209,20 +209,17 @@ class DataController @Inject()(
 
 
   def initializeAliases() = silhouette.SecuredAction.async { implicit request =>
-    teamDao.deleteAliases().flatMap(i => {
-      val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
-      Future.sequence(lines.map(s => {
-        val parts = s.trim.split("\\s+")
-        if (parts.size == 2) {
-          teamDao.saveAlias(Alias(0L, parts(0), parts(1)))
-        } else {
-          logger.info("Skipping '" + s + "'")
-          Future.successful(0)
-        }
-      })
-      )
-    }).map(
-      xx => Redirect(routes.DataController.browseAliases())
+    val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
+    val aliases = lines.flatMap(l => {
+      val parts = l.trim.split("\\s+")
+      if (parts.size == 2) {
+        Some(Alias(0L, parts(0), parts(1)))
+      } else {
+        None
+      }
+    })
+    teamDao.saveAliases(aliases).map(
+      _ => Redirect(routes.DataController.browseAliases())
     )
   }
 

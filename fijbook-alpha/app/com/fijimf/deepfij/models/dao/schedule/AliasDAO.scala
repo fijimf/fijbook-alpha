@@ -10,6 +10,8 @@ trait AliasDAO {
 
   def saveAlias(a: Alias): Future[Alias]
 
+  def saveAliases(aliases: List[Alias]): Future[List[Alias]]
+
   def findAliasById(id: Long): Future[Option[Alias]]
 
   def listAliases: Future[List[Alias]]
