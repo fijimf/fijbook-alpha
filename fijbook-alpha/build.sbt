@@ -58,6 +58,8 @@ libraryDependencies ++= Seq(
 "com.amazonaws"%"aws-java-sdk"%"1.11.106"
 )
 
+import com.typesafe.sbt.packager.SettingsHelper._
+
 makeDeploymentSettings(Universal, packageBin in Universal, "zip")
 publishTo := Some(Resolver.file("file", new File("/tmp")))
 releaseIgnoreUntrackedFiles := true
