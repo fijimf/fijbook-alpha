@@ -61,7 +61,7 @@ libraryDependencies ++= Seq(
 import com.typesafe.sbt.packager.SettingsHelper._
 
 makeDeploymentSettings(Universal, packageBin in Universal, "zip")
-publishTo := Some(Resolver.file("file", new File("/tmp")))
+publishTo := Some(Resolver.file("file", new File(sys.env.getOrElse("DEPLOY_DIR","/tmp"))))
 releaseIgnoreUntrackedFiles := true
 
 import ReleaseTransformations._
