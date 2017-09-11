@@ -38,20 +38,16 @@ class TeamScrapeController @Inject()(
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
-    logger.info("Loading aliases from database")
-    val aliasMap: Map[String, String] = Await.result(teamDao.listAliases.map(_.map(alias => alias.alias -> alias.key)), 600.seconds).toMap
-
-    logger.info("Loading preliminary team keys.")
-    val teamShortNames: Future[Map[String, String]] = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
-
-    logger.info("Loading team detail")
-
-    val teamMaster: Future[List[Team]] = teamShortNames.map((tsn: Map[String, String]) => {
-      tsn.toList.grouped(4).map((is: Iterable[(String, String)]) => {
-        val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-        scrapeKeyList(is, userTag, aliasMap)
-      }).flatten.toList
-    })
+    val teamMaster:Future[List[Team]]=for {
+      aliasMap<-loadAliasMap()
+      teamShortNames<-masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
+    } yield {
+      logger.info(s"Loaded ${teamShortNames.size} short names.")
+      teamShortNames.toList.grouped(4).map((tups: List[(String, String)]) => {
+         val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+         scrapeKeyList(tups, userTag, aliasMap)
+       }).flatten.toList
+    }
 
     teamMaster.flatMap(lst => {
       val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
@@ -62,6 +58,11 @@ class TeamScrapeController @Inject()(
       Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Loaded " + good.size + " Teams")))
     })
 
+  }
+
+  private def loadAliasMap(): Future[Map[String, String]] = {
+    logger.info("Loading aliases from database")
+    teamDao.listAliases.map(_.map(alias => alias.alias -> alias.key).toMap)
   }
 
   def scrapeKeyList(is: Iterable[(String, String)], userTag: String, aliasMap: Map[String, String]): Iterable[Team] = {
