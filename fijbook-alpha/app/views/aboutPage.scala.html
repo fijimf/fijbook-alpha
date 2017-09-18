@@ -1,0 +1,15 @@
+@import com.fijimf.deepfij.BuildInfo
+@import com.fijimf.deepfij.models.{Schedule,User,Game}
+@import controllers.nav.{Breadcrumbs, StandardNavBar}
+@import java.time.LocalDate
+@(user: Option[User], today:LocalDate, content:String)(implicit flash: Flash)
+@main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
+   @Html(content)
+   <div class="row">
+      <div class="col-sm-9">
+         <p><b>@BuildInfo.name</b> <em>v.</em><b>@BuildInfo.version</b></p>
+          <p><em>Built at <b>@BuildInfo.builtAtString </em></p>
+          <p><em>Scala @BuildInfo.scalaVersion /sbt @BuildInfo.sbtVersion</em></p>
+      </div>
+   </div>
+}

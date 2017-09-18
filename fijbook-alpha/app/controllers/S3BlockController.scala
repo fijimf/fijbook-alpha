@@ -48,7 +48,11 @@ class S3BlockController @Inject()(
     Future.successful(if (s.doesObjectExist(S3StaticAsset.bucket, key)) {
       val obj = s.getObject(S3StaticAsset.bucket, key)
       val content = new String(IOUtils.toByteArray(obj.getObjectContent))
-      Ok(views.html.frontPage(rs.identity, LocalDate.now(), content))
+      if (slug=="about"){
+        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
+      } else {
+        Ok(views.html.frontPage(rs.identity, LocalDate.now(), content))
+      }
     } else {
       NotFound
     })
