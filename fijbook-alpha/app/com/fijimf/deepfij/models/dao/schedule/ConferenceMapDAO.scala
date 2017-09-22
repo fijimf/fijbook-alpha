@@ -10,6 +10,8 @@ trait ConferenceMapDAO {
 
   def deleteConferenceMap(id: Long): Future[Int]
 
+  def deleteAllConferenceMaps(): Future[Int]
+
   def saveConferenceMap(cm: ConferenceMap): Future[ConferenceMap]
 
   def saveConferenceMaps(cms: List[ConferenceMap]): Future[List[ConferenceMap]]

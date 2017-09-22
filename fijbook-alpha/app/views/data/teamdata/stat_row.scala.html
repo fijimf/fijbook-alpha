@@ -1,9 +1,18 @@
 @import com.fijimf.deepfij.models.StatValue
 @import java.time.LocalDate
-@(name:String, date:LocalDate, rank:Int, stat:StatValue)
-<tr>
-    <td class="text-right text-muted">@name</td>
-    <td>@date</td>
-    <td>@rank</td>
-    <td>@stat.value.formatted("%8.3f")</td>
-</tr>
+@(name:String, date:LocalDate, rank:Int, stat:StatValue, link:Option[String])
+    @if(link.isDefined) {
+        <tr>
+            <td class="text-right "><strong><a href="@link.get">@name</a></strong></td>
+            <td>@date</td>
+            <td>@rank</td>
+            <td>@stat.value.formatted("%8.3f")</td>
+        </tr>
+    } else {
+        <tr>
+            <td class="text-right text-muted">@name</td>
+            <td>@date</td>
+            <td>@rank</td>
+            <td>@stat.value.formatted("%8.3f")</td>
+        </tr>
+    }

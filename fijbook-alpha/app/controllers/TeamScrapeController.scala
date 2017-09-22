@@ -38,15 +38,15 @@ class TeamScrapeController @Inject()(
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
-    val teamMaster:Future[List[Team]]=for {
-      aliasMap<-loadAliasMap()
-      teamShortNames<-masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
+    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+    val aliasFuture = loadAliasMap()
+    val shortNameFuture = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
+    val teamMaster: Future[List[Team]] = for {
+      aliasMap <- aliasFuture
+      teamShortNames <- shortNameFuture
     } yield {
       logger.info(s"Loaded ${teamShortNames.size} short names.")
-      teamShortNames.toList.grouped(4).map((tups: List[(String, String)]) => {
-         val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-         scrapeKeyList(tups, userTag, aliasMap)
-       }).flatten.toList
+      scrapeKeyList(teamShortNames.toList, userTag, aliasMap).toList
     }
 
     teamMaster.flatMap(lst => {
@@ -124,9 +124,16 @@ class TeamScrapeController @Inject()(
 
   def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-    ScheduleUtil.createConferenceMapSeeds(teamDao,userTag).flatMap(lcm => {
-      Future.sequence(lcm.map(cm => teamDao.saveConferenceMap(cm)))
-    }).map(_ => Redirect(routes.AdminController.index()))
+
+    (for {
+      _ <- teamDao.deleteAllConferenceMaps()
+      lcm <- ScheduleUtil.createConferenceMapSeeds(teamDao, userTag)
+      _ <- teamDao.saveConferenceMaps(lcm)
+    } yield {
+      Redirect(routes.AdminController.index())
+    }).recover {
+      case ex: Exception => Redirect(routes.AdminController.index()).flashing("warn"->s"${ex.getMessage}")
+    }
   }
 
 

@@ -1,14 +1,10 @@
 @import java.time.LocalDate
 @import com.fijimf.deepfij.models.StatValue
-@(name: String, modelKey: String, statKey: String, ss: List[(LocalDate, Int, StatValue)])
-<tr>
-    <th><a href="@routes.StatsController.viewStat(modelKey, statKey)"> @name</a></th>
-    <td>@ss(0)._1</td>
-    <td>@ss(0)._2</td>
-    <td>@ss(0)._3.value.formatted("%8.3f")</td>
-</tr>
-@stat_row("Previous", ss(1)._1, ss(1)._2, ss(1)._3)
-@stat_row("Week Ago", ss(2)._1, ss(2)._2, ss(2)._3)
-@stat_row("Best", ss(3)._1, ss(3)._2, ss(3)._3)
-@stat_row("Worst", ss(4)._1, ss(4)._2, ss(4)._3)
-
+@(name: String, modelKey: String, statKey: String, ss: List[(String,Boolean,(LocalDate, Int, StatValue))])
+@for(st <-ss) {
+    @if(st._2) {
+        @stat_row(st._1,  st._3._1, st._3._2, st._3._3, Some(routes.StatsController.viewStat(modelKey, statKey).url))
+    } else {
+        @stat_row(st._1,  st._3._1, st._3._2, st._3._3,None)
+    }
+}

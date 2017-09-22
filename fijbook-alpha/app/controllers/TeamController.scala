@@ -65,7 +65,7 @@ class TeamController @Inject()(
               cache.set("model." + modelKey, byKey, 15.minutes)
               Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
             }
-          )
+            )
         }
       case None => Future.successful(Option.empty[ModelTeamContext])
     }
@@ -136,7 +136,7 @@ case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], x
 
   def modelKey = model.key
 
-  def values(stat: Stat[_]): List[(LocalDate, Int, StatValue)] = {
+  def values(stat: Stat[_]): List[(String, Boolean, (LocalDate, Int, StatValue))] = {
     val teamByDate: List[(LocalDate, Int, StatValue)] = xs.get(stat.key) match {
       case Some(lsv) =>
         lsv.groupBy(_.date)
@@ -148,17 +148,37 @@ case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], x
         }
       case None => List.empty[(LocalDate, Int, StatValue)]
     }
-    if (teamByDate.isEmpty) {
-      List.empty[(LocalDate, Int, StatValue)]
-    } else {
-      val firstDate = teamByDate.minBy(_._1.toEpochDay)._1
-      val latest = teamByDate.maxBy(_._1.toEpochDay)
-      val prev = teamByDate.filter(_._1.isBefore(latest._1)).maxBy(_._1.toEpochDay)
-      val weekAgo = teamByDate.filter(_._1.isBefore(latest._1.plusDays(-6))).maxBy(_._1.toEpochDay)
 
-      val best = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2).maxBy(_._1.toEpochDay)
-      val worst = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2).maxBy(_._1.toEpochDay)
-      List(latest, prev, weekAgo, best, worst)
+    val firstDate = teamByDate match {
+      case Nil => None
+      case tbd => Some(tbd.minBy(_._1.toEpochDay))
     }
+    val latest: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate match {
+      case Nil => None
+      case tbd => Some((stat.name, true, tbd.maxBy(_._1.toEpochDay)))
+    }
+
+    val prev: Option[(String, Boolean, (LocalDate, Int, StatValue))] = latest.flatMap(lt => {
+      teamByDate.filter(_._1.isBefore(lt._3._1)) match {
+        case Nil => None
+        case tbd => Some(("Prev", false, tbd.maxBy(_._1.toEpochDay)))
+      }
+    })
+    val weekAgo: Option[(String, Boolean, (LocalDate, Int, StatValue))] = latest.flatMap(lt => {
+      teamByDate.filter(_._1.isBefore(lt._3._1.plusDays(-6))) match {
+        case Nil => None
+        case tbd => Some(("Week Ago", false, tbd.maxBy(_._1.toEpochDay)))
+      }
+    })
+    val best: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2) match {
+      case Nil => None
+      case tbd => Some(("Best", false, tbd.maxBy(_._1.toEpochDay)))
+    }
+    val worst: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2) match {
+      case Nil => None
+      case tbd => Some(("Worst", false, tbd.maxBy(_._1.toEpochDay)))
+    }
+    List(latest, prev, weekAgo, best, worst).flatten
+
   }
 }

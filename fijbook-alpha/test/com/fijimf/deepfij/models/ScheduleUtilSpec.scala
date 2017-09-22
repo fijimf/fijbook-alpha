@@ -105,7 +105,6 @@ class ScheduleUtilSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEa
         val teamIds: List[Long] = maps.map(_.teamId)
         assert(teamIds.contains(t.id)) //Every team mapped
       })
-
     }
   }
 }
