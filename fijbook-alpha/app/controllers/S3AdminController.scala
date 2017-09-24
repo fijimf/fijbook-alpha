@@ -39,7 +39,6 @@ class S3AdminController @Inject()(
   }
 
   def createStaticPage = silhouette.SecuredAction.async { implicit rs =>
-    val infos: List[S3StaticAsset] = S3StaticAsset.list(s, S3StaticAsset.bucket, S3StaticAsset.staticPageFolder)
     Future.successful(
       Ok(views.html.admin.createStaticPage(rs.identity, EditStaticPageForm.form.fill(EditStaticPageForm.Data("", ""))))
     )
@@ -53,7 +52,13 @@ class S3AdminController @Inject()(
     )
   }
 
-  def deleteStaticPage(slug: String) = TODO
+  def deleteStaticPage(slug: String) = silhouette.SecuredAction.async { implicit rs =>
+    val obj = s.getObject(S3StaticAsset.bucket, s"${S3StaticAsset.staticPageFolder}$slug")
+    val content = new String(IOUtils.toByteArray(obj.getObjectContent))
+    Future.successful(
+      Ok(views.html.admin.createStaticPage(rs.identity, EditStaticPageForm.form.fill(EditStaticPageForm.Data(slug, content))))
+    )
+  }
 
   def saveStaticPage = silhouette.SecuredAction.async { implicit rs =>
     EditStaticPageForm.form.bindFromRequest.fold(
@@ -61,7 +66,15 @@ class S3AdminController @Inject()(
         Future.successful(BadRequest(views.html.admin.createStaticPage(rs.identity, form)))
       },
       data => {
-        val version = S3StaticAsset.save(s, S3StaticAsset.bucket, S3StaticAsset.staticPageFolder, data.slug, Map.empty[String, String], data.content)
+        val tags = Map("_author"->rs.identity.email.getOrElse("<ANonymous>"),"_deleted"->"false")
+        val version = S3StaticAsset.save(
+          s,
+          S3StaticAsset.bucket,
+          S3StaticAsset.staticPageFolder,
+          data.slug,
+          tags,
+          data.content
+        )
         val flashMsg = s"Saved static page ${data.slug} $version"
         Future.successful(Redirect(routes.S3AdminController.listStaticPages()).flashing("info" -> flashMsg))
       }
