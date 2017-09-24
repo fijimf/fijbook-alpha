@@ -46,7 +46,7 @@ object S3StaticAsset {
     taggingResult.getTagSet.foldLeft(Map.empty[String, String])((tagData: Map[String, String], tag: Tag) => {
       tagData + (tag.getKey -> tag.getValue)
     })
-    //S3StaticAsset()
+    S3StaticAsset("FIXME","FIXME",LocalDateTime.now(),Map.empty[String,String])
   }
 
   def save(s3: AmazonS3, bucket: String, folder: String, slug: String, tags: Map[String, String], content: String):String = {
