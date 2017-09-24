@@ -12,6 +12,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
+
+//TODO there was a bona-fide bug here which would have been caught by tests
 class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
   val dao = Injector.inject[ScheduleDAO]
@@ -22,6 +24,8 @@ class RepoConferenceMapSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
     }
 
   }
+
+
 
 
 }
