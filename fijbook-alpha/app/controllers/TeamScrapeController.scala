@@ -22,6 +22,7 @@ import utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success}
 
 class TeamScrapeController @Inject()(
                                       val controllerComponents: ControllerComponents,
@@ -34,7 +35,7 @@ class TeamScrapeController @Inject()(
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
-  implicit val timeout = Timeout(600.seconds)
+  implicit val timeout: Timeout = Timeout(600.seconds)
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
@@ -49,14 +50,15 @@ class TeamScrapeController @Inject()(
       scrapeKeyList(teamShortNames.toList, userTag, aliasMap).toList
     }
 
-    teamMaster.flatMap(lst => {
-      val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
-      good.foreach(t => {
-        logger.info("Saving " + t.key)
-        teamDao.saveTeam(t)
-      })
-      Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Loaded " + good.size + " Teams")))
-    })
+    teamMaster.onComplete{
+      case Success(lst)=>
+        val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
+        logger.info(s"Saving ${good.size} teams")
+        teamDao.saveTeams(good)
+      case Failure(ex)=>
+        logger.error("Failed loading teams")
+    }
+    Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> "Scraping teams"))
 
   }
 
@@ -67,11 +69,10 @@ class TeamScrapeController @Inject()(
 
   def scrapeKeyList(is: Iterable[(String, String)], userTag: String, aliasMap: Map[String, String]): Iterable[Team] = {
     val futureTeams: Iterable[Future[Option[Team]]] = is.map {
-      case (key, shortName) => {
+      case (key, shortName) =>
         (throttler ? TeamDetail(aliasMap.getOrElse(key, key), shortName, userTag))
           .mapTo[Either[Throwable, Team]]
           .map(_.fold(thr => None, t => Some(t)))
-      }
     }
     Await.result(Future.sequence(futureTeams), 600.seconds).flatten
   }
@@ -106,7 +107,7 @@ class TeamScrapeController @Inject()(
     val teamList = Await.result(teamDao.listTeams, 600.seconds)
 
     val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
-    val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, false, LocalDateTime.now(), userTag) :: names.map(n => {
+    val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, lockRecord = false, LocalDateTime.now(), userTag) :: names.map(n => {
       val candidate: Future[Option[String]] = Future.sequence(
         transforms.map(f => f(n)).toSet.map((k: String) => {
           logger.info("Trying " + k)
