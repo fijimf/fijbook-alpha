@@ -38,9 +38,9 @@ object S3StaticAsset {
     })
   }
 
-  def load(s3: AmazonS3,bucket: String, folder: String, slug: String):S3StaticAsset={
-    val key = s"${S3StaticAsset.staticPageFolder}$slug"
-    val obj = s3.getObject(S3StaticAsset.bucket, key)
+  def load(s3: AmazonS3, bucket: String, folder: String, key: String):S3StaticAsset={
+    val k = s"${S3StaticAsset.staticPageFolder}$key"
+    val obj = s3.getObject(S3StaticAsset.bucket, k)
     val content = new String(IOUtils.toByteArray(obj.getObjectContent))
     val taggingResult = s3.getObjectTagging(new GetObjectTaggingRequest(bucket, key))
     taggingResult.getTagSet.foldLeft(Map.empty[String, String])((tagData: Map[String, String], tag: Tag) => {
@@ -49,14 +49,14 @@ object S3StaticAsset {
     S3StaticAsset("FIXME","FIXME",LocalDateTime.now(),Map.empty[String,String])
   }
 
-  def save(s3: AmazonS3, bucket: String, folder: String, slug: String, tags: Map[String, String], content: String):String = {
-    val key = s"$folder$slug"
+  def save(s3: AmazonS3, bucket: String, folder: String, key: String, tags: Map[String, String], content: String):String = {
+    val k = s"$folder$key"
     val bytes = content.getBytes
     val inStream = new ByteArrayInputStream(bytes)
     val meta = new ObjectMetadata()
     meta.setContentLength(bytes.length)
     val ts = tags.map { case (k: String, v: String) => new Tag(k, v) }.toList
-    val putReq = new PutObjectRequest(bucket, key, inStream, meta).withTagging(new ObjectTagging(ts))
+    val putReq = new PutObjectRequest(bucket, k, inStream, meta).withTagging(new ObjectTagging(ts))
     val result: PutObjectResult = s3.putObject(putReq)
 
     result.getVersionId

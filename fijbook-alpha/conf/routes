@@ -16,7 +16,7 @@ GET         /deepfij/stats/:modelKey/:statKey                   controllers.Stat
 GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
-GET         /deepfij/s/:folder/:slug                            controllers.S3BlockController.blog(folder:String, slug:String)
+GET         /deepfij/s/:key                                     controllers.S3BlockController.blog(key:String)
 ########### ASSETS
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
@@ -79,11 +79,15 @@ GET         /deepfij/admin/editQuote/:id                        controllers.Data
 GET         /deepfij/admin/deleteQuote/:id                      controllers.DataController.deleteQuote(id:Long)
 
 ##### STATIC PAGES
+GET         /deepfij/admin/blogPosts/list                       controllers.S3AdminController.listBlogPosts
 GET         /deepfij/admin/staticPages/list                     controllers.S3AdminController.listStaticPages
+GET         /deepfij/admin/blogPosts/create                     controllers.S3AdminController.createBlogPost
 GET         /deepfij/admin/staticPages/create                   controllers.S3AdminController.createStaticPage
-GET         /deepfij/admin/staticPages/edit/:slug               controllers.S3AdminController.editStaticPage(slug:String)
+GET         /deepfij/admin/blogPosts/edit/:key                  controllers.S3AdminController.editBlogPost(key:String)
+GET         /deepfij/admin/staticPages/edit/:key                controllers.S3AdminController.editStaticPage(key:String)
 POST        /deepfij/admin/staticPages/save                     controllers.S3AdminController.saveStaticPage
-GET         /deepfij/admin/staticPages/delete/:slug             controllers.S3AdminController.deleteStaticPage(slug:String)
+POST        /deepfij/admin/blogPosts/save                       controllers.S3AdminController.saveBlogPost
+GET         /deepfij/admin/staticPages/delete/:key              controllers.S3AdminController.deleteStaticPage(key:String)
 ##### ALIASES
 GET         /deepfij/admin/browseAliases                        controllers.DataController.browseAliases
 GET         /deepfij/admin/initializeAliases                    controllers.DataController.initializeAliases()

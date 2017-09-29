@@ -1,9 +1,9 @@
 name := """fijbook-alpha"""
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala,BuildInfoPlugin).settings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.fijimf.deepfij"
-  )
+lazy val root = (project in file(".")).enablePlugins(PlayScala, BuildInfoPlugin).settings(
+  buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+  buildInfoPackage := "com.fijimf.deepfij"
+)
 
 buildInfoOptions += BuildInfoOption.BuildTime
 
@@ -42,8 +42,8 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-persistence" % "5.0.0-RC3",
   "net.codingwell" %% "scala-guice" % "4.0.0",
   "net.ceedubs" %% "ficus" % "1.1.2",
-   "com.typesafe.play" %% "play-mailer" % "6.0.0",
-    "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
+  "com.typesafe.play" %% "play-mailer" % "6.0.0",
+  "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
   "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
@@ -56,37 +56,38 @@ libraryDependencies ++= Seq(
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
 
-//  "io.kamon" %% "kamon-core" % "0.6.3",
-//  "io.kamon" %% "kamon-scala" % "0.6.3",
-//  "io.kamon" %% "kamon-play-25" % "0.6.3",
-//  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
+  //  "io.kamon" %% "kamon-core" % "0.6.3",
+  //  "io.kamon" %% "kamon-scala" % "0.6.3",
+  //  "io.kamon" %% "kamon-play-25" % "0.6.3",
+  //  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
   "org.aspectj" % "aspectjweaver" % "1.8.9",
-"com.amazonaws"%"aws-java-sdk"%"1.11.106"
+  "com.amazonaws" % "aws-java-sdk" % "1.11.106",
+  "com.vladsch.flexmark" % "flexmark-all" % "0.27.0"
 )
 
 import com.typesafe.sbt.packager.SettingsHelper._
 
 makeDeploymentSettings(Universal, packageBin in Universal, "zip")
-publishTo := Some(Resolver.file("file", new File(sys.env.getOrElse("DEPLOY_DIR","/tmp"))))
+publishTo := Some(Resolver.file("file", new File(sys.env.getOrElse("DEPLOY_DIR", "/tmp"))))
 releaseIgnoreUntrackedFiles := true
 
-import ReleaseTransformations._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 // ...
 
 releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,              // : ReleaseStep
-  inquireVersions,                        // : ReleaseStep
-  runClean,                               // : ReleaseStep
-  runTest,                                // : ReleaseStep
-  setReleaseVersion,                      // : ReleaseStep
-  commitReleaseVersion,                   // : ReleaseStep, performs the initial git checks
-  tagRelease,                             // : ReleaseStep
+  checkSnapshotDependencies, // : ReleaseStep
+  inquireVersions, // : ReleaseStep
+  runClean, // : ReleaseStep
+  runTest, // : ReleaseStep
+  setReleaseVersion, // : ReleaseStep
+  commitReleaseVersion, // : ReleaseStep, performs the initial git checks
+  tagRelease, // : ReleaseStep
   // publishArtifacts,                    // : ReleaseStep, checks whether `publishTo` is properly set up
   ReleaseStep(releaseStepTask(publish in Universal)),
-  setNextVersion,                         // : ReleaseStep
-  commitNextVersion,                      // : ReleaseStep
-  pushChanges                             // : ReleaseStep, also checks that an upstream branch is properly configured
+  setNextVersion, // : ReleaseStep
+  commitNextVersion, // : ReleaseStep
+  pushChanges // : ReleaseStep, also checks that an upstream branch is properly configured
 )
 
 fork in Test := false

@@ -1,0 +1,44 @@
+@import com.fijimf.deepfij.models.{Quote, User}
+@import controllers.nav.{Breadcrumbs, MainMeta}
+@import com.fijimf.deepfij.models.S3StaticAsset
+@import com.fijimf.deepfij.models.S3BlogMetaData
+@(user: User, metas: List[S3BlogMetaData])(implicit flash: Flash)
+@mainX(
+    MainMeta.base("Browse Blog Posts", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Static Pages "))
+) {
+    <div class="row">
+        <div class="col-sm-3">
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.S3AdminController.createBlogPost()">Create Post</a></p>
+        </div>
+        </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-condensed table-bordered">
+                <thead><tr>
+                    <th>Key</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Date</th>
+                    <th>Public</th>
+                    <th>Deleted</th>
+                    <th>Last Mod</th>
+                </tr></thead>
+                <tbody >
+                @for(m <- metas) {
+                    <tr>
+                        <td><a href="@routes.S3AdminController.editBlogPost(m.key)">@m.key</a></td>
+                        <td>@m.title.toString</td>
+                        <td>@m.author.toString</td>
+                        <td>@m.date.toString</td>
+                        <td>@m.isPublic.toString</td>
+                        <td>@m.isDeleted.toString</td>
+                        <td>@m.lastModified.toString</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
