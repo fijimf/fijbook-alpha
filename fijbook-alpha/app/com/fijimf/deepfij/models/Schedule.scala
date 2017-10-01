@@ -16,11 +16,11 @@ case class Schedule
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
   val results: List[Result] = gameResults.filter(_._2.isDefined).sortBy(_._1.date.toEpochDay).map(_._2.get)
   val resultMap: Map[Long, Result] = results.map(r => r.gameId -> r).toMap
-  val predictionMap: Map[Long, Map[String,GamePrediction]] =
+  val predictionMap: Map[Long, Map[String, GamePrediction]] =
     predictions.filter(_._2.isDefined)
       .groupBy(r => r._2.get.gameId)
       .mapValues(
-        _.map(t=>t._2.get.modelKey->t._2.get).toMap
+        _.map(t => t._2.get.modelKey -> t._2.get).toMap
       )
   val conferenceIdMap: Map[Long, Conference] = conferences.map(r => r.id -> r).toMap
   val teamConference: Map[Long, Long] = conferenceMap.map(c => c.teamId -> c.conferenceId).toMap
@@ -110,7 +110,7 @@ case class Schedule
   }
 
   def record(team: Team, predicate: Game => Boolean = _ => true, lastN: Int = 0): WonLostRecord = {
-    val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(g=>resultMap.contains(g.id) && predicate(g))
+    val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(g => resultMap.contains(g.id) && predicate(g))
     val (w, l) = (lastN match {
       case 0 => g1
       case n => g1.takeRight(n)
@@ -158,7 +158,10 @@ case class Schedule
   def marRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.MARCH)
 
   def conferenceStandings(conference: Conference): ConferenceStandings = {
-    val list = conferenceTeams(conference.id).map(tid => teamsMap(tid)).map(t => (conferenceRecord(t), overallRecord(t), t))
+    val list = conferenceTeams.get(conference.id) match {
+      case Some(lst) => lst.map(tid => teamsMap(tid)).map(t => (conferenceRecord(t), overallRecord(t), t))
+      case None => List.empty
+    }
     ConferenceStandings(list.sortBy(tup => (tup._1.lost - tup._1.won, -tup._1.won, tup._2.lost - tup._2.won, -tup._2.won, tup._3.name)))
   }
 
@@ -180,7 +183,7 @@ case class Schedule
             locationData + (game.homeTeamId -> (map + (loc -> count)))
           }
           case None => {
-            locationData + (game.homeTeamId -> Map(loc->1))
+            locationData + (game.homeTeamId -> Map(loc -> 1))
           }
         }
       }
@@ -189,9 +192,10 @@ case class Schedule
   })
 
   def conferenceGamesByLocationDate = {
-    val conferenceToGames: Map[Conference, List[Game]] = games.filter(isConferenceGame).groupBy(g=>conference(teamsMap(g.homeTeamId)))
-    conferenceToGames.map{case (conference: Conference, games: List[Game]) => {
-      games.groupBy(g=>(g.date,g.location))
-    }}
+    val conferenceToGames: Map[Conference, List[Game]] = games.filter(isConferenceGame).groupBy(g => conference(teamsMap(g.homeTeamId)))
+    conferenceToGames.map { case (conference: Conference, games: List[Game]) => {
+      games.groupBy(g => (g.date, g.location))
+    }
+    }
   }
 }
