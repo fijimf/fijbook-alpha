@@ -40,6 +40,7 @@ GET         /deepfij/admin/scrapeGamesFor/:yyyymmdd             controllers.Game
 GET         /deepfij/admin/updateNeutralSites                   controllers.TeamScrapeController.neutralSiteSolver
 GET         /deepfij/admin/verifyResults/:y                     controllers.GameScrapeController.verifyResults(y:Int)
 ########### DATA
+GET         /deepfij/admin/uber-scrape                          controllers.UberScrapeController.uberScrape()
 ##### TEAMS
 GET         /deepfij/admin/updateStats                          controllers.StatsController.updateAll()
 GET         /deepfij/admin/updatePredictions                    controllers.PredictionController.update()

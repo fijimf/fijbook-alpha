@@ -273,7 +273,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def awayTeam: ForeignKeyQuery[TeamsTable, Team] = foreignKey("fk_game_ateam", awayTeamId, teams)(_.id)
 
-    def date: Rep[LocalDate] = column[LocalDate]("date")
+    def date: Rep[LocalDate] = column[LocalDate]("date", O.Length(32))
 
     def datetime: Rep[LocalDateTime] = column[LocalDateTime]("datetime")
 
@@ -392,7 +392,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def teamId: Rep[Long] = column[Long]("team_id")
 
-    def date: Rep[LocalDate] = column[LocalDate]("date")
+    def date: Rep[LocalDate] = column[LocalDate]("date", O.Length(32))
 
     def value: Rep[Double] = column[Double]("value")
 
@@ -441,7 +441,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def coefficient: Rep[Double] = column[Double]("coefficient")
 
-    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of")
+    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of",O.Length(32))
 
     def * : ProvenShape[LogisticModelParameter] = (id, modelName, parameterName, normShift, normScale, coefficient, fittedAsOf) <> (LogisticModelParameter.tupled, LogisticModelParameter.unapply)
 
