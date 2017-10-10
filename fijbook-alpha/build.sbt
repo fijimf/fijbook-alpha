@@ -50,6 +50,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
+  "org.apache.commons" % "commons-text" % "1.1",
   "org.scalanlp" %% "breeze" % "0.12",
   "org.scalanlp" %% "breeze-natives" % "0.12",
   "org.apache.mahout" % "mahout-math" % "0.12.2",
