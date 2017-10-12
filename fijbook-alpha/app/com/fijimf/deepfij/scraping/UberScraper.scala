@@ -8,6 +8,7 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
+import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
 import play.api.Logger
 
@@ -15,7 +16,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.Source
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, throttler: ActorRef) {
+case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:ScheduleUpdateService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,12 +34,12 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, throttler: Ac
       step4 <- scrapeConferences(tag)
       step5 <- createSeasons(startYear, endYear)
       step6 <- seedConferenceMaps(tag)
-    //      step7 <- scrapeGames
+      step7 <- scrapeGames(tag)
     //      step8 <- identifyNeutralSites
     //      step9 <- cleanUpMissedGames
     //      step10 <- verify
     } yield {
-      (step1 ++ step2 ++ step3++step4++step5++step6).sortBy(_.stamp.toString)
+      (step1 ++ step2 ++ step3++step4++step5++step6++step7).sortBy(_.stamp.toString)
     }
   }
 
@@ -173,5 +174,13 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, throttler: Ac
     } yield {
       List(Tracking(LocalDateTime.now(), s"Saved ${lcm.size}"))
     }
+  }
+
+  def scrapeGames(tag:String): Future[List[Tracking]] = {
+    dao.listSeasons.flatMap(ss=>{
+      Future.sequence(ss.map(s=>{
+        schedSvc.loadSeason(s, tag).map(_=>Tracking(LocalDateTime.now(),s"Loaded games for ${s.year}"))
+      }))
+    })
   }
 }

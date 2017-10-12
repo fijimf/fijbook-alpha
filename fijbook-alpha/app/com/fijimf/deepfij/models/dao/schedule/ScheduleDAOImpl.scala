@@ -81,7 +81,9 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       repo.games.filter(g => {
         g.sourceKey === sourceKey && !g.id.inSet(goodIds)
       }).map(_.id).result.flatMap(badIds => {
-        repo.results.filter(_.gameId.inSet(badIds)).delete.andThen(repo.games.filter(_.id.inSet(badIds)).delete).andThen(DBIO.successful((goodIds,badIds)))
+        repo.results.filter(_.gameId.inSet(badIds)).delete.
+          andThen(repo.games.filter(_.id.inSet(badIds)).delete).
+          andThen(DBIO.successful((goodIds,badIds)))
       })
     }).transactionally
 

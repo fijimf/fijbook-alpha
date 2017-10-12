@@ -11,9 +11,11 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
+case class ScrapingResponse[T](url: String, latencyMs: Long, status: Int, length: Int, result: Try[T])
+
 class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   val logger: Logger = Logger(this.getClass)
-  implicit val ec:ExecutionContext = new ExecutionContext {
+  implicit val ec: ExecutionContext = new ExecutionContext {
     val threadPool: ExecutorService = Executors.newFixedThreadPool(4) // Limited so ncaa.com stops blocking me
 
     def execute(runnable: Runnable) {
@@ -24,76 +26,49 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   }
 
   override def receive: Receive = {
+    case r: HtmlScrapeRequest[_] => handleScrape(r)
+    case r: JsonScrapeRequest[_] => handleJsonScrape(r)
+    case TestUrl(url) => handleTest(url)
+    case uxm =>
+      logger.error(s"Unexpected message ${uxm.toString}")
+  }
 
-    case r:HtmlScrapeRequest[_] =>
-      handleScrape(r)
-    case r:JsonScrapeRequest[_] =>
-      handleJsonScrape(r)
-    case TestUrl(url) =>
-      handleTest(url)
-    case _ =>
-      println("Unexpected message")
+  def handle[T](r: HttpScrapeRequest[T], f: (String) => Try[T]): Unit = {
+    val replyTo = sender()
+    val start = System.currentTimeMillis()
+    ws.url(r.url).get().onComplete {
+      case Success(response) =>
+        replyTo ! ScrapingResponse(r.url, System.currentTimeMillis() - start, response.status, response.body.length, f(response.body))
+      case failure =>
+        replyTo ! ScrapingResponse(r.url, System.currentTimeMillis() - start, -1, 0, failure)
+    }
   }
 
   def handleScrape[T](r: HtmlScrapeRequest[T]): Unit = {
-    logger.info("Received html req")
-    val mySender = sender()
-    logger.info("Requesting " + r.url)
-    ws.url(r.url).get().onComplete {
-      case Success(response) =>
-        if (response.status == 200) {
-          logger.info("%d - %s (%d bytes)".format(response.status, response.statusText, response.body.length))
-        } else {
-          logger.warn("%d - %s (%s )".format(response.status, response.statusText, r.url))
+    handle(r, body => {
+      for {
+        node <- HtmlUtil.loadFromString(body)
+        t <- Try {
+          r.scrape(node)
         }
-        HtmlUtil.loadFromString(response.body) match {
-          case Success(node) =>
-            try {
-              val scrape = r.scrape(node)
-              mySender ! Right(scrape)
-            } catch {
-              case thr: Throwable => sender! Left(thr)
-            }
-          case Failure(ex) =>
-            logger.error("Error parsing response:\n" + response.body, ex)
-            sender ! Left(ex)
-        }
-      case Failure(ex) =>
-        logger.error("Get failed", ex)
-        sender ! Left(ex)
-    }
+      } yield t
+    })
   }
 
-
-
   def handleJsonScrape[T](r: JsonScrapeRequest[T]): Unit = {
-    logger.info("Received json req")
-    val mySender = sender()
-    logger.info("Requesting " + r.url)
-    ws.url(r.url).get().onComplete {
-      case Success(response) =>
-        if (response.status == 200) {
-          logger.info("%d - %s (%d bytes)".format(response.status, response.statusText, response.body.length))
-        } else {
-          logger.warn("%d - %s (%s )".format(response.status, response.statusText, r.url))
+    handle(r, body => {
+      for {
+        pr <- Try {
+          r.preProcessBody(body)
         }
-        if (response.body.length < 10) {
-          mySender ! Left(EmptyBodyException)
-        } else {
-          Try {
-            Json.parse(r.preProcessBody(response.body))
-          } match {
-            case Success(js) =>
-              mySender ! Right(r.scrape(js))
-            case Failure(ex) =>
-              logger.error("Error parsing response:\n" + ex.getMessage + " " + response.body)
-              mySender ! Left(ex)
-          }
+        js <- Try {
+          Json.parse(pr)
         }
-      case Failure(ex) =>
-        logger.error("Get failed", ex)
-        mySender ! Left(ex)
-    }
+        t <- Try {
+          r.scrape(js)
+        }
+      } yield t
+    })
   }
 
 

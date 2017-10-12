@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models.services
 
+import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 import javax.inject.Inject
 
@@ -8,14 +9,16 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.scraping._
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
-import com.fijimf.deepfij.scraping.{EmptyBodyException, SagarinRequest, SagarinRow, ScoreboardByDateReq}
 import com.google.inject.name.Named
 import controllers._
+import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.mailer.{Email, MailerClient}
 
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -24,10 +27,11 @@ import scala.util.{Failure, Success}
 class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef)(implicit ec: ExecutionContext) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
+
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
-  def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false) {
+  def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false): Unit = {
     val now = LocalDate.now()
     val optDates = optOffsets.map(_.map(i => now.plusDays(i)))
     dao.findSeasonByYear(activeYear).map {
@@ -38,22 +42,37 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     }
   }
 
-  def updateSeason(optDates: Option[List[LocalDate]], mailReport: Boolean) = {
-    dao.listSeasons.map(ss => {
-      optDates match {
-        case Some(ds) =>
-          ds.groupBy(d => ss.find(s => s.dates.contains(d)))
-            .filter { case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty }
-            .foreach { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get, mailReport) }
-        case None => updateSeason(None, ss.maxBy(_.year), mailReport)
-      }
+  def loadSeason(s: Season, tag: String): Future[List[UpdateDbResult]] = {
+    val f = scrapeSeasonGames(s, Some(s.dates), tag)
+    f.onComplete {
+      case Success(_) => logger.info(s"Game scrape succeeded for season ${s.year}")
+      case Failure(_) => logger.info(s"Game scrape failed for season ${s.year}")
+    }
+    f
+  }
+
+  def updateSeason(optDates: Option[List[LocalDate]], mailReport: Boolean): Future[List[UpdateDbResult]] = {
+    dao.listSeasons.flatMap(ss => {
+      runSeasonDates(optDates, mailReport, ss)
     })
   }
 
-  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean): Unit = {
+  private def runSeasonDates(optDates: Option[List[LocalDate]], mailReport: Boolean, ss: List[Season]): Future[List[UpdateDbResult]] = {
+    (optDates match {
+      case Some(ds) =>
+        val eventualResultses = ds.groupBy(d => ss.find(s => s.dates.contains(d)))
+          .filter { case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty }
+          .map { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get, mailReport) }
+        Future.sequence(eventualResultses).map(_.flatten)
+      case None => updateSeason(None, ss.maxBy(_.year), mailReport)
+    }).map(_.toList)
+  }
+
+  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean): Future[List[UpdateDbResult]] = {
     logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
     val updatedBy: String = "Scraper[Updater]"
-    scrapeSeasonGames(s, optDates, updatedBy).onComplete {
+    val results: Future[List[UpdateDbResult]] = scrapeSeasonGames(s, optDates, updatedBy)
+    results.onComplete {
       case Success(_) =>
         logger.info("Schedule update scrape complete.")
         if (mailReport) {
@@ -67,6 +86,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
           maillErrorReport(optDates)
         }
     }
+    results
   }
 
   private def scheduleNotFound(optDates: Option[List[LocalDate]], mailReport: Boolean): Unit = {
@@ -102,23 +122,27 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     dao.unlockSeason(seasonId)
   }
 
-  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[(Seq[Long], Seq[Long])]] = {
+  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[UpdateDbResult]] = {
     val groups = updateData.groupBy(_.sourceKey)
-    Future.sequence(keys.map(sourceKey => dao.updateScoreboard(groups.getOrElse(sourceKey, List.empty[GameMapping]), sourceKey)))
+    val eventualTuples = keys.map(k => {
+      val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
+      dao.updateScoreboard(gameMappings, k).map(tup => UpdateDbResult(k, tup._1, tup._2))
+    })
+    Future.sequence(eventualTuples)
   }
 
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[Unit] = {
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[List[UpdateDbResult]] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
-      dao.listTeams.map(teamDictionary => {
-        dateList.foreach(d => {
+      dao.listTeams.flatMap(teamDictionary => {
+        Future.sequence(dateList.map(d => {
           for {
             updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d)
+            updateResults<-updateDb(List(d.toString), updateData)
           } yield {
-            logger.info(s"For date $d scrape resulted in ${updateData.size} candidates.  Verifying changes.")
-            updateDb(List(d.toString), updateData)
+            updateResults
           }
-        })
+        })).map(_.flatten)
       })
     })
   }
@@ -126,16 +150,35 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
     logger.info("Loading date " + d)
-    (throttler ? ScoreboardByDateReq(d)).mapTo[Either[Throwable, List[GameData]]].map {
-      case Left(thr) if thr == EmptyBodyException =>
-        logger.warn("For date " + d + " scraper returned an empty body")
-        List.empty[GameMapping]
-      case Left(thr) =>
-        logger.error("For date " + d + " scraper returned an exception ", thr)
-        List.empty[GameMapping]
-      case Right(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
+
+    // F I X M E   HERE
+    val response = (throttler ? ScoreboardByDateReq(d)).mapTo[ScrapingResponse[List[GameData]]]
+    logScrapeResponse(d, response)
+
+    response.map(_.result match {
+      case Success(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
+      case Failure(thr) => List.empty[GameMapping]
+    })
+  }
+
+  private def logScrapeResponse(d: LocalDate, futScrapeResp: Future[ScrapingResponse[List[GameData]]]): Unit = {
+    futScrapeResp.onComplete {
+      case Success(resp) =>
+        val dt = d.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val u = StringUtils.abbreviateMiddle(resp.url, " ... ", 48)
+        val lat = "%8d ms".format(resp.latencyMs)
+        val sz = "%10d".format(resp.length)
+        resp.result match {
+          case Success(lgd) =>
+            logger.info(s"\n$dt | $u | ${resp.status} | $lat | $sz | ${lgd.size} games")
+          case Failure(thr) =>
+            logger.info(s"\n$dt | $u | ${resp.status} | $lat | $sz | ${thr.getMessage}")
+        }
+      case Failure(thr) =>
+        logger.error(s"$d | FAILURE- ${thr.getMessage}")
     }
   }
+
 
   private def createMasterDictionary(): Future[Map[String, Team]] = {
     dao.listAliases.flatMap(aliases => {
@@ -212,7 +255,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
 
-  private def loadVerification(y: Int, md:Map[String,Team], sch:Schedule): Future[ResultsVerification] = {
+  private def loadVerification(y: Int, md: Map[String, Team], sch: Schedule): Future[ResultsVerification] = {
     (throttler ? SagarinRequest(y)).mapTo[Either[Throwable, List[SagarinRow]]].map {
       case Left(thr) if thr == EmptyBodyException =>
         logger.warn("For year " + y + " Sagarin scraper returned an empty body")
@@ -235,19 +278,20 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
             case None => v.copy(unmappedKeys = key :: v.unmappedKeys)
           }
         })
-        val found = (rv.unmatchedResults.map(_._1.key)++rv.matchedResults.map(_.key)).toSet
-        rv.copy(notFound=sch.teams.map(_.key).filterNot(found.contains))
+        val found = (rv.unmatchedResults.map(_._1.key) ++ rv.matchedResults.map(_.key)).toSet
+        rv.copy(notFound = sch.teams.map(_.key).filterNot(found.contains))
 
 
     }
   }
-   def transformNameToKey(n:String):String={
-     n.trim()
-       .toLowerCase()
-       .replace(' ','-')
-       .replace('(','-')
-       .replaceAll("[\\.&'\\)]","")
-   }
+
+  def transformNameToKey(n: String): String = {
+    n.trim()
+      .toLowerCase()
+      .replace(' ', '-')
+      .replace('(', '-')
+      .replaceAll("[\\.&'\\)]", "")
+  }
 }
 
-case class ResultsVerification(unmappedKeys:List[String] = List.empty,notFound:List[String]=List.empty,matchedResults:List[Team]= List.empty, unmatchedResults:List[(Team, WonLostRecord, WonLostRecord)]=List.empty)
+case class ResultsVerification(unmappedKeys: List[String] = List.empty, notFound: List[String] = List.empty, matchedResults: List[Team] = List.empty, unmatchedResults: List[(Team, WonLostRecord, WonLostRecord)] = List.empty)
