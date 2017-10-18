@@ -115,9 +115,16 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     1.second,
     1.second,
     1.second,
+    1.second,
+    2.second,
+    2.second,
     2.second,
     5.second,
-    10.seconds
+    5.second,
+    5.second,
+    10.seconds,
+    30.seconds,
+    40.seconds
   )
 
   private def runWithRecover
@@ -131,7 +138,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       case Some(d) =>
         db.run(updateAndCleanUp).recoverWith {
           case thr => {
-            val delay = d+ Random.nextInt(200).milliseconds
+            val delay = d+ Random.nextInt(500).milliseconds
             log.info(s"DB Transactiuon failed.  Retrying in $delay.  (${ds.size-1} tries left")
             after(delay, s) {
               runWithRecover(updateAndCleanUp, ds.tail)
