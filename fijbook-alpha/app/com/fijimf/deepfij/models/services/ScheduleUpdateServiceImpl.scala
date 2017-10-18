@@ -151,7 +151,6 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
     logger.info("Loading date " + d)
 
-    // F I X M E   HERE
     val response = (throttler ? ScoreboardByDateReq(d)).mapTo[ScrapingResponse[List[GameData]]]
     logScrapeResponse(d, response)
 

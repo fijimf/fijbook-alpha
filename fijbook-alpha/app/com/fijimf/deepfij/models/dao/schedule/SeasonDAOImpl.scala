@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models.dao.schedule
 import java.util.concurrent.TimeUnit
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{ScheduleRepository, Season}
+import com.fijimf.deepfij.models.{Alias, ScheduleRepository, Season}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.duration.Duration
@@ -20,12 +20,19 @@ trait SeasonDAOImpl extends SeasonDAO with DAOSlick {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override def saveSeason(s: Season): Future[Season] = {
-    db.run(
-      (repo.seasons returning repo.seasons.map(_.id)).insertOrUpdate(s)
-        .flatMap(i => {
-          repo.seasons.filter(ss => ss.id === i.getOrElse(s.id)).result.head
-        })
-    )
+  saveSeasons(List(s)).map(_.head)
+  }
+
+  override def saveSeasons(seasons: List[Season]): Future[List[Season]] = {
+    val ops = seasons.map(c1 => repo.seasons.filter(c => c.year === c1.year).result.flatMap(cs =>
+      cs.headOption match {
+        case Some(c) =>
+          (repo.seasons returning repo.seasons.map(_.id)).insertOrUpdate(c1.copy(id = c.id))
+        case None =>
+          (repo.seasons returning repo.seasons.map(_.id)).insertOrUpdate(c1)
+      }
+    ).flatMap(_ => repo.seasons.filter(t => t.year === c1.year).result.head))
+    db.run(DBIO.sequence(ops).transactionally)
   }
 
   override def findSeasonById(id: Long): Future[Option[Season]] = {

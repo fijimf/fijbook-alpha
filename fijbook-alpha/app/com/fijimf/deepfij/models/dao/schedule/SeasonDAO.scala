@@ -14,6 +14,8 @@ trait SeasonDAO {
 
   def saveSeason(season: Season): Future[Season]
 
+  def saveSeasons(seasons: List[Season]): Future[List[Season]]
+
   def listSeasons: Future[List[Season]]
 
   def findSeasonById(id: Long): Future[Option[Season]]

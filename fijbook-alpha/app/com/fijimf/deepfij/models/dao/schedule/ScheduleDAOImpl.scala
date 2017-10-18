@@ -4,15 +4,20 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 import javax.inject.Inject
 
+import akka.actor.{ActorSystem, Scheduler}
+import akka.pattern.after
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Random, Success}
 
-class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository)(implicit ec: ExecutionContext)
+
+class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, actorSystem: ActorSystem)(implicit ec: ExecutionContext)
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
     with GameDAOImpl
@@ -58,8 +63,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
-  override def saveGameResult(g:Game,r:Option[Result]): Future[Option[Game]] = {
-    db.run(((g,r) match {
+  override def saveGameResult(g: Game, r: Option[Result]): Future[Option[Game]] = {
+    db.run(((g, r) match {
       case (g, None) =>
         handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
       case (g, Some(r)) =>
@@ -68,6 +73,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[(Seq[Long], Seq[Long])] = {
+    val startTime = System.currentTimeMillis()
     val mutations = updateData.map {
       case MappedGame(g) =>
         handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
@@ -83,21 +89,68 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       }).map(_.id).result.flatMap(badIds => {
         repo.results.filter(_.gameId.inSet(badIds)).delete.
           andThen(repo.games.filter(_.id.inSet(badIds)).delete).
-          andThen(DBIO.successful((goodIds,badIds)))
+          andThen(DBIO.successful((goodIds, badIds)))
       })
     }).transactionally
 
-    db.run(updateAndCleanUp)
+    val f = runWithRecover(updateAndCleanUp, backoffStrategy)
+
+    f.onComplete {
+      case Success((upserts, deletes)) =>
+        log.info(s"UpdateScoreboard succeeded for $sourceKey in ${System.currentTimeMillis() - startTime} with ${upserts.size} upserts and ${deletes.size} deletes")
+      case Failure(thr) =>
+        log.error(s"UpdateScoreboard failed for $sourceKey in ${System.currentTimeMillis() - startTime} ms with ${thr.getMessage}", thr)
+    }
+    f
+  }
+
+  val backoffStrategy = List(
+    50.milliseconds,
+    100.milliseconds,
+    150.milliseconds,
+    200.milliseconds,
+    400.milliseconds,
+    500.milliseconds,
+    500.milliseconds,
+    1.second,
+    1.second,
+    1.second,
+    1.second,
+    1.second,
+    5.seconds
+  )
+
+  private def runWithRecover
+  (
+    updateAndCleanUp: DBIO[(List[Long], Seq[Long])],
+    ds: List[FiniteDuration]
+  )(
+    implicit s: Scheduler=actorSystem.scheduler
+  ): Future[(Seq[Long], Seq[Long])] = {
+    ds.headOption match {
+      case Some(d) =>
+        db.run(updateAndCleanUp).recoverWith {
+          case thr => {
+            val delay = d+ Random.nextInt(200).milliseconds
+            log.info(s"DB Transactiuon failed.  Retrying in $d.  (${ds.size-1} tries left")
+            after(d, s) {
+              runWithRecover(updateAndCleanUp, ds.tail)
+            }
+          }
+        }
+      case None =>
+        db.run(updateAndCleanUp)
+    }
   }
 
   private def handleGame(g: Game): DBIO[Option[Game]] = {
     sameGame(g).map(_.id).result.flatMap(
       (longs: Seq[Long]) => {
         longs.headOption match {
-          case Some(id)=>
+          case Some(id) =>
             val g1 = g.copy(id = id)
-            repo.games.filter(_.id===g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
-          case None => ((repo.games returning repo.games.map(_.id))+=g).flatMap(id=>DBIO.successful(Some(g.copy(id = id))))
+            repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
+          case None => ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Some(g.copy(id = id))))
         }
       }
     )
@@ -128,7 +181,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     )
   }
 
-  override def loadSchedule(y:Int): Future[Option[Schedule]] = {
+  override def loadSchedule(y: Int): Future[Option[Schedule]] = {
     db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
       case Some(s) => loadSchedule(s).map(Some(_))
       case None => Future.successful(None)

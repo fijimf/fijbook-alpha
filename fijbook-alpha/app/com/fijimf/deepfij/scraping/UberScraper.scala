@@ -15,6 +15,7 @@ import play.api.Logger
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.Source
+import scala.util.{Failure, Success}
 
 case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:ScheduleUpdateService, throttler: ActorRef) {
   val logger = Logger(getClass)
@@ -89,8 +90,12 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     val futureTeams: Iterable[Future[Option[Team]]] = is.map {
       case (key, shortName) =>
         (throttler ? TeamDetail(aliasMap.getOrElse(key, key), shortName, tag))
-          .mapTo[Either[Throwable, Team]]
-          .map(_.fold(thr => None, t => Some(t)))
+          .mapTo[ScrapingResponse[Team]].map(_.result match {
+          case Success(t) => Some(t)
+          case Failure(thr) =>
+            logger.warn(s"Failed scraping team key $key")
+            None
+        })
     }
     Future.sequence(futureTeams).map(_.toList.flatten)
   }

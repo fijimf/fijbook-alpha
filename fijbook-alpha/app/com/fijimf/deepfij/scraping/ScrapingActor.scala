@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.scraping
 
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 import java.util.concurrent.{ExecutorService, Executors}
 
 import akka.actor.Actor
@@ -38,7 +40,8 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
     val start = System.currentTimeMillis()
     ws.url(r.url).get().onComplete {
       case Success(response) =>
-        replyTo ! ScrapingResponse(r.url, System.currentTimeMillis() - start, response.status, response.body.length, f(response.body))
+        val bs = Charset.forName("utf-8").decode(ByteBuffer.wrap(response.body.getBytes)).toString
+        replyTo ! ScrapingResponse(r.url, System.currentTimeMillis() - start, response.status, bs.length, f(bs))
       case failure =>
         replyTo ! ScrapingResponse(r.url, System.currentTimeMillis() - start, -1, 0, failure)
     }
