@@ -167,9 +167,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
   }
 
   def createSeasons(start: Int, end: Int) = {
-    Future.sequence(start.to(end).map(y => {
-      dao.saveSeason(Season(0L, y, "", None))
-    })).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
+    dao.saveSeasons(start.to(end).map(y => Season(0L, y, "", None)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
   }
   def seedConferenceMaps(tag:String) = {
     for {
