@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.services
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, LocalDateTime, ZoneId}
 import javax.inject.Inject
 
 import akka.actor.ActorRef
@@ -27,7 +27,7 @@ import scala.util.{Failure, Success}
 class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef)(implicit ec: ExecutionContext) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
-
+  val zoneId: ZoneId = ZoneId.of("America/New_York")
   implicit val timeout = Timeout(600.seconds)
   val activeYear = 2017
 
@@ -137,7 +137,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       dao.listTeams.flatMap(teamDictionary => {
         Future.sequence(dateList.map(d => {
           for {
-            updateData <- scrape(season.id, updatedBy, teamDictionary, aliasDict, d)
+            updateData <- scrape(season, updatedBy, teamDictionary, aliasDict, d)
             updateResults<-updateDb(List(d.toString), updateData)
           } yield {
             updateResults
@@ -147,7 +147,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     })
   }
 
-  def scrape(seasonId: Long, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
+  def scrape(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
     logger.info("Loading date " + d)
 
@@ -155,7 +155,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     logScrapeResponse(d, response)
 
     response.map(_.result match {
-      case Success(lgd) => lgd.map(gameDataToGame(seasonId, d.toString, updatedBy, masterDict, _))
+      case Success(lgd) => lgd.map(gameDataToGame(season, d, updatedBy, masterDict, _))
       case Failure(thr) => List.empty[GameMapping]
     })
   }
@@ -193,7 +193,8 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     teamDict ++ aliasDict
   }
 
-  def gameDataToGame(seasonId: Long, sourceKey: String, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
+  def gameDataToGame(season: Season, d: LocalDate, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
+    val sourceKey= d.toString
     val atk = gd.awayTeamKey
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
@@ -201,7 +202,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       case (Some(t), None) => UnmappedGame(List(atk), sourceKey)
       case (None, Some(t)) => UnmappedGame(List(htk), sourceKey)
       case (Some(ht), Some(at)) =>
-        val game = populateGame(seasonId, updatedBy, gd, ht, at)
+        val game = populateGame(d, season, updatedBy, gd, ht, at)
         gd.result match {
           case Some(rd) => MappedGameAndResult(game, populateResult(updatedBy, rd))
           case None => MappedGame(game)
@@ -221,14 +222,19 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       updatedBy = updatedBy)
   }
 
-  def populateGame(seasonId: Long, updatedBy: String, gd: GameData, ht: Team, at: Team): Game = {
+  def populateGame(d:LocalDate, season: Season, updatedBy: String, gd: GameData, ht: Team, at: Team): Game = {
+    val dd =if (gd.date.toLocalDate.isBefore(season.startDate) || gd.date.toLocalDate.isAfter(season.endDate)) {
+      d.atStartOfDay
+    } else {
+      gd.date
+    }
     Game(
       id = 0L,
-      seasonId = seasonId,
+      seasonId = season.id,
       homeTeamId = ht.id,
       awayTeamId = at.id,
-      date = gd.date.toLocalDate,
-      datetime = gd.date,
+      date = dd.toLocalDate,
+      datetime = dd,
       location = gd.location,
       isNeutralSite = false,
       tourneyKey = gd.tourneyInfo.map(_.region),

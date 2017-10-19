@@ -104,27 +104,34 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     f
   }
 
+  //TODO this seems gratuitous, but loading 5 years at once was consistantly having deadlocks at 12 retries
   val backoffStrategy = List(
+    50.milliseconds,
     50.milliseconds,
     100.milliseconds,
     150.milliseconds,
     200.milliseconds,
     400.milliseconds,
+    450.milliseconds,
     500.milliseconds,
     750.milliseconds,
-    1.second,
-    1.second,
-    1.second,
-    1.second,
+    1000.millisecond,
+    1100.milliseconds,
+    1200.milliseconds,
+    1300.milliseconds,
+    1325.milliseconds,
+    1500.milliseconds,
     2.second,
-    2.second,
-    2.second,
+    3.second,
+    4.second,
     5.second,
-    5.second,
-    5.second,
+    6.second,
+    7.second,
+    9.second,
     10.seconds,
-    30.seconds,
-    40.seconds
+    12.seconds,
+    15.seconds,
+    18.seconds
   )
 
   private def runWithRecover
@@ -134,11 +141,11 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   )(
     implicit s: Scheduler=actorSystem.scheduler
   ): Future[(Seq[Long], Seq[Long])] = {
-    ds.headOption match {
+    Random.shuffle(ds).headOption match {
       case Some(d) =>
         db.run(updateAndCleanUp).recoverWith {
           case thr => {
-            val delay = d+ Random.nextInt(500).milliseconds
+            val delay = d+ Random.nextInt(50).milliseconds
             log.info(s"DB Transactiuon failed.  Retrying in $delay.  (${ds.size-1} tries left")
             after(delay, s) {
               runWithRecover(updateAndCleanUp, ds.tail)

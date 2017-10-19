@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.scraping
 
+import java.text.Normalizer
 import java.time._
 import java.util.TimeZone
 import java.util.spi.TimeZoneNameProvider
@@ -24,7 +25,8 @@ trait NcaaComGameScraper {
   }
 
   def gameLocation(v: JsValue): Option[String] = (v \ "location").validate[String] match {
-    case JsSuccess(value, _) => Some(value)
+    case JsSuccess(value, _) =>
+      Some(value.replaceAll("[^\\x00-\\x7F]", ""))
     case e: JsError =>
       val message: String = "Failed extracting location Errors: " + JsError.toJson(e).toString()
       logger.warn(message)
