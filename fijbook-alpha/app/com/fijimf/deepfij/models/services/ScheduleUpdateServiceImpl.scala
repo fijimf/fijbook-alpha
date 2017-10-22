@@ -18,7 +18,6 @@ import play.api.Logger
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.mailer.{Email, MailerClient}
 
-import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -138,7 +137,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
         Future.sequence(dateList.map(d => {
           for {
             updateData <- scrape(season, updatedBy, teamDictionary, aliasDict, d)
-            updateResults<-updateDb(List(d.toString), updateData)
+            updateResults <- updateDb(List(d.toString), updateData)
           } yield {
             updateResults
           }
@@ -194,7 +193,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
   def gameDataToGame(season: Season, d: LocalDate, updatedBy: String, teamDict: Map[String, Team], gd: GameData): GameMapping = {
-    val sourceKey= d.toString
+    val sourceKey = d.toString
     val atk = gd.awayTeamKey
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
@@ -222,8 +221,8 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
       updatedBy = updatedBy)
   }
 
-  def populateGame(d:LocalDate, season: Season, updatedBy: String, gd: GameData, ht: Team, at: Team): Game = {
-    val dd =if (gd.date.toLocalDate.isBefore(season.startDate) || gd.date.toLocalDate.isAfter(season.endDate)) {
+  def populateGame(d: LocalDate, season: Season, updatedBy: String, gd: GameData, ht: Team, at: Team): Game = {
+    val dd = if (gd.date.toLocalDate.isBefore(season.startDate) || gd.date.toLocalDate.isAfter(season.endDate)) {
       d.atStartOfDay
     } else {
       gd.date
@@ -261,14 +260,11 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
 
 
   private def loadVerification(y: Int, md: Map[String, Team], sch: Schedule): Future[ResultsVerification] = {
-    (throttler ? SagarinRequest(y)).mapTo[Either[Throwable, List[SagarinRow]]].map {
-      case Left(thr) if thr == EmptyBodyException =>
+    (throttler ? SagarinRequest(y)).mapTo[ScrapingResponse[List[SagarinRow]]].map(_.result match {
+      case Failure(thr) if thr == EmptyBodyException =>
         logger.warn("For year " + y + " Sagarin scraper returned an empty body")
         ResultsVerification()
-      case Left(thr) =>
-        logger.error("For year " + y + " Sagarin scraper returned an exception ", thr)
-        ResultsVerification()
-      case Right(lsr) =>
+      case Success(lsr) =>
         val rv = lsr.foldLeft(ResultsVerification())((v: ResultsVerification, row: SagarinRow) => {
           val key = transformNameToKey(row.sagarinName)
           md.get(key) match {
@@ -285,9 +281,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
         })
         val found = (rv.unmatchedResults.map(_._1.key) ++ rv.matchedResults.map(_.key)).toSet
         rv.copy(notFound = sch.teams.map(_.key).filterNot(found.contains))
-
-
-    }
+    })
   }
 
   def transformNameToKey(n: String): String = {

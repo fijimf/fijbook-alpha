@@ -24,6 +24,7 @@ liu-brooklyn            long-island
 csun                    cal-st-northridge
 uncg                    unc-greensboro
 little-rock             ualr
+ark-little-rock-ualr             ualr
 siue                    siu-edwardsville
 st-josephs              saint-josephs
 fla-gulf-coast          fgcu
@@ -142,7 +143,7 @@ stony-brook-ny	    stony-brook
 tennessee-state	    tennessee-st
 texas-state	        texas-st
 md-eastern-shore-umes	umes
-#umass-lowell
+umass-lowell        mass-lowell
 kansas-city-umkc	umkc
 nc-asheville	    unc-asheville
 nc-greensboro	    unc-greensboro
