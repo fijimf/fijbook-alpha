@@ -8,6 +8,7 @@ import akka.actor.{ActorSystem, Scheduler}
 import akka.pattern.after
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -143,13 +144,17 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   ): Future[(Seq[Long], Seq[Long])] = {
     Random.shuffle(ds).headOption match {
       case Some(d) =>
+        val delay = d+ Random.nextInt(250).milliseconds
         db.run(updateAndCleanUp).recoverWith {
-          case thr => {
-            val delay = d+ Random.nextInt(50).milliseconds
-            log.info(s"DB Transactiuon failed.  Retrying in $delay.  (${ds.size-1} tries left")
+          case rollback:MySQLTransactionRollbackException => {
+            log.info(s"${rollback.getMessage}  Retrying in $delay.  (${ds.size-1} tries left")
             after(delay, s) {
               runWithRecover(updateAndCleanUp, ds.tail)
             }
+          }
+          case thr=> {
+            log.info(s"${thr.getMessage}  Retrying once in $delay.")
+            runWithRecover(updateAndCleanUp, List.empty)
           }
         }
       case None =>

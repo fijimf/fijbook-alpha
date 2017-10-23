@@ -7,7 +7,7 @@ import akka.contrib.throttle.Throttler
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.models.services.{ScheduleUpdateService, StatisticWriterService}
 import com.fijimf.deepfij.scraping.UberScraper
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -28,6 +28,7 @@ class UberScrapeController @Inject()(
                                       val dao: ScheduleDAO,
                                       val repo: ScheduleRepository,
                                       val schSvc:ScheduleUpdateService,
+                                      val statSvc:StatisticWriterService,
                                       silhouette: Silhouette[DefaultEnv])
   extends BaseController with I18nSupport {
 
@@ -38,8 +39,9 @@ class UberScrapeController @Inject()(
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def uberScrape() = silhouette.SecuredAction.async { implicit rs =>
-    val us = UberScraper(dao, repo, schSvc, throttler)
-    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
+    val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
+//    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
+    val f = us.masterRebuild(UUID.randomUUID().toString, 2016, 2018)
     f.onComplete{
       case Success(trs) => logger.info("Uber Scrape succeeded:\n"+trs.map(t=>s"${t.stamp.toString}  ${t.step}"))
       case Failure(ex) => logger.error(s"Uber Scrape failed with error ${ex.getMessage}", ex)

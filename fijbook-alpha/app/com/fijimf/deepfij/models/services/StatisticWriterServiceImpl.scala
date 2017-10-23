@@ -13,12 +13,9 @@ import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
 class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWriterService {
-
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(this.getClass)
-
-  val activeYear = 2017
 
   val models: List[Model[_]] = List(WonLost, Scoring, Rpi, LeastSquares)
 
@@ -27,7 +24,7 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
 
   override def update(lastNDays: Option[Int]): Option[Future[Int]] = {
     logger.info("Updating calculated statistics for the latest schedule")
-    val result: Option[Schedule] = Await.result(dao.loadSchedules().map(_.find(_.season.year == activeYear)), Duration.Inf)
+    val result: Option[Schedule] = Await.result(dao.loadLatestSchedule(), Duration.Inf)
     result.map(sch => {
       logger.info(s"Found ${sch.season.year} as the current schedule")
       val dates = lastNDays match {
@@ -43,29 +40,19 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
     })
   }
 
-  //  def updateForSchedule(sch: Schedule, dates: List[LocalDate]): List[Future[Any]] = {
-  //    val batchSize = 15
-  //    (for (ds <- dates.grouped(batchSize);
-  //          m <- List(WonLost(sch, ds), Scoring(sch, ds), Rpi(sch, ds), LeastSquares(sch, ds))
-  //    ) yield {
-  //      val values: List[StatValue] = (for (s <- m.stats;
-  //                                          d <- ds;
-  //                                          t <- sch.teams) yield {
-  //        m.value(s.key, t, d).map(x =>
-  //          if (x.isInfinity) {
-  //            logger.warn(s"For $d, ${s.key}, ${t.name} value is Infinity.  Setting to default value ${s.defaultValue}")
-  //            StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
-  //          } else if (x.isNaN) {
-  //            logger.warn(s"For $d, ${s.key}, ${t.name} value is NaN.  Setting to default value ${s.defaultValue}")
-  //            StatValue(0L, m.key, s.key, t.id, d, s.defaultValue)
-  //          } else {
-  //            StatValue(0L, m.key, s.key, t.id, d, x)
-  //          }
-  //        )
-  //      }).flatten
-  //      dao.saveStatValues(ds, List(m.key), values)
-  //    }).toList
-  //  }
+  override def updateAllSchedules(): Future[List[Int]] = {
+    dao.loadSchedules().flatMap(ss=>{
+      logger.info(s"Loaded schedules for ${ss.size} years")
+      Future.sequence(ss.map(s=>{ val dates = scheduleValidDates(s)
+        logger.info(s"Loading stats for ${s.season.year}")
+        if (dates.nonEmpty) {
+          logger.info(s"Models will be run and saved for the ${dates.size} between ${dates.head} and ${dates.last}, inclusive")
+          updateForSchedule(s, dates)
+        } else {
+          Future.successful(0)
+        }}))
+    })
+  }
 
   def updateForSchedule(sch: Schedule, dates: List[LocalDate]): Future[Int] = {
     val models = List(WonLost(sch, dates), Scoring(sch, dates), Rpi(sch, dates), LeastSquares(sch, dates))
@@ -92,12 +79,17 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
   }
 
 
-  def scheduleValidDates(sch: Schedule) = {
-    val startDate = sch.resultDates.minBy(_.toEpochDay)
-    val endDate = sch.resultDates.maxBy(_.toEpochDay)
-    Iterator.iterate(startDate) {
-      _.plusDays(1)
-    }.takeWhile(!_.isAfter(endDate)).toList
+  def scheduleValidDates(sch: Schedule): List[LocalDate] = {
+    if (sch.resultDates.isEmpty){
+      logger.warn(s"No valid dates for ${sch.season.year}")
+      List.empty[LocalDate]
+    } else {
+      val startDate = sch.resultDates.minBy(_.toEpochDay)
+      val endDate = sch.resultDates.maxBy(_.toEpochDay)
+      Iterator.iterate(startDate) {
+        _.plusDays(1)
+      }.takeWhile(!_.isAfter(endDate)).toList
+    }
   }
 
 

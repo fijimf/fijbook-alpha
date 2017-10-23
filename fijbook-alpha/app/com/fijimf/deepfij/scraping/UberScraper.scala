@@ -8,7 +8,7 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.models.services.{ScheduleUpdateService, StatisticWriterService}
 import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
 import play.api.Logger
 
@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:ScheduleUpdateService, throttler: ActorRef) {
+case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:ScheduleUpdateService, statSvc: StatisticWriterService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,9 +38,10 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
       step7 <- scrapeGames(tag)
     //      step8 <- identifyNeutralSites
     //      step9 <- cleanUpMissedGames
-    //      step10 <- verify
+    //      step10 <- verify (WONTFIX - not in scope)
+      stepX <- updateStatistics()
     } yield {
-      (step1 ++ step2 ++ step3++step4++step5++step6++step7).sortBy(_.stamp.toString)
+      (step1 ++ step2 ++ step3++step4++step5++step6++step7++stepX).sortBy(_.stamp.toString)
     }
   }
 
@@ -186,4 +187,11 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
       }))
     })
   }
+
+  def updateStatistics(): Future[List[Tracking]] = {
+    logger.info("Updating statistics")
+    statSvc.updateAllSchedules().map(_.map(i=>Tracking(LocalDateTime.now,"Saved $i stats for a season")))
+  }
+
+
 }
