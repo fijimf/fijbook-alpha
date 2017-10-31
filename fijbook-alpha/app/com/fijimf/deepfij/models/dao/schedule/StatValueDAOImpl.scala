@@ -39,7 +39,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
     val deletes = statValuesDeleteActions(models,dates)
     val inserts = statValuesInsertActions(stats)
-    db.run(deletes.andThen(inserts).transactionally.asTry).map {
+    db.run(deletes.flatMap(_=>inserts).transactionally.asTry).map {
       case Success(ids) =>
         val dur = System.currentTimeMillis() - start
         log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")

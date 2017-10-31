@@ -1,6 +1,7 @@
 package controllers
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -41,6 +42,14 @@ class S3BlockController @Inject()(
           Ok(views.html.blog(rs.identity,S3BlogPost.load(s, b)))
         case None => NotFound
       }
+    }
+  }
+
+  def blogIndexPage() = silhouette.UserAwareAction.async { implicit rs =>
+    Future.successful{
+      val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
+      metas.filter(bm => !bm.isDeleted && bm.isPublic).sortBy(bm=>LocalDate.parse(bm.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).toEpochDay)
+      Ok(views.html.blog(rs.identity,S3BlogPost.load(s, metas.head)))
     }
   }
 

@@ -184,6 +184,11 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     dao.listSeasons.flatMap(ss=>{
       Future.sequence(ss.map(s=>{
         schedSvc.loadSeason(s, tag).map(_=>Tracking(LocalDateTime.now(),s"Loaded games for ${s.year}"))
+          .recover{
+            case thr=>
+              logger.error( s"Failed loading games for ${s.year} with ${thr.getMessage}")
+              Tracking(LocalDateTime.now(), s"Failed loading games for ${s.year} with ${thr.getMessage}")
+          }
       }))
     })
   }

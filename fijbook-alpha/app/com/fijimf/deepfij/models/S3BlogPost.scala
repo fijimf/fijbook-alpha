@@ -38,20 +38,11 @@ object S3BlogPost {
     S3BlogPost(b, content.getBytes())
   }
 
-
   private val options = new MutableDataSet()
-
-  // uncomment to set optional extensions
-  //o.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
-
-  // uncomment to convert soft-breaks to hard breaks
-  //o.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
-
   private val parser: Parser = Parser.builder(options).build
   private val renderer: HtmlRenderer = HtmlRenderer.builder(options).build
 
-  def renderMarkDown(s: String) = renderer.render(parser.parse(s))
-
+  def renderMarkDown(s: String): String = renderer.render(parser.parse(s))
 
   val DATE = "_publish_date"
   val AUTHOR = "_author"
@@ -82,7 +73,7 @@ object S3BlogPost {
     )
   }
 
-  def save(s3: AmazonS3, post: S3BlogPost) = {
+  def save(s3: AmazonS3, post: S3BlogPost): String = {
     val key = s"${S3BlogPost.blogFolder}${post.meta.key}"
     val bytes = post.content
     val inStream = new ByteArrayInputStream(bytes)
@@ -105,7 +96,7 @@ object S3BlogPost {
   }
 
   def list(s3: AmazonS3, bucket: String, folder: String): List[S3BlogMetaData] = {
-    s3.listObjects(bucket, folder).getObjectSummaries.map(os => {
+    s3.listObjects(bucket, folder).getObjectSummaries.filter(_.getSize>0).map(os => {
       val tr = s3.getObjectTagging(new GetObjectTaggingRequest(bucket, os.getKey))
       createMetaData(os, tr)
     }).toList

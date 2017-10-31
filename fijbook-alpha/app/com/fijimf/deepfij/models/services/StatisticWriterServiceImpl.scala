@@ -64,7 +64,7 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
   }
 
   def updateDates(sch: Schedule, model: Analyzer[_], dates: List[LocalDate]): Future[Int] = {
-    dao.saveStatValues(dates, List(model.key), (for {
+    val statValues = (for {
       s <- model.stats
       d <- dates
       t <- sch.teams
@@ -75,7 +75,8 @@ class StatisticWriterServiceImpl @Inject()(dao: ScheduleDAO) extends StatisticWr
         } else {
           StatValue(0L, model.key, s.key, t.id, d, x)
         })
-    }).flatten).map(_.size)
+    }).flatten
+    dao.saveStatValues(dates, List(model.key), statValues).map(_.size)
   }
 
 
