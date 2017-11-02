@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Random, Success}
 
 
-class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, actorSystem: ActorSystem)(implicit ec: ExecutionContext)
+class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
   extends ScheduleDAO with DAOSlick
     with TeamDAOImpl
     with GameDAOImpl
@@ -103,63 +103,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
         log.error(s"UpdateScoreboard failed for $sourceKey in ${System.currentTimeMillis() - startTime} ms with ${thr.getMessage}", thr)
     }
     f
-  }
-
-  //TODO this seems gratuitous, but loading 5 years at once was consistantly having deadlocks at 12 retries
-  val backoffStrategy = List(
-    50.milliseconds,
-    50.milliseconds,
-    100.milliseconds,
-    150.milliseconds,
-    200.milliseconds,
-    400.milliseconds,
-    450.milliseconds,
-    500.milliseconds,
-    750.milliseconds,
-    1000.millisecond,
-    1100.milliseconds,
-    1200.milliseconds,
-    1300.milliseconds,
-    1325.milliseconds,
-    1500.milliseconds,
-    2.second,
-    3.second,
-    4.second,
-    5.second,
-    6.second,
-    7.second,
-    9.second,
-    10.seconds,
-    12.seconds,
-    15.seconds,
-    18.seconds
-  )
-
-  private def runWithRecover
-  (
-    updateAndCleanUp: DBIO[(List[Long], Seq[Long])],
-    ds: List[FiniteDuration]
-  )(
-    implicit s: Scheduler=actorSystem.scheduler
-  ): Future[(Seq[Long], Seq[Long])] = {
-    Random.shuffle(ds).headOption match {
-      case Some(d) =>
-        val delay = d+ Random.nextInt(250).milliseconds
-        db.run(updateAndCleanUp).recoverWith {
-          case rollback:MySQLTransactionRollbackException => {
-            log.info(s"${rollback.getMessage}  Retrying in $delay.  (${ds.size-1} tries left")
-            after(delay, s) {
-              runWithRecover(updateAndCleanUp, ds.tail)
-            }
-          }
-          case thr=> {
-            log.info(s"${thr.getMessage}  Retrying once in $delay.")
-            runWithRecover(updateAndCleanUp, List.empty)
-          }
-        }
-      case None =>
-        db.run(updateAndCleanUp)
-    }
   }
 
   private def handleGame(g: Game): DBIO[Option[Game]] = {

@@ -1,9 +1,7 @@
 package com.fijimf.deepfij.scraping
 
-import java.text.Normalizer
+import java.nio.charset.Charset
 import java.time._
-import java.util.TimeZone
-import java.util.spi.TimeZoneNameProvider
 
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData, TourneyInfo}
 import play.api.Logger
@@ -147,7 +145,9 @@ trait NcaaComGameScraper {
         ak <- pullKeyFromLink(at)
       ) yield {
 
-        GameData(sd, hk, ak, optResult, (v \ "location").asOpt[String], optTourneyInfo, cn, sourceKey)
+        val optLoc = (v \ "location").asOpt[Array[Byte]]
+        val l = optLoc.map(ba => new String(ba, Charset.forName("UTF-8")))
+        GameData(sd, hk, ak, optResult, l, optTourneyInfo, cn, sourceKey)
       }
     }
 

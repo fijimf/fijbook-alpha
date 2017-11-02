@@ -2,11 +2,13 @@ package com.fijimf.deepfij.models.dao.silhouette
 
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import com.fijimf.deepfij.models.dao.DAOSlick
 import com.fijimf.deepfij.models.{DBOAuth1Info, UserRepository}
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.OAuth1Info
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -14,8 +16,9 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * The DAO to store the OAuth1 information.
   */
-class OAuth1InfoDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository)(implicit ec: ExecutionContext)
+class OAuth1InfoDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository,val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
   extends DelegableAuthInfoDAO[OAuth1Info] with DAOSlick {
+  val log = Logger(this.getClass)
 
   import dbConfig.profile.api._
 

@@ -3,9 +3,11 @@ package com.fijimf.deepfij.models.dao.silhouette
 import java.util.UUID
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
 import com.mohiva.play.silhouette.api.LoginInfo
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,7 +15,9 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Give access to the user object using Slick
   */
-class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository) (implicit ec: ExecutionContext)extends UserDAO with DAOSlick {
+class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, protected val userRepo:UserRepository,val actorSystem: ActorSystem) (implicit ec: ExecutionContext)extends UserDAO with DAOSlick {
+
+  val log = Logger(this.getClass)
 
   import dbConfig.profile.api._
   /**
