@@ -13,7 +13,7 @@
                 <table class="table table-condensed table-schedule" >
                 @for(r <-cs.records) {
                         <tr>
-                            <td><a href="@routes.TeamController.team(r._3.key)">@r._3.name</a></td>
+                            <td><a href="@routes.TeamController.team(r._3.key,Some(curr.season.year))">@r._3.name</a></td>
                             <td>@r._1.won</td>
                             <td>@r._1.lost</td>
                             <td>@r._2.won</td>
@@ -26,9 +26,9 @@
                 @for(g <-conf) {
                     <tr>
                         <td>@g.date</td>
-                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.homeTeamId).key)">@{curr.teamsMap(g.homeTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.homeTeamId).key,Some(curr.season.year))">@{curr.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.awayTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key,Some(curr.season.year))">@{curr.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }
@@ -51,9 +51,9 @@
                 @for(g <-nonConf) {
                     <tr>
                         <td>@g.date</td>
-                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.homeTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key,Some(curr.season.year))">@{curr.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key)">@{curr.teamsMap(g.awayTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(curr.teamsMap(g.awayTeamId).key,Some(curr.season.year))">@{curr.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{curr.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }

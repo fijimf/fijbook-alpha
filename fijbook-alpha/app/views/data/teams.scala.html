@@ -21,7 +21,7 @@
         <div class="col-sm-3">
             <ul>
             @for(t <- columns(n)) {
-                <li class="teamlist"><a href="@routes.TeamController.team(t.key)">@t.name</a></li>
+                <li class="teamlist"><a href="@routes.TeamController.team(t.key,None)">@t.name</a></li>
             }
             </ul>
         </div>

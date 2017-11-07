@@ -38,6 +38,7 @@ object ScheduleUtil {
       .replaceFirst("Athletic Association$", "Athletic...")
       .replaceFirst("\\.\\.\\.$", "")
       .replaceFirst("American Athletic Conference", "American Athletic").trim
+      .replaceFirst("America East Conference", "America East").trim
     if (nameKey != t.optConference) {
       logger.info(s"For ${t.name} mangling ${t.optConference} to $nameKey")
     }

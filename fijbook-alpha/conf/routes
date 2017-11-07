@@ -4,7 +4,7 @@ GET         /deepfij                                            controllers.Inde
 GET         /deepfij/index                                      controllers.IndexController.index
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
-GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String)
+GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])
 GET         /deepfij/games                                      controllers.GamesController.games(modelKey:Option[String])
 GET         /deepfij/games/:yyyymmdd                            controllers.GamesController.gamesByDate(yyyymmdd:String, modelKey:Option[String])
 GET         /api/games/:yyyymmdd                                controllers.GamesController.gamesApi(yyyymmdd:String, modelKey:Option[String])

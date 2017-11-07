@@ -44,7 +44,7 @@
                 </tr></thead>
                     <tbody>
                     @for(t<-gs.matchedResults){
-                        <tr><td><a href="@routes.TeamController.team(t.key)">@t.name</a></td></tr>
+                        <tr><td><a href="@routes.TeamController.team(t.key,None)">@t.name</a></td></tr>
                     }
                     </tbody>
             </table>
@@ -60,7 +60,7 @@
                     <tbody>
                     @for(t<-gs.unmatchedResults){
                         <tr>
-                            <td><a href="@routes.TeamController.team(t._1.key)">@t._1.name</a></td>
+                            <td><a href="@routes.TeamController.team(t._1.key,None)">@t._1.name</a></td>
                             <td>@t._2.won - @t._2.lost</td>
                             <td>@t._3.won - @t._3.lost</td>
                         </tr>

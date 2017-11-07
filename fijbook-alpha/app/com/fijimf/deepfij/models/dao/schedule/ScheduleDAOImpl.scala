@@ -144,10 +144,16 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def loadSchedule(y: Int): Future[Option[Schedule]] = {
-    db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
+    val s = System.currentTimeMillis()
+    val future = db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
       case Some(s) => loadSchedule(s).map(Some(_))
       case None => Future.successful(None)
     }
+    future.onComplete{
+      case Failure(thr)=>log.error(s"loadSchedule for $y failed in ${System.currentTimeMillis()-s} ms. Error was ${thr.getMessage}", thr)
+      case _=>log.info(s"loadSchedule for $y completed in ${System.currentTimeMillis()-s} ms.")
+    }
+    future
   }
 
   override def loadLatestSchedule(): Future[Option[Schedule]] = {

@@ -11,9 +11,9 @@
                 @for(g <-yesterdayGames) {
                     <tr>
                         <td>@g.date</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.homeTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key, currOpt.map(_.season.year))">@{currOpt.get.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.awayTeamId).key)">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.awayTeamId).key, currOpt.map(_.season.year))">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }
@@ -25,9 +25,9 @@
                 @for(g <-todayGames) {
                     <tr>
                         <td>@g.date</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.homeTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key, currOpt.map(_.season.year))">@{currOpt.get.teamsMap(g.homeTeamId).name}</a></td>
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.homeScore).getOrElse("")}</td>
-                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key)">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
+                        <td><a href="@routes.TeamController.team(currOpt.get.teamsMap(g.homeTeamId).key, currOpt.map(_.season.year))">@{currOpt.get.teamsMap(g.awayTeamId).name}</a></td>
                         <td>@{currOpt.get.resultMap.get(g.id).map(_.awayScore).getOrElse("")}</td>
                     </tr>
                 }

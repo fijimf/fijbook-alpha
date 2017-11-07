@@ -108,14 +108,14 @@
                         @for(g <- gs.gprls) {
                             <tr>
                                 <td>@g.date</td>
-                                <td><a href="@routes.TeamController.team(g.awayKey)">@{
+                                <td><a href="@routes.TeamController.team(g.awayKey, currOpt.map(_.season.year))">@{
                                     g.awayTeam
                                 }</a>
                                 </td>
                                 <td class="text-right">@{
                                     g.awayScore.getOrElse("")
                                 }</td>
-                                <td><a href="@routes.TeamController.team(g.homeKey)">@{
+                                <td><a href="@routes.TeamController.team(g.homeKey, currOpt.map(_.season.year))">@{
                                     g.homeTeam
                                 }</a>
                                 </td>

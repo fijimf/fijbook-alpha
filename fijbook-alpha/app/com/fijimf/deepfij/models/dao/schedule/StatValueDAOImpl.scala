@@ -39,7 +39,8 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
     val deletes = statValuesDeleteActions(models,dates)
     val inserts = statValuesInsertActions(stats)
-    db.run(deletes.flatMap(_=>inserts).transactionally.asTry).map {
+    val res = runWithRecover(deletes.flatMap(_ => inserts), backoffStrategy)
+    res.onComplete {
       case Success(ids) =>
         val dur = System.currentTimeMillis() - start
         log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
@@ -48,6 +49,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
         log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
         Seq.empty[Long]
     }
+    res
   }
 
   private def statValuesDeleteActions(models: List[String], dates: List[LocalDate]): DBIO[Int] = {

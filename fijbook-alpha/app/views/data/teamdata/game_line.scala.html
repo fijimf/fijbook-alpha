@@ -3,7 +3,7 @@
 <tr>
     <td>@ganeLine.date</td>
     <td>@ganeLine.vsAt</td>
-    <td><a href="@routes.TeamController.team(ganeLine.opp.key)">@ganeLine.opp.name</a></td>
+    <td><a href="@routes.TeamController.team(ganeLine.opp.key, None)">@ganeLine.opp.name</a></td>
     @if(ganeLine.wl=="W"){
         <td><strong class="text-success">@ganeLine.wl</strong></td>
     } else {

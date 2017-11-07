@@ -15,7 +15,6 @@ import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
@@ -30,23 +29,27 @@ class TeamController @Inject()(
 
   val logger = Logger(getClass)
 
-  def team(key: String) = silhouette.UserAwareAction.async { implicit request =>
-
+  def team(key: String, season: Option[Int]) = silhouette.UserAwareAction.async { implicit request =>
     teamDao.loadSchedules().flatMap(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
-        case Some(sch) => {
-          val t: Team = sch.keyTeam(key)
-          val stats = loadTeamStats(t, sch)
-          stats.map(lstat => {
-            Ok(views.html.data.team(request.identity, t, sch, sortedSchedules.tail, lstat))
-          })
+      if (ss.isEmpty) {
+        Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No schedules are loaded."))
+      } else {
+        val year = season match {
+          case Some(y) => y
+          case None => ss.map(_.season.year).max
         }
-        case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded"))
+        ss.find(_.season.year == year) match {
+          case Some(sch) => {
+            val t: Team = sch.keyTeam(key)
+            val stats = loadTeamStats(t, sch)
+            stats.map(lstat => {
+              Ok(views.html.data.team(request.identity, t, sch, ss.filterNot(_.season.year == year).tail, lstat))
+            })
+          }
+          case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> s"No schedule found for year $year"))
+        }
       }
-
     })
-
   }
 
   def loadTeamStats(t: Team, sch: Schedule): Future[List[ModelTeamContext]] = {
@@ -55,20 +58,21 @@ class TeamController @Inject()(
   }
 
   def loadTeamStats(t: Team, modelKey: String, sch: Schedule): Future[Option[ModelTeamContext]] = {
-    statWriterService.lookupModel(modelKey) match {
-      case Some(model) =>
-        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
-          case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
-          case None =>
-            teamDao.loadStatValues(modelKey).map(stats => {
-              val byKey = stats.groupBy(_.statKey)
-              cache.set("model." + modelKey, byKey, 15.minutes)
-              Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
-            }
-            )
-        }
-      case None => Future.successful(Option.empty[ModelTeamContext])
-    }
+//    statWriterService.lookupModel(modelKey) match {
+//      case Some(model) =>
+//        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
+//          case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
+//          case None =>
+//            teamDao.loadStatValues(modelKey).map(stats => {
+//              val byKey = stats.groupBy(_.statKey)
+//              cache.set("model." + modelKey, byKey, 15.minutes)
+//              Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
+//            }
+//            )
+//        }
+//      case None => Future.successful(Option.empty[ModelTeamContext])
+//    }
+    Future.successful(Option.empty[ModelTeamContext])
   }
 
   def teams(q: String) = silhouette.UserAwareAction.async { implicit request =>
@@ -84,7 +88,7 @@ class TeamController @Inject()(
             case Nil =>
               val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
               Ok(views.html.data.teams(request.identity, columns)).flashing("info" -> ("No matching teams for query string '" + q + "'"))
-            case t :: Nil => Redirect(routes.TeamController.team(t.key))
+            case t :: Nil => Redirect(routes.TeamController.team(t.key, None))
             case lst =>
               val columns = lst.sortBy(_.name).grouped((lst.size + 3) / 4).toList
               Ok(views.html.data.teams(request.identity, columns))
