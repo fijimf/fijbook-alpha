@@ -77,6 +77,8 @@ GET         /deepfij/admin/deleteGame/:id                       controllers.Data
 GET         /deepfij/admin/browseQuotes                         controllers.DataController.browseQuotes
 GET         /deepfij/admin/createQuote                          controllers.DataController.createQuote
 POST        /deepfij/admin/saveQuote                            controllers.DataController.saveQuote
+GET         /deepfij/admin/bulkCreateQuote                      controllers.DataController.bulkCreateQuote
+POST        /deepfij/admin/bulkSaveQuote                        controllers.DataController.bulkSaveQuote
 GET         /deepfij/admin/editQuote/:id                        controllers.DataController.editQuote(id:Long)
 GET         /deepfij/admin/deleteQuote/:id                      controllers.DataController.deleteQuote(id:Long)
 

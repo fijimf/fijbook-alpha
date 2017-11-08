@@ -8,6 +8,8 @@ trait QuoteDAO {
 
   def saveQuote(q: Quote): Future[Quote]
 
+  def saveQuotes(qs: List[Quote]): Future[List[Quote]]
+
   def listQuotes: Future[List[Quote]]
 
   def findQuoteById(id: Long): Future[Option[Quote]]

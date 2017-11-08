@@ -7,6 +7,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import forms._
+import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
@@ -129,6 +130,33 @@ class DataController @Inject()(
           case Failure(thr) => logger.error(s"Failed saving quote $q", thr)
         }
         val flashMsg = if (q.id == 0) "Created quote " + q.id else "Updated quote" + q.id
+        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
+      }
+    )
+  }
+
+  def bulkCreateQuote() = silhouette.SecuredAction.async { implicit rs =>
+    Future.successful(Ok(views.html.admin.bulkCreateQuote(rs.identity, BulkEditQuoteForm.form.fill(BulkEditQuoteForm.Data("")))))
+  }
+ def bulkSaveQuote() = silhouette.SecuredAction.async { implicit request =>
+    BulkEditQuoteForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+        Future.successful(BadRequest(views.html.admin.bulkCreateQuote(request.identity, form)))
+      },
+      data => {
+        val qs = data.quotes.split("\n").map(_.trim.split("\t").toList).flatMap {
+          case q :: s :: Nil => Some(Quote(0l, q, Some(s), None, None))
+          case q :: s :: u :: Nil => Some(Quote(0l, q, Some(s), Some(u), None))
+          case q :: s :: u :: k :: Nil => Some(Quote(0l, q, Some(s), Some(u), Some(k)))
+          case _ => None
+        }.toList
+        val future: Future[List[Quote]] = teamDao.saveQuotes(qs)
+        future.onComplete {
+          case Success(q) => logger.info(s"Saved ${q.size} quotes.")
+          case Failure(thr) => logger.error(s"Failed bulk saving quotes", thr)
+        }
+        val flashMsg = s"Bulk saved quotes."
         future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
