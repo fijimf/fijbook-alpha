@@ -43,7 +43,7 @@ class TeamController @Inject()(
             val t: Team = sch.keyTeam(key)
             val stats = loadTeamStats(t, sch)
             stats.map(lstat => {
-              Ok(views.html.data.team(request.identity, t, sch, ss.filterNot(_.season.year == year).tail, lstat))
+              Ok(views.html.data.team(request.identity, t, sch, lstat))
             })
           }
           case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> s"No schedule found for year $year"))
