@@ -54,7 +54,7 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
 
   override def updateGames(games: List[Game]): Future[List[Game]] = {
     val ops = games.map(g1 => repo.games.filter(_.id===g1.id).update(g1).flatMap(_ => DBIO.successful(g1)))
-    db.run(DBIO.sequence(ops).transactionally)
+    runWithRecover(DBIO.sequence(ops).transactionally,backoffStrategy)
   }
 
 

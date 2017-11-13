@@ -1,6 +1,8 @@
 package com.fijimf.deepfij.scraping
 
-import java.time.LocalDateTime
+import java.io
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -12,6 +14,7 @@ import com.fijimf.deepfij.models.services.{ScheduleUpdateService, StatisticWrite
 import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
 import play.api.Logger
 
+import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.Source
@@ -36,12 +39,11 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
       step5 <- createSeasons(startYear, endYear)
       step6 <- seedConferenceMaps(tag)
       step7 <- scrapeGames(tag)
-    //      step8 <- identifyNeutralSites
-    //      step9 <- cleanUpMissedGames
-    //      step10 <- verify (WONTFIX - not in scope)
+      step8 <- neutralSiteSolver(tag)
+      step9 <- updateForTournament("/ncaa-tourn.txt")
       stepX <- updateStatistics()
     } yield {
-      (step1 ++ step2 ++ step3++step4++step5++step6++step7++stepX).sortBy(_.stamp.toString)
+      (step1 ++ step2 ++ step3++step4++step5++step6++step7++step8++stepX).sortBy(_.stamp.toString)
     }
   }
 
@@ -198,5 +200,97 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     statSvc.updateAllSchedules().map(_.map(i=>Tracking(LocalDateTime.now,s"Saved $i stats for a season")))
   }
 
+  def neutralSiteSolver(tag: String): Future[List[Tracking]] = {
+    dao.loadSchedules()
+      .map(schedules =>
+        schedules.flatMap(neutralUpdatesForSchedule)
+      )
+      .flatMap(gl =>
+        dao.updateGames(gl)
+      ).map(fgs => fgs.map(gs => Tracking(LocalDateTime.now(), s"Updated ${gs} as neutral")))
+  }
 
+  private def neutralUpdatesForSchedule(sch: Schedule): List[Game] = {
+    val locationData: Map[Long, Map[String, Int]] = sch.teamHomeGamesByLocation
+    sch.games.foldLeft(List.empty[Option[Game]])((games: List[Option[Game]], game: Game) => {
+      (for {
+        location: String <- game.location
+        homeGameSites: Map[String, Int] <- locationData.get(game.homeTeamId)
+        timesAtLocation: Int <- homeGameSites.get(location)
+        u: Game <- createNeutralUpdate(game, timesAtLocation)
+      } yield {
+        u
+      }) :: games
+
+    }).flatten
+  }
+
+  private def createNeutralUpdate(game: Game, timesAtLocation: Int): Option[Game] = {
+    if (timesAtLocation > 3) {
+      if (game.isNeutralSite) {
+        Some(game.copy(isNeutralSite = false))
+      } else {
+        None
+      }
+    } else {
+      if (game.isNeutralSite) {
+        None
+      } else {
+        Some(game.copy(isNeutralSite = true))
+      }
+    }
+  }
+
+  def updateForTournament(filename:String):Future[List[Tracking]] = {
+    updateNcaaTournamentGames(filename).map(_.map(g=>Tracking(LocalDateTime.now(), s"$g")))
+  }
+
+  def updateNcaaTournamentGames(fileName:String): Future[List[Game]] ={
+    val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream(fileName)).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
+    val tourneyData: Map[Int, (LocalDate,Map[String,(String, Int)])] = lines.foldLeft(Map.empty[Int,(LocalDate,Map[String,(String, Int)])])((data: Map[Int, (LocalDate, Map[String, (String, Int)])], str: String) => {
+      str.split(",").toList match {
+        case year::date::Nil=>
+          val y = year.toInt
+          val d = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+          data+(y->(d,Map.empty[String,(String, Int)]))
+        case year::region::seed::key::Nil=>
+          val y = year.toInt
+          val s = seed.toInt
+          data.get(y) match {
+            case Some(mm)=>
+             data+(y->(mm._1, mm._2 + (key -> (region, s))))
+            case None => data
+          }
+        case _=>data
+      }
+    })
+
+    tourneyData.foreach{case (year: Int, tuple: (LocalDate, Map[String, (String, Int)])) => {
+      logger.info(s"For year $year tournament started on ${tuple._1} and included ${tuple._2.size} teams.")
+    }}
+
+    val w: Iterable[Future[List[Game]]] =tourneyData.map{case (y: Int, data: (LocalDate, Map[String, (String, Int)])) => {
+      dao.loadSchedule(y).flatMap{
+        case Some(s)=>
+          val eventualGames: Future[List[Game]] = Future.sequence(data._2.map {
+            case (key: String, tuple: (String, Int)) => updateTourneyGamesForTeam(s, key, data._1, tuple)
+          }).map(_.flatten.toList)
+          eventualGames
+        case None=>
+          logger.warn(s"No schedule for year $y")
+          Future.successful(List.empty[Game])
+      }
+    }}
+    Future.sequence(w).map(_.flatten.toList)
+  }
+
+  private def updateTourneyGamesForTeam(s: Schedule, key: String, date:LocalDate, tuple: (String, Int)): Future[List[Game]] = s.keyTeam.get(key) match {
+    case Some(t) =>
+      val h = s.games.filter(g => g.homeTeamId == t.id && !g.date.isBefore(date)).map(_.copy(tourneyKey = Some("ncaa"), homeTeamSeed = Some(tuple._2)))
+      val a = s.games.filter(g => g.awayTeamId == t.id && !g.date.isBefore(date)).map(_.copy(tourneyKey = Some("ncaa"), awayTeamSeed = Some(tuple._2)))
+      dao.updateGames(h ++ a)
+    case None =>
+      logger.warn(s"Team name $key is unknown")
+      Future.successful(List.empty[Game])
+  }
 }

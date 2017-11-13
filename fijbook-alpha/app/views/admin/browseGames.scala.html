@@ -61,7 +61,7 @@
                             <td>@{g.periods.map(_.toString).getOrElse("")}</td>
                             <td>@{if (g.isNeutralSite) "Y" else "N"}</td>
                             <td>@{StringUtils.abbreviate(g.location,24)}</td>
-                            <td>@{s"${g.tourney} ${g.homeSeed.map(_.toString).getOrElse("")} ${g.awaySeed.map(_.toString).getOrElse("")}"} </td>
+                            <td>@{s"${g.tourney} [${g.homeSeed.map(_.toString).getOrElse("")} v. ${g.awaySeed.map(_.toString).getOrElse("")}]"} </td>
                             <td>@g.source &emsp;
                                 @for(su<-g.sourceUrl) {
                                     <a href="@su" target="_blank">

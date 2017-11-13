@@ -48,5 +48,15 @@ class UberScrapeController @Inject()(
     }
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Performing uber scrape"))
   }
+  def markNcaaGames(filename:String) = silhouette.SecuredAction.async { implicit rs =>
+    val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
+//    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
+    val f = us.updateForTournament("/"+filename)
+    f.onComplete{
+      case Success(trs) => logger.info("Uber Scrape succeeded:\n"+trs.map(t=>s"${t.stamp.toString}  ${t.step}"))
+      case Failure(ex) => logger.error(s"Uber Scrape failed with error ${ex.getMessage}", ex)
+    }
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Performing ncaa tourney step"))
+  }
 
 }
