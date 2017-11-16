@@ -43,7 +43,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
       step9 <- updateForTournament("/ncaa-tourn.txt")
       stepX <- updateStatistics()
     } yield {
-      (step1 ++ step2 ++ step3++step4++step5++step6++step7++step8++stepX).sortBy(_.stamp.toString)
+      (step1 ++ step2 ++ step3 ++ step4 ++ step5 ++ step6 ++ step7 ++ step8 ++ stepX).sortBy(_.stamp.toString)
     }
   }
 
@@ -145,7 +145,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     })
   }
 
-  private def createConference(tag:String, transforms: List[(String) => String], n: String): Future[Option[Conference]] = {
+  private def createConference(tag: String, transforms: List[(String) => String], n: String): Future[Option[Conference]] = {
 
     val candidate: Future[Option[String]] = findConferenceKey(transforms, n)
     candidate.map {
@@ -169,10 +169,11 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
       })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
   }
 
-  def createSeasons(start: Int, end: Int) = {
+  def createSeasons(start: Int, end: Int): Future[List[Tracking]] = {
     dao.saveSeasons(start.to(end).map(y => Season(0L, y, "", None)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
   }
-  def seedConferenceMaps(tag:String) = {
+
+  def seedConferenceMaps(tag: String): Future[List[Tracking]] = {
     for {
       _ <- dao.deleteAllConferenceMaps()
       lcm <- ScheduleUtil.createConferenceMapSeeds(dao, tag)
@@ -182,13 +183,13 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     }
   }
 
-  def scrapeGames(tag:String): Future[List[Tracking]] = {
-    dao.listSeasons.flatMap(ss=>{
-      Future.sequence(ss.map(s=>{
-        schedSvc.loadSeason(s, tag).map(_=>Tracking(LocalDateTime.now(),s"Loaded games for ${s.year}"))
-          .recover{
-            case thr=>
-              logger.error( s"Failed loading games for ${s.year} with ${thr.getMessage}")
+  def scrapeGames(tag: String): Future[List[Tracking]] = {
+    dao.listSeasons.flatMap(ss => {
+      Future.sequence(ss.map(s => {
+        schedSvc.loadSeason(s, tag).map(_ => Tracking(LocalDateTime.now(), s"Loaded games for ${s.year}"))
+          .recover {
+            case thr =>
+              logger.error(s"Failed loading games for ${s.year} with ${thr.getMessage}")
               Tracking(LocalDateTime.now(), s"Failed loading games for ${s.year} with ${thr.getMessage}")
           }
       }))
@@ -197,7 +198,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
 
   def updateStatistics(): Future[List[Tracking]] = {
     logger.info("Updating statistics")
-    statSvc.updateAllSchedules().map(_.map(i=>Tracking(LocalDateTime.now,s"Saved $i stats for a season")))
+    statSvc.updateAllSchedules().map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
   }
 
   def neutralSiteSolver(tag: String): Future[List[Tracking]] = {
@@ -241,56 +242,52 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     }
   }
 
-  def updateForTournament(filename:String):Future[List[Tracking]] = {
-    updateNcaaTournamentGames(filename).map(_.map(g=>Tracking(LocalDateTime.now(), s"$g")))
+  def updateForTournament(filename: String): Future[List[Tracking]] = {
+    updateNcaaTournamentGames(filename).map(_.map(g => Tracking(LocalDateTime.now(), s"$g")))
   }
 
-  def updateNcaaTournamentGames(fileName:String): Future[List[Game]] ={
+  def updateNcaaTournamentGames(fileName: String): Future[List[Game]] = {
     val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream(fileName)).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
-    val tourneyData: Map[Int, (LocalDate,Map[String,(String, Int)])] = lines.foldLeft(Map.empty[Int,(LocalDate,Map[String,(String, Int)])])((data: Map[Int, (LocalDate, Map[String, (String, Int)])], str: String) => {
+    val tourneyData: Map[Int, (LocalDate, Map[String, (String, Int)])] = lines.foldLeft(Map.empty[Int, (LocalDate, Map[String, (String, Int)])])((data: Map[Int, (LocalDate, Map[String, (String, Int)])], str: String) => {
       str.split(",").toList match {
-        case year::date::Nil=>
+        case year :: date :: Nil =>
           val y = year.toInt
           val d = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-          data+(y->(d,Map.empty[String,(String, Int)]))
-        case year::region::seed::key::Nil=>
+          data + (y -> (d, Map.empty[String, (String, Int)]))
+        case year :: region :: seed :: key :: Nil =>
           val y = year.toInt
           val s = seed.toInt
           data.get(y) match {
-            case Some(mm)=>
-             data+(y->(mm._1, mm._2 + (key -> (region, s))))
+            case Some(mm) =>
+              data + (y -> (mm._1, mm._2 + (key -> (region, s))))
             case None => data
           }
-        case _=>data
+        case _ => data
       }
     })
 
-    tourneyData.foreach{case (year: Int, tuple: (LocalDate, Map[String, (String, Int)])) => {
+    Future.sequence(tourneyData.flatMap { case (year: Int, tuple: (LocalDate, Map[String, (String, Int)])) => {
       logger.info(s"For year $year tournament started on ${tuple._1} and included ${tuple._2.size} teams.")
-    }}
-
-    val w: Iterable[Future[List[Game]]] =tourneyData.map{case (y: Int, data: (LocalDate, Map[String, (String, Int)])) => {
-      dao.loadSchedule(y).flatMap{
-        case Some(s)=>
-          val eventualGames: Future[List[Game]] = Future.sequence(data._2.map {
-            case (key: String, tuple: (String, Int)) => updateTourneyGamesForTeam(s, key, data._1, tuple)
-          }).map(_.flatten.toList)
-          eventualGames
-        case None=>
-          logger.warn(s"No schedule for year $y")
-          Future.successful(List.empty[Game])
+      tourneyData.map { case (y, (startDate, seedData)) => {
+        dao.loadSchedule(y).flatMap {
+          case Some(s) =>
+            val gs = s.games.filterNot(g => g.date.isBefore(startDate))
+            val updatedGames: List[Game] = gs.flatMap(g => {
+              val hk = s.teamsMap(g.homeTeamId).key
+              val ak = s.teamsMap(g.awayTeamId).key
+              (seedData.get(hk).map(_._2), seedData.get(ak).map(_._2)) match {
+                case (Some(hs), Some(as)) => Some(g.copy(homeTeamSeed = Some(hs), awayTeamSeed = Some(as)))
+                case _ => None
+              }
+            })
+            dao.updateGames(updatedGames)
+          case None =>
+            Future.successful(List.empty[Game])
+        }
       }
-    }}
-    Future.sequence(w).map(_.flatten.toList)
+      }
+    }
+    }.toList).map(_.flatten)
   }
 
-  private def updateTourneyGamesForTeam(s: Schedule, key: String, date:LocalDate, tuple: (String, Int)): Future[List[Game]] = s.keyTeam.get(key) match {
-    case Some(t) =>
-      val h = s.games.filter(g => g.homeTeamId == t.id && !g.date.isBefore(date)).map(_.copy(tourneyKey = Some("ncaa"), homeTeamSeed = Some(tuple._2)))
-      val a = s.games.filter(g => g.awayTeamId == t.id && !g.date.isBefore(date)).map(_.copy(tourneyKey = Some("ncaa"), awayTeamSeed = Some(tuple._2)))
-      dao.updateGames(h ++ a)
-    case None =>
-      logger.warn(s"Team name $key is unknown")
-      Future.successful(List.empty[Game])
-  }
 }
