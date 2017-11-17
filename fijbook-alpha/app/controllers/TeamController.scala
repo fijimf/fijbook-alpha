@@ -15,6 +15,7 @@ import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
@@ -58,21 +59,20 @@ class TeamController @Inject()(
   }
 
   def loadTeamStats(t: Team, modelKey: String, sch: Schedule): Future[Option[ModelTeamContext]] = {
-//    statWriterService.lookupModel(modelKey) match {
-//      case Some(model) =>
-//        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
-//          case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
-//          case None =>
-//            teamDao.loadStatValues(modelKey).map(stats => {
-//              val byKey = stats.groupBy(_.statKey)
-//              cache.set("model." + modelKey, byKey, 15.minutes)
-//              Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
-//            }
-//            )
-//        }
-//      case None => Future.successful(Option.empty[ModelTeamContext])
-//    }
-    Future.successful(Option.empty[ModelTeamContext])
+    statWriterService.lookupModel(modelKey) match {
+      case Some(model) =>
+        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
+          case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
+          case None =>
+            teamDao.loadStatValues(modelKey, sch.season.startDate, sch.season.endDate).map(stats => {
+              val byKey = stats.groupBy(_.statKey)
+              cache.set("model." + modelKey, byKey, 15.minutes)
+              Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
+            }
+            )
+        }
+      case None => Future.successful(Option.empty[ModelTeamContext])
+    }
   }
 
   def teams(q: String) = silhouette.UserAwareAction.async { implicit request =>
