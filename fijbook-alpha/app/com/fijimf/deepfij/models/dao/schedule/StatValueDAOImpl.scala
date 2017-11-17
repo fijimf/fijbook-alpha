@@ -64,4 +64,8 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
   override def loadStatValues(modelKey: String): Future[List[StatValue]] = db.run(repo.statValues.filter(sv => sv.modelKey === modelKey).to[List].result)
 
+  override def loadStatValues(modelKey: String, from:LocalDate, to:LocalDate): Future[List[StatValue]] = {
+    db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.date>=from && sv.date<=to).to[List].result)
+  }
+
 }

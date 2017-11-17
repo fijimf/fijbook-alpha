@@ -17,4 +17,6 @@ trait StatValueDAO {
   def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
 
   def loadStatValues(modelKey: String): Future[List[StatValue]]
+
+  def loadStatValues(modelKey: String, from:LocalDate, to:LocalDate): Future[List[StatValue]]
 }

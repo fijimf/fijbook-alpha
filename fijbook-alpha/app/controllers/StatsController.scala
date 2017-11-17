@@ -89,24 +89,24 @@ class StatsController @Inject()(
   def viewModel(modelKey: String) = silhouette.UserAwareAction.async { implicit request =>
     statWriterService.lookupModel(modelKey) match {
       case Some(model) => {
-        teamDao.loadSchedules().flatMap(ss => {
-          val sortedSchedules = ss.sortBy(s => -s.season.year)
-          sortedSchedules.headOption match {
-            case Some(sch) => {
-              teamDao.loadStatValues(modelKey).flatMap(stats => {
-                val byDate = stats.groupBy(s => s.date).mapValues(_.groupBy(_.statKey))
-
-                val statContext = ModelContext(model, model.stats, byDate, sch.teamsMap)
-                Future.successful(Ok(views.html.data.statmodel(request.identity, statContext)))
-              })
+        teamDao.loadLatestSchedule().flatMap {
+          case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No seasons loaded"))
+          case Some(sch) => {
+            for {
+              stats <- teamDao.loadStatValues(modelKey, sch.season.startDate, sch.season.endDate)
+            } yield {
+              val byDate = stats.groupBy(s => s.date).mapValues(_.groupBy(_.statKey))
+              val statContext = ModelContext(model, model.stats, byDate, sch.teamsMap)
+              Ok(views.html.data.statmodel(request.identity, statContext))
             }
-            case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded"))
           }
-        })
+        }
       }
       case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> ("Could not identify model '" + modelKey + "'")))
     }
+
   }
+
 
   def viewModels() = silhouette.UserAwareAction.async { implicit request =>
     Future.successful(Ok(views.html.data.statmodels(request.identity, ModelsContext(statWriterService.models))))
