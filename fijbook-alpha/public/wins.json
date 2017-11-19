@@ -1,0 +1,2108 @@
+[
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Penn St.",
+    "teamKey": "penn-st"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Purdue",
+    "teamKey": "purdue"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Nevada",
+    "teamKey": "nevada"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Colorado",
+    "teamKey": "colorado"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Clemson",
+    "teamKey": "clemson"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "North Carolina St.",
+    "teamKey": "north-carolina-st"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Seton Hall",
+    "teamKey": "seton-hall"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Evansville",
+    "teamKey": "evansville"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "SMU",
+    "teamKey": "smu"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Maryland",
+    "teamKey": "maryland"
+  },
+  {
+    "rank": 1,
+    "value": 4,
+    "team": "Duke",
+    "teamKey": "duke"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Butler",
+    "teamKey": "butler"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Belmont",
+    "teamKey": "belmont"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Xavier",
+    "teamKey": "xavier"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Notre Dame",
+    "teamKey": "notre-dame"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Ohio St.",
+    "teamKey": "ohio-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Oregon",
+    "teamKey": "oregon"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Virginia Tech",
+    "teamKey": "virginia-tech"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Kansas",
+    "teamKey": "kansas"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Kentucky",
+    "teamKey": "kentucky"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Arkansas",
+    "teamKey": "arkansas"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Miami (OH)",
+    "teamKey": "miami-oh"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Syracuse",
+    "teamKey": "syracuse"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Mercer",
+    "teamKey": "mercer"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Ole Miss",
+    "teamKey": "ole-miss"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Boise St.",
+    "teamKey": "boise-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "TCU",
+    "teamKey": "tcu"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Oklahoma St.",
+    "teamKey": "oklahoma-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "South Carolina",
+    "teamKey": "south-carolina"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "UCLA",
+    "teamKey": "ucla"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Washington St.",
+    "teamKey": "washington-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Gonzaga",
+    "teamKey": "gonzaga"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Creighton",
+    "teamKey": "creighton"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Grand Canyon",
+    "teamKey": "grand-canyon"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Baylor",
+    "teamKey": "baylor"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Texas Tech",
+    "teamKey": "texas-tech"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Michigan",
+    "teamKey": "michigan"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Tulane",
+    "teamKey": "tulane"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Bradley",
+    "teamKey": "bradley"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Boston College",
+    "teamKey": "boston-college"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "UCF",
+    "teamKey": "ucf"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Albany (NY)",
+    "teamKey": "albany-ny"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Arizona",
+    "teamKey": "arizona"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Northern Ky.",
+    "teamKey": "northern-ky"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Alabama",
+    "teamKey": "alabama"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "UNLV",
+    "teamKey": "unlv"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Minnesota",
+    "teamKey": "minnesota"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "St. Mary's (CA)",
+    "teamKey": "st-marys-ca"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Iowa",
+    "teamKey": "iowa"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Utah",
+    "teamKey": "utah"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Georgetown",
+    "teamKey": "georgetown"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Miami (FL)",
+    "teamKey": "miami-fl"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Hofstra",
+    "teamKey": "hofstra"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Villanova",
+    "teamKey": "villanova"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Providence",
+    "teamKey": "providence"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Illinois",
+    "teamKey": "illinois"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Texas",
+    "teamKey": "texas"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Arizona St.",
+    "teamKey": "arizona-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Kansas St.",
+    "teamKey": "kansas-st"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "St. John's (NY)",
+    "teamKey": "st-johns-ny"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "George Mason",
+    "teamKey": "george-mason"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Virginia",
+    "teamKey": "virginia"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "La Salle",
+    "teamKey": "la-salle"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Northwestern",
+    "teamKey": "northwestern"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Old Dominion",
+    "teamKey": "old-dominion"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Cincinnati",
+    "teamKey": "cincinnati"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Hawaii",
+    "teamKey": "hawaii"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "San Diego",
+    "teamKey": "san-diego"
+  },
+  {
+    "rank": 12,
+    "value": 3,
+    "team": "Stanford",
+    "teamKey": "stanford"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "California",
+    "teamKey": "california"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Col. of Charleston",
+    "teamKey": "col-of-charleston"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Iowa St.",
+    "teamKey": "iowa-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Mississippi St.",
+    "teamKey": "mississippi-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Holy Cross",
+    "teamKey": "holy-cross"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Missouri",
+    "teamKey": "missouri"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Tennessee",
+    "teamKey": "tennessee"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Colorado St.",
+    "teamKey": "colorado-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Weber St.",
+    "teamKey": "weber-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Wichita St.",
+    "teamKey": "wichita-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Wyoming",
+    "teamKey": "wyoming"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Milwaukee",
+    "teamKey": "milwaukee"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Oklahoma",
+    "teamKey": "oklahoma"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UC Davis",
+    "teamKey": "uc-davis"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "LSU",
+    "teamKey": "lsu"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "South Dakota St.",
+    "teamKey": "south-dakota-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Houston",
+    "teamKey": "houston"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Monmouth",
+    "teamKey": "monmouth"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Marshall",
+    "teamKey": "marshall"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Davidson",
+    "teamKey": "davidson"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Florida",
+    "teamKey": "florida"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UConn",
+    "teamKey": "uconn"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "FGCU",
+    "teamKey": "fgcu"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UNI",
+    "teamKey": "uni"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Ill.-Chicago",
+    "teamKey": "ill-chicago"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Loyola Chicago",
+    "teamKey": "loyola-il"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "George Washington",
+    "teamKey": "george-washington"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Southern California",
+    "teamKey": "southern-california"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Louisiana Tech",
+    "teamKey": "louisiana-tech"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Dayton",
+    "teamKey": "dayton"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Akron",
+    "teamKey": "akron"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Manhattan",
+    "teamKey": "manhattan"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "South Dakota",
+    "teamKey": "south-dakota"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "South Fla.",
+    "teamKey": "south-fla"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Utah Valley",
+    "teamKey": "utah-valley"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Vermont",
+    "teamKey": "vermont"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Rutgers",
+    "teamKey": "rutgers"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Washington",
+    "teamKey": "washington"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Ga. Southern",
+    "teamKey": "ga-southern"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Vanderbilt",
+    "teamKey": "vanderbilt"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Temple",
+    "teamKey": "temple"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Missouri St.",
+    "teamKey": "missouri-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "VCU",
+    "teamKey": "vcu"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Air Force",
+    "teamKey": "air-force"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Toledo",
+    "teamKey": "toledo"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Fairfield",
+    "teamKey": "fairfield"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Oakland",
+    "teamKey": "oakland"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Rider",
+    "teamKey": "rider"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Navy",
+    "teamKey": "navy"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UT Arlington",
+    "teamKey": "texas-arlington"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "North Carolina A&T",
+    "teamKey": "nc-at"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Fort Wayne",
+    "teamKey": "ipfw"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Lehigh",
+    "teamKey": "lehigh"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Georgia",
+    "teamKey": "georgia"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Lamar University",
+    "teamKey": "lamar"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Portland St.",
+    "teamKey": "portland-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Tulsa",
+    "teamKey": "tulsa"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Bowling Green",
+    "teamKey": "bowling-green"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Saint Louis",
+    "teamKey": "saint-louis"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Eastern Mich.",
+    "teamKey": "eastern-mich"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Wagner",
+    "teamKey": "wagner"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "North Dakota",
+    "teamKey": "north-dakota"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UTRGV",
+    "teamKey": "utrgv"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Auburn",
+    "teamKey": "auburn"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "San Francisco",
+    "teamKey": "san-francisco"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Saint Joseph's",
+    "teamKey": "saint-josephs"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "North Carolina",
+    "teamKey": "north-carolina"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "BYU",
+    "teamKey": "byu"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Louisville",
+    "teamKey": "louisville"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Buffalo",
+    "teamKey": "buffalo"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Duquesne",
+    "teamKey": "duquesne"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Florida St.",
+    "teamKey": "florida-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Nebraska",
+    "teamKey": "nebraska"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "UAB",
+    "teamKey": "uab"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Middle Tenn.",
+    "teamKey": "middle-tenn"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "West Virginia",
+    "teamKey": "west-virginia"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Oregon St.",
+    "teamKey": "oregon-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Utah St.",
+    "teamKey": "utah-st"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Texas A&M",
+    "teamKey": "texas-am"
+  },
+  {
+    "rank": 70,
+    "value": 2,
+    "team": "Wisconsin",
+    "teamKey": "wisconsin"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Eastern Ill.",
+    "teamKey": "eastern-ill"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "North Texas",
+    "teamKey": "north-texas"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Fordham",
+    "teamKey": "fordham"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "DePaul",
+    "teamKey": "depaul"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Penn",
+    "teamKey": "penn"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Idaho",
+    "teamKey": "idaho"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Loyola Marymount",
+    "teamKey": "loyola-marymount"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "High Point",
+    "teamKey": "high-point"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Murray St.",
+    "teamKey": "murray-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Hartford",
+    "teamKey": "hartford"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Nicholls St.",
+    "teamKey": "nicholls-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Cal Poly",
+    "teamKey": "cal-poly"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "St. Bonaventure",
+    "teamKey": "st-bonaventure"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Charleston So.",
+    "teamKey": "charleston-so"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "San Diego St.",
+    "teamKey": "san-diego-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Troy",
+    "teamKey": "troy"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Eastern Wash.",
+    "teamKey": "eastern-wash"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Arkansas St.",
+    "teamKey": "arkansas-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "SFA",
+    "teamKey": "stephen-f-austin"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Saint Francis (PA)",
+    "teamKey": "st-francis-pa"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "La.-Monroe",
+    "teamKey": "la-monroe"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Kent St.",
+    "teamKey": "kent-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Mt. St. Mary's",
+    "teamKey": "mt-st-marys"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "VMI",
+    "teamKey": "vmi"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Montana",
+    "teamKey": "montana"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "ETSU",
+    "teamKey": "east-tenn-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Massachusetts",
+    "teamKey": "massachusetts"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Pittsburgh",
+    "teamKey": "pittsburgh"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "The Citadel",
+    "teamKey": "citadel"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Drexel",
+    "teamKey": "drexel"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Northeastern",
+    "teamKey": "northeastern"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Fresno St.",
+    "teamKey": "fresno-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "New Mexico",
+    "teamKey": "new-mexico"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Cleveland St.",
+    "teamKey": "cleveland-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Colgate",
+    "teamKey": "colgate"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UNCW",
+    "teamKey": "unc-wilmington"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "William & Mary",
+    "teamKey": "william-mary"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Morgan St.",
+    "teamKey": "morgan-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Western Mich.",
+    "teamKey": "western-mich"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Eastern Ky.",
+    "teamKey": "eastern-ky"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "North Dakota St.",
+    "teamKey": "north-dakota-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Army West Point",
+    "teamKey": "army"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Saint Peter's",
+    "teamKey": "st-peters"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UTSA",
+    "teamKey": "utsa"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Ball St.",
+    "teamKey": "ball-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Rice",
+    "teamKey": "rice"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Quinnipiac",
+    "teamKey": "quinnipiac"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Indiana St.",
+    "teamKey": "indiana-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Western Ill.",
+    "teamKey": "western-ill"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Indiana",
+    "teamKey": "indiana"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Samford",
+    "teamKey": "samford"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Cornell",
+    "teamKey": "cornell"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Central Conn. St.",
+    "teamKey": "central-conn-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Canisius",
+    "teamKey": "canisius"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Montana St.",
+    "teamKey": "montana-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Furman",
+    "teamKey": "furman"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UMass Lowell",
+    "teamKey": "mass-lowell"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Southern Utah",
+    "teamKey": "southern-utah"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Louisiana",
+    "teamKey": "la-lafayette"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Delaware",
+    "teamKey": "delaware"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Northern Ill.",
+    "teamKey": "northern-ill"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Towson",
+    "teamKey": "towson"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Stetson",
+    "teamKey": "stetson"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Wake Forest",
+    "teamKey": "wake-forest"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Valparaiso",
+    "teamKey": "valparaiso"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "East Carolina",
+    "teamKey": "east-carolina"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Texas St.",
+    "teamKey": "texas-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Binghamton",
+    "teamKey": "binghamton"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Brown",
+    "teamKey": "brown"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Jacksonville St.",
+    "teamKey": "jacksonville-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Michigan St.",
+    "teamKey": "michigan-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Georgia St.",
+    "teamKey": "georgia-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Ohio",
+    "teamKey": "ohio"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UC Riverside",
+    "teamKey": "uc-riverside"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Coastal Caro.",
+    "teamKey": "coastal-caro"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Drake",
+    "teamKey": "drake"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Seattle U",
+    "teamKey": "seattle"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Tennessee Tech",
+    "teamKey": "tennessee-tech"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Yale",
+    "teamKey": "yale"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "New Mexico St.",
+    "teamKey": "new-mexico-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "NJIT",
+    "teamKey": "njit"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UC Santa Barbara",
+    "teamKey": "uc-santa-barbara"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "South Ala.",
+    "teamKey": "south-ala"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Iona",
+    "teamKey": "iona"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "LIU Brooklyn",
+    "teamKey": "long-island"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UT Martin",
+    "teamKey": "ut-martin"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Northern Colo.",
+    "teamKey": "northern-colo"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Southern Ill.",
+    "teamKey": "southern-ill"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Rhode Island",
+    "teamKey": "rhode-island"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Radford",
+    "teamKey": "radford"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Columbia",
+    "teamKey": "columbia"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Liberty",
+    "teamKey": "liberty"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Marquette",
+    "teamKey": "marquette"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Illinois St.",
+    "teamKey": "illinois-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Long Beach St.",
+    "teamKey": "long-beach-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Lipscomb",
+    "teamKey": "lipscomb"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "UC Irvine",
+    "teamKey": "uc-irvine"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Elon",
+    "teamKey": "elon"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Memphis",
+    "teamKey": "memphis"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Niagara",
+    "teamKey": "niagara"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Harvard",
+    "teamKey": "harvard"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "Morehead St.",
+    "teamKey": "morehead-st"
+  },
+  {
+    "rank": 150,
+    "value": 1,
+    "team": "SIUE",
+    "teamKey": "siu-edwardsville"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Southeastern La.",
+    "teamKey": "southeastern-la"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Chicago St.",
+    "teamKey": "chicago-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Wright St.",
+    "teamKey": "wright-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Loyola Maryland",
+    "teamKey": "loyola-maryland"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Fla. Atlantic",
+    "teamKey": "fla-atlantic"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "North Florida",
+    "teamKey": "north-florida"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Delaware St.",
+    "teamKey": "delaware-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Northern Ariz.",
+    "teamKey": "northern-ariz"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Jackson St.",
+    "teamKey": "jackson-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "FIU",
+    "teamKey": "fiu"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Kennesaw St.",
+    "teamKey": "kennesaw-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Wofford",
+    "teamKey": "wofford"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "IUPUI",
+    "teamKey": "iupui"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Pepperdine",
+    "teamKey": "pepperdine"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Portland",
+    "teamKey": "portland"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Bethune-Cookman",
+    "teamKey": "bethune-cookman"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Green Bay",
+    "teamKey": "green-bay"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Richmond",
+    "teamKey": "richmond"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Incarnate Word",
+    "teamKey": "incarnate-word"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UTEP",
+    "teamKey": "utep"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Bryant",
+    "teamKey": "bryant"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Florida A&M",
+    "teamKey": "florida-am"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Youngstown St.",
+    "teamKey": "youngstown-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Southeast Mo. St.",
+    "teamKey": "southeast-mo-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Howard",
+    "teamKey": "howard"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Oral Roberts",
+    "teamKey": "oral-roberts"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Fairleigh Dickinson",
+    "teamKey": "fairleigh-dickinson"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Detroit Mercy",
+    "teamKey": "detroit"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Presbyterian",
+    "teamKey": "presbyterian"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Alabama St.",
+    "teamKey": "alabama-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Ark.-Pine Bluff",
+    "teamKey": "ark-pine-bluff"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Western Ky.",
+    "teamKey": "western-ky"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Southern Miss.",
+    "teamKey": "southern-miss"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Campbell",
+    "teamKey": "campbell"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Grambling",
+    "teamKey": "grambling"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Stony Brook",
+    "teamKey": "stony-brook"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Jacksonville",
+    "teamKey": "jacksonville"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UMKC",
+    "teamKey": "umkc"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Houston Baptist",
+    "teamKey": "houston-baptist"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Maine",
+    "teamKey": "maine"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Denver",
+    "teamKey": "denver"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Cal St. Fullerton",
+    "teamKey": "cal-st-fullerton"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Norfolk St.",
+    "teamKey": "norfolk-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "James Madison",
+    "teamKey": "james-madison"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Chattanooga",
+    "teamKey": "chattanooga"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Central Ark.",
+    "teamKey": "central-ark"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Appalachian St.",
+    "teamKey": "appalachian-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Princeton",
+    "teamKey": "princeton"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Hampton",
+    "teamKey": "hampton"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Marist",
+    "teamKey": "marist"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "McNeese",
+    "teamKey": "mcneese-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Western Caro.",
+    "teamKey": "western-caro"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Austin Peay",
+    "teamKey": "austin-peay"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Pacific",
+    "teamKey": "pacific"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UMBC",
+    "teamKey": "umbc"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UNC Central",
+    "teamKey": "nc-central"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Sam Houston St.",
+    "teamKey": "sam-houston-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "New Orleans",
+    "teamKey": "new-orleans"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Central Mich.",
+    "teamKey": "central-mich"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Northwestern St.",
+    "teamKey": "northwestern-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Coppin St.",
+    "teamKey": "coppin-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Robert Morris",
+    "teamKey": "robert-morris"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Idaho St.",
+    "teamKey": "idaho-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Texas Southern",
+    "teamKey": "texas-southern"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Charlotte",
+    "teamKey": "charlotte"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Winthrop",
+    "teamKey": "winthrop"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "CSU Bakersfield",
+    "teamKey": "bakersfield"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Prairie View",
+    "teamKey": "prairie-view"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Alabama A&M",
+    "teamKey": "alabama-am"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "A&M-Corpus Chris",
+    "teamKey": "am-corpus-chris"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Bucknell",
+    "teamKey": "bucknell"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Omaha",
+    "teamKey": "neb-omaha"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "St. Francis Brooklyn",
+    "teamKey": "st-francis-ny"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Alcorn",
+    "teamKey": "alcorn"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "American",
+    "teamKey": "american"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Southern U.",
+    "teamKey": "southern-u"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Dartmouth",
+    "teamKey": "dartmouth"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "USC Upstate",
+    "teamKey": "usc-upstate"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Sacramento St.",
+    "teamKey": "sacramento-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UMES",
+    "teamKey": "umes"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Savannah St.",
+    "teamKey": "savannah-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "CSUN",
+    "teamKey": "cal-st-northridge"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "South Carolina St.",
+    "teamKey": "south-carolina-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Abilene Christian",
+    "teamKey": "abilene-christian"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Longwood",
+    "teamKey": "longwood"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Sacred Heart",
+    "teamKey": "sacred-heart"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UNC Asheville",
+    "teamKey": "unc-asheville"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "San Jose St.",
+    "teamKey": "san-jose-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Gardner-Webb",
+    "teamKey": "gardner-webb"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Tennessee St.",
+    "teamKey": "tennessee-st"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Santa Clara",
+    "teamKey": "santa-clara"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Georgia Tech",
+    "teamKey": "georgia-tech"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Siena",
+    "teamKey": "siena"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "UNCG",
+    "teamKey": "unc-greensboro"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Little Rock",
+    "teamKey": "ualr"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "New Hampshire",
+    "teamKey": "new-hampshire"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Mississippi Val.",
+    "teamKey": "mississippi-val"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Boston U.",
+    "teamKey": "boston-u"
+  },
+  {
+    "rank": 253,
+    "value": 0,
+    "team": "Lafayette",
+    "teamKey": "lafayette"
+  }
+]

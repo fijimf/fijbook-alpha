@@ -154,3 +154,26 @@ img.spin:hover {
 .deepfij50-50-input > input {
     width: 45% !important;%
 }
+
+
+.bar {
+    fill: #76f;
+    shape-rendering: crispEdges;
+}
+
+.line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1.5px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.y.axis path {
+    display: none;
+}

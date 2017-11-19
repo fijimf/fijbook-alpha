@@ -18,37 +18,12 @@
 
     <div class="row">
         <div class="col-sm-3">
-            <div id="histogram">
+            <div id="histogram" class="svg-container">
 
             </div>
-            <script type="text/javascript">
-                    vg.embed("#histogram", {
-                        mode: "vega-lite",  // Instruct Vega-Embed to use the Vega-Lite compiler
-                        spec:  {
-                            "data": { "url":"/api/stats/@t.model.key/@t.stat.key"
-                            },
-                            "mark": "bar",
-                            "encoding": {
-                                "x": {"bin": {"maxbins":25},
-                                    "field": "value",
-                                    "type": "quantitative",
-                                    "axis": {
-                                        "title":"@t.statName"
-                                    }
-                                },
-                                "y": {
-                                    "aggregate": "count",
-                                    "field": "*",
-                                    "type": "quantitative",
-                                    "axis": {
-                                        "title":"Teams"
-                                    }
-                                }
-                            }
-                        },
-                        "actions":false
-                    }, function(error, result) { });
-
+            <script src="/assets/javascripts/statHistogram.js"></script>
+            <script>
+                    showHistogram("@routes.StatsController.viewStatApi(t.model.key,t.stat.key)","@t.stat.name","histogram");
             </script>
             <table class="table table-condensed table-bordered stat-summary-table">
                 <tr>
