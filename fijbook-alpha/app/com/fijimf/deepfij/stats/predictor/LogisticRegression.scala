@@ -1,10 +1,10 @@
 package com.fijimf.deepfij.stats.predictor
 
-import com.fijimf.deepfij.models.{Game, Result}
-import org.apache.mahout.classifier.sgd.{L1, OnlineLogisticRegression}
-import org.apache.mahout.math.{Matrix, Vector}
+import org.apache.mahout.classifier.sgd.{L1, OnlineLogisticRegression, PriorFunction}
+import org.apache.mahout.math.Vector
 import play.api.Logger
 
+import scala.util.Random
 
 trait FeatureMapper[T] {
   def featureDimension: Int
@@ -14,8 +14,8 @@ trait FeatureMapper[T] {
   def feature(t: T): Option[Vector]
 
   def featureMap(t: T): Option[Map[String, Double]] = {
-    feature(t).map(v=>{
-      0.until(v.size).map(n=>featureName(n)->v.get(n)).toMap
+    feature(t).map(v => {
+      0.until(v.size).map(n => featureName(n) -> v.get(n)).toMap
     })
   }
 
@@ -27,30 +27,57 @@ trait Categorizer[T] {
   def categorize(t: T): Option[Int]
 }
 
-case class LogisticReg[T](fm: FeatureMapper[T], cat: Categorizer[T]) {
+trait Classifier[T] {
+  def featureMapper: FeatureMapper[T]
+
+  def classify(t: T): Option[Array[Double]]
+
+  def betaCoefficients: List[(String, Double)]
+}
+
+object LogisticReg {
   val logger = Logger(this.getClass)
-  val logisticRegression: OnlineLogisticRegression = new OnlineLogisticRegression(cat.numCategories, fm.featureDimension, new L1()).lambda(0.0).learningRate(1)
 
+  def createClassifier[T](fm: FeatureMapper[T], cat: Categorizer[T], observations: List[T], prior: PriorFunction = new L1(), lambda: Double = 0.0, learningRate: Double = 1.0, numPasses: Int = 25): Classifier[T] = {
+    try {
+      logger.info("Creating OnlineLogisticRegression")
+      val olr = new OnlineLogisticRegression(cat.numCategories, fm.featureDimension, prior).lambda(lambda).learningRate(learningRate)
 
-  def regress(data: List[T], numPasses: Int = 25): List[Double] = {
-    val trainingSet = for (d <- data; feat <- fm.feature(d); c <- cat.categorize(d)) yield feat -> c
-    logger.info(s"Training set size ${trainingSet.size}")
-    1.to(numPasses).foreach(i => {
-      logger.info(s"Pass #$i")
-      trainingSet.foreach(obs => {
-        logisticRegression.train(obs._2, obs._1)
+      val trainingSet = for (d <- observations; feat <- fm.feature(d); c <- cat.categorize(d)) yield feat -> c
+      logger.info("Creating training set")
+      logger.info(s"Training set size ${trainingSet.size}")
+      1.to(numPasses).foreach(i => {
+        logger.info(s"Pass #$i")
+        Random.shuffle(trainingSet).foreach(obs => {
+          olr.train(obs._2, obs._1)
+        })
+        println(olr.getBeta)
       })
-      logger.info(logisticRegression.getBeta.toString)
-    })
-    val beta: Matrix = logisticRegression.getBeta
-    0.until(fm.featureDimension).map { i =>
-      val b: Double = beta.get(0, i)
-      logger.info(f" ${fm.featureName(i)}%-20s  $b%7.4f")
-      b
-    }.toList
+
+    new Classifier[T] {
+      override def featureMapper: FeatureMapper[T] = fm
+
+      override def classify(t: T): Option[Array[Double]] = {
+        import scala.collection.JavaConversions._
+        featureMapper.feature(t).map(v => {
+          olr.classifyFull(v).all().toArray.map(_.get())
+        })
+      }
+
+      override def betaCoefficients: List[(String, Double)] = {
+        0.until(fm.featureDimension).map { i =>
+          val beta = olr.getBeta
+          val b: Double = beta.get(0, i)
+          fm.featureName(i) -> b
+        }.toList
+      }
+    }
+    } catch {
+      case thr:Throwable=> logger.error("",thr)
+        throw new RuntimeException(thr)
+    }
+
   }
 
-  def classify(v:Vector) = {
-    logisticRegression.classifyFull(v).get(1)
-  }
+
 }

@@ -16,7 +16,7 @@ case class LogisticRegressionPredictor(logisticModelName: String, dao: ScheduleD
     Await.result(dao.findLatestLogisticModel(logisticModelName).map(_.map(l=>l.featureName->l).toMap),Duration.Inf)
   override val key = logisticModelName
   private val maxDate: LocalDate = modelParameters.values.map(_.fittedAsOf).maxBy(_.toEpochDay)
-  private val featureMapper = StatValueGameFeatureMapper(maxDate, (modelParameters.keySet-"Intercept").toList, dao)
+ // private val featureMapper = StatValueGameFeatureMapper(maxDate, (modelParameters.keySet-"Intercept").toList, dao)
 
   override def predictDate(gs: List[Game], d: LocalDate, sch: Schedule): List[GamePrediction] = {
     logger.info(s"Generating predictions for $d.  Have ${gs.size} games")

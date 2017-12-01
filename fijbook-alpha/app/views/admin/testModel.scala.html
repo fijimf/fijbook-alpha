@@ -1,0 +1,63 @@
+@import com.fijimf.deepfij.models.{Season, Team, User}
+@import controllers.nav.{Breadcrumbs, MainMeta}
+@import helper._
+
+@(user: User, seasons:List[Season], teams:List[Team],features:List[(String, String)], normalizations:List[(String, String)],form:Form[forms.PredictionModelForm.Data])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{
+    b3.vertical.fieldConstructor
+}
+
+@mainX(MainMeta.base(s"Models: Logistic Regression", Some(user))
+        .withNav("admin")
+        .withCrumbs(Breadcrumbs.admin
+        .appendLeaf(s"Logistic Regression"))
+) {
+
+        <div class="col-sm-10">
+            <h4>Logistic Regression</h4>
+            <p>
+                In statistics, logistic regression or logit model is a regression model where the dependent variable is categorical.
+                The simplest case is that of a binary dependent variable &mdash; that is, where the output can take only two values, "1" and "0", which in our case represent "wins" and "loses".
+                The binary logistic model is used to estimate the probability of the binary response based on one or more predictors (independent variables), also called features.
+            </p>
+        </div>
+        <div class="col-sm-12">
+        @b3.form(routes.PredictionModelController.calibrate()) {
+            <div class="row">
+                @CSRF.formField
+                <div class="col-sm-4">
+                    <div class="panel panel-default" style="margin: 5px; height: available;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Training Data &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                        </div>
+                        @b3.select(form("seasons"), seasons.map(s => s.year.toString -> s.year.toString), '_label->"Seasons", 'multiple -> true, 'size -> seasons.size, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                    </div><div>
+                    @b3.submit('class -> "btn btn-lg btn-success") { Run/Classify }
+                </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="panel panel-default" style="margin: 5px; height: available;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Feature Mapping &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                        </div>
+                        @b3.select(form("features"),features,'_label->"Computed Statistics",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.radio(form("normalization"), options = normalizations, '_label -> "Normalization", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="panel panel-default" style="margin: 5px; height: available;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Prediction &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                        </div>
+                        @b3.select(form("teams"),teams.map(s=>s.id.toString->s.name),'_label->"Results for",'multiple->true, 'size->seasons.size, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.datetime(form("fromDate"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.datetime(form("toDate"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                    </div>
+                </div>
+
+            </div>
+        }
+        </div>
+
+}

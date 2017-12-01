@@ -1,63 +1,83 @@
 package com.fijimf.deepfij.stats.predictor
 
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit._
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.{Game, Result, StatValue}
+import com.fijimf.deepfij.models.{Game, Result}
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.apache.mahout.math.{DenseVector, Vector}
 import play.api.Logger
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-
-sealed trait FeatureNormalization
-
-case object FeatureNormalizationZScoreByDate
-
-case object FeatureNormalizationZScoreByPop
-
-case object FeatureNormalizationMinMaxByDate
-
-case object FeatureNormalizationMinMaxPop
-
-case object FeatureNormalizationNone
+import scala.concurrent.Future
 
 
-case class StatValueGameFeatureMapper(date: LocalDate, keys: List[String], dao: ScheduleDAO) extends FeatureMapper[(Game, Option[Result])] {
-  val logger = Logger(this.getClass)
+object StatValueGameFeatureMapper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val vals: Map[String, Map[Long, StatValue]] = Await.result(Future.sequence(keys.map(k => {
-    (k.split(":").toList match {
-      case model :: stat :: rest =>
-        dao.loadStatValues(stat, model).map(sv => {
-          logger.info(s"Loaded ${sv.size} model values")
-          val valuesMap = sv.filter(_.date.isBefore(date)).groupBy(_.date).mapValues(_.map(s => s.teamID -> s).toMap)
-          if (valuesMap.isEmpty) {
-            Map.empty[Long, StatValue]
-          } else {
-            valuesMap(valuesMap.keySet.maxBy(_.toEpochDay))
-          }
-        })
-      case _ => Future.successful(Map.empty[Long, StatValue])
-    }).map(k -> _)
-  })).map(_.toMap), Duration.Inf)
+  val logger = Logger(this.getClass)
 
-  val norms: Map[String, (Double, Double)] = keys.map(k => {
-    k -> (k.split(":").toList match {
-      case _ :: _ :: norm :: rest =>
-        val ds = new DescriptiveStatistics(vals(k).values.map(_.value).toArray)
-        norm match {
-          case "z" => (ds.getMean, ds.getStandardDeviation)
-          case "minmax" => (ds.getMin, ds.getMax - ds.getMin)
-          case _ => (0.0, 1.0)
-        }
+  def create(keys: List[String], normalizer: String, dao: ScheduleDAO): Future[StatValueGameFeatureMapper] = {
+    Future.sequence(keys.map(loadKey(_, normalizer, dao))).map(vs => StatValueGameFeatureMapper(keys, vs))
+  }
 
-      case _ :: _ :: Nil => (0.0, 1.0)
-    })
-  }).toMap
+  def loadKey(key: String, dao: ScheduleDAO): Future[Map[LocalDate, Map[Long, Double]]] = {
+    key.split(":").toList match {
+      case model :: stat :: Nil =>
+        dao.loadStatValues(stat, model).map(_.groupBy(_.date).map { case (k, v) => k -> v.map(s => s.teamID -> s.value).toMap })
+      case _ => Future.successful(Map.empty[LocalDate, Map[Long, Double]])
+    }
+  }
+
+  def loadKey(key: String, norm: String, dao: ScheduleDAO): Future[Map[LocalDate, Map[Long, Double]]] = {
+    loadKey(key, dao).map(_.mapValues(m => {
+      val (shift, scale) = normParms(norm, m.values)
+      m.map { case (k, v) => k -> (v - shift) / scale }
+    }))
+  }
+
+  def normParms(n: String, xs: Iterable[Double]): (Double, Double) = {
+    n.toLowerCase.trim match {
+      case "zscore" =>
+        val ds = new DescriptiveStatistics(xs.toArray)
+        (ds.getMean, ds.getStandardDeviation)
+      case "minmax" =>
+        val ds = new DescriptiveStatistics(xs.toArray)
+        (ds.getMin, ds.getMax - ds.getMin)
+      case _ => (0.0, 1.0)
+    }
+  }
+}
+
+case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDate, Map[Long, Double]]]) extends FeatureMapper[(Game, Option[Result])] {
+
+  val logger = Logger(this.getClass)
+  require(keys.size==vals.size,"Value map and key list have different dimension")
+  logger.info("StatValueGameMapper created with")
+  vals.zip(keys).foreach{case (valueMap: Map[LocalDate, Map[Long, Double]], k: String) => {
+    logger.info(s"$k has ${valueMap.size} dates")
+    logger.info(s"$k first date is ${valueMap.keys.minBy(_.toEpochDay)}")
+    logger.info(s"$k last date is ${valueMap.keys.maxBy(_.toEpochDay)}")
+  }}
+  val dateKey: List[Map[LocalDate, LocalDate]] = vals.map(vm => {
+    val minDate = vm.keys.minBy(_.toEpochDay)
+    val maxDate = vm.keys.maxBy(_.toEpochDay)
+    1.to(DAYS.between(minDate.plusDays(1), maxDate.plusDays(8)).toInt).foldLeft(List.empty[(LocalDate, LocalDate)])((d2d: List[(LocalDate, LocalDate)], i: Int) => {
+      val d = minDate.plusDays(i)
+      val d0 = minDate.plusDays(i - 1)
+      if (vm.contains(d0))
+        (d -> d0) :: d2d
+      else
+        (d -> d2d.head._2) :: d2d
+    }).toMap
+  })
+  dateKey.zip(keys).foreach{case (dateMap: Map[LocalDate, LocalDate], k: String) => {
+    logger.info(s"$k date map has ${dateMap.size} dates")
+    logger.info(s"$k first date is ${dateMap.keys.minBy(_.toEpochDay)}")
+    logger.info(s"$k last date is ${dateMap.keys.maxBy(_.toEpochDay)}")
+  }}
+
 
   override def featureDimension: Int = vals.size + 1
 
@@ -68,23 +88,23 @@ case class StatValueGameFeatureMapper(date: LocalDate, keys: List[String], dao: 
 
   override def feature(t: (Game, Option[Result])): Option[Vector] = {
     val (g, _) = t
-    val fs: List[Option[Double]] = keys.map(k => {
-      for {xs <- vals.get(k)
-           (shift, scale) <- norms.get(k)
-           hx <- xs.get(g.homeTeamId).map(_.value)
-           ax <- xs.get(g.awayTeamId).map(_.value)
-      } yield {
-        (hx - shift) / scale - (ax - shift) / scale
+    val list = vals.zipWithIndex.map{case (m, i) => {
+      dateKey(i).get(g.date).flatMap(dt=>m.get(dt)) match {
+        case Some(n)=>{
+
+          (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
+            case (Some(h), Some(a)) => Some(h - a)
+            case _ => None
+          }
+        }
+        case None=> None
       }
-    })
-
-    if (fs.forall(_.isDefined)) {
-      Some(new DenseVector((1.0 :: fs.map(_.get)).toArray))
-    } else {
-      None
-    }
+    }}
+    list.foldLeft(Option(List(1.0)))((fs: Option[List[Double]], of: Option[Double]) => {
+      of match {
+        case Some(f) => fs.map(l => f :: l)
+        case None => None
+      }
+    }).map(l => new DenseVector(l.toArray))
   }
-
-
-
 }
