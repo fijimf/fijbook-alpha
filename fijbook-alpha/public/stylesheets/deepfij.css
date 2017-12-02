@@ -43,12 +43,12 @@
     font-size: small;
 }
 
-.panel-heading a {
+.panel-heading a.expando {
     text-decoration: none;
     color: inherit;
 }
 
-.panel-heading a:before {
+.panel-heading a.expando:before {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
     font-size: inherit;
@@ -58,13 +58,19 @@
     content: "\f054";
 }
 
-.panel-heading a[aria-expanded="false"]:before {
+.panel-heading a.expando[aria-expanded="false"]:before {
     content: "\f054";
 }
 
-.panel-heading a[aria-expanded="true"]:before {
+.panel-heading a.expando[aria-expanded="true"]:before {
     content: "\f078";
 }
+
+.panel-heading a i {
+    cursor: pointer;
+    color: blue;
+}
+
 
 img.spin:hover {
     -webkit-animation-name: rotate;

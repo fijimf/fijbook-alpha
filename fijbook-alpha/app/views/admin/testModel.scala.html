@@ -29,9 +29,17 @@
                 <div class="col-sm-4">
                     <div class="panel panel-default" style="margin: 5px; height: available;">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Training Data &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                            <h3 class="panel-title">Training Data &emsp;<a href="#" data-toggle="modal" data-target="#trainingDataInfo"><i class="fa fa-question-circle-o"></i></a></h3>
                         </div>
                         @b3.select(form("seasons"), seasons.map(s => s.year.toString -> s.year.toString), '_label->"Seasons", 'multiple -> true, 'size -> seasons.size, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.select(form("excludeMonths"),
+                            List(
+                                "11"->"November",
+                                "12"->"December",
+                                "1"->"January",
+                                "2"->"February",
+                                "3"->"March",
+                                "4"->"April"), '_label->"Exclude Months", 'multiple -> true, 'size -> 6, 'class->"deepfij100-input", '_class->"deepfij100-fg")
                     </div><div>
                     @b3.submit('class -> "btn btn-lg btn-success") { Run/Classify }
                 </div>
@@ -39,7 +47,7 @@
                 <div class="col-sm-4">
                     <div class="panel panel-default" style="margin: 5px; height: available;">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Feature Mapping &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                            <h3 class="panel-title">Feature Mapping &emsp;<a href="#" data-toggle="modal" data-target="#featureMappingInfo"><i class="fa fa-question-circle-o"></i></a></h3>
                         </div>
                         @b3.select(form("features"),features,'_label->"Computed Statistics",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
                         @b3.radio(form("normalization"), options = normalizations, '_label -> "Normalization", 'class->"deepfij100-input", '_class->"deepfij100-fg")
@@ -48,9 +56,9 @@
                 <div class="col-sm-4">
                     <div class="panel panel-default" style="margin: 5px; height: available;">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Prediction &emsp;<a><i class="fa fa-question-circle-o"></i></a></h3>
+                            <h3 class="panel-title">Prediction &emsp;<a href="#" data-toggle="modal" data-target="#predictionInfo"><i class="fa fa-question-circle-o"></i></a></h3>
                         </div>
-                        @b3.select(form("teams"),teams.map(s=>s.id.toString->s.name),'_label->"Results for",'multiple->true, 'size->seasons.size, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.select(form("teams"),teams.sortBy(_.name).map(s=>s.id.toString->s.name),'_label->"Results for",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
                         @b3.datetime(form("fromDate"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
                         @b3.datetime(form("toDate"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
                     </div>
@@ -59,5 +67,71 @@
             </div>
         }
         </div>
+        <!-- Modal -->
+    <div class="modal fade" id="trainingDataInfo" tabindex="-1" role="dialog" aria-labelledby="trainingDataLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #f5f5f5;
+                    color: #337ab7;">
+                    <h3 class="modal-title" id="trainingDataLabel">Training Data</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>Seasons</h4>
+                    <p>Allows the user to select which seasons should be included to train the model.</p>
+                    <h4>Exclude months</h4>
+                    <p>Allows the user to exclude certain months from the training set.
+                        Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                        Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="modal fade" id="featureMappingInfo" tabindex="-1" role="dialog" aria-labelledby="featureMappingLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #f5f5f5;
+                        color: #337ab7;">
+                        <h3 class="modal-title" id="featureMappingLabel">Feature Mapping</h3>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Seasons</h4>
+                        <p>Allows the user to select which seasons should be included to train the model.</p>
+                        <h4>Exclude months</h4>
+                        <p>Allows the user to exclude certain months from the training set.
+                            Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                            Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="modal fade" id="predictionInfo" tabindex="-1" role="dialog" aria-labelledby="predictionLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #f5f5f5;
+                    color: #337ab7;">
+                    <h3 class="modal-title" id="predictionLabel">Prediction</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>Teams</h4>
+                    <p>Allows the user to select which seasons should be included to train the model.</p>
+                    <h4>From - To</h4>
+                    <p>Allows the user to exclude certain months from the training set.
+                        Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                        Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }

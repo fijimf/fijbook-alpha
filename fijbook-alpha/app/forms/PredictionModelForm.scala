@@ -10,6 +10,7 @@ object PredictionModelForm {
   val form = Form(
     mapping(
       "seasons" -> list(text),
+      "excludeMonths"->list(text),
       "features" -> list(text),
       "normalization"-> text,
       "predictFrom"->optional(localDate("yyyy-MM-dd")),
@@ -21,6 +22,7 @@ object PredictionModelForm {
   case class Data
   (
     seasonsIncluded: List[String],
+    excludeMonths: List[String],
     features: List[String],
     normalization:String,
     predictFrom:Option[LocalDate],
