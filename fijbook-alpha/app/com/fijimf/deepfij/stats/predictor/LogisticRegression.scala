@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.stats.predictor
 
+import java.lang
+
 import org.apache.mahout.classifier.sgd.{L1, OnlineLogisticRegression, PriorFunction}
 import org.apache.mahout.math.Vector
 import play.api.Logger
@@ -28,9 +30,12 @@ trait Categorizer[T] {
 }
 
 trait Classifier[T] {
+
+  def categories:Int
+
   def featureMapper: FeatureMapper[T]
 
-  def classify(t: T): Option[Array[Double]]
+  def classify(t: T): Option[List[Double]]
 
   def betaCoefficients: List[(String, Double)]
 }
@@ -55,12 +60,14 @@ object LogisticReg {
       })
 
     new Classifier[T] {
+      override def categories: Int = 2
+
       override def featureMapper: FeatureMapper[T] = fm
 
-      override def classify(t: T): Option[Array[Double]] = {
-        import scala.collection.JavaConversions._
+      override def classify(t: T): Option[List[Double]] = {
         featureMapper.feature(t).map(v => {
-          olr.classifyFull(v).all().toArray.map(_.get())
+          val cv = olr.classifyFull(v)
+          0.until(categories).map(cv.get).toList
         })
       }
 

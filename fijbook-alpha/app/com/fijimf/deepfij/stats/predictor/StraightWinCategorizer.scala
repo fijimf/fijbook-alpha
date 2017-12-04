@@ -10,5 +10,5 @@ case object StraightWinCategorizer extends Categorizer[(Game, Option[Result])] {
     case (_, None) => None
   }
 
-  def b2i(b: Boolean) = if (b) 1 else 0
+  def b2i(b: Boolean) = if (b) 0 else 1
 }

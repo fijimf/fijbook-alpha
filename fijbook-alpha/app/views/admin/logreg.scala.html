@@ -1,0 +1,122 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Season
+@import com.fijimf.deepfij.models.Team
+@import java.time.format.DateTimeFormatter
+@import java.time.Month
+@import org.apache.commons.lang3.StringUtils
+@import com.fijimf.deepfij.stats.predictor.LogisticResultLine
+@(
+        user:User,
+        gs:List[LogisticResultLine],
+        seasMonthSplits:Map[(Long, Int), (Int, Int, Int, Double)],
+        worstBySeason:List[((Long, Long), (Int, Int, Int, Double))],
+        seasons:List[Season],
+        teamMap:Map[Long,Team]
+)(implicit flash: Flash)
+@mainX(
+    MainMeta.base("Logistic Model Results", Some(user))
+            .withNav("admin")
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Model Results"))
+){
+    <div class="row">
+        <div class="col-sm-12">
+            <p>Model was trained on @{gs.size} games.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Model Performance by Season/Month</h4>
+            <table class="table table-condensed table-bordered table-striped">
+            <thead>
+                <th>Season</th>
+                <th>Month</th>
+                <th>Games</th>
+                <th>Correct</th>
+                <th>Incorrect</th>
+                <th>%</th>
+                <th>&mu; Log Likelihood</th>
+                </thead>
+                <tbody>
+                @for(s<-seasons.sortBy(_.year)) {
+                    @for(m<-List(11,12,1,2,3,4)) {
+                        <tr>
+                            <td>@s.year</td>
+                            <td>@{Month.of(m)}</td>
+                            <td>@seasMonthSplits.get((s.id,m)).map(_._1.toString).getOrElse("-")</td>
+                            <td>@seasMonthSplits.get((s.id,m)).map(_._2.toString).getOrElse("-")</td>
+                            <td>@seasMonthSplits.get((s.id,m)).map(_._3.toString).getOrElse("-")</td>
+                            <td>@seasMonthSplits.get((s.id,m)).map(t=>(t._2.toDouble/t._1.toDouble).formatted("%7.4f")).getOrElse("-")</td>
+                            <td>@seasMonthSplits.get((s.id,m)).map(_._4.formatted("%7.4f")).getOrElse("-")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Worst 5 Teams Model Performance by Season/Month</h4>
+            <table class="table table-condensed table-bordered table-striped">
+            <thead>
+                <th>Season</th>
+                <th>Team</th>
+                <th>Games</th>
+                <th>Correct</th>
+                <th>Incorrect</th>
+                <th>%</th>
+                <th>&mu; Log Likelihood</th>
+                </thead>
+                <tbody>
+                @for(wbs<-worstBySeason) {
+                        <tr>
+                            <td>@wbs._1._1</td>
+                            <td>@{teamMap.get(wbs._1._2).map(_.name).getOrElse("---")}</td>
+                            <td>@wbs._2._1.toString</td>
+                            <td>@wbs._2._2.toString</td>
+                            <td>@wbs._2._3.toString</td>
+                            <td>@{(wbs._2._2.toDouble/wbs._2._1.toDouble).formatted("%7.4f")}</td>
+                            <td>@wbs._2._4.formatted("%7.4f")</td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-smushed table-bordered table-striped">
+               <thead><tr>
+                   <th>Game Time</th>
+                   <th>Home</th>
+                   <th></th>
+                   <th>Away</th>
+                   <th></th>
+                   <th>Probabilities</th>
+                   <th>Correct</th>
+                   <th>Log Likelihood</th>
+               </tr></thead>
+                <tbody >
+                    @for(l<-gs){
+                        <tr>
+                            <td>@{l.game.datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}</td>
+                            <td>@{teamMap(l.game.homeTeamId).name}</td>
+                            <td>@{l.homeScore.toString}</td>
+                            <td>@{teamMap(l.game.awayTeamId).name}</td>
+                            <td>@{l.awayScore.toString}</td>
+                            <td>[@{l.homePct.formatted("%6.4f")}, @{l.awayPct.formatted("%6.4f")}]</td>
+                            @if(l.correct){
+                                <td style="color:green;"><i class="fa fa-check-circle" ></i></td>
+                            }else{
+                                <td style="color:red;"><i class="fa fa-times-circle" ></td>
+                            }
+                            <td>@{l.logLikelihood.formatted("%6.4f")}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
