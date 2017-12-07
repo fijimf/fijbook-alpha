@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.stats.predictor.{LinearRegressionPredictor, LogisticRegressionPredictor, SchedulePredictor}
+import com.fijimf.deepfij.stats.predictor.{LinearRegressionPredictor, SchedulePredictor}
 import play.api.Logger
 
 import scala.concurrent.{Await, Future}
@@ -20,10 +20,7 @@ class GamePredictorServiceImpl @Inject()(dao: ScheduleDAO) extends GamePredictor
   val activeYear = 2017
 
   val models: List[ScheduleDAO=>SchedulePredictor] = List(
-    (scheduleDao:ScheduleDAO)=>LinearRegressionPredictor(scheduleDao),
-    (scheduleDao:ScheduleDAO)=> LogisticRegressionPredictor("wp", scheduleDao),
-    (scheduleDao:ScheduleDAO)=> LogisticRegressionPredictor("x-margin-ties", scheduleDao),
-    (scheduleDao:ScheduleDAO)=> LogisticRegressionPredictor("rpi121", scheduleDao)
+    (scheduleDao:ScheduleDAO)=>LinearRegressionPredictor(scheduleDao)
   )
 
   override def update() = {

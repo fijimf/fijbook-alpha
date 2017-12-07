@@ -2,8 +2,8 @@ package com.fijimf.deepfij.stats.predictor
 
 import java.time.LocalDate
 
+import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.{Game, GamePrediction, Schedule}
 import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -22,13 +22,42 @@ trait SchedulePredictor {
     }).map(_.flatten.toList)
   }
 
-  def predictDate(gs: List[Game], d: LocalDate, sch: Schedule): List[GamePrediction]
+  def gamesForDate(sch: Schedule, d: LocalDate) = {
+    sch.gameResults.filter(_._1.date == d)
+  }
+
+  def gamesForTeam(sch: Schedule, k: String) = {
+    sch.keyTeam.get(k) match {
+      case Some(t) => sch.gameResults.filter(gr => gr._1.homeTeamId == t.id || gr._1.awayTeamId == t.id)
+      case None => List.empty[(Game, Option[Result])]
+    }
+  }
+
+
+  def predictDate(sch: Schedule, d: LocalDate): List[GamePrediction]
+
+  def predictDates(sch: Schedule, from: LocalDate, to: LocalDate): List[(LocalDate, List[GamePrediction])] = {
+    Stream.iterate(from)(_.plusDays(1)).takeWhile(!_.isAfter(to)).map(d => {
+      d -> predictDate(sch, d)
+    }).toList
+  }
+
+  def predictTeam(sch: Schedule, key: String): List[GamePrediction]
+
+  def predictTeams(sch: Schedule, keys: List[String]): List[(Team, List[GamePrediction])] = {
+    keys.flatMap(k => {
+      println(k)
+      val maybeTeam = sch.keyTeam.get(k)
+      println(maybeTeam)
+      maybeTeam.map(t => t -> predictTeam(sch, k))
+    })
+  }
 
   def predictAndSaveDate(games: List[Game], d: LocalDate, sch: Schedule): Future[List[Int]] = {
     val predictions: Future[List[GamePrediction]] = dao.loadGamePredictions(games, key).map(ops => {
       logger.info(s"Loaded ${ops.size} old predictions")
       val idMap = ops.map(op => op.gameId -> op.id).toMap
-      val nps = predictDate(games, d, sch)
+      val nps = predictDate(sch, d)
       logger.info(s"Calculated ${nps.size} new predictions")
       nps.map((np: GamePrediction) => np.copy(id = idMap.getOrElse(np.gameId, 0L)))
     })
