@@ -28,19 +28,13 @@ class StatsController @Inject()(
   import play.api.libs.json._
 
   def updateAll() = silhouette.SecuredAction.async { implicit rs =>
+    statWriterService.update()
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
+  }
 
-    teamDao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
-        case Some(sch) => {
-          statWriterService.update()
-          Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule")
-        }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
-      }
-
-    })
-
+  def updateAllSeasons() = silhouette.SecuredAction.async { implicit rs =>
+    statWriterService.updateAllSchedules()
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
   }
 
 

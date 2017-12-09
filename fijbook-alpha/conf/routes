@@ -45,6 +45,7 @@ GET         /deepfij/admin/uber-scrape                          controllers.Uber
 GET         /deepfij/admin/uber-ncaa/:filename                  controllers.UberScrapeController.markNcaaGames(filename:String)
 ##### TEAMS
 GET         /deepfij/admin/updateStats                          controllers.StatsController.updateAll()
+GET         /deepfij/admin/updateAllSeasons                          controllers.StatsController.updateAllSeasons()
 GET         /deepfij/admin/updatePredictions                    controllers.PredictionController.update()
 GET         /deepfij/admin/browseTeams                          controllers.DataController.browseTeams
 GET         /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOneForm

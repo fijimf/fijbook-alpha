@@ -35,7 +35,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
   override def saveStatValues(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Seq[Long]] = {
     val key = s"[${models.mkString(", ")}] x [${dates.head} .. ${dates.last}] "
     val start = System.currentTimeMillis()
-    log.debug(s"Saving stat batch for $key (${stats.size} rows)")
+    log.info(s"Saving stat batch for $key (${stats.size} rows)")
 
     val deletes = statValuesDeleteActions(models,dates)
     val inserts = statValuesInsertActions(stats)
@@ -43,7 +43,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     res.onComplete {
       case Success(ids) =>
         val dur = System.currentTimeMillis() - start
-        log.debug(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
+        log.info(s"Completed saving $key in $dur ms. (${1000 * stats.size / dur} rows/sec)")
         ids
       case Failure(ex) =>
         log.error(s"Saving $key failed with error: ${ex.getMessage}", ex)
