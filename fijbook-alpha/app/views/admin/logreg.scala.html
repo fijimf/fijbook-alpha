@@ -121,12 +121,12 @@
                 <tbody>
                 @for(s<-ps.overallSplit.sortBy(_.key)) {
                     <tr>
-                        <td>@s.key</td>
-                        <td>@s.n</td>
-                        <td>@s.correct</td>
-                        <td>@s.incorrect</td>
-                        <td>@s.pctCorrect.formatted("%7.4f")</td>
-                        <td>@s.avgLogLikelihood.formatted("%7.4f")</td>
+                        <td class="text-right">@s.key</td>
+                        <td class="text-right">@s.n</td>
+                        <td class="text-right">@s.correct</td>
+                        <td class="text-right">@s.incorrect</td>
+                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
                     </tr>
                 }
                 </tbody>
@@ -145,11 +145,11 @@
                 @for(s<-ps.splitByPct.sortBy(_.key)) {
                     <tr>
                         <td>@s.key</td>
-                        <td>@s.n</td>
-                        <td>@s.correct</td>
-                        <td>@s.incorrect</td>
-                        <td>@s.pctCorrect.formatted("%7.4f")</td>
-                        <td>@s.avgLogLikelihood.formatted("%7.4f")</td>
+                        <td class="text-right">@s.n (@{(100.0*s.n/ps.splitByPct.map(_.n).sum).formatted("%4.1f%%")})</td>
+                        <td class="text-right">@s.correct</td>
+                        <td class="text-right">@s.incorrect</td>
+                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
                     </tr>
                 }
                 </tbody>
@@ -172,11 +172,11 @@
                         <tr>
                             <td>@s.key._1.year</td>
                             <td>@s.key._2.format(DateTimeFormatter.ofPattern("MMMM"))</td>
-                            <td>@s.n</td>
-                            <td>@s.correct</td>
-                            <td>@s.incorrect</td>
-                            <td>@s.pctCorrect.formatted("%7.4f")</td>
-                            <td>@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            <td class="text-right" > @s.n (@{(100.0*s.n/ps.seasonMonthSplits.map(_.n).sum).formatted("%4.1f%%")})</td>
+                            <td class="text-right" >@s.correct</td>
+                            <td class="text-right" >@s.incorrect</td>
+                            <td class="text-right" >@s.pctCorrect.formatted("%7.4f")</td>
+                            <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
                         </tr>
                     }
                 </tbody>
@@ -202,11 +202,11 @@
                     <tr>
                         <td>@s.key._1.year</td>
                         <td>@s.key._2.name</td>
-                        <td>@s.n</td>
-                        <td>@s.correct</td>
-                        <td>@s.incorrect</td>
-                        <td>@s.pctCorrect.formatted("%7.4f")</td>
-                        <td>@s.avgLogLikelihood.formatted("%7.4f")</td>
+                        <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
+                        <td class="text-right">@s.correct</td>
+                        <td class="text-right">@s.incorrect</td>
+                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
                     </tr>
                 }
 
@@ -230,11 +230,11 @@
                     <tr>
                         <td>@s.key._1.year</td>
                         <td>@s.key._2.name</td>
-                        <td>@s.n</td>
-                        <td>@s.correct</td>
-                        <td>@s.incorrect</td>
-                        <td>@s.pctCorrect.formatted("%7.4f")</td>
-                        <td>@s.avgLogLikelihood.formatted("%7.4f")</td>
+                        <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
+                        <td class="text-right">@s.correct</td>
+                        <td class="text-right">@s.incorrect</td>
+                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
                     </tr>
                 }
 
