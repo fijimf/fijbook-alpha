@@ -2,7 +2,7 @@ package com.fijimf.deepfij.stats
 
 import java.time.LocalDate
 
-import com.fijimf.deepfij.models.{Game, Schedule, Team}
+import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
 import org.apache.commons.math3.stat.StatUtils
 import play.api.Logger
 
@@ -11,29 +11,12 @@ import scala.util.{Failure, Success, Try}
 case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[ScoringAccumulator] {
   val log = Logger(Scoring.getClass)
   val model: Model[ScoringAccumulator] = Scoring
-  lazy val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
-    val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
+
+  val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
+
+  val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
     Try {
-      s.games
-        .sortBy(_.date.toEpochDay)
-        .foldLeft(zero)((tuple: (Map[Team, ScoringAccumulator], Map[LocalDate, Map[Team, ScoringAccumulator]]), game: Game) => {
-          val (r0, byDate) = tuple
-          s.resultMap.get(game.id) match {
-            case Some(result) =>
-              val r1: Map[Team, ScoringAccumulator] = s.teamsMap.get(game.homeTeamId) match {
-                case Some(t) =>
-                  r0 + (t -> r0.getOrElse(t, ScoringAccumulator()).addGame(result.homeScore, result.awayScore))
-                case None => r0
-              }
-              val r2 = s.teamsMap.get(game.awayTeamId) match {
-                case Some(t) =>
-                  r1 + (t -> r1.getOrElse(t, ScoringAccumulator()).addGame(result.awayScore, result.homeScore))
-                case None => r1
-              }
-              (r2, byDate + (game.date -> r2))
-            case None => (r0, byDate)
-          }
-        })._2
+      processGames
     } match {
       case Success(x) =>
         val data = x.filterKeys(dates.contains(_))
@@ -45,6 +28,33 @@ case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[Scoring
     }
   }
 
+  private def processGames: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
+    s.games.sortBy(_.date.toEpochDay).foldLeft(InnerAccumulator())((acc:InnerAccumulator, game: Game) => {
+      s.resultMap.get(game.id) match {
+          case Some(result) =>
+            val acc1 = addGame(acc, game.homeTeamId, result.homeScore, result.awayScore)
+            val acc2 = addGame(acc1, game.awayTeamId, result.awayScore, result.homeScore)
+
+            acc2.copy(byDate = acc2.byDate+ (game.date -> acc2.runningTotals))
+          case None => acc
+        }
+      }).byDate
+  }
+
+  private def addGame(acc: InnerAccumulator, teamId: Long, pointsFor: Int, pointsAgainst: Int):InnerAccumulator = {
+    s.teamsMap.get(teamId) match {
+      case Some(t) =>
+        val data = acc.runningTotals.getOrElse(t, ScoringAccumulator()).addGame(pointsFor, pointsAgainst)
+        acc.copy(runningTotals = acc.runningTotals + (t -> data))
+      case None => acc
+    }
+  }
+
+  case class InnerAccumulator
+  (
+    runningTotals:Map[Team, ScoringAccumulator]=Map.empty[Team, ScoringAccumulator],
+    byDate:Map[LocalDate, Map[Team, ScoringAccumulator]]=Map.empty[LocalDate,Map[Team,ScoringAccumulator]]
+  )
 }
 
 case object Scoring extends Model[ScoringAccumulator] {
