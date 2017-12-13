@@ -3,7 +3,7 @@ package controllers
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.StatisticWriterService
+import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.models.{StatUtil, StatValue, Team}
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
@@ -20,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class StatsController @Inject()(
                                  val controllerComponents: ControllerComponents,
                                  val teamDao: ScheduleDAO,
-                                 val statWriterService: StatisticWriterService,
+                                 val statWriterService: ComputedStatisticService,
                                  val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
   val log = Logger(this.getClass)

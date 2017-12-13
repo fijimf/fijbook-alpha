@@ -6,12 +6,14 @@ import breeze.linalg.svd.DenseSVD
 import breeze.linalg.{DenseMatrix, DenseVector, svd}
 import breeze.stats._
 import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
+import com.fijimf.deepfij.stats.WonLost.canCreateDates
 import play.api.Logger
 
 case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSAccumulator] {
   val log = Logger(LeastSquares.getClass)
+  val model:Model[LSAccumulator] = LeastSquares
   private val completedGames: List[(Game, Result)] = s.games.flatMap(g => s.resultMap.get(g.id).map(r => g -> r))
-  lazy val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
+  val data: Map[LocalDate, Map[Team, LSAccumulator]] = {
     dates.map(d => {
       log.info("Starting "+d)
 
@@ -82,8 +84,6 @@ case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSA
   }
   private def logPropNoTiesResult(r: Result): Double = math.log(r.homeScore.toDouble/r.awayScore.toDouble)
 
-
-
   def solve(A: DenseMatrix[Double], bs: List[DenseVector[Double]]): List[DenseVector[Double]] = {
     val svd1: DenseSVD = svd(A)
     val sigma = new DenseMatrix[Double](A.cols, A.rows)
@@ -91,20 +91,10 @@ case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSA
 
     bs.map(b=>svd1.rightVectors.t * sigma * svd1.leftVectors.t * b)
   }
-
-  override val name: String = LeastSquares.name
-  override val desc: String = LeastSquares.desc
-  override val key: String = LeastSquares.key
-  override val stats: List[Stat[LSAccumulator]] = LeastSquares.stats
 }
-
 
 case object LeastSquares extends Model[LSAccumulator] {
 
-  def apply(s:Schedule):LeastSquares={
-//    private val dates = completedGames.map(_._1.date.plusDays(1)).distinct.sortBy(_.toEpochDay)
-    LeastSquares(s,s.resultDates)
-  }
    val name: String = "Least Squares"
    val desc: String = "Simple regression model"
    val key: String = "least-squares"
@@ -116,6 +106,14 @@ case object LeastSquares extends Model[LSAccumulator] {
     Stat[LSAccumulator]("X-log proportion[Ties]", "x-log-proportion-ties", 0, higherIsBetter = true, _.xLogPropTies),
     Stat[LSAccumulator]("X-log proportion[No Ties]", "x-log-proportion-no-ties", 0, higherIsBetter = true, _.xLogPropNoTies)
   )
+
+  def create(s:Schedule, ds:List[LocalDate]):Option[LeastSquares]={
+    canCreateDates(s,ds) match {
+      case Nil=>None
+      case dates=>Some(LeastSquares(s,dates))
+    }
+  }
+
 }
 
 

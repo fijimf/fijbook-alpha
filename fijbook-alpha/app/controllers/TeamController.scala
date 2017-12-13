@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.StatisticWriterService
+import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
@@ -20,7 +20,7 @@ import scala.concurrent.duration._
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
                                 val teamDao: ScheduleDAO,
-                                val statWriterService: StatisticWriterService,
+                                val statWriterService: ComputedStatisticService,
                                 cache: AsyncCacheApi,
                                 silhouette: Silhouette[DefaultEnv]
                               )

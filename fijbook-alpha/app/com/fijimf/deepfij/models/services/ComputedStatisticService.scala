@@ -6,7 +6,7 @@ import scala.concurrent.Future
 import scala.language.postfixOps
 
 
-trait StatisticWriterService {
+trait ComputedStatisticService {
   val models: List[Model[_]]
 
   def update(lastNDays: Option[Int] = None): Option[Future[Int]]

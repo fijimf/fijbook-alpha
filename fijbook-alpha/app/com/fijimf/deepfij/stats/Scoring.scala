@@ -8,52 +8,49 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class Scoring(s: Schedule, dates:List[LocalDate]) extends Analyzer[ScoringAccumulator] {
-val log = Logger(Scoring.getClass)
+case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[ScoringAccumulator] {
+  val log = Logger(Scoring.getClass)
+  val model: Model[ScoringAccumulator] = Scoring
   lazy val data: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
     val zero = (Map.empty[Team, ScoringAccumulator], Map.empty[LocalDate, Map[Team, ScoringAccumulator]])
-    Try {s.games
-      .sortBy(_.date.toEpochDay)
-      .foldLeft(zero)((tuple: (Map[Team, ScoringAccumulator], Map[LocalDate, Map[Team, ScoringAccumulator]]), game: Game) => {
-        val (r0, byDate) = tuple
-        s.resultMap.get(game.id) match {
-          case Some(result) =>
-            val r1: Map[Team, ScoringAccumulator] = s.teamsMap.get(game.homeTeamId) match {
-              case Some(t) =>
-                r0 + (t -> r0.getOrElse(t, ScoringAccumulator()).addGame(result.homeScore, result.awayScore))
-              case None => r0
-            }
-            val r2 = s.teamsMap.get(game.awayTeamId) match {
-              case Some(t) =>
-                r1 + (t -> r1.getOrElse(t, ScoringAccumulator()).addGame(result.awayScore, result.homeScore))
-              case None => r1
-            }
-            (r2, byDate + (game.date -> r2))
-          case None => (r0, byDate)
-        }
-      })._2} match {
-      case Success(x)=>
+    Try {
+      s.games
+        .sortBy(_.date.toEpochDay)
+        .foldLeft(zero)((tuple: (Map[Team, ScoringAccumulator], Map[LocalDate, Map[Team, ScoringAccumulator]]), game: Game) => {
+          val (r0, byDate) = tuple
+          s.resultMap.get(game.id) match {
+            case Some(result) =>
+              val r1: Map[Team, ScoringAccumulator] = s.teamsMap.get(game.homeTeamId) match {
+                case Some(t) =>
+                  r0 + (t -> r0.getOrElse(t, ScoringAccumulator()).addGame(result.homeScore, result.awayScore))
+                case None => r0
+              }
+              val r2 = s.teamsMap.get(game.awayTeamId) match {
+                case Some(t) =>
+                  r1 + (t -> r1.getOrElse(t, ScoringAccumulator()).addGame(result.awayScore, result.homeScore))
+                case None => r1
+              }
+              (r2, byDate + (game.date -> r2))
+            case None => (r0, byDate)
+          }
+        })._2
+    } match {
+      case Success(x) =>
         val data = x.filterKeys(dates.contains(_))
         log.info(s"Computing Scoring succeeded with ${data.size} dates.")
         data
-      case Failure(thr)=>
-        log.error("Stat computation failed",thr)
+      case Failure(thr) =>
+        log.error("Stat computation failed", thr)
         zero._2
     }
   }
 
-
-
-  override val name: String = Scoring.name
-  override val desc: String = Scoring.desc
-  override val key: String = Scoring.key
-  override val stats: List[Stat[ScoringAccumulator]] = Scoring.stats
 }
 
-case object Scoring extends Model[ScoringAccumulator]{
-   val name: String = "Scoring"
-   val desc: String = "Scoring model captures max, min, mean, and variance of points for, points against, scoring margin and combined score "
-   val key: String = "scoring"
+case object Scoring extends Model[ScoringAccumulator] {
+  val name: String = "Scoring"
+  val desc: String = "Scoring model captures max, min, mean, and variance of points for, points against, scoring margin and combined score "
+  val key: String = "scoring"
 
   val stats = List(
     Stat[ScoringAccumulator]("Mean Points For", "meanpf", 0, higherIsBetter = true, a => StatUtils.mean(a.pointsFor.map(_.toDouble).toArray)),
@@ -73,4 +70,11 @@ case object Scoring extends Model[ScoringAccumulator]{
     Stat[ScoringAccumulator]("Min Combined Score", "minou", 0, higherIsBetter = true, a => StatUtils.min(a.overUnder.map(_.toDouble).toArray)),
     Stat[ScoringAccumulator]("Max Combined Score", "maxou", 0, higherIsBetter = true, a => StatUtils.max(a.overUnder.map(_.toDouble).toArray))
   )
+
+  override def create(s: Schedule, ds: List[LocalDate]): Option[Scoring] = {
+    canCreateDates(s,ds) match {
+      case Nil=>None
+      case dates=>Some(Scoring(s,dates))
+    }
+  }
 }

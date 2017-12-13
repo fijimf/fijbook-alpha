@@ -3,14 +3,15 @@ package com.fijimf.deepfij.stats
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models.{Game, Schedule, Team}
+import com.fijimf.deepfij.stats.WonLost.canCreateDates
 import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
 case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulator] {
-
   val log = Logger(Rpi.getClass)
-  lazy val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
+  val model:Model[RpiAccumulator] = Rpi
+  val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {
     val zero = (Map.empty[Team, RpiAccumulator], Map.empty[LocalDate, Map[Team, RpiAccumulator]])
     Try {
       s.games
@@ -43,11 +44,6 @@ case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulat
     }
   }
 
-
-  override val name: String = Rpi.name
-  override val desc: String = Rpi.desc
-  override val key: String = Rpi.key
-  override val stats: List[Stat[RpiAccumulator]] = Rpi.stats
 }
 
 case object Rpi extends Model[RpiAccumulator] {
@@ -69,4 +65,11 @@ case object Rpi extends Model[RpiAccumulator] {
     Stat[RpiAccumulator]("RPI Geom [1-2-1]", "rpig121", 0, higherIsBetter = true, _.rpig(1, 2, 1)),
     Stat[RpiAccumulator]("RPI Geom [4-2-1]", "rpig321", 0, higherIsBetter = true, _.rpig(4, 2, 1))
   )
+
+  override def create(s: Schedule, ds: List[LocalDate]): Option[Rpi]= {
+    canCreateDates(s,ds) match {
+      case Nil=>None
+      case dates=>Some(Rpi(s,dates))
+    }
+  }
 }

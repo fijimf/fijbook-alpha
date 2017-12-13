@@ -19,7 +19,7 @@ class ScrapingModule extends AbstractModule with ScalaModule with AkkaGuiceSuppo
     bindActor[TimerBasedThrottler]("throttler",p=> Props(classOf[TimerBasedThrottler], Rate(2 , 1.second)))
     bind[ScheduleDAO].to[ScheduleDAOImpl]
     bind[ScheduleUpdateService].to[ScheduleUpdateServiceImpl]
-    bind[StatisticWriterService].to[StatisticWriterServiceImpl]
+    bind[ComputedStatisticService].to[ComputedStatisticServiceImpl]
     bind[MemoryMonitorService].to[MemoryMonitorServiceImpl]
     bind[GamePredictorService].to[GamePredictorServiceImpl]
   }

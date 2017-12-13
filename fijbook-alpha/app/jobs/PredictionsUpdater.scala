@@ -4,7 +4,7 @@ package jobs
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.{GamePredictorService, ScheduleUpdateService, StatisticWriterService}
+import com.fijimf.deepfij.models.services.{GamePredictorService, ScheduleUpdateService, ComputedStatisticService}
 
 class PredictionsUpdater @Inject()(svc:GamePredictorService) extends Actor {
 

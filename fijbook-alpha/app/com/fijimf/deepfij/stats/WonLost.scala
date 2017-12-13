@@ -9,8 +9,8 @@ import scala.util.{Failure, Success, Try}
 
 case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostAccumulator] {
   val log = Logger(WonLost.getClass)
-
-  lazy val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {
+  val model: Model[WonLostAccumulator] = WonLost
+  val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {
     log.info("Start creating WonLost")
     val zero = (Map.empty[Team, WonLostAccumulator], Map.empty[LocalDate, Map[Team, WonLostAccumulator]])
     Try {
@@ -42,10 +42,6 @@ case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostA
         zero._2
     }
   }
-  override val name: String = WonLost.name
-  override val key: String = WonLost.key
-  override val desc: String = WonLost.desc
-  override val stats: List[Stat[WonLostAccumulator]] = WonLost.stats
 }
 
 case object WonLost extends Model[WonLostAccumulator]{
@@ -59,4 +55,11 @@ case object WonLost extends Model[WonLostAccumulator]{
   val key = "won-lost"
   val name: String = "Won Lost"
   val desc: String = "Some simple statistics compiled from team records."
+
+  def create(s: Schedule, dates:List[LocalDate]):Option[WonLost] = {
+    canCreateDates(s,dates) match {
+      case Nil=>None
+      case dates=>Some(WonLost(s,dates))
+    }
+  }
 }

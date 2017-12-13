@@ -3,9 +3,9 @@ package jobs
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.StatisticWriterService
+import com.fijimf.deepfij.models.services.ComputedStatisticService
 
-class StatsUpdater @Inject()(svc: StatisticWriterService) extends Actor {
+class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
 
   val logger = play.api.Logger(this.getClass)
 

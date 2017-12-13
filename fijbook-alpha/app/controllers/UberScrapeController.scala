@@ -7,7 +7,7 @@ import akka.contrib.throttle.Throttler
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{ScheduleUpdateService, StatisticWriterService}
+import com.fijimf.deepfij.models.services.{ScheduleUpdateService, ComputedStatisticService}
 import com.fijimf.deepfij.scraping.UberScraper
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -28,7 +28,7 @@ class UberScrapeController @Inject()(
                                       val dao: ScheduleDAO,
                                       val repo: ScheduleRepository,
                                       val schSvc:ScheduleUpdateService,
-                                      val statSvc:StatisticWriterService,
+                                      val statSvc:ComputedStatisticService,
                                       silhouette: Silhouette[DefaultEnv])
   extends BaseController with I18nSupport {
 
