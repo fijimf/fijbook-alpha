@@ -33,7 +33,12 @@ class StatsController @Inject()(
   }
 
   def updateAllSeasons() = silhouette.SecuredAction.async { implicit rs =>
-    statWriterService.updateAllSchedules()
+    statWriterService.updateAllSchedules(None)
+    Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
+  }
+
+  def updateAllSeasonsModel(k:String) = silhouette.SecuredAction.async { implicit rs =>
+    statWriterService.updateAllSchedules(Some(k))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
   }
 

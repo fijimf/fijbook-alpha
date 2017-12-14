@@ -31,30 +31,34 @@ class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO) extends ComputedS
         case None => scheduleValidDates(sch)
       }
       if (dates.nonEmpty) {
-        logger.info(s"Models will be run and saved for the ${dates.size} between ${dates.head} and ${dates.last}, inclusive")
-        updateForSchedule(sch, dates)
+        logger.info(s"Models (${models.map(_.name).mkString(",")}) will be run and saved for the ${dates.size} between ${dates.head} and ${dates.last}, inclusive")
+        updateForSchedule(sch, dates, models)
       } else {
         Future.successful(0)
       }
     })
   }
 
-  override def updateAllSchedules(): Future[List[Int]] = {
+  override def updateAllSchedules(key:Option[String]): Future[List[Int]] = {
+    val ms = key match {
+      case Some(k)=>models.filter(_.key==k)
+      case None=>models
+    }
     dao.loadSchedules().flatMap(ss=>{
       logger.info(s"Loaded schedules for ${ss.size} years")
       Future.sequence(ss.map(s=>{ val dates = scheduleValidDates(s)
         logger.info(s"Loading stats for ${s.season.year}")
         if (dates.nonEmpty) {
           logger.info(s"Models will be run and saved for the ${dates.size} between ${dates.head} and ${dates.last}, inclusive")
-          updateForSchedule(s, dates)
+          updateForSchedule(s, dates, ms)
         } else {
           Future.successful(0)
         }}))
     })
   }
 
-  def updateForSchedule(sch: Schedule, dates: List[LocalDate]): Future[Int] = {
-    models.foldLeft(
+  def updateForSchedule(sch: Schedule, dates: List[LocalDate], ms:List[Model[_]]): Future[Int] = {
+    ms.foldLeft(
       Future.successful(0)
     )(
       (fi: Future[Int], model: Model[_]) => {

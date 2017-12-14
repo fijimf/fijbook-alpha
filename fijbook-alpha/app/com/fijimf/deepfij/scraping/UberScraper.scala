@@ -198,7 +198,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
 
   def updateStatistics(): Future[List[Tracking]] = {
     logger.info("Updating statistics")
-    statSvc.updateAllSchedules().map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
+    statSvc.updateAllSchedules(None).map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
   }
 
   def neutralSiteSolver(tag: String): Future[List[Tracking]] = {

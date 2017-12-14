@@ -11,7 +11,7 @@ trait ComputedStatisticService {
 
   def update(lastNDays: Option[Int] = None): Option[Future[Int]]
 
-  def updateAllSchedules(): Future[List[Int]]
+  def updateAllSchedules(key:Option[String]): Future[List[Int]]
 
   def lookupModel(modelKey: String): Option[Model[_]]
 
