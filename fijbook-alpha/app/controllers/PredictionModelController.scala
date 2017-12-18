@@ -70,6 +70,7 @@ class PredictionModelController @Inject()(
               (seasons.map(s => s.id -> s).toMap, sch.map(_.teamsMap).getOrElse(Map.empty[Long, Team]), sch)
             }
             eventualTuple.collect { case (seasonMap, teamMap, Some(s)) =>
+              log.info(s"${data.predictFrom}, ${data.predictTo}")
               val datePredictions = (data.predictFrom, data.predictTo) match {
                 case (Some(from), Some(to)) => context.predictDates(s, from, to)
                 case (Some(from), None) => context.predictDates(s, from, from.plusDays(6))

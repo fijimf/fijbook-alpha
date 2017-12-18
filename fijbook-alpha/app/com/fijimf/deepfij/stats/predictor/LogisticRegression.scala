@@ -65,10 +65,14 @@ object LogisticReg {
       override def featureMapper: FeatureMapper[T] = fm
 
       override def classify(t: T): Option[List[Double]] = {
-        featureMapper.feature(t).map(v => {
-          val cv = olr.classifyFull(v)
-          0.until(categories).map(cv.get).toList
-        })
+        featureMapper.feature(t) match {
+          case Some(v)=>
+            val cv = olr.classifyFull(v)
+            Some(0.until(categories).map(cv.get).toList)
+          case None=>
+            logger.warn(s"When classifying failed to map features on $t")
+            None
+        }
       }
 
       override def betaCoefficients: List[(String, Double)] = {

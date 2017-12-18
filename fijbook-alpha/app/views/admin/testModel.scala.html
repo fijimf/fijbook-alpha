@@ -59,8 +59,8 @@
                             <h3 class="panel-title">Prediction &emsp;<a href="#" data-toggle="modal" data-target="#predictionInfo"><i class="fa fa-question-circle-o"></i></a></h3>
                         </div>
                         @b3.select(form("predictTeams"),teams.sortBy(_.name).map(s=>s.key.toString->s.name),'_label->"Results for",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
-                        @b3.datetime(form("fromDate"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
-                        @b3.datetime(form("toDate"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.datetime(form("predictFrom"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                        @b3.datetime(form("predictTo"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
                     </div>
                 </div>
 

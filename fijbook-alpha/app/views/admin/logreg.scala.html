@@ -22,11 +22,11 @@
             .withCrumbs(Breadcrumbs.admin.appendLeaf("Model Results"))
 ){
     <div class="row">
-        <h3>Predictions</h3>
+        <h3 class="col-sm-12"> Predictions</h3>
         @for(d<-datePredictions){
             <div class="col-sm-12">
                 <h4>Predicted results for @d._1.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))</h4>
-                <table>
+                <table class="table table-condensed table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -42,19 +42,19 @@
                         @defining(sch.gameMap.get(g.gameId)){ optGame=>
                             <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
                             <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.exists(_.homeTeamId == g.favoriteId)){
-                            <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
-                        }
-                        @if(optGame.exists(_.awayTeamId == g.favoriteId)){
+                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                        <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+                            }
+                            @if(optGame.map(_.awayTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
-                        }
+                            }
                             <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.exists(_.homeTeamId == g.favoriteId)){
-                            <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
-                        }
-                        @if(optGame.exists(_.awayTeamId == g.favoriteId)){
+                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                        <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
+                            }
+                            @if(optGame.map(_.awayTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
-                        }
+                            }
                         }
                         </tr>
                     }
@@ -68,7 +68,7 @@
         @for(t<-teamPredictions){
             <div class="col-sm-12">
                 <h4>Predicted results for @t._1.name @t._1.nickname</h4>
-                <table>
+                <table class="table table-condensed">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -84,17 +84,17 @@
                         @defining(sch.gameMap.get(g.gameId)){ optGame=>
                             <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
                             <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.exists(_.homeTeamId == g.favoriteId)){
+                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
                         }
-                        @if(optGame.exists(_.awayTeamId == g.favoriteId)){
+                        @if(optGame.map(_.awayTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
                         }
                             <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.exists(_.homeTeamId == g.favoriteId)){
+                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
                         }
-                        @if(optGame.exists(_.awayTeamId == g.favoriteId)){
+                        @if(optGame.map(_.awayTeamId) == g.favoriteId){
                             <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
                         }
                         }

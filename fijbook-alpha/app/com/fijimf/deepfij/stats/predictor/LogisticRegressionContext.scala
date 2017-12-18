@@ -34,7 +34,6 @@ case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, 
       case (g, Some(result)) =>
         classifier.classify(gor) match {
           case Some(arr) =>
-            println(arr.mkString(", "))
             Some(LogisticResultLine(g, result.homeScore, result.awayScore, arr(0), arr(1)))
           case None => None
         }
@@ -43,15 +42,15 @@ case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, 
   }
 
   override def predictDate(sch: Schedule, d: LocalDate): List[GamePrediction] = {
-    gamesForDate(sch, d).flatMap(classifyGames)
+    val gs = gamesForDate(sch, d)
+    logger.info(s"Predicting ${gs.size} games for date $d`")
+    gs.flatMap(classifyGames)
   }
 
   override def predictTeam(sch: Schedule, k: String): List[GamePrediction] = {
-    val tuples = gamesForTeam(sch, k)
-    println(tuples)
-    val predictions = tuples.flatMap(classifyGames)
-    println(predictions)
-  predictions
+    val gs = gamesForTeam(sch, k)
+    logger.info(s"Predicting ${gs.size} games for team $k`")
+    gs.flatMap(classifyGames)
   }
 
 

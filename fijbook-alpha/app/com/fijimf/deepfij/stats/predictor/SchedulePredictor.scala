@@ -37,6 +37,7 @@ trait SchedulePredictor {
   def predictDate(sch: Schedule, d: LocalDate): List[GamePrediction]
 
   def predictDates(sch: Schedule, from: LocalDate, to: LocalDate): List[(LocalDate, List[GamePrediction])] = {
+    logger.info(s"Generating predictions for dates in $from to $to")
     Stream.iterate(from)(_.plusDays(1)).takeWhile(!_.isAfter(to)).map(d => {
       d -> predictDate(sch, d)
     }).toList
@@ -45,10 +46,9 @@ trait SchedulePredictor {
   def predictTeam(sch: Schedule, key: String): List[GamePrediction]
 
   def predictTeams(sch: Schedule, keys: List[String]): List[(Team, List[GamePrediction])] = {
+    if (keys.nonEmpty) logger.info(s"Generating predictions for (${keys.mkString(", ")})")
     keys.flatMap(k => {
-      println(k)
       val maybeTeam = sch.keyTeam.get(k)
-      println(maybeTeam)
       maybeTeam.map(t => t -> predictTeam(sch, k))
     })
   }

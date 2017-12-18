@@ -19,6 +19,7 @@ object StatValueGameFeatureMapper {
   val logger = Logger(this.getClass)
 
   def create(keys: List[String], normalizer: String, dao: ScheduleDAO): Future[StatValueGameFeatureMapper] = {
+    require(Set("zscore","minmax","none").contains(normalizer),"Bad normalizer.  Allowed values 'minmax', 'zscore', 'none'.")
     Future.sequence(keys.map(loadKey(_, normalizer, dao))).map(vs => StatValueGameFeatureMapper(keys, vs))
   }
 
@@ -63,7 +64,7 @@ case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDa
   val dateKey: List[Map[LocalDate, LocalDate]] = vals.map(vm => {
     val minDate = vm.keys.minBy(_.toEpochDay)
     val maxDate = vm.keys.maxBy(_.toEpochDay)
-    1.to(DAYS.between(minDate.plusDays(1), maxDate.plusDays(8)).toInt).foldLeft(List.empty[(LocalDate, LocalDate)])((d2d: List[(LocalDate, LocalDate)], i: Int) => {
+    1.to(DAYS.between(minDate.plusDays(1), maxDate.plusDays(180)).toInt).foldLeft(List.empty[(LocalDate, LocalDate)])((d2d: List[(LocalDate, LocalDate)], i: Int) => {
       val d = minDate.plusDays(i)
       val d0 = minDate.plusDays(i - 1)
       if (vm.contains(d0))
@@ -89,15 +90,30 @@ case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDa
   override def feature(t: (Game, Option[Result])): Option[Vector] = {
     val (g, _) = t
     val list = vals.zipWithIndex.map{case (m, i) => {
-      dateKey(i).get(g.date).flatMap(dt=>m.get(dt)) match {
-        case Some(n)=>{
-
-          (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
-            case (Some(h), Some(a)) => Some(h - a)
-            case _ => None
+      dateKey(i).get(g.date) match {
+        case Some(dt)=>
+          vals(i).get(dt) match {
+            case Some(n)=>
+              (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
+                case (Some(h), Some(a)) => Some(h - a)
+                case _ => None
+              }
+            case None=>None//throw new IllegalStateException("Key provided by map missing")
           }
-        }
-        case None=> None
+        case None=>
+          val last = dateKey(i).keySet.maxBy(_.toEpochDay)
+          if (g.date.isAfter(last)){
+            vals(i).get(last) match {
+              case Some(n)=>
+                (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
+                  case (Some(h), Some(a)) => Some(h - a)
+                  case _ => None
+                }
+              case None=>None//throw new IllegalStateException("Key provided by map missing")
+            }
+          }else {
+            None
+          }
       }
     }}
     list.foldLeft(Option(List(1.0)))((fs: Option[List[Double]], of: Option[Double]) => {
