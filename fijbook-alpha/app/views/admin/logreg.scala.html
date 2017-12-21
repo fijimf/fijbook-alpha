@@ -9,272 +9,430 @@
 @import java.time.LocalDate
 @import org.apache.commons.lang3.StringUtils
 @import controllers.LogisticPerformanceSummary
+@import helper._
 @(
         user:User,
+        seasons:List[Season],
+        teams:List[Team],
+        features:List[(String, String)],
+        normalizations:List[(String, String)],
+        form:Form[forms.PredictionModelForm.Data],
         datePredictions:List[(LocalDate, List[GamePrediction])],
         teamPredictions:List[(Team, List[GamePrediction])],
         ps:LogisticPerformanceSummary,
         sch:Schedule
-)(implicit flash: Flash)
+)(implicit request: RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{
+    b3.vertical.fieldConstructor
+}
+
 @mainX(
     MainMeta.base("Logistic Model Results", Some(user))
             .withNav("admin")
             .withCrumbs(Breadcrumbs.admin.appendLeaf("Model Results"))
 ){
     <div class="row">
-        <h3 class="col-sm-12"> Predictions</h3>
-        @for(d<-datePredictions){
-            <div class="col-sm-12">
-                <h4>Predicted results for @d._1.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))</h4>
-                <table class="table table-condensed table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Home</th>
-                            <th>Prob</th>
-                            <th>Away</th>
-                            <th>Prob</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @for(g<-d._2){
-                        <tr>
-                        @defining(sch.gameMap.get(g.gameId)){ optGame=>
-                            <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
-                            <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                        <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#request" aria-controls="request" role="tab" data-toggle="tab">Request</a></li>
+            <li role="presentation"><a href="#predictions" aria-controls="predictions" role="tab" data-toggle="tab">Predictions</a></li>
+            <li role="presentation"><a href="#performance" aria-controls="performance" role="tab" data-toggle="tab">Model performance</a></li>
+            <li role="presentation"><a href="#trainingSet" aria-controls="trainingSet" role="tab" data-toggle="tab">Training set</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="request">
+            <div class="row">
+
+
+                <div class="col-sm-10">
+                    <h4>Logistic Regression</h4>
+                    <p>
+                        In statistics, logistic regression or logit model is a regression model where the dependent variable is categorical.
+                        The simplest case is that of a binary dependent variable &mdash; that is, where the output can take only two values, "1" and "0", which in our case represent "wins" and "loses".
+                        The binary logistic model is used to estimate the probability of the binary response based on one or more predictors (independent variables), also called features.
+                    </p>
+                </div>
+                <div class="col-sm-12">
+                @b3.form(routes.PredictionModelController.calibrate()) {
+                    <div class="row">
+                        @CSRF.formField
+                        <div class="col-sm-4">
+                            <div class="panel panel-default" style="margin: 5px; height: available;">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Training Data &emsp;<a href="#" data-toggle="modal" data-target="#trainingDataInfo"><i class="fa fa-question-circle-o"></i></a></h3>
+                                </div>
+                                @b3.select(form("seasons"), seasons.map(s => s.year.toString -> s.year.toString), '_label->"Seasons", 'multiple -> true, 'size -> seasons.size, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.select(form("excludeMonths"),
+                                    List(
+                                        "11"->"November",
+                                        "12"->"December",
+                                        "1"->"January",
+                                        "2"->"February",
+                                        "3"->"March",
+                                        "4"->"April"), '_label->"Exclude Months", 'multiple -> true, 'size -> 6, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                            </div><div>
+                        @b3.submit('class -> "btn btn-lg btn-success") { Run/Classify }
+                        </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel panel-default" style="margin: 5px; height: available;">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Feature Mapping &emsp;<a href="#" data-toggle="modal" data-target="#featureMappingInfo"><i class="fa fa-question-circle-o"></i></a></h3>
+                                </div>
+                                @b3.select(form("features"),features,'_label->"Computed Statistics",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.radio(form("normalization"), options = normalizations, '_label -> "Normalization", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel panel-default" style="margin: 5px; height: available;">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Prediction &emsp;<a href="#" data-toggle="modal" data-target="#predictionInfo"><i class="fa fa-question-circle-o"></i></a></h3>
+                                </div>
+                                @b3.select(form("predictTeams"),teams.sortBy(_.name).map(s=>s.key.toString->s.name),'_label->"Results for",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.datetime(form("predictFrom"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.datetime(form("predictTo"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                            </div>
+                        </div>
+
+                    </div>
+                }
+                </div>
+                    <!-- Modal -->
+                <div class="modal fade" id="trainingDataInfo" tabindex="-1" role="dialog" aria-labelledby="trainingDataLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #f5f5f5;
+                                color: #337ab7;">
+                                <h3 class="modal-title" id="trainingDataLabel">Training Data</h3>
+                            </div>
+                            <div class="modal-body">
+                                <h4>Seasons</h4>
+                                <p>Allows the user to select which seasons should be included to train the model.</p>
+                                <h4>Exclude months</h4>
+                                <p>Allows the user to exclude certain months from the training set.
+                                    Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                                    Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="featureMappingInfo" tabindex="-1" role="dialog" aria-labelledby="featureMappingLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #f5f5f5;
+                                color: #337ab7;">
+                                <h3 class="modal-title" id="featureMappingLabel">Feature Mapping</h3>
+                            </div>
+                            <div class="modal-body">
+                                <h4>Seasons</h4>
+                                <p>Allows the user to select which seasons should be included to train the model.</p>
+                                <h4>Exclude months</h4>
+                                <p>Allows the user to exclude certain months from the training set.
+                                    Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                                    Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="predictionInfo" tabindex="-1" role="dialog" aria-labelledby="predictionLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #f5f5f5;
+                                color: #337ab7;">
+                                <h3 class="modal-title" id="predictionLabel">Prediction</h3>
+                            </div>
+                            <div class="modal-body">
+                                <h4>Teams</h4>
+                                <p>Allows the user to select which seasons should be included to train the model.</p>
+                                <h4>From - To</h4>
+                                <p>Allows the user to exclude certain months from the training set.
+                                    Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
+                                    Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="predictions">
+            <div class="row">
+                <h3 class="col-sm-12"> Predictions</h3>
+                @for(d<-datePredictions){
+                    <div class="col-sm-12">
+                        <h4>Predicted results for @d._1.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))</h4>
+                        <table class="table table-condensed table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Home</th>
+                                    <th>Prob</th>
+                                    <th>Away</th>
+                                    <th>Prob</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @for(g<-d._2){
+                                <tr>
+                                @defining(sch.gameMap.get(g.gameId)){ optGame=>
+                                    <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
+                                    <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
+                                @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                                    <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+                                }
+                                @if(optGame.map(_.awayTeamId) == g.favoriteId){
+                                    <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
+                                }
+                                    <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
+                                @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                                    <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
+                                }
+                                @if(optGame.map(_.awayTeamId) == g.favoriteId){
+                                    <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+                                }
+                                }
+                                </tr>
+                            }
+                            </tbody>
+
+                        </table>
+                    </div>
+                }
+            </div>
+            <div class="row">
+            @for(t<-teamPredictions){
+                <div class="col-sm-12">
+                    <h4>Predicted results for @t._1.name @t._1.nickname</h4>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Home</th>
+                                <th>Prob</th>
+                                <th>Away</th>
+                                <th>Prob</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @for(g<-t._2){
+                            <tr>
+                            @defining(sch.gameMap.get(g.gameId)){ optGame=>
+                                <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
+                                <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
+                            @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                                <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
                             }
                             @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
+                                <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
                             }
-                            <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                        <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
+                                <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
+                            @if(optGame.map(_.homeTeamId) == g.favoriteId){
+                                <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
                             }
                             @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+                                <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
                             }
+                            }
+                            </tr>
                         }
-                        </tr>
-                    }
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
+                </div>
+            }
             </div>
-        }
-    </div>
-    <div class="row">
-        @for(t<-teamPredictions){
-            <div class="col-sm-12">
-                <h4>Predicted results for @t._1.name @t._1.nickname</h4>
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="performance">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4>Overall Model Performance</h4>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <th></th>
+                            <th>Games</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>%</th>
+                            <th>&mu; Log Likelihood</th>
+                        </thead>
+                        <tbody>
+                        @for(s<-ps.overallSplit.sortBy(_.key)) {
+                            <tr>
+                                <td class="text-right">@s.key</td>
+                                <td class="text-right">@s.n</td>
+                                <td class="text-right">@s.correct</td>
+                                <td class="text-right">@s.incorrect</td>
+                                <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                                <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                    <h4>Model Performance by Estimated Probability</h4>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <th>Probability</th>
+                            <th>Games</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>%</th>
+                            <th>&mu; Log Likelihood</th>
+                        </thead>
+                        <tbody>
+                        @for(s<-ps.splitByPct.sortBy(_.key)) {
+                            <tr>
+                                <td>@s.key</td>
+                                <td class="text-right">@s.n (@{(100.0*s.n/ps.splitByPct.map(_.n).sum).formatted("%4.1f%%")})</td>
+                                <td class="text-right">@s.correct</td>
+                                <td class="text-right">@s.incorrect</td>
+                                <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                                <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-6">
+                    <h4>Model Performance by Season/Month</h4>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <th>Season</th>
+                            <th>Month</th>
+                            <th>Games</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>%</th>
+                            <th>&mu; Log Likelihood</th>
+                        </thead>
+                        <tbody>
+                        @for(s<-ps.seasonMonthSplits.sortBy(_.key._2.toEpochDay)) {
+                            <tr>
+                                <td>@s.key._1.year</td>
+                                <td>@s.key._2.format(DateTimeFormatter.ofPattern("MMMM"))</td>
+                                <td class="text-right" > @s.n (@{(100.0*s.n/ps.seasonMonthSplits.map(_.n).sum).formatted("%4.1f%%")})</td>
+                                <td class="text-right" >@s.correct</td>
+                                <td class="text-right" >@s.incorrect</td>
+                                <td class="text-right" >@s.pctCorrect.formatted("%7.4f")</td>
+                                <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4>Best 25 Team/Season Model Performance</h4>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <th>Season</th>
+                            <th>Team</th>
+                            <th>Games</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>%</th>
+                            <th>&mu; Log Likelihood</th>
+                        </thead>
+                        <tbody>
+                        @for(s<-ps.seasonTeamSplit.sortBy(t=> t.avgLogLikelihood).take(25)) {
+                            <tr>
+                                <td>@s.key._1.year</td>
+                                <td>@s.key._2.name</td>
+                                <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
+                                <td class="text-right">@s.correct</td>
+                                <td class="text-right">@s.incorrect</td>
+                                <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                                <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            </tr>
+                        }
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-6">
+                    <h4>Worst 25 Team/Season Model Performance</h4>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <th>Season</th>
+                            <th>Team</th>
+                            <th>Games</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>%</th>
+                            <th>&mu; Log Likelihood</th>
+                        </thead>
+                        <tbody>
+                        @for(s<-ps.seasonTeamSplit.sortBy(t=> -t.avgLogLikelihood).take(25)) {
+                            <tr>
+                                <td>@s.key._1.year</td>
+                                <td>@s.key._2.name</td>
+                                <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
+                                <td class="text-right">@s.correct</td>
+                                <td class="text-right">@s.incorrect</td>
+                                <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
+                                <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
+                            </tr>
+                        }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="trainingSet">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4>Complete Training Set Results</h4>
+                    <table class="table table-smushed table-bordered table-striped">
+                        <thead><tr>
+                            <th>Game Time</th>
                             <th>Home</th>
-                            <th>Prob</th>
+                            <th></th>
                             <th>Away</th>
-                            <th>Prob</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @for(g<-t._2){
-                        <tr>
-                        @defining(sch.gameMap.get(g.gameId)){ optGame=>
-                            <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
-                            <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
+                            <th></th>
+                            <th>Probabilities</th>
+                            <th>Correct</th>
+                            <th>Log Likelihood</th>
+                        </tr></thead>
+                        <tbody >
+                        @for(l<-ps.ls){
+                            <tr>
+                                <td>@{l.game.datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}</td>
+                                <td>@{sch.teamsMap(l.game.homeTeamId).name}</td>
+                                <td>@{l.homeScore.toString}</td>
+                                <td>@{sch.teamsMap(l.game.awayTeamId).name}</td>
+                                <td>@{l.awayScore.toString}</td>
+                                <td>[@{l.homePct.formatted("%6.4f")}, @{l.awayPct.formatted("%6.4f")}]</td>
+                                @if(l.correct){
+                                    <td style="color:green;"><i class="fa fa-check-circle" ></i></td>
+                                }else{
+                                    <td style="color:red;"><i class="fa fa-times-circle" ></td>
+                                }
+                                <td>@{l.logLikelihood.formatted("%6.4f")}</td>
+                            </tr>
                         }
-                        @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
-                        }
-                            <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                        @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
-                        }
-                        @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                            <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
-                        }
-                        }
-                        </tr>
-                    }
-                    </tbody>
-
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        }
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <h4>Overall Model Performance</h4>
-            <table class="table table-condensed table-bordered table-striped">
-                <thead>
-                    <th></th>
-                    <th>Games</th>
-                    <th>Correct</th>
-                    <th>Incorrect</th>
-                    <th>%</th>
-                    <th>&mu; Log Likelihood</th>
-                </thead>
-                <tbody>
-                @for(s<-ps.overallSplit.sortBy(_.key)) {
-                    <tr>
-                        <td class="text-right">@s.key</td>
-                        <td class="text-right">@s.n</td>
-                        <td class="text-right">@s.correct</td>
-                        <td class="text-right">@s.incorrect</td>
-                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
-                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-            <h4>Model Performance by Estimated Probability</h4>
-            <table class="table table-condensed table-bordered table-striped">
-                <thead>
-                    <th>Probability</th>
-                    <th>Games</th>
-                    <th>Correct</th>
-                    <th>Incorrect</th>
-                    <th>%</th>
-                    <th>&mu; Log Likelihood</th>
-                </thead>
-                <tbody>
-                @for(s<-ps.splitByPct.sortBy(_.key)) {
-                    <tr>
-                        <td>@s.key</td>
-                        <td class="text-right">@s.n (@{(100.0*s.n/ps.splitByPct.map(_.n).sum).formatted("%4.1f%%")})</td>
-                        <td class="text-right">@s.correct</td>
-                        <td class="text-right">@s.incorrect</td>
-                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
-                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-6">
-            <h4>Model Performance by Season/Month</h4>
-            <table class="table table-condensed table-bordered table-striped">
-            <thead>
-                <th>Season</th>
-                <th>Month</th>
-                <th>Games</th>
-                <th>Correct</th>
-                <th>Incorrect</th>
-                <th>%</th>
-                <th>&mu; Log Likelihood</th>
-                </thead>
-                <tbody>
-                    @for(s<-ps.seasonMonthSplits.sortBy(_.key._2.toEpochDay)) {
-                        <tr>
-                            <td>@s.key._1.year</td>
-                            <td>@s.key._2.format(DateTimeFormatter.ofPattern("MMMM"))</td>
-                            <td class="text-right" > @s.n (@{(100.0*s.n/ps.seasonMonthSplits.map(_.n).sum).formatted("%4.1f%%")})</td>
-                            <td class="text-right" >@s.correct</td>
-                            <td class="text-right" >@s.incorrect</td>
-                            <td class="text-right" >@s.pctCorrect.formatted("%7.4f")</td>
-                            <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <h4>Best 25 Team/Season Model Performance</h4>
-            <table class="table table-condensed table-bordered table-striped">
-                <thead>
-                    <th>Season</th>
-                    <th>Team</th>
-                    <th>Games</th>
-                    <th>Correct</th>
-                    <th>Incorrect</th>
-                    <th>%</th>
-                    <th>&mu; Log Likelihood</th>
-                </thead>
-                <tbody>
-                @for(s<-ps.seasonTeamSplit.sortBy(t=> t.avgLogLikelihood).take(25)) {
-                    <tr>
-                        <td>@s.key._1.year</td>
-                        <td>@s.key._2.name</td>
-                        <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
-                        <td class="text-right">@s.correct</td>
-                        <td class="text-right">@s.incorrect</td>
-                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
-                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
-                    </tr>
-                }
-
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-6">
-            <h4>Worst 25 Team/Season Model Performance</h4>
-            <table class="table table-condensed table-bordered table-striped">
-                <thead>
-                    <th>Season</th>
-                    <th>Team</th>
-                    <th>Games</th>
-                    <th>Correct</th>
-                    <th>Incorrect</th>
-                    <th>%</th>
-                    <th>&mu; Log Likelihood</th>
-                </thead>
-                <tbody>
-                @for(s<-ps.seasonTeamSplit.sortBy(t=> -t.avgLogLikelihood).take(25)) {
-                    <tr>
-                        <td>@s.key._1.year</td>
-                        <td>@s.key._2.name</td>
-                        <td class="text-right">@s.n (@{(100.0*s.n/ps.seasonTeamSplit.map(_.n).sum).formatted("%4.1f%%")})</td>
-                        <td class="text-right">@s.correct</td>
-                        <td class="text-right">@s.incorrect</td>
-                        <td class="text-right">@s.pctCorrect.formatted("%7.4f")</td>
-                        <td class="text-right">@s.avgLogLikelihood.formatted("%7.4f")</td>
-                    </tr>
-                }
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Complete Training Set Results</h4>
-            <table class="table table-smushed table-bordered table-striped">
-                <thead><tr>
-                   <th>Game Time</th>
-                   <th>Home</th>
-                   <th></th>
-                   <th>Away</th>
-                   <th></th>
-                   <th>Probabilities</th>
-                   <th>Correct</th>
-                   <th>Log Likelihood</th>
-               </tr></thead>
-                <tbody >
-                    @for(l<-ps.ls){
-                        <tr>
-                            <td>@{l.game.datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}</td>
-                            <td>@{sch.teamsMap(l.game.homeTeamId).name}</td>
-                            <td>@{l.homeScore.toString}</td>
-                            <td>@{sch.teamsMap(l.game.awayTeamId).name}</td>
-                            <td>@{l.awayScore.toString}</td>
-                            <td>[@{l.homePct.formatted("%6.4f")}, @{l.awayPct.formatted("%6.4f")}]</td>
-                            @if(l.correct){
-                                <td style="color:green;"><i class="fa fa-check-circle" ></i></td>
-                            }else{
-                                <td style="color:red;"><i class="fa fa-times-circle" ></td>
-                            }
-                            <td>@{l.logLikelihood.formatted("%6.4f")}</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
         </div>
     </div>
 }

@@ -10,8 +10,10 @@ import com.fijimf.deepfij.stats._
 import com.fijimf.deepfij.stats.predictor._
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import forms.PredictionModelForm
 import play.api.Logger
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import utils.DefaultEnv
@@ -46,47 +48,56 @@ class PredictionModelController @Inject()(
   def calibrate() = silhouette.SecuredAction.async { implicit rs =>
     PredictionModelForm.form.bindFromRequest.fold(
       form => {
-        for {
-          ls <- teamDao.listSeasons
-          ts <- teamDao.listTeams
-        } yield {
-          log.warn(s"Bad request $form")
-          BadRequest(views.html.admin.testModel(rs.identity, ls, ts, features, normalizations, form))
-        }
+        balbbityBla( form)
       },
       data => {
-        StatValueGameFeatureMapper.create(data.features, data.normalization, teamDao).flatMap { fm =>
-          LogisticRegressionContext.selectTrainingSet(
-            data.seasonsIncluded.map(_.toInt),
-            data.excludeMonths.map(_.toInt),
-            teamDao
-          ).flatMap(gors => {
-            val context: LogisticRegressionContext = LogisticRegressionContext.create(fm, StraightWinCategorizer, gors, teamDao)
-            val resultLines = context.modelPerformance(gors)
-            val eventualTuple: Future[(Map[Long, Season], Map[Long, Team], Option[Schedule])] = for {
-              seasons <- teamDao.listSeasons
-              sch <- teamDao.loadLatestSchedule()
-            } yield {
-              (seasons.map(s => s.id -> s).toMap, sch.map(_.teamsMap).getOrElse(Map.empty[Long, Team]), sch)
-            }
-            eventualTuple.collect { case (seasonMap, teamMap, Some(s)) =>
-              log.info(s"${data.predictFrom}, ${data.predictTo}")
-              val datePredictions = (data.predictFrom, data.predictTo) match {
-                case (Some(from), Some(to)) => context.predictDates(s, from, to)
-                case (Some(from), None) => context.predictDates(s, from, from.plusDays(6))
-                case (None, Some(to)) => context.predictDates(s, LocalDate.now(), to)
-                case (None, None) => List.empty[(LocalDate, List[GamePrediction])]
-              }
-              val teamPredictions = context.predictTeams(s, data.predictTeams)
-              val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
-
-              Ok(views.html.admin.logreg(rs.identity, datePredictions, teamPredictions, perfSummary, s)
-              )
-            }
-          })
-        }
+        blibbityBleee(data)
       }
     )
+  }
+
+  private def blibbityBleee(data: PredictionModelForm.Data)(implicit rs: SecuredRequest[DefaultEnv, AnyContent]) = {
+    StatValueGameFeatureMapper.create(data.features, data.normalization, teamDao).flatMap { fm =>
+      LogisticRegressionContext.selectTrainingSet(
+        data.seasonsIncluded.map(_.toInt),
+        data.excludeMonths.map(_.toInt),
+        teamDao
+      ).flatMap(gors => {
+        val context: LogisticRegressionContext = LogisticRegressionContext.create(fm, StraightWinCategorizer, gors, teamDao)
+        val resultLines = context.modelPerformance(gors)
+        val eventualTuple: Future[(Map[Long, Season], Map[Long, Team], Option[Schedule])] = for {
+          seasons <- teamDao.listSeasons
+          sch <- teamDao.loadLatestSchedule()
+        } yield {
+          (seasons.map(s => s.id -> s).toMap, sch.map(_.teamsMap).getOrElse(Map.empty[Long, Team]), sch)
+        }
+        eventualTuple.collect { case (seasonMap, teamMap, Some(s)) =>
+          log.info(s"${data.predictFrom}, ${data.predictTo}")
+          val datePredictions = (data.predictFrom, data.predictTo) match {
+            case (Some(from), Some(to)) => context.predictDates(s, from, to)
+            case (Some(from), None) => context.predictDates(s, from, from.plusDays(6))
+            case (None, Some(to)) => context.predictDates(s, LocalDate.now(), to)
+            case (None, None) => List.empty[(LocalDate, List[GamePrediction])]
+          }
+          val teamPredictions = context.predictTeams(s, data.predictTeams)
+          val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
+          val form = PredictionModelForm.form.fill(data)
+
+          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s)
+          )
+        }
+      })
+    }
+  }
+
+  private def balbbityBla(form: Form[PredictionModelForm.Data])(implicit rs: SecuredRequest[DefaultEnv, AnyContent]): Future[Result] = {
+    for {
+      ls <- teamDao.listSeasons
+      ts <- teamDao.listTeams
+    } yield {
+      log.warn(s"Bad request $form")
+      BadRequest(views.html.admin.testModel(rs.identity, ls, ts, features, normalizations, form))
+    }
   }
 }
 
