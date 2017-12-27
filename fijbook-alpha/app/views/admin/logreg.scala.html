@@ -20,7 +20,8 @@
         datePredictions:List[(LocalDate, List[GamePrediction])],
         teamPredictions:List[(Team, List[GamePrediction])],
         ps:LogisticPerformanceSummary,
-        sch:Schedule
+        sch:Schedule,
+        mode:String
 )(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{
@@ -34,17 +35,28 @@
 ){
     <div class="row">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#request" aria-controls="request" role="tab" data-toggle="tab">Request</a></li>
-            <li role="presentation"><a href="#predictions" aria-controls="predictions" role="tab" data-toggle="tab">Predictions</a></li>
+            @if(mode=="request") {
+                <li role="presentation" class="active"><a href="#request" aria-controls="request" role="tab" data-toggle="tab">
+                    Request</a></li>
+                <li role="presentation"><a href="#predictions" aria-controls="predictions" role="tab" data-toggle="tab">
+                    Predictions</a></li>
+            } else {
+                <li role="presentation" ><a href="#request" aria-controls="request" role="tab" data-toggle="tab">
+                    Request</a></li>
+                <li role="presentation" class="active"><a href="#predictions" aria-controls="predictions" role="tab" data-toggle="tab">
+                    Predictions</a></li>
+            }
             <li role="presentation"><a href="#performance" aria-controls="performance" role="tab" data-toggle="tab">Model performance</a></li>
             <li role="presentation"><a href="#trainingSet" aria-controls="trainingSet" role="tab" data-toggle="tab">Training set</a></li>
         </ul>
     </div>
     <div class="tab-content">
+    @if(mode=="request") {
+        <div role="tabpanel" class="tab-pane active" id="request">
+        }else{
         <div role="tabpanel" class="tab-pane" id="request">
+        }
             <div class="row">
-
-
                 <div class="col-sm-10">
                     <h4>Logistic Regression</h4>
                     <p>
@@ -172,7 +184,11 @@
 
             </div>
         </div>
+            @if(mode=="request") {
         <div role="tabpanel" class="tab-pane" id="predictions">
+        }else{
+        <div role="tabpanel" class="tab-pane active" id="predictions">
+        }
             <div class="row">
                 <h3 class="col-sm-12"> Predictions</h3>
                 @for(d<-datePredictions){

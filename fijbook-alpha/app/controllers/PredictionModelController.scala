@@ -16,6 +16,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import play.twirl.api.Html
 import utils.DefaultEnv
 
 import scala.concurrent.Future
@@ -83,7 +84,7 @@ class PredictionModelController @Inject()(
           val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
           val form = PredictionModelForm.form.fill(data)
 
-          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s)
+          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s, "response")
           )
         }
       })
