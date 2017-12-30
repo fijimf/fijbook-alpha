@@ -134,7 +134,9 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
 
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
-case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double])
+case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]){
+  def odds:Option[Double]=probability.map(x=> x/(1-x))
+}
 
 case class UserProfileData(id: Long, userID: String, key: String, value: String)
 

@@ -16,7 +16,7 @@
         <appender-ref ref="STDOUT" />
     </appender>
 
-    <logger name="play" level="INFO" />
+    <logger name="play" level="DEBUG" />
     <logger name="play.api.libs.mailer" level="DEBUG" />
     <logger name="application" level="WARN" />
     <!--<logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>-->

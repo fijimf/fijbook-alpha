@@ -5,6 +5,7 @@
 @import com.fijimf.deepfij.models.GamePrediction
 @import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.PredictionView
 @import java.time.format.DateTimeFormatter
 @import java.time.LocalDate
 @import org.apache.commons.lang3.StringUtils
@@ -18,7 +19,7 @@
         normalizations:List[(String, String)],
         form:Form[forms.PredictionModelForm.Data],
         datePredictions:List[(LocalDate, List[GamePrediction])],
-        teamPredictions:List[(Team, List[GamePrediction])],
+        teamPredictions:List[(Team, List[PredictionView])],
         ps:LogisticPerformanceSummary,
         sch:Schedule,
         mode:String
@@ -239,33 +240,63 @@
                     <table class="table table-condensed">
                         <thead>
                             <tr>
+                                <th></th>
+                                <th>W/L</th>
+                                <th>Odds</th>
                                 <th>Date</th>
                                 <th>Home</th>
+                                <th>Score</th>
                                 <th>Prob</th>
                                 <th>Away</th>
+                                <th>Score</th>
                                 <th>Prob</th>
                             </tr>
                         </thead>
                         <tbody>
                         @for(g<-t._2){
                             <tr>
-                            @defining(sch.gameMap.get(g.gameId)){ optGame=>
-                                <td> @{optGame.map(_.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).getOrElse("")} </td>
-                                <td> @{optGame.map(_.homeTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                            @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                                <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
-                            }
-                            @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                                <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")} </td>
-                            }
-                                <td> @{optGame.map(_.awayTeamId).flatMap(tid=>sch.teamsMap.get(tid)).map(_.name).getOrElse("")} </td>
-                            @if(optGame.map(_.homeTeamId) == g.favoriteId){
-                                <td>@{g.probability.map(x=>(1.0-x).formatted("%6.4f")).getOrElse("-")}</td>
-                            }
-                            @if(optGame.map(_.awayTeamId) == g.favoriteId){
-                                <td>@{g.probability.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
-                            }
-                            }
+                                <td>
+                                    @if(g.isResultCorrect.getOrElse(false)){
+                                        <span class="fa fa-check-circle" style="color: #00f; font-weight: bold"> </span>
+                                    } else {
+                                        @if(g.hasResult) {
+                                            <span class="fa fa-times-circle" style="color: #999;
+                                                font-weight: bold"> </span>
+                                        }else {
+                                            <span></span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if(g.hasResult){
+                                        @if(g.isWinner(t._1)) {
+                                            <span style="color: #0f0; font-weight: bold">W</span>
+                                        } else {
+                                            <span style="color: #f00; font-weight: bold">L</span>
+                                        }
+                                    } else {
+                                        @if(g.isFavorite(t._1)) {
+                                            <span style="color: #7a7; font-weight: normal">W</span>
+                                        } else {
+                                            <span style="color: #b77; font-weight: normal">L</span>
+                                        }
+
+                                    }
+                                </td>
+                                <td>@if(g.odds(t._1).isDefined){
+                                    @if(g.odds(t._1).get<=1.0) {
+                                        <span >1:@g.odds(t._1).get.formatted("%5.2f")</span>
+                                    } else {
+                                        <span>@g.odds(t._1).map(1.0/_).get.formatted("%5.2f"):1</span>
+                                    }
+                                }</td>
+                                <td> @{g.dateStr} </td>
+                                <td> @{g.homeTeam.name} </td>
+                                <td> @{g.result.map(_.homeScore.toString).getOrElse("")} </td>
+                                <td> @{g.homeProb.map(x=>x.formatted("%6.4f")).getOrElse("-")} </td>
+                                <td> @{g.awayTeam.name} </td>
+                                <td> @{g.result.map(_.awayScore.toString).getOrElse("")} </td>
+                                <td> @{g.awayProb.map(x=>x.formatted("%6.4f")).getOrElse("-")}</td>
                             </tr>
                         }
                         </tbody>

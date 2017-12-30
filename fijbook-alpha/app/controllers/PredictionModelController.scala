@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.GamePredictorService
-import com.fijimf.deepfij.models.{GamePrediction, Schedule, Season, Team}
+import com.fijimf.deepfij.models.{Result => _, _}
 import com.fijimf.deepfij.stats._
 import com.fijimf.deepfij.stats.predictor._
 import com.google.inject.Inject
@@ -80,7 +80,9 @@ class PredictionModelController @Inject()(
             case (None, Some(to)) => context.predictDates(s, LocalDate.now(), to)
             case (None, None) => List.empty[(LocalDate, List[GamePrediction])]
           }
-          val teamPredictions = context.predictTeams(s, data.predictTeams)
+          val teamPredictions = context.predictTeams(s, data.predictTeams).map(tup=>{
+            tup._1->tup._2.map(gp => PredictionView.create(s, gp)).filter(_.isDefined).map(_.get).sortBy(_.date.toEpochDay)
+          })
           val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
           val form = PredictionModelForm.form.fill(data)
 
