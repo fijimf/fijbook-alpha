@@ -81,12 +81,12 @@ class PredictionModelController @Inject()(
             case (None, None) => List.empty[(LocalDate, List[GamePrediction])]
           }
           val teamPredictions = context.predictTeams(s, data.predictTeams).map(tup=>{
-            tup._1->tup._2.map(gp => PredictionView.create(s, gp)).filter(_.isDefined).map(_.get).sortBy(_.date.toEpochDay)
+            TeamPredictionView(tup._1,tup._2.map(gp => PredictionView.create(s, gp)).filter(_.isDefined).map(_.get).sortBy(_.date.toEpochDay))
           })
           val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
           val form = PredictionModelForm.form.fill(data)
 
-          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s, "response")
+          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s, context.showFeatureCoefficients, "response")
           )
         }
       })

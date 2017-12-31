@@ -53,6 +53,10 @@ case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, 
     gs.flatMap(classifyGames)
   }
 
+  def showFeatureCoefficients: List[(String, Double)] ={
+    classifier.betaCoefficients.sortBy(_._2)
+  }
+
 
   private def classifyGames(gg: (Game, Option[Result])): Option[GamePrediction] = {
     val op = classifier.classify(gg)

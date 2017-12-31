@@ -5,7 +5,7 @@
 @import com.fijimf.deepfij.models.GamePrediction
 @import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.Schedule
-@import com.fijimf.deepfij.models.PredictionView
+@import com.fijimf.deepfij.models.TeamPredictionView
 @import java.time.format.DateTimeFormatter
 @import java.time.LocalDate
 @import org.apache.commons.lang3.StringUtils
@@ -19,9 +19,10 @@
         normalizations:List[(String, String)],
         form:Form[forms.PredictionModelForm.Data],
         datePredictions:List[(LocalDate, List[GamePrediction])],
-        teamPredictions:List[(Team, List[PredictionView])],
+        teamPredictions:List[TeamPredictionView],
         ps:LogisticPerformanceSummary,
         sch:Schedule,
+        featureCoefficients:List[(String, Double)],
         mode:String
 )(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
@@ -236,8 +237,49 @@
             <div class="row">
             @for(t<-teamPredictions){
                 <div class="col-sm-12">
-                    <h4>Predicted results for @t._1.name @t._1.nickname</h4>
-                    <table class="table table-condensed">
+                    <h2><img src=@t.t.logoSmUrl.getOrElse("#") />@t.t.name @t.t.nickname</h2>
+                </div>
+                <div class="col-sm-6">
+                    <h4>Results</h4>
+                    <table class="table table-smushed table-bordered table-striped">
+                        <thead/>
+                        <tbody>
+                            <tr><th>Games Predicted</th><td>@t.numPredicted</td></tr>
+                            <tr><th>Games Predicted Correctly</th><td>@t.numCorrect (@{(t.pctCorrect*100).formatted("%5.1f%%")})</td></tr>
+                            <tr><th>Realized Record</th><td>@t.realizedRecord.won - @t.realizedRecord.lost </td></tr>
+                            <tr><th>Expected Record</th><td>@t.expectedRecord.won - @t.expectedRecord.lost </td></tr>
+                        </tbody>
+                    </table>
+                    <h4>Feature Coefficients</h4>
+                    <table class="table table-smushed table-bordered table-striped">
+                        <thead/>
+                        <tbody>
+                            @for(fc<-featureCoefficients){
+                                <tr><th>@fc._1</th><td>@fc._2.formatted("%7.4f")</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-3">
+       <h4>Distribution of W-L</h4>
+                    <table class="table table-smushed table-bordered table-striped">
+                        <thead>
+                            <th>W-L</th>
+                            <th>%</th>
+                        </thead>
+                        <tbody>
+                    @for(rd<-t.recordDistribution){
+                        <tr>
+                                <th class="text-center">@rd._1.won.formatted("%-2d") - @rd._1.lost.formatted("%-2d")</th>
+                                <td class="text-center">@{(100.0*rd._2).formatted("%7.3f%%")}</td>
+                        </tr>
+                    }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-12">
+
+                <table class="table table-smushed table-bordered">
                         <thead>
                             <tr>
                                 <th></th>
@@ -253,7 +295,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @for(g<-t._2){
+                        @for(g<-t.ps){
                             <tr>
                                 <td>
                                     @if(g.isResultCorrect.getOrElse(false)){
@@ -269,25 +311,25 @@
                                 </td>
                                 <td>
                                     @if(g.hasResult){
-                                        @if(g.isWinner(t._1)) {
-                                            <span style="color: #0f0; font-weight: bold">W</span>
+                                        @if(g.isWinner(t.t)) {
+                                            <span style="color: #0d0; font-weight: bold">W</span>
                                         } else {
                                             <span style="color: #f00; font-weight: bold">L</span>
                                         }
                                     } else {
-                                        @if(g.isFavorite(t._1)) {
-                                            <span style="color: #7a7; font-weight: normal">W</span>
+                                        @if(g.isFavorite(t.t)) {
+                                            <span style="color: #7a7; font-weight: bold">(W)</span>
                                         } else {
-                                            <span style="color: #b77; font-weight: normal">L</span>
+                                            <span style="color: #b77; font-weight: bold">(L)</span>
                                         }
 
                                     }
                                 </td>
-                                <td>@if(g.odds(t._1).isDefined){
-                                    @if(g.odds(t._1).get<=1.0) {
-                                        <span >1:@g.odds(t._1).get.formatted("%5.2f")</span>
+                                <td class="text-right">@if(g.odds(t.t).isDefined){
+                                    @if(g.odds(t.t).get<=1.0) {
+                                        <span style="color: #b77;" >1 : @g.odds(t.t).map(1.0/_).get.formatted("%5.1f")</span>
                                     } else {
-                                        <span>@g.odds(t._1).map(1.0/_).get.formatted("%5.2f"):1</span>
+                                        <span style="color: #7a7;">@g.odds(t.t).get.formatted("%5.1f") : 1</span>
                                     }
                                 }</td>
                                 <td> @{g.dateStr} </td>

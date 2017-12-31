@@ -5,6 +5,52 @@ import java.time.format.DateTimeFormatter
 
 import scala.util.Try
 
+case class TeamPredictionView(t:Team, ps:List[PredictionView]){
+  def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined && pv.isResultCorrect.get)
+  def numCorrect:Int = ps.count(_.isResultCorrect.getOrElse(false))
+  def pctCorrect:Double = if (numPredicted>0){
+    numCorrect.doubleValue()/numPredicted.doubleValue()
+  } else {
+    0.0
+  }
+
+  val realizedRecord:WonLostRecord = {
+    WonLostRecord(ps.count(_.isWinner(t)),ps.count(_.isLoser(t)))
+  }
+
+  def expectedRecord:WonLostRecord = {
+val wl = recordDistribution.maxBy(_._2)._1
+    WonLostRecord(wl.won+realizedRecord.won, wl.lost+realizedRecord.lost)
+  }
+
+
+  lazy val recordDistribution: List[(WonLostRecord, Double)] = {
+    ps.filterNot(_.hasResult)
+      .filter(_.pred.probability.isDefined)
+      .foldLeft(
+        Map(WonLostRecord(0,0)->1.0)
+      )(
+        (wls: Map[WonLostRecord, Double], pv: PredictionView) => {
+          pv.pred.probability match {
+            case Some(p)  =>
+              val x = if (pv.isFavorite(t)) p else 1.0 - p
+              val ww: Map[WonLostRecord, Double] = wls.map{case (wl, prob) => wl.copy(won=wl.won+1)->prob*x}
+              val ll: Map[WonLostRecord, Double] = wls.map{case (wl, prob) => wl.copy(lost=wl.lost+1)->prob*(1-x)}
+              val keys = ww.keySet++ll.keySet
+              keys.toList.map(k=>{
+                (ww.get(k),ll.get(k)) match {
+                  case (Some(a), Some(b))=>k->(a+b)
+                  case (Some(a), None)=>k->a
+                  case (None, Some(b))=>k->b
+                  case _ => throw new IllegalStateException("Yikes")
+                }
+              }).toMap
+            case _ => wls
+          }
+    }).toList.sortBy(_._1.won)
+  }
+}
+
 case class PredictionView(s: Schedule, pred: GamePrediction) {
   require(s.gameMap.contains(pred.gameId), s"Predicted game ${pred.gameId} unknown in schedule ${s.season.year}")
   val game: Game = s.gameMap(pred.gameId)
