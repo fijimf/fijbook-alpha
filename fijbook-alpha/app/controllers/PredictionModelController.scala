@@ -49,15 +49,15 @@ class PredictionModelController @Inject()(
   def calibrate() = silhouette.SecuredAction.async { implicit rs =>
     PredictionModelForm.form.bindFromRequest.fold(
       form => {
-        balbbityBla( form)
+        handleFormErrors( form)
       },
       data => {
-        blibbityBleee(data)
+        handleModelCalibrationAndPrediction(data)
       }
     )
   }
 
-  private def blibbityBleee(data: PredictionModelForm.Data)(implicit rs: SecuredRequest[DefaultEnv, AnyContent]) = {
+  private def handleModelCalibrationAndPrediction(data: PredictionModelForm.Data)(implicit rs: SecuredRequest[DefaultEnv, AnyContent]) = {
     StatValueGameFeatureMapper.create(data.features, data.normalization, teamDao).flatMap { fm =>
       LogisticRegressionContext.selectTrainingSet(
         data.seasonsIncluded.map(_.toInt),
@@ -93,7 +93,7 @@ class PredictionModelController @Inject()(
     }
   }
 
-  private def balbbityBla(form: Form[PredictionModelForm.Data])(implicit rs: SecuredRequest[DefaultEnv, AnyContent]): Future[Result] = {
+  private def handleFormErrors(form: Form[PredictionModelForm.Data])(implicit rs: SecuredRequest[DefaultEnv, AnyContent]): Future[Result] = {
     for {
       ls <- teamDao.listSeasons
       ts <- teamDao.listTeams
