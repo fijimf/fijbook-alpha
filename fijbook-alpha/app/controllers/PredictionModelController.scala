@@ -35,7 +35,7 @@ class PredictionModelController @Inject()(
   val features: List[(String, String)] = List(WonLost, Scoring, Rpi, LeastSquares).flatMap(m => {
     m.stats.map(s => s"${m.key}:${s.key}" -> s"${m.name}::${s.name}")
   })
-  val normalizations = List("none" -> "None", "minmax" -> "Min-Max", "zscore" -> "Z-Score")
+  val normalizations = List(StatValueGameFeatureMapper.NO_NORMALIZATION -> "None",StatValueGameFeatureMapper.MIN_MAX -> "Min-Max", StatValueGameFeatureMapper.Z_SCORE -> "Z-Score")
 
   def test() = silhouette.SecuredAction.async { implicit rs =>
     for {

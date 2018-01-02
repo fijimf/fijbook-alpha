@@ -18,14 +18,15 @@ object StatValueGameFeatureMapper {
 
   val logger = Logger(this.getClass)
 
-  private val Z_SCORE = "zscore"
+  val Z_SCORE = "zscore"
 
-  private val MIN_MAX = "minmax"
-  private val NONE = "none"
+  val MIN_MAX = "minmax"
+
+  val NO_NORMALIZATION = "no-normalization"
 
   def create(keys: List[String], normalizer: String, dao: ScheduleDAO): Future[StatValueGameFeatureMapper] = {
 
-    require(Set(Z_SCORE, MIN_MAX, NONE).contains(normalizer), "Bad normalizer.  Allowed values '" + MIN_MAX + "', '" + Z_SCORE + "', '" + NONE + "'.")
+    require(Set(Z_SCORE, MIN_MAX, NO_NORMALIZATION).contains(normalizer), "Bad normalizer.  Allowed values '" + MIN_MAX + "', '" + Z_SCORE + "', '" + NO_NORMALIZATION + "'.")
     Future.sequence(keys.map(loadKey(_, normalizer, dao))).map(vs => StatValueGameFeatureMapper(keys, vs))
   }
 
@@ -38,20 +39,30 @@ object StatValueGameFeatureMapper {
   }
 
   def loadKey(key: String, norm: String, dao: ScheduleDAO): Future[Map[LocalDate, Map[Long, Double]]] = {
-    loadKey(key, dao).map(_.mapValues(m => {
+    loadKey(key, dao).map(_.map{ case(date,m) =>
       val (shift, scale) = normParms(norm, m.values)
-      m.map { case (k, v) => k -> (v - shift) / scale }
-    }))
+      logger.info(s"K:$key D:$date => ($shift, $scale)")
+      date->m.map { case (k, v) => k -> (v - shift) / scale }
+    })
   }
 
   def normParms(n: String, xs: Iterable[Double]): (Double, Double) = {
     n.toLowerCase.trim match {
       case s: String if s == Z_SCORE =>
         val ds = new DescriptiveStatistics(xs.toArray)
-        (ds.getMean, ds.getStandardDeviation)
+        if (ds.getStandardDeviation == 0.0){
+          (ds.getMean, 1.0)
+        } else {
+          (ds.getMean, ds.getStandardDeviation)
+        }
       case s: String if s == MIN_MAX =>
         val ds = new DescriptiveStatistics(xs.toArray)
-        (ds.getMin, ds.getMax - ds.getMin)
+        if ((ds.getMax - ds.getMin)== 0.0){
+          (ds.getMin, 1.0)
+        } else {
+          (ds.getMin, ds.getMax - ds.getMin)
+        }
+
       case _ => (0.0, 1.0)
     }
   }
