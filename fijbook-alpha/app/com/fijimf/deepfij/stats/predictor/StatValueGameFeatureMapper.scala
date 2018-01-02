@@ -18,8 +18,14 @@ object StatValueGameFeatureMapper {
 
   val logger = Logger(this.getClass)
 
+  private val Z_SCORE = "zscore"
+
+  private val MIN_MAX = "minmax"
+  private val NONE = "none"
+
   def create(keys: List[String], normalizer: String, dao: ScheduleDAO): Future[StatValueGameFeatureMapper] = {
-    require(Set("zscore","minmax","none").contains(normalizer),"Bad normalizer.  Allowed values 'minmax', 'zscore', 'none'.")
+
+    require(Set(Z_SCORE, MIN_MAX, NONE).contains(normalizer), "Bad normalizer.  Allowed values '" + MIN_MAX + "', '" + Z_SCORE + "', '" + NONE + "'.")
     Future.sequence(keys.map(loadKey(_, normalizer, dao))).map(vs => StatValueGameFeatureMapper(keys, vs))
   }
 
@@ -40,10 +46,10 @@ object StatValueGameFeatureMapper {
 
   def normParms(n: String, xs: Iterable[Double]): (Double, Double) = {
     n.toLowerCase.trim match {
-      case "zscore" =>
+      case s: String if s == Z_SCORE =>
         val ds = new DescriptiveStatistics(xs.toArray)
         (ds.getMean, ds.getStandardDeviation)
-      case "minmax" =>
+      case s: String if s == MIN_MAX =>
         val ds = new DescriptiveStatistics(xs.toArray)
         (ds.getMin, ds.getMax - ds.getMin)
       case _ => (0.0, 1.0)
@@ -54,13 +60,14 @@ object StatValueGameFeatureMapper {
 case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDate, Map[Long, Double]]]) extends FeatureMapper[(Game, Option[Result])] {
 
   val logger = Logger(this.getClass)
-  require(keys.size==vals.size,"Value map and key list have different dimension")
+  require(keys.lengthCompare(vals.size) == 0, "Value map and key list have different dimension")
   logger.info("StatValueGameMapper created with")
-  vals.zip(keys).foreach{case (valueMap: Map[LocalDate, Map[Long, Double]], k: String) => {
+  vals.zip(keys).foreach { case (valueMap: Map[LocalDate, Map[Long, Double]], k: String) => {
     logger.info(s"$k has ${valueMap.size} dates")
     logger.info(s"$k first date is ${valueMap.keys.minBy(_.toEpochDay)}")
     logger.info(s"$k last date is ${valueMap.keys.maxBy(_.toEpochDay)}")
-  }}
+  }
+  }
   val dateKey: List[Map[LocalDate, LocalDate]] = vals.map(vm => {
     val minDate = vm.keys.minBy(_.toEpochDay)
     val maxDate = vm.keys.maxBy(_.toEpochDay)
@@ -73,11 +80,12 @@ case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDa
         (d -> d2d.head._2) :: d2d
     }).toMap
   })
-  dateKey.zip(keys).foreach{case (dateMap: Map[LocalDate, LocalDate], k: String) => {
+  dateKey.zip(keys).foreach { case (dateMap: Map[LocalDate, LocalDate], k: String) => {
     logger.info(s"$k date map has ${dateMap.size} dates")
     logger.info(s"$k first date is ${dateMap.keys.minBy(_.toEpochDay)}")
     logger.info(s"$k last date is ${dateMap.keys.maxBy(_.toEpochDay)}")
-  }}
+  }
+  }
 
 
   override def featureDimension: Int = vals.size + 1
@@ -89,33 +97,34 @@ case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDa
 
   override def feature(t: (Game, Option[Result])): Option[Vector] = {
     val (g, _) = t
-    val list = vals.zipWithIndex.map{case (m, i) => {
+    val list = vals.zipWithIndex.map { case (m, i) => {
       dateKey(i).get(g.date) match {
-        case Some(dt)=>
+        case Some(dt) =>
           vals(i).get(dt) match {
-            case Some(n)=>
+            case Some(n) =>
               (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
                 case (Some(h), Some(a)) => Some(h - a)
                 case _ => None
               }
-            case None=>None//throw new IllegalStateException("Key provided by map missing")
+            case None => None //throw new IllegalStateException("Key provided by map missing")
           }
-        case None=>
+        case None =>
           val last = dateKey(i).keySet.maxBy(_.toEpochDay)
-          if (g.date.isAfter(last)){
+          if (g.date.isAfter(last)) {
             vals(i).get(last) match {
-              case Some(n)=>
+              case Some(n) =>
                 (n.get(g.homeTeamId), n.get(g.awayTeamId)) match {
                   case (Some(h), Some(a)) => Some(h - a)
                   case _ => None
                 }
-              case None=>None//throw new IllegalStateException("Key provided by map missing")
+              case None => None //throw new IllegalStateException("Key provided by map missing")
             }
-          }else {
+          } else {
             None
           }
       }
-    }}
+    }
+    }
     list.foldLeft(Option(List(1.0)))((fs: Option[List[Double]], of: Option[Double]) => {
       of match {
         case Some(f) => fs.map(l => f :: l)
