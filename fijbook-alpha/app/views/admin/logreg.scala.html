@@ -62,13 +62,14 @@
                 <div class="col-sm-10">
                     <h4>Logistic Regression</h4>
                     <p>
-                        In statistics, logistic regression or logit model is a regression model where the dependent variable is categorical.
+                        In statistics, <a href="https://en.wikipedia.org/wiki/Logistic_regression" target="_blank">logistic regression</a> or logit model is a regression model where the dependent variable is categorical.
                         The simplest case is that of a binary dependent variable &mdash; that is, where the output can take only two values, "1" and "0", which in our case represent "wins" and "loses".
                         The binary logistic model is used to estimate the probability of the binary response based on one or more predictors (independent variables), also called features.
                     </p>
+                    <p>This age lets you experiment with various potential logit models.</p>
                 </div>
                 <div class="col-sm-12">
-                @b3.form(routes.PredictionModelController.calibrate()) {
+                @b3.form(routes.PredictionModelController.logisticRun()) {
                     <div class="row">
                         @CSRF.formField
                         <div class="col-sm-4">
@@ -103,9 +104,9 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Prediction &emsp;<a href="#" data-toggle="modal" data-target="#predictionInfo"><i class="fa fa-question-circle-o"></i></a></h3>
                                 </div>
-                                @b3.select(form("predictTeams"),teams.sortBy(_.name).map(s=>s.key.toString->s.name),'_label->"Results for",'multiple->true, 'size->10, 'class->"deepfij100-input", '_class->"deepfij100-fg")
-                                @b3.datetime(form("predictFrom"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
-                                @b3.datetime(form("predictTo"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.select(form("predictTeams"),teams.sortBy(_.name).map(s=>s.key.toString->s.name),'_label->"Results for",'multiple->true, 'size->20, 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.hidden(form("predictFrom"),'_label->"From Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
+                                @b3.hidden(form("predictTo"),'_label->"To Date", 'class->"deepfij100-input", '_class->"deepfij100-fg")
                             </div>
                         </div>
 
@@ -143,12 +144,23 @@
                                 <h3 class="modal-title" id="featureMappingLabel">Feature Mapping</h3>
                             </div>
                             <div class="modal-body">
-                                <h4>Seasons</h4>
-                                <p>Allows the user to select which seasons should be included to train the model.</p>
-                                <h4>Exclude months</h4>
-                                <p>Allows the user to exclude certain months from the training set.
-                                    Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
-                                    Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+                                <h4>Computed Statistics</h4>
+                                <p>Allows the user to select factors will be used to regress against.  The statitsics
+                                    listed are computed for each team for every day during the season.  With repect to
+                                    classifying a game, we consider the difference between values for each of the two
+                                    teams in the game, at the time of the game.
+                                </p>
+                                <h4>Normalization</h4>
+                                <p>Normalizes the values for the teams based on the population of the statistic at the
+                                    point in time.  Z-score takes the raw value of the statistic, subtracts the
+                                    population mean and divides by the population standard deviation.  The result is the
+                                    number of S.D.'s from the mean.  Min-max subtracts the min and divides by the range
+                                    between the min and max.  The resulting population is always bounded between 0..1.
+                                No normalization leaves raw scores.</p>
+                                <p>
+                                    Without going into great detail, in general, normalization is a good idea, especially if the scale of different
+                                    features is very different.  Z-score is typically better.
+                                </p>
 
                             </div>
                             <div class="modal-footer">
@@ -166,11 +178,7 @@
                             </div>
                             <div class="modal-body">
                                 <h4>Teams</h4>
-                                <p>Allows the user to select which seasons should be included to train the model.</p>
-                                <h4>From - To</h4>
-                                <p>Allows the user to exclude certain months from the training set.
-                                    Typically November is skipped because any feature mapping which uses computed statistics might be erratic at the very start of the season.
-                                    Additionally March/April are sometimes exclude, because the intent is to predict the result of the NCAA tournament and excluding those months will prevent overfitting</p>
+                                <p>Which teams to generate reports for..</p>
 
                             </div>
                             <div class="modal-footer">

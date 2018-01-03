@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter
 import scala.util.Try
 
 case class TeamPredictionView(t:Team, ps:List[PredictionView]){
-  def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined && pv.isResultCorrect.get)
-  def numCorrect:Int = ps.count(_.isResultCorrect.getOrElse(false))
+  def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined)
+  def numCorrect:Int = ps.count(pv=>pv.isResultCorrect.isDefined && pv.isResultCorrect.get)
   def pctCorrect:Double = if (numPredicted>0){
     numCorrect.doubleValue()/numPredicted.doubleValue()
   } else {

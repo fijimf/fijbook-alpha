@@ -14,8 +14,9 @@ GET         /deepfij/stats                                      controllers.Stat
 GET         /deepfij/stats/:modelKey                            controllers.StatsController.viewModel(modelKey:String)
 GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.viewStat(modelKey:String, statKey:String)
 GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
-GET         /deepfij/pred/logistic-1                            controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
-POST        /deepfij/pred/logistic-1                            controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
+GET         /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRequest()
+POST        /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRun()
+
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
 GET         /deepfij/blog/:key                                  controllers.S3BlockController.blog(key:String)
@@ -77,9 +78,6 @@ GET         /deepfij/admin/browseGames/:seasonId                controllers.Data
 GET         /deepfij/admin/editGame/:id                         controllers.DataController.editGame(id:Long)
 POST        /deepfij/admin/saveGame                             controllers.DataController.saveGame
 GET         /deepfij/admin/deleteGame/:id                       controllers.DataController.deleteGame(id:Long)
-
-GET         /deepfij/admin/testModels                           controllers.PredictionModelController.test()
-POST        /deepfij/admin/calibrateModel                       controllers.PredictionModelController.calibrate()
 
 ##### QUOTES
 GET         /deepfij/admin/browseQuotes                         controllers.DataController.browseQuotes

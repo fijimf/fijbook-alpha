@@ -37,16 +37,36 @@ class PredictionModelController @Inject()(
   })
   val normalizations = List(StatValueGameFeatureMapper.NO_NORMALIZATION -> "None",StatValueGameFeatureMapper.MIN_MAX -> "Min-Max", StatValueGameFeatureMapper.Z_SCORE -> "Z-Score")
 
-  def test() = silhouette.SecuredAction.async { implicit rs =>
+  def logisticRequest() = silhouette.SecuredAction.async { implicit rs =>
     for {
       ls <- teamDao.listSeasons
       ts <- teamDao.listTeams
+      sch <- teamDao.loadLatestSchedule()
     } yield {
-      Ok(views.html.admin.testModel(rs.identity, ls, ts, features, normalizations, PredictionModelForm.form))
+      sch match {
+        case Some(s)=>
+          Ok (
+            views.html.admin.logreg (
+              user = rs.identity,
+              seasons = ls,
+              teams = ts,
+              features = features,
+              normalizations = normalizations,
+              form = PredictionModelForm.form,
+              datePredictions = List.empty[(LocalDate, List[GamePrediction] )],
+              teamPredictions = List.empty[TeamPredictionView],
+              ps = LogisticPerformanceSummary.empty,
+              sch = s,
+              featureCoefficients = List.empty[(String, Double)],
+              mode = "request"
+            )
+          )
+        case None=>InternalServerError("Latest schedule data is unavailable")
+      }
     }
   }
 
-  def calibrate() = silhouette.SecuredAction.async { implicit rs =>
+  def logisticRun() = silhouette.SecuredAction.async { implicit rs =>
     PredictionModelForm.form.bindFromRequest.fold(
       form => {
         handleFormErrors( form)
@@ -97,9 +117,30 @@ class PredictionModelController @Inject()(
     for {
       ls <- teamDao.listSeasons
       ts <- teamDao.listTeams
+      sch <- teamDao.loadLatestSchedule()
     } yield {
       log.warn(s"Bad request $form")
-      BadRequest(views.html.admin.testModel(rs.identity, ls, ts, features, normalizations, form))
+      sch match {
+        case Some(s)=>
+          BadRequest(
+            views.html.admin.logreg(
+              user = rs.identity,
+              seasons = ls,
+              teams = ts,
+              features = features,
+              normalizations = normalizations,
+              form = form,
+              datePredictions = List.empty[(LocalDate,List[GamePrediction])],
+              teamPredictions = List.empty[TeamPredictionView],
+              ps = LogisticPerformanceSummary.empty,
+              sch = s,
+              featureCoefficients = List.empty[(String, Double)],
+              mode = "request"
+            )
+          )
+        case None =>
+          InternalServerError("Latest schedule data is unavailable")
+      }
     }
   }
 }
@@ -117,6 +158,8 @@ object LogisticPerformanceSummary {
     }
     }.toList
   }
+
+  def empty = LogisticPerformanceSummary(List.empty[LogisticResultLine], Map.empty[Long, Season], Map.empty[Long, Team])
 }
 
 case class LogisticPerformanceSummary(ls: List[LogisticResultLine], seasonMap: Map[Long, Season], teamMap: Map[Long, Team]) {
