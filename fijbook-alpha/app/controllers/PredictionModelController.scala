@@ -10,7 +10,7 @@ import com.fijimf.deepfij.stats._
 import com.fijimf.deepfij.stats.predictor._
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.mohiva.play.silhouette.api.actions.{SecuredRequest, UserAwareRequest}
 import forms.PredictionModelForm
 import play.api.Logger
 import play.api.data.Form
@@ -37,7 +37,7 @@ class PredictionModelController @Inject()(
   })
   val normalizations = List(StatValueGameFeatureMapper.NO_NORMALIZATION -> "None",StatValueGameFeatureMapper.MIN_MAX -> "Min-Max", StatValueGameFeatureMapper.Z_SCORE -> "Z-Score")
 
-  def logisticRequest() = silhouette.SecuredAction.async { implicit rs =>
+  def logisticRequest() = silhouette.UserAwareAction.async { implicit rs =>
     for {
       ls <- teamDao.listSeasons
       ts <- teamDao.listTeams
@@ -66,7 +66,7 @@ class PredictionModelController @Inject()(
     }
   }
 
-  def logisticRun() = silhouette.SecuredAction.async { implicit rs =>
+  def logisticRun() = silhouette.UserAwareAction.async { implicit rs =>
     PredictionModelForm.form.bindFromRequest.fold(
       form => {
         handleFormErrors( form)
@@ -77,7 +77,7 @@ class PredictionModelController @Inject()(
     )
   }
 
-  private def handleModelCalibrationAndPrediction(data: PredictionModelForm.Data)(implicit rs: SecuredRequest[DefaultEnv, AnyContent]) = {
+  private def handleModelCalibrationAndPrediction(data: PredictionModelForm.Data)(implicit rs: UserAwareRequest[DefaultEnv, AnyContent]) = {
     StatValueGameFeatureMapper.create(data.features, data.normalization, teamDao).flatMap { fm =>
       LogisticRegressionContext.selectTrainingSet(
         data.seasonsIncluded.map(_.toInt),
@@ -113,7 +113,7 @@ class PredictionModelController @Inject()(
     }
   }
 
-  private def handleFormErrors(form: Form[PredictionModelForm.Data])(implicit rs: SecuredRequest[DefaultEnv, AnyContent]): Future[Result] = {
+  private def handleFormErrors(form: Form[PredictionModelForm.Data])(implicit rs: UserAwareRequest[DefaultEnv, AnyContent]): Future[Result] = {
     for {
       ls <- teamDao.listSeasons
       ts <- teamDao.listTeams

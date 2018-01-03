@@ -12,7 +12,7 @@
 @import controllers.LogisticPerformanceSummary
 @import helper._
 @(
-        user:User,
+        user:Option[User],
         seasons:List[Season],
         teams:List[Team],
         features:List[(String, String)],
@@ -31,9 +31,9 @@
 }
 
 @mainX(
-    MainMeta.base("Logistic Model Results", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Model Results"))
+    MainMeta.base("Logistic Stat Models", user)
+            .withNav("predict")
+            .withCrumbs(Breadcrumbs.base.appendChild("Statistics","/stats","fa-area-chart").appendLeaf("Logistic Models"))
 ){
     <div class="row">
         <ul class="nav nav-tabs" role="tablist">
@@ -66,7 +66,7 @@
                         The simplest case is that of a binary dependent variable &mdash; that is, where the output can take only two values, "1" and "0", which in our case represent "wins" and "loses".
                         The binary logistic model is used to estimate the probability of the binary response based on one or more predictors (independent variables), also called features.
                     </p>
-                    <p>This age lets you experiment with various potential logit models.</p>
+                    <p>This page lets you experiment with various potential logit models.</p>
                 </div>
                 <div class="col-sm-12">
                 @b3.form(routes.PredictionModelController.logisticRun()) {
