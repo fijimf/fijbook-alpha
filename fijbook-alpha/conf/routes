@@ -44,6 +44,7 @@ GET         /deepfij/admin/scrapeGamesFor/:yyyymmdd             controllers.Game
 GET         /deepfij/admin/updateNeutralSites                   controllers.TeamScrapeController.neutralSiteSolver
 GET         /deepfij/admin/verifyResults/:y                     controllers.GameScrapeController.verifyResults(y:Int)
 ########### DATA
+GET         /deepfij/admin/scrapeManager                        controllers.ScrapingManagerController.page()
 GET         /deepfij/admin/uber-scrape                          controllers.UberScrapeController.uberScrape()
 GET         /deepfij/admin/uber-ncaa/:filename                  controllers.UberScrapeController.markNcaaGames(filename:String)
 ##### TEAMS
@@ -106,6 +107,8 @@ POST        /deepfij/admin/saveAlias                            controllers.Data
 GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)
 GET         /deepfij/admin/deleteAlias/:id                      controllers.DataController.deleteAlias(id:Long)
 
+
+GET         /deepfij/admin/ws                                   controllers.ScrapingManagerController.socket
 ############ SILHOUETTE
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
 

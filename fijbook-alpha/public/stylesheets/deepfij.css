@@ -191,3 +191,16 @@ img.spin:hover {
 .y.axis path {
     display: none;
 }
+
+.badge-red {
+    background-color: #d9534f !important;
+}
+.badge-green {
+    background-color: #5cb85c !important;
+}
+.badge-blue {
+    background-color: #5bc0de !important;
+}
+.badge-orange {
+    background-color: #f0ad4e !important;
+}

@@ -12,13 +12,14 @@ class Scheduler @Inject() (
                             @Named("auth-token-cleaner") authTokenCleaner: ActorRef,
                             @Named("schedule-updater") scheduleUpdater: ActorRef,
                             @Named("stats-updater") statsUpdater: ActorRef,
-                            @Named("predictions-updater") predictionsUpdater: ActorRef,
-                            @Named("memory-monitor") memoryMonitor: ActorRef) {
+                            @Named("predictions-updater") predictionsUpdater: ActorRef) {
   QuartzSchedulerExtension(system).schedule("AuthTokenCleaner", authTokenCleaner, AuthTokenCleaner.Clean)
   authTokenCleaner ! AuthTokenCleaner.Clean
-  QuartzSchedulerExtension(system).schedule("DailyScheduleUpdater", scheduleUpdater, ScheduleUpdater.forDailyUpdate())
-  QuartzSchedulerExtension(system).schedule("IntradayScheduleUpdater", scheduleUpdater, ScheduleUpdater.forNow())
+  QuartzSchedulerExtension(system).schedule("DailyScheduleUpdater", scheduleUpdater, ScheduleUpdater.forDailyUpdate)
+  QuartzSchedulerExtension(system).schedule("IntradayScheduleUpdater", scheduleUpdater, ScheduleUpdater.forNow)
   QuartzSchedulerExtension(system).schedule("DailyStatsUpdater", statsUpdater, StatsUpdater.Update(Some(7)))
   QuartzSchedulerExtension(system).schedule("DailyPredictionsUpdater", predictionsUpdater, PredictionsUpdater.Update)
-  QuartzSchedulerExtension(system).schedule("MemoryWatchdog", memoryMonitor, MemoryMonitor.CheckMemory)
+  QuartzSchedulerExtension.get(system).schedules.foreach{case (name,sch)=>{
+    println(s"$name ${sch.name} ${sch.schedule}")
+  }}
 }

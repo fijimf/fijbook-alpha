@@ -1,16 +1,13 @@
 package com.fijimf.deepfij.scraping
 
-package modules.scraping.requests
-
-
 import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.Team
 
 import scala.xml.Node
 
-case class TeamDetail(key: String, shortName:String, user:String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
-  override def url = "http://www.ncaa.com/schools/" + key+"/"
+case class TeamDetail(key: String, shortName: String, user: String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
+  override def url = "http://www.ncaa.com/schools/" + key + "/"
 
   override def scrape(n: Node) = {
     val longName = schoolName(n).getOrElse(shortName)
@@ -32,7 +29,7 @@ case class TeamDetail(key: String, shortName:String, user:String) extends HtmlSc
       nickname,
       conference,
       logoUrl,
-      logoUrl.map(_.replace("40","70")),
+      logoUrl.map(_.replace("40", "70")),
       primaryColor,
       secondaryColor,
       officialUrl,

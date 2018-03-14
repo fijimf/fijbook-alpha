@@ -44,7 +44,7 @@ trait NcaaComTeamScraper {
 
   def schoolMetaInfo(n:Node):Map[String,String] = {
     val items: Seq[Node] = (n \\ "li").filter(n => attrMatch(n, "class", "school-info"))
-    logger.info(items.mkString("(",", ",")" ))
+    logger.debug(items.mkString("(",", ",")" ))
     items.foldLeft(Map.empty[String, String])((m:Map[String, String], i:Node)=>{
       val key = (i \ "span").text.trim
       val value = i.text.replace(key,"").trim

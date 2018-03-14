@@ -9,8 +9,7 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
-import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TestUrl}
+import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TeamDetail, TestUrl}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -89,7 +88,7 @@ class TeamScrapeController @Inject()(
     }).map(_.toMap)
   }
 
-  def scrapeConferences() = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeConferences(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
 
     val basicKey: String => String = _.toLowerCase.replace(' ', '-')
@@ -118,7 +117,7 @@ class TeamScrapeController @Inject()(
       val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
       val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
       val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, false, LocalDateTime.now(), userTag)
+      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), userTag)
     }).toList
     teamDao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
   }

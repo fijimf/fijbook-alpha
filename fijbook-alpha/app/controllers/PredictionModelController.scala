@@ -85,7 +85,7 @@ class PredictionModelController @Inject()(
         teamDao
       ).flatMap(gors => {
         val context: LogisticRegressionContext = LogisticRegressionContext.create(fm, StraightWinCategorizer, gors, teamDao)
-        val resultLines = context.modelPerformance(gors)
+        val resultLines = context.modelPerformance()
         val eventualTuple: Future[(Map[Long, Season], Map[Long, Team], Option[Schedule])] = for {
           seasons <- teamDao.listSeasons
           sch <- teamDao.loadLatestSchedule()

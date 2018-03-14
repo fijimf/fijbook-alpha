@@ -1,6 +1,5 @@
 package com.fijimf.deepfij.scraping
 
-import java.io
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
@@ -10,17 +9,15 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.models.services.{ScheduleUpdateService, ComputedStatisticService}
-import com.fijimf.deepfij.scraping.modules.scraping.requests.TeamDetail
+import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService}
 import play.api.Logger
 
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
+case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,7 +27,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
   implicit val timeout: Timeout = Timeout(600.seconds)
 
 
-  def masterRebuild(tag: String, startYear: Int, endYear: Int) = {
+  def masterRebuild(tag: String, startYear: Int, endYear: Int): Future[Seq[Tracking]] = {
     for {
       step1 <- rebuildDatabase
       step2 <- loadAliases
@@ -56,7 +53,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
     }
   }
 
-  def loadAliases = {
+  def loadAliases: Future[Seq[Tracking]] = {
     val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
     val aliases = lines.flatMap(l => {
       val parts = l.trim.split("\\s+")
@@ -153,7 +150,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc:Sche
         val key = s.toLowerCase.replace(' ', '-')
         val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
         val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, false, LocalDateTime.now(), tag))
+        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), tag))
       case None =>
         None
     }

@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Game, Result}
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import org.apache.mahout.math.{DenseVector, Vector}
+import org.apache.spark.ml.linalg.{DenseVector, Vector}
 import play.api.Logger
 
 import scala.concurrent.Future

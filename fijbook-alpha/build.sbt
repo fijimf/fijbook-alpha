@@ -18,6 +18,10 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
 resolvers += "Apache" at "https://repository.apache.org/content/repositories/releases"
 
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.6.5"
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
+dependencyOverrides += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.5"
+
 libraryDependencies ++= Seq(
   ehcache,
   guice,
@@ -63,7 +67,8 @@ libraryDependencies ++= Seq(
   //  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.106",
-  "com.vladsch.flexmark" % "flexmark-all" % "0.27.0"
+  "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
+  "org.apache.spark" %% "spark-mllib" % "2.2.1"
 )
 
 import com.typesafe.sbt.packager.SettingsHelper._

@@ -4,7 +4,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.concurrent.{ExecutorService, Executors}
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef, Props}
+import com.fijimf.deepfij.models.ScheduleRepository
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.scraping.nextgen.ScrapingManagerActor
 import com.google.inject.Inject
 import play.api.Logger
 import play.api.libs.json.Json
@@ -14,6 +17,10 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 case class ScrapingResponse[T](url: String, latencyMs: Long, status: Int, length: Int, result: Try[T])
+
+object ScrapingActor {
+  def props(ws: WSClient) = Props(new ScrapingActor(ws))
+}
 
 class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   val logger: Logger = Logger(this.getClass)

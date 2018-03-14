@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import org.apache.spark.ml.classification.{BinaryLogisticRegressionTrainingSummary, LogisticRegressionModel}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -17,7 +18,7 @@ object LogisticRegressionContext {
   }
 
   def create(featureMapper: FeatureMapper[(Game, Option[Result])], categorizer: Categorizer[(Game, Option[Result])], games: List[(Game, Option[Result])], dao: ScheduleDAO): LogisticRegressionContext = {
-    LogisticRegressionContext("FIXME", LogisticReg.createClassifier(featureMapper, categorizer, games), dao)
+    LogisticRegressionContext("FIXME", LogisticReg.createClassifier(featureMapper, categorizer, games), dao,null)
   }
 
   def selectTrainingSet(seasons: List[Int], excludeMonths: List[Int], dao: ScheduleDAO): Future[List[(Game, Option[Result])]] = {
@@ -27,10 +28,15 @@ object LogisticRegressionContext {
   }
 }
 
-case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, Option[Result])], dao: ScheduleDAO) extends SchedulePredictor {
+case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, Option[Result])], dao: ScheduleDAO, m:LogisticRegressionModel) extends SchedulePredictor {
 
-  def modelPerformance(games: List[(Game, Option[Result])]): List[LogisticResultLine] = {
-    games.flatMap(gor => gor match {
+  val ts = m.summary.asInstanceOf[BinaryLogisticRegressionTrainingSummary]
+  def modelPerformance(): List[LogisticResultLine] = {
+    ts.predictions.collect().map(row=>{
+      val game = row.getAs[Game]("game")
+      val result = Option.empty[Result]
+      (game, result)
+    }).flatMap(gor => gor match {
       case (g, Some(result)) =>
         classifier.classify(gor) match {
           case Some(arr) =>
@@ -38,7 +44,7 @@ case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, 
           case None => None
         }
       case (g, None) => None
-    })
+    }).toList
   }
 
   override def predictDate(sch: Schedule, d: LocalDate): List[GamePrediction] = {
