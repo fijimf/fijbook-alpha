@@ -1,11 +1,10 @@
 package com.fijimf.deepfij.scraping.nextgen.tasks
 
-import java.util.UUID
-
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, PoisonPill}
+import akka.agent.Agent
+import akka.contrib.throttle.Throttler
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.agent.Agent
 import com.fijimf.deepfij.models.Team
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.scraping.nextgen._
@@ -17,15 +16,21 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class ScrapeTeams(dao: ScheduleDAO, requester: ActorRef) extends SSTask[Int] {
+case class ScrapeTeams(dao: ScheduleDAO, throttler: ActorRef) extends SSTask[Int] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val logger = Logger(this.getClass)
-  
+
   val name: String = "ScrapeTeams"
 
   def safeToRun: Future[Boolean] = dao.listTeams.map(_.nonEmpty)
+
+  override def cancel = {
+    throttler ! Throttler.SetTarget(None)
+    throttler ! PoisonPill
+
+  }
 
   def run(messageListener: Option[ActorRef]): Future[Int] = {
 
@@ -52,14 +57,14 @@ case class ScrapeTeams(dao: ScheduleDAO, requester: ActorRef) extends SSTask[Int
     implicit val timeout: Timeout = Timeout((10 + size * 2).seconds)
     val counter = Agent(0)
 
-    def sendProgressMessage(s:String): Unit = {
+    def sendProgressMessage(s: String): Unit = {
       counter.send(_ + 1)
       messageListener.foreach(out => out ! SSTaskProgress(Some(counter.get.toDouble / size), Some(s)))
     }
 
     val futureTeams: Iterable[Future[Option[Team]]] = is.map {
       case (key, shortName) =>
-        val fot: Future[Option[Team]] = (requester ? TeamDetail(aliasMap.getOrElse(key, key), shortName, tag))
+        val fot: Future[Option[Team]] = (throttler ? TeamDetail(aliasMap.getOrElse(key, key), shortName, tag))
           .mapTo[ScrapingResponse[Team]].map(_.result match {
           case Success(t) => Some(t)
           case Failure(thr) =>

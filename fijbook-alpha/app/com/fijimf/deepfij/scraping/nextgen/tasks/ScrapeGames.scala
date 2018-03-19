@@ -3,8 +3,9 @@ package com.fijimf.deepfij.scraping.nextgen.tasks
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, PoisonPill}
 import akka.agent.Agent
+import akka.contrib.throttle.Throttler
 import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
@@ -38,6 +39,11 @@ case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List
         }
       }))
     })
+  }
+
+  override def cancel = {
+    throttler ! Throttler.SetTarget(None)
+    throttler ! PoisonPill
   }
 
   def loadSeason(s: Season, tag: String, messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[UpdateDbResult]] = {

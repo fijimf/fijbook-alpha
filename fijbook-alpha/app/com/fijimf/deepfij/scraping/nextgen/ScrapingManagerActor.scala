@@ -47,6 +47,15 @@ case class ScrapingManagerActor(
     case (s: String) if s.toLowerCase == "$command::status" =>
       log.info("Received status command")
       superScraper ! SSStatus
+    case (s: String) if s.toLowerCase == "$command::cancel_task_list" =>
+      log.info("Received cancel task list command")
+      superScraper ! SSCancelTaskList
+    case (s: String) if s.toLowerCase == "$command::cancel_task" =>
+      log.info("Received cancel task command")
+      superScraper ! SSCancelTask
+    case (s: String) if s.toLowerCase == "$command::status" =>
+      log.info("Received status command")
+      superScraper ! SSStatus
     case (s: String) if s.toLowerCase == "$command::full_rebuild" =>
       log.info("Received full rebuild command")
       val msg = SSProcessTasks(List(

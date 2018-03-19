@@ -15,4 +15,6 @@ trait SSTask[T] {
   def name: String
 
   def run(messageListener:Option[ActorRef]): Future[T]
+  
+  def cancel= {}
 }

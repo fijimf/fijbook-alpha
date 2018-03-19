@@ -64,7 +64,12 @@ class SuperScrapeActor() extends FSM[SuperScrapeActorState, SuperScrapeActorData
 
 
   when(Processing) {
-    case Event(SSStatus, p: ProcessingData) => stay replying p
+    case Event(SSStatus, p: ProcessingData) => if(!p.listeners.contains(sender())){
+      val p1 = p.copy(listeners = sender() :: p.listeners)
+      stay using p1 replying p1
+    } else {
+      stay replying p
+    }
     case Event(SSAttachListener(ref), p: ProcessingData) => stay using p.copy(listeners = ref :: p.listeners)
     case Event(SSCancelTask, p: ProcessingData) =>
       val p1 = failCurrentTask(p, TaskCancelledException)
