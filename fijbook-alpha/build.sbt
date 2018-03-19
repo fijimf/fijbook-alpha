@@ -52,6 +52,7 @@ libraryDependencies ++= Seq(
   "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
   "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
+  "com.typesafe.akka" %% "akka-agent" % "2.3.15",
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.commons" % "commons-text" % "1.1",

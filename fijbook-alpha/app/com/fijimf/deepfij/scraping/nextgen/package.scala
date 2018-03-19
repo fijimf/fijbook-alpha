@@ -3,21 +3,20 @@ package com.fijimf.deepfij.scraping
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, LocalDateTime}
 
-import akka.stream.actor.WatermarkRequestStrategy
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{Json, Writes}
 
 package object nextgen {
-  
+
   implicit val readyDataWrites: Writes[ReadyData] = new Writes[ReadyData] {
     def writes(r: ReadyData) = {
       Json.obj(
-        "type"->Json.toJson("ready"),
-        "status"->Json.toJson(r.last.map(_.status).getOrElse("Unknown")),
+        "type" -> Json.toJson("ready"),
+        "status" -> Json.toJson(r.last.map(_.status).getOrElse("Unknown")),
         "lastTaskList" -> Json.toJson(r.last.toList))
     }
   }
 
-  implicit val ssTaskListMetadata: Writes[SSTaskListMetadata] =  new Writes[SSTaskListMetadata] {
+  implicit val ssTaskListMetadata: Writes[SSTaskListMetadata] = new Writes[SSTaskListMetadata] {
     def writes(tlm: SSTaskListMetadata) = {
       Json.obj("id" -> Json.toJson(tlm.id), "tasks" -> Json.toJson(tlm.tasks))
     }
@@ -30,36 +29,36 @@ package object nextgen {
           Json.obj(
             "id" -> Json.toJson(id),
             "name" -> Json.toJson(name),
-            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
+            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
             "completedAt" -> Json.toJson(""),
-            "elapsedTime" -> Duration.between(startedAt, LocalDateTime.now).toString,
+            "elapsedTime" -> FormatDuration(Duration.between(startedAt, LocalDateTime.now)),
             "message" -> Json.toJson("Running")
           )
         case SSCompletedTaskMetadata(id, name, startedAt, completedAt, _) =>
           Json.obj(
             "id" -> Json.toJson(id),
             "name" -> Json.toJson(name),
-            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "completedAt" -> Json.toJson(completedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "elapsedTime" -> Duration.between(startedAt, completedAt).toString,
+            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "completedAt" -> Json.toJson(completedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "elapsedTime" -> FormatDuration(Duration.between(startedAt, completedAt)),
             "message" -> Json.toJson("Completed")
           )
         case SSFailedTaskMetadata(id, name, startedAt, completedAt, thr) =>
           Json.obj(
             "id" -> Json.toJson(id),
             "name" -> Json.toJson(name),
-            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "completedAt" -> Json.toJson(completedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "elapsedTime" -> Duration.between(startedAt, completedAt).toString,
+            "startedAt" -> Json.toJson(startedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "completedAt" -> Json.toJson(completedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "elapsedTime" -> FormatDuration(Duration.between(startedAt, completedAt)),
             "message" -> Json.toJson(s"Failed -> ${thr.getMessage}")
           )
         case SSAbortedTaskMetadata(id, name, abortedAt) =>
           Json.obj(
             "id" -> Json.toJson(id),
             "name" -> Json.toJson(name),
-            "startedAt" -> Json.toJson(abortedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "completedAt" -> Json.toJson(abortedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
-            "elapsedTime" -> "",
+            "startedAt" -> Json.toJson(abortedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "completedAt" -> Json.toJson(abortedAt.format(DateTimeFormatter.ISO_LOCAL_TIME)),
+            "elapsedTime" -> "~",
             "message" -> Json.toJson(s"Aborted")
           )
       }
@@ -69,20 +68,30 @@ package object nextgen {
   implicit val writesProcessingData: Writes[ProcessingData] = new Writes[ProcessingData] {
     def writes(p: ProcessingData) = {
       Json.obj(
-        "type"->Json.toJson("running"),
-        "running"->Json.toJson(p.runningTask),
-        "completed"->Json.toJson(p.completedTasks),
-        "toRun"->Json.toJson(p.tasksToRun)
+        "type" -> Json.toJson("running"),
+        "running" -> Json.toJson(p.runningTask),
+        "completed" -> Json.toJson(p.completedTasks),
+        "toRun" -> Json.toJson(p.tasksToRun)
       )
     }
-  }   
-  
+  }
+
   implicit val writesTask: Writes[SSTask[_]] = new Writes[SSTask[_]] {
     def writes(t: SSTask[_]) = {
       Json.obj(
-        "name"->Json.toJson(t.name)
+        "name" -> Json.toJson(t.name)
       )
     }
-  } 
+  }
+}
 
+object FormatDuration {
+  def apply(duration: Duration): String = {
+    val millis = duration.toMillis
+    val seconds = millis / 1000L
+    val absSeconds = Math.abs(seconds)
+    val positive = "%d:%02d:%02d.%03d".format(absSeconds / 3600, (absSeconds % 3600) / 60, absSeconds % 60, millis % 1000)
+    if (seconds < 0) "-" + positive
+    else positive
+  }
 }

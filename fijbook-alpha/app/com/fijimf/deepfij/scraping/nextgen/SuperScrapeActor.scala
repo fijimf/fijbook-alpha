@@ -5,7 +5,6 @@ import java.util.UUID
 
 import akka.actor.{ActorRef, FSM}
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
@@ -26,11 +25,6 @@ import scala.util.{Failure, Success}
   * Response - this is the response from the downstream actor that the task has been completed
   */
 
-trait SSTask[T] {
-  def name: String
-
-  def run: Future[T]
-}
 
 
 // SuperScrapeActorMessages
@@ -48,7 +42,7 @@ case class SSFailureResponse(id: String, thr: Throwable)
 
 case class SSProcessTasks(tasks: List[SSTask[_]])
 
-case class SSTaskProgress(progress:String)
+case class SSTaskProgress(progress:Option[Double],message:Option[String])
 
 sealed trait SuperScrapeActorState
 
@@ -103,8 +97,8 @@ class SuperScrapeActor() extends FSM[SuperScrapeActorState, SuperScrapeActorData
         goto(Processing) using runNextTask(p)
       }
 
-    case Event(SSTaskProgress(progress), p:ProcessingData) =>
-      p.listeners.foreach(_ ! (p.runningTask.id,progress))      
+    case Event(SSTaskProgress(x,msg), p:ProcessingData) =>
+      p.listeners.foreach(_ ! (p.runningTask.id,p.runningTask.elapsedTime(),x.getOrElse(-1.0),msg.getOrElse("")))      
       stay()
   }
 
@@ -145,8 +139,8 @@ class SuperScrapeActor() extends FSM[SuperScrapeActorState, SuperScrapeActorData
     require(p.tasksToRun.nonEmpty)
     p.tasksToRun match {
       case head :: tail =>
-        val id = UUID.randomUUID().toString
-        head.run.onComplete {
+        val id = head.id
+        head.run(Some(self)).onComplete {
           case Success(t) => self ! SSSuccessResponse(id, t)
           case Failure(thr) => self ! SSFailureResponse(id, thr)
         }

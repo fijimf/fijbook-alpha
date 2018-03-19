@@ -3,24 +3,31 @@ function setupManagerSocket(addr) {
 
     socket.onopen = function () {
         console.log("Socket opened");
-        $("#btnRequestStatus").click(function () {
+        $("#btnRequestStatus").off('click').on('click',function () {
             socket.send("$COMMAND::STATUS")
         });
-        $("#btnFullRebuild").click(function () {
+        $("#btnFullRebuild").off('click').on('click',function () {
             socket.send("$COMMAND::FULL_REBUILD")
         });
-        $("#btnUpdateCurrent").click(function () {
+        $("#btnUpdateCurrent").off('click').on('click',function () {
             socket.send("$COMMAND::UPDATE_CURRENT")
         });
-        $("#btnCancelTask").click(function () {
+        $("#btnCancelTask").off('click').on('click',function () {
             socket.send("$COMMAND::CANCEL_TASK")
         });
-        $("#btnCancelTaskList").click(function () {
+        $("#btnCancelTaskList").off('click').on('click',function () {
             socket.send("$COMMAND::CANCEL_TASK_LIST")
         });
         socket.send("$COMMAND::STATUS");
     };
 
+    socket.onclose = function(event) {
+        console.log('Socket is closed. Reconnect will be attempted in 1 500 millis.', event.reason);
+        setTimeout(function() {
+            setupManagerSocket(addr);
+        }, 500);
+    };
+    
     socket.onmessage = function (msgEvent) {
         console.log(msgEvent.data);
 
@@ -45,12 +52,11 @@ function setupManagerSocket(addr) {
             }
             return $("<tr>")
                 .append($("<td>", {"class": txtColor}).append($("<span>", {"class": faClass})))
-                .append($("<td>").text(tsk.id.substring(0, 6) + "..."))
                 .append($("<td>", {"class": txtColor}).text(tsk.name))
-                .append($("<td>").text(tsk.startedAt))
-                .append($("<td>").text(tsk.completedAt))
-                .append($("<td>").text(tsk.elapsedTime))
-                .append($("<td>", {"id": tsk.id}).text(""));
+                .append($("<td>", {"id": "started-"+tsk.id}).text(tsk.startedAt))
+                .append($("<td>", {"id": "completed-"+tsk.id}).text(tsk.completedAt))
+                .append($("<td>", {"id": "elapsed-"+tsk.id}).text(tsk.elapsedTime))
+                .append($("<td>", {"id": "progress-"+tsk.id}).text(""));
         }
 
         if (s.type === "ready") {
@@ -80,9 +86,9 @@ function setupManagerSocket(addr) {
             });
 
         } else if (s.type === "progress") {
-            var progressCell = $("#" + s.taskId);
+            var progressCell = $("#progress-" + s.taskId);
             if (progressCell) {
-                progressCell.text(s.progress)
+                progressCell.text(s.percentComplete+"["+s.progress+"]")
             }
         } else {
             badge.text("Error");
