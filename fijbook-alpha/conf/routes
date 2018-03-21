@@ -109,6 +109,8 @@ GET         /deepfij/admin/deleteAlias/:id                      controllers.Data
 
 
 GET         /deepfij/admin/ws                                   controllers.ScrapingManagerController.socket
+
+GET         /deepfij/admin/serializeSched                       controllers.AdminController.serializeCurrent
 ############ SILHOUETTE
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
 
