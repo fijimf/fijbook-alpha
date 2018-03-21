@@ -65,7 +65,10 @@ case class ScrapingManagerActor(
         ScrapeConferences(System.currentTimeMillis().toString, dao, confThrottler),
         CreateSeasons(2014,2018, dao),
         SeedConferenceMaps(dao),
-        ScrapeGames(dao, gameThrottler)
+        ScrapeGames(dao, gameThrottler),
+        TourneyUpdater("/ncaa-tourn.txt",dao),
+        NeutralSiteSolver(dao),
+        UpdateStatistics(dao,None)
       ))
       superScraper ! msg
     case (r: ReadyData) =>

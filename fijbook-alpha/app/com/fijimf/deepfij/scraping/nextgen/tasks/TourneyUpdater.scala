@@ -1,9 +1,24 @@
 package com.fijimf.deepfij.scraping.nextgen.tasks
 
-class TourneyUpdater {
-/*
-  def updateForTournament(filename: String): Future[List[Tracking]] = {
-    updateNcaaTournamentGames(filename).map(_.map(g => Tracking(LocalDateTime.now(), s"$g")))
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+import akka.actor.ActorRef
+import com.fijimf.deepfij.models.Game
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.scraping.nextgen.SSTask
+import play.api.Logger
+
+import scala.concurrent.Future
+import scala.io.Source
+
+case class TourneyUpdater(filename: String, dao: ScheduleDAO) extends SSTask[Int] {
+  val logger = Logger(this.getClass)
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+  
+  def run(messageListener: Option[ActorRef]): Future[Int] = {
+    updateNcaaTournamentGames(filename).map(_.size)
   }
 
   def updateNcaaTournamentGames(fileName: String): Future[List[Game]] = {
@@ -50,5 +65,8 @@ class TourneyUpdater {
     }.toList).map(_.flatten)
   }
 
- */
+  override def safeToRun: Future[Boolean] = Future.successful(true)
+
+  override def name: String = "ID Tournament Games"
+
 }

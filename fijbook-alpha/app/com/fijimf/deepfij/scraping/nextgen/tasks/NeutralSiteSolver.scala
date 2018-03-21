@@ -1,17 +1,15 @@
 package com.fijimf.deepfij.scraping.nextgen.tasks
 
-import java.time.LocalDateTime
-
 import akka.actor.ActorRef
-import com.fijimf.deepfij.models.{Game, Schedule}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.{Game, Schedule}
 import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future
 
-class NeutralSiteSolver(dao:ScheduleDAO)  extends SSTask[List[Game]]{
+case class NeutralSiteSolver(dao: ScheduleDAO) extends SSTask[List[Game]] {
 
-  def run(messageListener:Option[ActorRef]): Future[List[Game]] = {
+  def run(messageListener: Option[ActorRef]): Future[List[Game]] = {
     import scala.concurrent.ExecutionContext.Implicits.global
     dao.loadSchedules()
       .map(schedules =>
