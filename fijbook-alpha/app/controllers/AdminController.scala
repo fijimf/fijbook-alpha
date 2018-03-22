@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class AdminController @Inject()(val controllerComponents: ControllerComponents, val userService: UserService, val scheduleDao: ScheduleDAO, val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext) extends BaseController {
 
@@ -22,8 +22,15 @@ class AdminController @Inject()(val controllerComponents: ControllerComponents, 
     }
   }
   
-  def serializeCurrent = silhouette.UserAwareAction.async { implicit rs =>
+  def writeDataToS3 = silhouette.UserAwareAction.async { implicit rs =>
     ScheduleSerializer.writeSchedulesToS3(scheduleDao).map(Ok(_))
+  }
+  def readDataFromS3(key:String) = silhouette.UserAwareAction.async { implicit rs =>
+    ScheduleSerializer.readSchedulesFromS3(key).map(_=>Ok("It worked"))
+  }
+
+  def listSavedDataFromS3 = silhouette.UserAwareAction.async { implicit rs =>
+    Future {(Ok(ScheduleSerializer.listSaved().mkString ("\n")))}
   }
 
   def userProfile(id: String) = play.mvc.Results.TODO

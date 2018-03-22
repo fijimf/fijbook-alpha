@@ -5,7 +5,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala, BuildInfoPlugin)
   buildInfoPackage := "com.fijimf.deepfij"
 )
 
-buildInfoOptions += BuildInfoOption.BuildTime
+  buildInfoOptions += BuildInfoOption.BuildTime
 
 
 scalaVersion := "2.11.8"

@@ -1,21 +1,24 @@
 package com.fijimf.deepfij.models.services
 
 import java.io.ByteArrayInputStream
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, LocalDateTime, ZoneId}
 import java.util.UUID
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.amazonaws.services.s3.model._
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import com.amazonaws.util.IOUtils
+import com.fijimf.deepfij.BuildInfo
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import play.api.Application
-import play.api.libs.json._
+import play.api.libs.json.{Json, _}
 
 import scala.concurrent.Future
 
 object ScheduleSerializer {
+
+  val bucket = "deepfij-data"
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -27,6 +30,8 @@ object ScheduleSerializer {
 
   case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
 
+  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], seasons: List[MappedSeason])
+
   implicit val formatsTeam: Format[Team] = Json.format[Team]
   implicit val formatsAlias: Format[Alias] = Json.format[Alias]
   implicit val formatsConference: Format[Conference] = Json.format[Conference]
@@ -34,6 +39,7 @@ object ScheduleSerializer {
   implicit val formatsMappedGame: Format[MappedGame] = Json.format[MappedGame]
   implicit val formatsScoreboard: Format[Scoreboard] = Json.format[Scoreboard]
   implicit val formatsMappedSeason: Format[MappedSeason] = Json.format[MappedSeason]
+  implicit val formatsMappedUniverse: Format[MappedUniverse] = Json.format[MappedUniverse]
 
   def createMappedSeasons(teams: List[Team], conferences: List[Conference], seasons: List[Season], conferenceMaps: List[ConferenceMap], games: List[Game], results: List[Result]) = {
     val teamMap = teams.map(t => t.id -> t).toMap
@@ -76,8 +82,8 @@ object ScheduleSerializer {
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
       .build()
-    val m = System.getProperty("apllication.mode","DEV")
-    val bucket = "deepfij-data"
+    val m = BuildInfo.version
+
     val k = s"$m-${LocalDateTime.now()}-${UUID.randomUUID().toString}"
     writeSchedulesJson(dao).map(_.getBytes).map(bytes => {
       val inStream = new ByteArrayInputStream(bytes)
@@ -100,20 +106,42 @@ object ScheduleSerializer {
       games <- dao.listGames
       results <- dao.listResults
     } yield {
-      val mappedSeasons = createMappedSeasons(teams, conferences, seasons, conferenceMaps, games, results)
-      Json.obj(
-        "timestamp" -> Json.toJson(LocalDateTime.now().toString),
-        "teams" -> Json.toJson(teams),
-        "aliases" -> Json.toJson(aliases),
-        "conferences" -> Json.toJson(conferences),
-        "seasons" -> Json.toJson(mappedSeasons)
-      )
+      MappedUniverse(LocalDateTime.now(), teams, aliases, conferences, createMappedSeasons(teams, conferences, seasons, conferenceMaps, games, results))
     }
     data.map(Json.toJson(_).toString())
   }
 
 
-  def readSchedulesFromS3() = {}
+  def saveToDb(uni: MappedUniverse):Future[Unit] = {
+    Future {
+      println("It worked")
+    }
+  }
+
+  def readSchedulesFromS3(key: String): Future[Unit] = {
+    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+      .withCredentials(new DefaultAWSCredentialsProviderChain())
+      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
+      .build()
+
+
+    val obj = s3.getObject(bucket, key)
+    Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
+      case Some(uni) => saveToDb(uni)
+      case None => Future {println("If failed")}
+    }
+
+  }
+
+  def listSaved(): List[(String, Long, LocalDateTime)] = {
+    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+      .withCredentials(new DefaultAWSCredentialsProviderChain())
+      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
+      .build()
+    val summaries = s3.listObjects(bucket).getObjectSummaries
+    0.until(summaries.size()).map(summaries.get(_)).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
+    )).toList
+  }
 
 
 }
