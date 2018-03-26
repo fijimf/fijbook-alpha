@@ -110,9 +110,9 @@ GET         /deepfij/admin/deleteAlias/:id                      controllers.Data
 
 GET         /deepfij/admin/ws                                   controllers.ScrapingManagerController.socket
 
-GET         /deepfij/admin/writeToS3                            controllers.AdminController.writeDataToS3
-GET         /deepfij/admin/readFromS3/:key                      controllers.AdminController.readDataFromS3(key:String)
-GET         /deepfij/admin/listS3Dumps                          controllers.AdminController.listSavedDataFromS3
+GET         /deepfij/admin/writeSnapshot                        controllers.AdminController.writeSnapshot
+GET         /deepfij/admin/readSnapshot:key                     controllers.AdminController.readSnapshot(key:String)
+GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 ############ SILHOUETTE
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
 

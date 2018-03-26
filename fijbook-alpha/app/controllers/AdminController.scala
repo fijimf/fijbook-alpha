@@ -22,14 +22,14 @@ class AdminController @Inject()(val controllerComponents: ControllerComponents, 
     }
   }
   
-  def writeDataToS3 = silhouette.SecuredAction.async  { implicit rs =>
-    ScheduleSerializer.writeSchedulesToS3(scheduleDao).map(_=>Redirect(routes.AdminController.listSavedDataFromS3()))
+  def writeSnapshot = silhouette.SecuredAction.async  { implicit rs =>
+    ScheduleSerializer.writeSchedulesToS3(scheduleDao).map(_=>Redirect(routes.AdminController.listSnapshots()))
   }
-  def readDataFromS3(key:String) = silhouette.SecuredAction.async  { implicit rs =>
+  def readSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
     ScheduleSerializer.readSchedulesFromS3(key,scheduleDao,repo).map(_=>Redirect(routes.AdminController.index()))
   }
 
-  def listSavedDataFromS3 = silhouette.SecuredAction.async  { implicit rs =>
+  def listSnapshots = silhouette.SecuredAction.async  { implicit rs =>
     Future {
       Ok(views.html.admin.handleS3backups(rs.identity,ScheduleSerializer.listSaved()))
     }
