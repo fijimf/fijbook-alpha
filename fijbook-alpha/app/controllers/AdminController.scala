@@ -31,7 +31,7 @@ class AdminController @Inject()(val controllerComponents: ControllerComponents, 
 
   def listSnapshots = silhouette.SecuredAction.async  { implicit rs =>
     Future {
-      Ok(views.html.admin.handleS3backups(rs.identity,ScheduleSerializer.listSaved()))
+      Ok(views.html.admin.browseSnapshots(rs.identity,ScheduleSerializer.listSaved()))
     }
   }
 
