@@ -13,7 +13,7 @@
 ){
     <div class="row">
         <div class="col-md-2">
-            <a href="@routes.AdminController.writeDataToS3()" class="btn btn-small btn-block btn-success">Create a snapshot</a>
+            <a href="@routes.AdminController.writeSnapshot()" class="btn btn-small btn-block btn-success">Create a snapshot</a>
         </div>
     </div>
 
@@ -31,7 +31,7 @@
                 </thead>
                 <tbody>
                     @for(s<-ss){
-                        <tr><td><a href="@routes.AdminController.readDataFromS3(s._1)" class="btn btn-mini btn-success">Load</a></td>
+                        <tr><td><a href="@routes.AdminController.readSnapshot(s._1)" class="btn btn-mini btn-success">Load</a></td>
                             <td>@s._1</td>
                             <td>@{"%5.2f".format(s._2/1000000.0)}</td>
                             <td>@{s._3.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:MM:ss.SSS"))}</td>
