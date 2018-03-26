@@ -3,14 +3,14 @@ package controllers
 import javax.inject.Inject
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{ScheduleSerializer, UserService}
-import com.fijimf.deepfij.models.{Schedule, User}
+import com.fijimf.deepfij.models.{Schedule, ScheduleRepository, User}
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AdminController @Inject()(val controllerComponents: ControllerComponents, val userService: UserService, val scheduleDao: ScheduleDAO, val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext) extends BaseController {
+class AdminController @Inject()(val controllerComponents: ControllerComponents, val userService: UserService, val scheduleDao: ScheduleDAO, val repo:ScheduleRepository, silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext) extends BaseController {
 
   def index = silhouette.UserAwareAction.async { implicit rs =>
     for (
@@ -22,15 +22,17 @@ class AdminController @Inject()(val controllerComponents: ControllerComponents, 
     }
   }
   
-  def writeDataToS3 = silhouette.UserAwareAction.async { implicit rs =>
-    ScheduleSerializer.writeSchedulesToS3(scheduleDao).map(Ok(_))
+  def writeDataToS3 = silhouette.SecuredAction.async  { implicit rs =>
+    ScheduleSerializer.writeSchedulesToS3(scheduleDao).map(_=>Redirect(routes.AdminController.listSavedDataFromS3()))
   }
-  def readDataFromS3(key:String) = silhouette.UserAwareAction.async { implicit rs =>
-    ScheduleSerializer.readSchedulesFromS3(key).map(_=>Ok("It worked"))
+  def readDataFromS3(key:String) = silhouette.SecuredAction.async  { implicit rs =>
+    ScheduleSerializer.readSchedulesFromS3(key,scheduleDao,repo).map(_=>Redirect(routes.AdminController.index()))
   }
 
-  def listSavedDataFromS3 = silhouette.UserAwareAction.async { implicit rs =>
-    Future {(Ok(ScheduleSerializer.listSaved().mkString ("\n")))}
+  def listSavedDataFromS3 = silhouette.SecuredAction.async  { implicit rs =>
+    Future {
+      Ok(views.html.admin.handleS3backups(rs.identity,ScheduleSerializer.listSaved()))
+    }
   }
 
   def userProfile(id: String) = play.mvc.Results.TODO

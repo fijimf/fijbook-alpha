@@ -53,7 +53,7 @@ trait ConferenceMapDAOImpl extends ConferenceMapDAO with DAOSlick {
     val f = db.run(DBIO.sequence(ops).transactionally)
     f.onComplete {
       case Success(lcm)=> logger.info(s"Saved ${lcm.size} conference mappings")
-      case Failure(ex) =>logger.error(s"Failed deleting conference maps",ex)
+      case Failure(ex) =>logger.error(s"Failed saving conference maps",ex)
     }
     f
 

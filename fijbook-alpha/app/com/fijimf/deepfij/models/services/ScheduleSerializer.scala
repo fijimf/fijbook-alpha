@@ -112,13 +112,100 @@ object ScheduleSerializer {
   }
 
 
-  def saveToDb(uni: MappedUniverse):Future[Unit] = {
-    Future {
-      println("It worked")
+  def isDBEmpty(dao: ScheduleDAO): Future[Boolean] = {
+    for {
+      ts<-dao.listTeams
+      cs<-dao.listConferences
+      ss<-dao.listSeasons
+    }yield {
+      ts.isEmpty && cs.isEmpty && ss.isEmpty
     }
   }
 
-  def readSchedulesFromS3(key: String): Future[Unit] = {
+  def saveToDb(uni: MappedUniverse, dao:ScheduleDAO, repo:ScheduleRepository,clobberDB:Boolean=false):Future[Unit] = {
+    isDBEmpty(dao).map(b => {
+      if (b || clobberDB) {
+        repo.dropSchema().flatMap(_=>repo.createSchema().flatMap(_=>{
+          dao.saveTeams(uni.teams.map(_.copy(id = 0))).flatMap(teams => {
+            dao.saveConferences(uni.conferences.map(_.copy(id = 0L))).flatMap(conferences => {
+              dao.saveAliases(uni.aliases.map(_.copy(id = 0L))).flatMap(_ => {
+                val teamMap = teams.map(t => t.key -> t).toMap
+                val confMap = conferences.map(c => c.key -> c).toMap
+                
+                uni.seasons.foldLeft(Future.successful(List.empty[Long])){case (fll: Future[List[Long]], ms: MappedSeason) => {
+                  fll.flatMap(ll=>  { 
+                    val seas = Season(0L, ms.year, "", None)
+                    dao.saveSeason(seas).flatMap(season => {
+                      saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap)
+                    })})
+                }}
+              }
+              )
+            })
+          })
+        })
+        )
+      } else {
+        throw new RuntimeException("Database was not empty. Could not load from S3")
+      }
+    })
+  }
+
+  def saveSeasonDataToDb(dao: ScheduleDAO, ms: MappedSeason, id:Long, ts:LocalDateTime, teamMap:Map[String, Team], confMap:Map[String, Conference]): Future[List[Long]] = {
+    val conferenceMaps: List[ConferenceMap] = ms.confMap.flatMap(cm => {
+      cm.teams.flatMap(tk => {
+        for {
+          t <- teamMap.get(tk)
+          c <- confMap.get(cm.key)
+        } yield {
+          ConferenceMap(0L, id, c.id, t.id, false, ts, "")
+        }
+      })
+
+    })
+    dao.saveConferenceMaps(conferenceMaps).flatMap(_=>{
+      Future.sequence(ms.scoreboards.map(s => {
+        val gameResults: List[(Game, Option[Result])] = s.games.flatMap(gg => {
+          for {
+            hh <- teamMap.get(gg.homeTeamKey)
+            aa <- teamMap.get(gg.awayTeamKey)
+          } yield {
+            val g = Game(
+              0L,
+              id,
+              hh.id,
+              aa.id,
+              gg.date,
+              gg.datetime,
+              if (gg.location == "") None else Some(gg.location),
+              gg.isNeutralSite,
+              if (gg.tourneyKey == "") None else Some(gg.tourneyKey),
+              if (gg.homeTeamSeed < 1) None else Some(gg.homeTeamSeed),
+              if (gg.awayTeamSeed < 1) None else Some(gg.awayTeamSeed),
+              s.date,
+              ts,
+              ""
+            )
+
+            val r = for {
+              hs <- gg.result.get("homeScore")
+              as <- gg.result.get("awayScore")
+              p <- gg.result.get("periods")
+            } yield {
+              Result(0L, 0L, hs, as, p, ts, "")
+            }
+            (g, r)
+          }
+        })
+        dao.saveGames(gameResults)
+      })
+
+      ).map(_.flatten)
+    })
+  }
+  
+
+  def readSchedulesFromS3(key: String, dao:ScheduleDAO, repo:ScheduleRepository): Future[Unit] = {
     val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
@@ -127,7 +214,7 @@ object ScheduleSerializer {
 
     val obj = s3.getObject(bucket, key)
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
-      case Some(uni) => saveToDb(uni)
+      case Some(uni) => saveToDb(uni,dao, repo,clobberDB = true)
       case None => Future {println("If failed")}
     }
 
