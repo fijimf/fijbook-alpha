@@ -30,11 +30,12 @@ object ScheduleSerializer {
 
   case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
 
-  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], seasons: List[MappedSeason])
+  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes:List[Quote], seasons: List[MappedSeason])
 
   implicit val formatsTeam: Format[Team] = Json.format[Team]
   implicit val formatsAlias: Format[Alias] = Json.format[Alias]
   implicit val formatsConference: Format[Conference] = Json.format[Conference]
+  implicit val formatsQuotes: Format[Quote] = Json.format[Quote]
   implicit val formatsConfMap: Format[ConfMap] = Json.format[ConfMap]
   implicit val formatsMappedGame: Format[MappedGame] = Json.format[MappedGame]
   implicit val formatsScoreboard: Format[Scoreboard] = Json.format[Scoreboard]
@@ -101,12 +102,13 @@ object ScheduleSerializer {
       teams <- dao.listTeams
       aliases <- dao.listAliases
       conferences <- dao.listConferences
+      quotes <- dao.listQuotes
       seasons <- dao.listSeasons
       conferenceMaps <- dao.listConferenceMaps
       games <- dao.listGames
       results <- dao.listResults
     } yield {
-      MappedUniverse(LocalDateTime.now(), teams, aliases, conferences, createMappedSeasons(teams, conferences, seasons, conferenceMaps, games, results))
+      MappedUniverse(LocalDateTime.now(), teams, aliases, conferences, quotes, createMappedSeasons(teams, conferences, seasons, conferenceMaps, games, results))
     }
     data.map(Json.toJson(_).toString())
   }
@@ -128,19 +130,21 @@ object ScheduleSerializer {
         repo.dropSchema().flatMap(_=>repo.createSchema().flatMap(_=>{
           dao.saveTeams(uni.teams.map(_.copy(id = 0))).flatMap(teams => {
             dao.saveConferences(uni.conferences.map(_.copy(id = 0L))).flatMap(conferences => {
-              dao.saveAliases(uni.aliases.map(_.copy(id = 0L))).flatMap(_ => {
-                val teamMap = teams.map(t => t.key -> t).toMap
-                val confMap = conferences.map(c => c.key -> c).toMap
-                
-                uni.seasons.foldLeft(Future.successful(List.empty[Long])){case (fll: Future[List[Long]], ms: MappedSeason) => {
-                  fll.flatMap(ll=>  { 
-                    val seas = Season(0L, ms.year, "", None)
-                    dao.saveSeason(seas).flatMap(season => {
-                      saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap)
-                    })})
-                }}
-              }
-              )
+              dao.saveQuotes(uni.quotes.map(_.copy(id = 0L))).flatMap(quotes => {
+                dao.saveAliases(uni.aliases.map(_.copy(id = 0L))).flatMap(_ => {
+                  val teamMap = teams.map(t => t.key -> t).toMap
+                  val confMap = conferences.map(c => c.key -> c).toMap
+
+                  uni.seasons.foldLeft(Future.successful(List.empty[Long])){case (fll: Future[List[Long]], ms: MappedSeason) => {
+                    fll.flatMap(ll=>  {
+                      val seas = Season(0L, ms.year, "", None)
+                      dao.saveSeason(seas).flatMap(season => {
+                        saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap)
+                      })})
+                  }}
+                }
+                )
+              })
             })
           })
         })
