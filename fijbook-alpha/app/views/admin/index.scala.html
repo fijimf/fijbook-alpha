@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-sm-3">
             <div class="page-header-condensed">
-                <h4>Database Ops</h4>
+                <h4>Database Operations</h4>
             </div>
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.SchemaController.dumpSchema()">
                 Show Schedule Schema</a></p>
@@ -66,35 +66,30 @@
         </div>
         <div class="col-sm-3 col-sm-offset-1">
             <div class="page-header-condensed">
-                <h4>Teams</h4>
+                <h4>Data Browsing</h4>
             </div>
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseTeams()">
                 Browse Teams</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.TeamScrapeController.scrapeTeams()">
-                Scrape Team Data</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.TeamScrapeController.scrapeOne()">
-                Scrape One Team</a></p>
-            <div class="page-header-condensed">
-                <h4>Aliases</h4>
-            </div>
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseAliases()">
                 Browse Aliases</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseConferences()">
+                Browse Conferences</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseQuotes()">
+                Browse Quotes</a></p>
+            @for(s<-schedules) {
+                <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseGames(s.season.id, None)">
+                        Browse Games (@s.season.year)</a>
+                </p>
+            }
         </div>
         <div class="col-sm-3 col-sm-offset-1">
             <div class="page-header-condensed">
-                <h4>Conferences</h4>
+                <h4>Update/Restore Actions</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseConferences()">
-                Browse Conferences</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.TeamScrapeController.scrapeConferences()">
-                Scrape Conferences</a></p>
-            <div class="page-header-condensed">
-                <h4>Quotes</h4>
-            </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseQuotes()">
-                Browse Quotes</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.GameScrapeController.scrapeToday()">
-                Update Today's Games</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.ScrapingManagerController.page()">
+                Manage Web Scraping</a></p>
+            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.AdminController.listSnapshots()">
+                Manage Snapshots</a></p>
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.StatsController.updateAll()">
                 Update Stats</a></p>
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.StatsController.updateAllSeasons()">
@@ -104,77 +99,6 @@
 
         </div>
 
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <div class="page-header-condensed">
-                <h4>Seasons</h4>
-            </div>
-            <p>
-                <a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createSeason()"> Create Season</a>
-            </p>
-        </div>
-        <div class="col-sm-3 col-sm-offset-1">
-            <div class="page-header-condensed">
-                <h4>&nbsp;</h4> <!-- Placeholder for vertical align-->
-            </div>
-            <p>
-                <a type="button" class="btn btn-small btn-block btn-default" href="@routes.TeamScrapeController.seedConferenceMaps()"> Seed Conference Maps</a>
-            </p>
-
-        </div>
-    </div>
-    <div class="row">
-        @for(s<-schedules) {
-            <div class="col-sm-4">
-                <div class="panel panel-default">
-                    @defining(s.season.lock match {
-                        case "lock"=>("","fa-lock")
-                        case "updating"=>("","fa-recycle")
-                        case _ => {
-                            if (s.season.lockBefore.isDefined) {
-                                (s.season.lockBefore.get.format(DateTimeFormatter.ISO_DATE), "fa-lock")
-                            } else {
-                                ("", "fa-unlock")
-                            }
-                        }
-                    }) { tup =>
-                        <div class="panel-heading">
-                            <h3 class="panel-title">@s.season.year &nbsp; <i class="fa @tup._2">@tup._1</i></h3>
-                        </div>
-                    }
-                <div class="panel-body">
-
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.deleteSeason(s.season.id)">
-                        Delete Season&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></a>
-                        </p>
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseConferenceMap(s.season.id)">
-                        Browse Conference Map</a>
-                        </p>
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.GameScrapeController.scrapeGames(s.season.id)">
-                        Scrape Games</a>
-                        </p>
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.DataController.browseGames(s.season.id, None)">
-                        Browse Games</a>
-                        </p>
-                        <p><a type="button" class="btn btn-xs btn-block btn-default" href="@routes.GameScrapeController.verifyResults(s.season.year)">
-                        Verify Results</a>
-                        </p>
-                        <table class="table table-bordered table-condensed">
-                            <thead/>
-                            <tbody>
-                                <tr><td>Games</td> <td>@s.games.size</td></tr>
-                                <tr><td>First game</td> <td>@s.firstGame.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
-                                <tr><td>Last game</td> <td>@s.lastGame.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
-                                <tr><td>Results</td> <td>@s.results.size</td></tr>
-                                <tr><td>First result</td> <td>@s.firstResult.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
-                                <tr><td>Last result</td> <td>@s.lastResult.map(fg => fg.format(DateTimeFormatter.ISO_DATE)).getOrElse("")</td></tr>
-                                <tr><td>Teams mapped</td> <td>@s.teamsMapped.size</td></tr>
-                            </tbody>
-                        </table>
-                    </div></div>
-            </div>
-        }
     </div>
     <div class="row">
         <div class="col-sm-12">
