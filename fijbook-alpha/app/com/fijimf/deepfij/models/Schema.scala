@@ -2,13 +2,12 @@ package com.fijimf.deepfij.models
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-import javax.inject.Inject
 
+import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
-import slick.jdbc.JdbcProfile
-import slick.jdbc.JdbcBackend
+import slick.jdbc.{JdbcBackend, JdbcProfile}
 import slick.lifted._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,11 +42,19 @@ case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDat
         case None => Open
       }
   }
-  val startDate: LocalDate = LocalDate.of(year - 1, 11, 1)
-  val endDate: LocalDate = LocalDate.of(year, 5, 1)
-  val dates: List[LocalDate] = Iterator.iterate(startDate) {
+  val startDate: LocalDate = Season.startDate(year)
+  val endDate: LocalDate = Season.endDate(year)
+  val dates: List[LocalDate] = Season.dates(year)
+}
+
+case object Season {
+  def startDate(y: Int) = LocalDate.of(y - 1, 11, 1)
+
+  def endDate(y: Int) = LocalDate.of(y, 5, 1)
+
+  def dates(y: Int) = Iterator.iterate(startDate(y)) {
     _.plusDays(1)
-  }.takeWhile(_.isBefore(endDate)).toList
+  }.takeWhile(_.isBefore(endDate(y))).toList
 }
 
 //TODO -- DO we use lock record or not?
@@ -334,7 +341,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def lockBefore: Rep[Option[LocalDate]] = column[Option[LocalDate]]("lockBefore")
 
 
-    def * : ProvenShape[Season] = (id, year, lock, lockBefore) <> (Season.tupled, Season.unapply)
+    def * : ProvenShape[Season] = (id, year, lock, lockBefore) <> ((Season.apply _) .tupled, Season.unapply)
 
     def idx1: Index = index("season_idx1", year, unique = true)
 

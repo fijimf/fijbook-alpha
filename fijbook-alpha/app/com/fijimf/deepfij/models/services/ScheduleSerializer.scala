@@ -233,6 +233,17 @@ object ScheduleSerializer {
     0.until(summaries.size()).map(summaries.get(_)).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
     )).toList
   }
+  
+  def readLatestSnapshot():Option[MappedUniverse] = {
+    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+      .withCredentials(new DefaultAWSCredentialsProviderChain())
+      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
+      .build()
+    import scala.collection.JavaConversions._
+    val last = s3.listObjects(bucket).getObjectSummaries.maxBy(_.getLastModified.getTime)
+    val obj = s3.getObject(bucket, last.getKey)
+    Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse]
+  }
 
 
 }
