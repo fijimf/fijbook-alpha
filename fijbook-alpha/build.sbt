@@ -5,10 +5,7 @@ lazy val root = (project in file("."))
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fijimf.deepfij"
-  ).aggregate(fijlib)
-   
-
-lazy val fijlib = project
+  )
 
 buildInfoOptions += BuildInfoOption.BuildTime
 

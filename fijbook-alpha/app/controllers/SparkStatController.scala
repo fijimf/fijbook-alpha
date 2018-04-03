@@ -2,7 +2,7 @@ package controllers
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{GamePredictorService, ScheduleSerializer}
-import com.fijimf.deepfij.stats.spark.WonLoss
+import com.fijimf.deepfij.stats.spark.{WonLost}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
@@ -26,7 +26,7 @@ class SparkStatController@Inject()(
    
     Future.successful(
       ScheduleSerializer.readLatestSnapshot().map(u=>{
-        WonLoss.wins(u)
+        WonLost.wins(null, u)
       }) match {
         case Some(m)=> Ok(s"It worked\n$m")
         case None => Ok("Boo")
