@@ -62,16 +62,20 @@ libraryDependencies ++= Seq(
   "org.apache.mahout" % "mahout-math" % "0.12.2",
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
-
-  //  "io.kamon" %% "kamon-core" % "0.6.3",
-  //  "io.kamon" %% "kamon-scala" % "0.6.3",
-  //  "io.kamon" %% "kamon-play-25" % "0.6.3",
-  //  "io.kamon" %% "kamon-log-reporter" % "0.6.3",
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.106",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
   "org.apache.spark" %% "spark-mllib" % "2.2.1"
 )
+
+test in assembly := {}
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+assemblyMergeStrategy in assembly := {
+  case PathList(ps @ _*) if ps.last endsWith ".conf" => MergeStrategy.concat
+  case PathList(ps @ _*) if ps.last endsWith "MANIFEST.MF" => MergeStrategy.discard
+  case _ => MergeStrategy.last
+}
+assemblyOutputPath:=  new File(sys.env.getOrElse("DEPLOY_DIR", "/tmp"))
 
 import com.typesafe.sbt.packager.SettingsHelper._
 
@@ -93,6 +97,7 @@ releaseProcess := Seq[ReleaseStep](
   tagRelease, // : ReleaseStep
   // publishArtifacts,                    // : ReleaseStep, checks whether `publishTo` is properly set up
   ReleaseStep(releaseStepTask(publish in Universal)),
+  ReleaseStep(releaseStepTask(assembly in Universal)),
   setNextVersion, // : ReleaseStep
   commitNextVersion, // : ReleaseStep
   pushChanges // : ReleaseStep, also checks that an upstream branch is properly configured
