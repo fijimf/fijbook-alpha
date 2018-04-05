@@ -8,20 +8,8 @@ import com.amazonaws.services.elasticmapreduce.util.StepFactory
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 
 object ClusterManager {
-
-  def buildClasspath: String = {
-
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration( "s3.amazonaws.com",  "us-east-1"))
-      .build()
-    val summaries = s3.listObjects("deepfij-spark-libs").getObjectSummaries
-    0.until(summaries.size()).map(summaries.get).filterNot(_.getKey.startsWith("fijbook")).map(os => s"s3://deepfij-spark-libs/${os.getKey}").mkString(":")
-  }
   
   def main(args: Array[String]): Unit = {
-
-   
     val emr: AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard()
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("elasticmapreduce.amazonaws.com","us-east-1"))
@@ -34,7 +22,6 @@ object ClusterManager {
       .withActionOnFailure("TERMINATE_JOB_FLOW")
       .withHadoopJarStep(stepFactory.newEnableDebuggingStep)
 
-    val sparkClassPath = buildClasspath
     val runWonLost = new StepConfig()
       .withName("Run Won Lost")
       .withActionOnFailure("TERMINATE_JOB_FLOW")
@@ -47,10 +34,8 @@ object ClusterManager {
             "--master", "yarn",
             "--deploy-mode", "cluster",
             "--executor-memory", "5g",
-            "--num-executors", "10", 
-            "--driver-class-path", sparkClassPath,
-            "s3://deepfij-spark-libs/fijbook-alpha.fijbook-alpha-1.18-sans-externalized.jar",
-            "1000"
+            "--num-executors", "10",
+            "s3://deepfij-spark-libs/fijbook-alpha-assembly.jar"
           )
       )
     val spark = new Application().withName("Spark")

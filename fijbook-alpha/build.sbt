@@ -65,15 +65,27 @@ libraryDependencies ++= Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.106",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
-  "org.apache.spark" %% "spark-mllib" % "2.2.1"
+  "org.apache.spark" %% "spark-mllib" % "2.2.1" 
 )
 
 test in assembly := {}
 mainClass in assembly := Some("play.core.server.ProdServerStart")
 assemblyMergeStrategy in assembly := {
   case PathList(ps @ _*) if ps.last endsWith ".conf" => MergeStrategy.concat
-  case PathList(ps @ _*) if ps.last endsWith "MANIFEST.MF" => MergeStrategy.discard
-  case _ => MergeStrategy.last
+  case PathList(ps @ _*) if ps.last endsWith ".properties" => MergeStrategy.concat
+  case PathList(ps @ _*) if ps.last endsWith ".class" => MergeStrategy.last
+  case PathList(ps @ _*) if ps.last endsWith ".so" => MergeStrategy.last
+  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.discard
+  case PathList(ps @ _*) if ps.last endsWith "messages" => MergeStrategy.concat
+  case PathList(ps @ _*) if ps.last endsWith "types" => MergeStrategy.last
+  case x => 
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+assemblyExcludedJars in assembly := {
+  val cp = (fullClasspath in assembly).value
+  cp filter {_.data.getName.startsWith("org.apache.spark")}
 }
 assemblyOutputPath in assembly :=  file(s"${sys.env.getOrElse("DEPLOY_DIR", "/tmp")}/${name.value}-${version.value}-assembly.jar")
 
