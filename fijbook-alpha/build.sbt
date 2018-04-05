@@ -63,7 +63,7 @@ libraryDependencies ++= Seq(
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
   "org.aspectj" % "aspectjweaver" % "1.8.9",
-  "com.amazonaws" % "aws-java-sdk" % "1.11.106",
+  "com.amazonaws" % "aws-java-sdk" % "1.11.297",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
   "org.apache.spark" %% "spark-mllib" % "2.2.1" 
 )

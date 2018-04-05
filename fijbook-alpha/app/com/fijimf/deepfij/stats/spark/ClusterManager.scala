@@ -42,7 +42,7 @@ object ClusterManager {
 
     val request = new RunJobFlowRequest()
       .withName("DeepFij Stats transient cluster")
-      .withReleaseLabel("emr-5.3.1")
+      .withReleaseLabel("emr-5.13.0")
       .withSteps(enabledebugging, runWonLost).withApplications(spark).withLogUri("s3://deepfij-emr/logs/")
       .withServiceRole("EMR_DefaultRole")
       .withJobFlowRole("EMR_EC2_DefaultRole")
