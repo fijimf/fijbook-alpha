@@ -75,7 +75,7 @@ assemblyMergeStrategy in assembly := {
   case PathList(ps @ _*) if ps.last endsWith "MANIFEST.MF" => MergeStrategy.discard
   case _ => MergeStrategy.last
 }
-assemblyOutputPath:=  new File(sys.env.getOrElse("DEPLOY_DIR", "/tmp"))
+assemblyOutputPath:=  file(s"${sys.env.getOrElse("DEPLOY_DIR", "/tmp")}/$name-assembly.jar")
 
 import com.typesafe.sbt.packager.SettingsHelper._
 
