@@ -45,5 +45,16 @@ class GenerateSnapshotParquetFilesSpec extends FunSpec {
         conferences.filter("key = 'big-east'").show()
       }
     }
+    it("Should generate a correct conferenceMaps parquet file") {
+      for {
+        timestamp <- optStamp
+        mappedUniverse <- jsonSnap
+      } {
+        val conferences: DataFrame = spark.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/conferenceMaps.parquet")
+        assert(conferences.count == mappedUniverse.seasons.map(_.confMap.map(_.teams.size).sum).sum)
+        conferences.show(25)
+        conferences.filter("conference_key = 'big-east'").show()
+      }
+    }
   }
 }
