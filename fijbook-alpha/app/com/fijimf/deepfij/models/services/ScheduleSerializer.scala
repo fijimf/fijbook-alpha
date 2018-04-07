@@ -30,7 +30,7 @@ object ScheduleSerializer {
 
   case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
 
-  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes:List[Quote], seasons: List[MappedSeason])
+  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
 
   implicit val formatsTeam: Format[Team] = Json.format[Team]
   implicit val formatsAlias: Format[Alias] = Json.format[Alias]
@@ -116,18 +116,18 @@ object ScheduleSerializer {
 
   def isDBEmpty(dao: ScheduleDAO): Future[Boolean] = {
     for {
-      ts<-dao.listTeams
-      cs<-dao.listConferences
-      ss<-dao.listSeasons
-    }yield {
+      ts <- dao.listTeams
+      cs <- dao.listConferences
+      ss <- dao.listSeasons
+    } yield {
       ts.isEmpty && cs.isEmpty && ss.isEmpty
     }
   }
 
-  def saveToDb(uni: MappedUniverse, dao:ScheduleDAO, repo:ScheduleRepository,clobberDB:Boolean=false):Future[Unit] = {
+  def saveToDb(uni: MappedUniverse, dao: ScheduleDAO, repo: ScheduleRepository, clobberDB: Boolean = false): Future[Unit] = {
     isDBEmpty(dao).map(b => {
       if (b || clobberDB) {
-        repo.dropSchema().flatMap(_=>repo.createSchema().flatMap(_=>{
+        repo.dropSchema().flatMap(_ => repo.createSchema().flatMap(_ => {
           dao.saveTeams(uni.teams.map(_.copy(id = 0))).flatMap(teams => {
             dao.saveConferences(uni.conferences.map(_.copy(id = 0L))).flatMap(conferences => {
               dao.saveQuotes(uni.quotes.map(_.copy(id = 0L))).flatMap(quotes => {
@@ -135,13 +135,15 @@ object ScheduleSerializer {
                   val teamMap = teams.map(t => t.key -> t).toMap
                   val confMap = conferences.map(c => c.key -> c).toMap
 
-                  uni.seasons.foldLeft(Future.successful(List.empty[Long])){case (fll: Future[List[Long]], ms: MappedSeason) => {
-                    fll.flatMap(ll=>  {
+                  uni.seasons.foldLeft(Future.successful(List.empty[Long])) { case (fll: Future[List[Long]], ms: MappedSeason) => {
+                    fll.flatMap(ll => {
                       val seas = Season(0L, ms.year, "", None)
                       dao.saveSeason(seas).flatMap(season => {
                         saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap)
-                      })})
-                  }}
+                      })
+                    })
+                  }
+                  }
                 }
                 )
               })
@@ -155,7 +157,7 @@ object ScheduleSerializer {
     })
   }
 
-  def saveSeasonDataToDb(dao: ScheduleDAO, ms: MappedSeason, id:Long, ts:LocalDateTime, teamMap:Map[String, Team], confMap:Map[String, Conference]): Future[List[Long]] = {
+  def saveSeasonDataToDb(dao: ScheduleDAO, ms: MappedSeason, id: Long, ts: LocalDateTime, teamMap: Map[String, Team], confMap: Map[String, Conference]): Future[List[Long]] = {
     val conferenceMaps: List[ConferenceMap] = ms.confMap.flatMap(cm => {
       cm.teams.flatMap(tk => {
         for {
@@ -167,7 +169,7 @@ object ScheduleSerializer {
       })
 
     })
-    dao.saveConferenceMaps(conferenceMaps).flatMap(_=>{
+    dao.saveConferenceMaps(conferenceMaps).flatMap(_ => {
       Future.sequence(ms.scoreboards.map(s => {
         val gameResults: List[(Game, Option[Result])] = s.games.flatMap(gg => {
           for {
@@ -207,9 +209,9 @@ object ScheduleSerializer {
       ).map(_.flatten)
     })
   }
-  
 
-  def readSchedulesFromS3(key: String, dao:ScheduleDAO, repo:ScheduleRepository): Future[Unit] = {
+
+  def readSchedulesFromS3(key: String, dao: ScheduleDAO, repo: ScheduleRepository): Future[Unit] = {
     val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
@@ -218,8 +220,10 @@ object ScheduleSerializer {
 
     val obj = s3.getObject(bucket, key)
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
-      case Some(uni) => saveToDb(uni,dao, repo,clobberDB = true)
-      case None => Future {println("If failed")}
+      case Some(uni) => saveToDb(uni, dao, repo, clobberDB = true)
+      case None => Future {
+        println("If failed")
+      }
     }
 
   }
@@ -233,8 +237,8 @@ object ScheduleSerializer {
     0.until(summaries.size()).map(summaries.get(_)).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
     )).toList
   }
-  
-  def readLatestSnapshot():Option[MappedUniverse] = {
+
+  def readLatestSnapshot(): Option[MappedUniverse] = {
     val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
@@ -243,6 +247,16 @@ object ScheduleSerializer {
     val last = s3.listObjects(bucket).getObjectSummaries.maxBy(_.getLastModified.getTime)
     val obj = s3.getObject(bucket, last.getKey)
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse]
+  }
+
+  def deleteObjects(bucket: String, prefix: String): DeleteObjectsResult = {
+    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+      .withCredentials(new DefaultAWSCredentialsProviderChain())
+      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
+      .build()
+    import scala.collection.JavaConversions._
+    val list: List[String] = s3.listObjects(bucket, prefix).getObjectSummaries.map(_.getKey()).toList
+    s3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(list: _*))
   }
 
 
