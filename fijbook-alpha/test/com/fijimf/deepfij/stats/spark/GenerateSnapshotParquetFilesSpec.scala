@@ -3,8 +3,9 @@ package com.fijimf.deepfij.stats.spark
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.FunSpec
+import org.scalatest.{DoNotDiscover, FunSpec}
 
+@DoNotDiscover
 class GenerateSnapshotParquetFilesSpec extends FunSpec {
 
   describe("The parquet file generator") {
@@ -54,6 +55,18 @@ class GenerateSnapshotParquetFilesSpec extends FunSpec {
         assert(conferences.count == mappedUniverse.seasons.map(_.confMap.map(_.teams.size).sum).sum)
         conferences.show(25)
         conferences.filter("conference_key = 'big-east'").show()
+      }
+    }
+
+    it("Should generate a correct games parquet file") {
+      for {
+        timestamp <- optStamp
+        mappedUniverse <- jsonSnap
+      } {
+        val games: DataFrame = spark.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
+        assert(games.count == mappedUniverse.seasons.map(_.scoreboards.map(_.games.size).sum).sum)
+        games.show(25)
+        games.filter("home_team = 'georgetown'").show()
       }
     }
   }

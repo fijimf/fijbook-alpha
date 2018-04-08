@@ -42,6 +42,11 @@ object ScheduleSerializer {
   implicit val formatsMappedSeason: Format[MappedSeason] = Json.format[MappedSeason]
   implicit val formatsMappedUniverse: Format[MappedUniverse] = Json.format[MappedUniverse]
 
+  val HOME_SCORE_KEY = "homeScore"
+  val AWAY_SCORE_KEY = "awayScore"
+
+  val PERIODS_KEY = "periods"
+
   def createMappedSeasons(teams: List[Team], conferences: List[Conference], seasons: List[Season], conferenceMaps: List[ConferenceMap], games: List[Game], results: List[Result]) = {
     val teamMap = teams.map(t => t.id -> t).toMap
     val conferenceMap = conferences.map(t => t.id -> t).toMap
@@ -63,7 +68,7 @@ object ScheduleSerializer {
             awayTeam <- teamMap.get(g.awayTeamId)
           } yield {
             val mr = resultMap.get(g.id) match {
-              case Some(r) => Map("homeScore" -> r.homeScore, "awayScore" -> r.awayScore, "periods" -> r.periods)
+              case Some(r) => Map(HOME_SCORE_KEY -> r.homeScore, AWAY_SCORE_KEY -> r.awayScore, PERIODS_KEY -> r.periods)
               case None => Map.empty[String, Int]
             }
             MappedGame(homeTeam.key, awayTeam.key, g.date, g.datetime, g.location.getOrElse(""), g.isNeutralSite, g.tourneyKey.getOrElse(""), g.homeTeamSeed.getOrElse(0), g.awayTeamSeed.getOrElse(0), g.sourceKey, mr)
@@ -194,9 +199,9 @@ object ScheduleSerializer {
             )
 
             val r = for {
-              hs <- gg.result.get("homeScore")
-              as <- gg.result.get("awayScore")
-              p <- gg.result.get("periods")
+              hs <- gg.result.get(HOME_SCORE_KEY)
+              as <- gg.result.get(AWAY_SCORE_KEY)
+              p <- gg.result.get(PERIODS_KEY)
             } yield {
               Result(0L, 0L, hs, as, p, ts, "")
             }
