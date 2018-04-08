@@ -23,14 +23,14 @@ object ClusterManager {
       .withHadoopJarStep(stepFactory.newEnableDebuggingStep)
 
     val runWonLost = new StepConfig()
-      .withName("Run Won Lost")
+      .withName("Generate parquet schedule files")
       .withActionOnFailure("TERMINATE_JOB_FLOW")
       .withHadoopJarStep(
         new HadoopJarStepConfig()
           .withJar("command-runner.jar")
           .withArgs(
             "spark-submit",
-            "--class", "com.fijimf.deepfij.stats.spark.WonLost",
+            "--class", "com.fijimf.deepfij.stats.spark.GenerateSnapshotParquetFiles",
             "--master", "yarn",
             "--deploy-mode", "cluster",
             "--executor-memory", "5g",
