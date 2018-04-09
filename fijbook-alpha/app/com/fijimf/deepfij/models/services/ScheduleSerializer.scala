@@ -254,14 +254,17 @@ object ScheduleSerializer {
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse]
   }
 
-  def deleteObjects(bucket: String, prefix: String): DeleteObjectsResult = {
+  def deleteObjects(bucket: String, prefix: String): Option[DeleteObjectsResult] = {
     val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
       .withCredentials(new DefaultAWSCredentialsProviderChain())
       .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
       .build()
     import scala.collection.JavaConversions._
     val list: List[String] = s3.listObjects(bucket, prefix).getObjectSummaries.map(_.getKey()).toList
-    s3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(list: _*))
+    if (list.nonEmpty)
+      Some(s3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(list: _*)))
+    else 
+      None
   }
 
 
