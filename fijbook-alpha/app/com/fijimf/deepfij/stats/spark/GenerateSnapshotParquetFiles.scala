@@ -3,7 +3,7 @@ package com.fijimf.deepfij.stats.spark
 import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.auth.{AWSCredentials, DefaultAWSCredentialsProviderChain}
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql._
@@ -18,12 +18,12 @@ object GenerateSnapshotParquetFiles extends Serializable {
     run(session)
   }
 
-  def run(session: SparkSession): Option[String] = {
+  def run(session: SparkSession, overrideCredentials:Option[AWSCredentials]=None): Option[String] = {
 
-    val credentials = new DefaultAWSCredentialsProviderChain().getCredentials
-    session.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", credentials.getAWSAccessKeyId)
-    session.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", credentials.getAWSSecretKey)
-
+    overrideCredentials.foreach(cred=>{
+      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", cred.getAWSAccessKeyId)
+      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", cred.getAWSSecretKey)
+    })
     ScheduleSerializer.readLatestSnapshot().map(u => {
       val stampKey = u.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
       val ds = ScheduleSerializer.deleteObjects("deepfij-emr", s"data/snapshots/$stampKey")

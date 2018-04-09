@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.stats.spark
 
+import com.amazonaws.auth.{AWSCredentials, DefaultAWSCredentialsProviderChain}
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -17,7 +18,8 @@ class GenerateSnapshotParquetFilesSpec extends FunSpec {
       .config(
         conf
       ).getOrCreate()
-    val optStamp = GenerateSnapshotParquetFiles.run(spark)
+    val credentials: AWSCredentials = new DefaultAWSCredentialsProviderChain().getCredentials
+    val optStamp = GenerateSnapshotParquetFiles.run(spark, Some(credentials))
 
     it("should not fail") {
       if (optStamp.isEmpty) fail()
