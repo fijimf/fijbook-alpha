@@ -84,10 +84,7 @@ object ScheduleSerializer {
   }
 
   def writeSchedulesToS3(dao: ScheduleDAO): Future[String] = {
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
-      .build()
+    val s3: AmazonS3 = createClient
     val m = BuildInfo.version
 
     val k = s"$m-${LocalDateTime.now()}-${UUID.randomUUID().toString}"
@@ -217,12 +214,7 @@ object ScheduleSerializer {
 
 
   def readSchedulesFromS3(key: String, dao: ScheduleDAO, repo: ScheduleRepository): Future[Unit] = {
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
-      .build()
-
-
+    val s3: AmazonS3 = createClient()
     val obj = s3.getObject(bucket, key)
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
       case Some(uni) => saveToDb(uni, dao, repo, clobberDB = true)
@@ -234,20 +226,14 @@ object ScheduleSerializer {
   }
 
   def listSaved(): List[(String, Long, LocalDateTime)] = {
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
-      .build()
+    val s3: AmazonS3 = createClient()
     val summaries = s3.listObjects(bucket).getObjectSummaries
     0.until(summaries.size()).map(summaries.get(_)).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
     )).toList
   }
 
   def readLatestSnapshot(): Option[MappedUniverse] = {
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
-      .build()
+    val s3: AmazonS3 = createClient()
     import scala.collection.JavaConversions._
     val last = s3.listObjects(bucket).getObjectSummaries.maxBy(_.getLastModified.getTime)
     val obj = s3.getObject(bucket, last.getKey)
@@ -255,10 +241,7 @@ object ScheduleSerializer {
   }
 
   def deleteObjects(bucket: String, prefix: String): Option[DeleteObjectsResult] = {
-    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
-      .build()
+    val s3: AmazonS3 = createClient()
     import scala.collection.JavaConversions._
     val list: List[String] = s3.listObjects(bucket, prefix).getObjectSummaries.map(_.getKey()).toList
     if (list.nonEmpty)
@@ -268,4 +251,11 @@ object ScheduleSerializer {
   }
 
 
+  private def createClient() = {
+    val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+      .withCredentials(new DefaultAWSCredentialsProviderChain())
+      .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
+      .build()
+    s3
+  }
 }
