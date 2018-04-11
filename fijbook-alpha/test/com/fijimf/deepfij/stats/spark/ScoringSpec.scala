@@ -4,15 +4,16 @@ import java.time.format.DateTimeFormatter
 
 import com.amazonaws.auth.{AWSCredentials, DefaultAWSCredentialsProviderChain}
 import com.fijimf.deepfij.models.services.ScheduleSerializer
+import com.fijimf.deepfij.stats.spark.WonLost.createWonLostStatistics
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.scalatest.{DoNotDiscover, FunSpec}
 
 
 @DoNotDiscover
-class WonLostSpec extends FunSpec {
+class ScoringSpec extends FunSpec {
 
-  describe("The WonLost calculator") {
+  describe("The Scoring calculator") {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("Jim Rules")
@@ -29,26 +30,19 @@ class WonLostSpec extends FunSpec {
 
     val games = spark.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
 
-    val wl = WonLost.createWonLostStatistics(spark, games)
-    it("should calculate won") {
-      val rows = testRows(wl, "won")
-      assert(rows.count() > 0)
-      rows.show(60)
-
-    }
-    it("should calculate lost") {
-      val rows = testRows(wl, "lost")
-      assert(rows.count() > 0)
-      rows.show(60)
-
-    }
-    it("should calculate wp") {
-      val rows = testRows(wl, "wp")
-      assert(rows.count() > 0)
-      rows.show(60)
-
-    }
-
+    val s = Scoring.createScoringStatistics(spark, games)
+    
+    List("mean", "std_dev", "min","max").foreach(u=>{
+      List("points_for", "points_against", "points_margin","points_combined").foreach(t=>{
+        it(s"should calculate ${t}_${u}") {
+          val rows = testRows(s, s"${t}_${u}")
+          assert(rows.count() > 0)
+          rows.show(60)
+        }
+      })
+    })
+ 
+ 
   }
 
   private def testRows(wl: Dataset[Row], stat: String) = {
