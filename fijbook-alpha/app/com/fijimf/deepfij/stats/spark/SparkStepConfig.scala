@@ -34,8 +34,8 @@ trait SparkStepConfig {
       Array(
         "spark-submit",
         "--class", fqn,
-        "--conf", s"spark.driver.extraJavaOptions='$dOptions'",
-        "--conf", s"spark.executor.extraJavaOptions='$dOptions'",
+        "--conf", s"spark.driver.extraJavaOptions=$dOptions",
+        "--conf", s"spark.executor.extraJavaOptions=$dOptions",
         "--master", "yarn",
         "--deploy-mode", "cluster",
         "--executor-memory", "5g",

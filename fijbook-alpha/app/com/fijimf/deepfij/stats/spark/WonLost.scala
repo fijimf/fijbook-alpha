@@ -46,7 +46,7 @@ object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
     createWonLostStatistics(session, games).write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
   }
 
-  def createWonLostStatistics(session: SparkSession, games: DataFrame) = {
+  def createWonLostStatistics(session: SparkSession, games: DataFrame): Dataset[Row] = {
     import session.implicits._
     val results =
       games.filter("(home_score is not null) and (away_score is not null) and (away_score<>home_score)")
