@@ -124,7 +124,7 @@ object GenerateSnapshotParquetFiles extends Serializable with SparkStepConfig {
     )
   }
 
-  override def stepConfig(extraOptions:Map[String, String]: StepConfig = createStepConfig(
+  override def stepConfig(extraOptions:Map[String, String]): StepConfig = createStepConfig(
     "Generate parquet schedule files",
     "com.fijimf.deepfij.stats.spark.GenerateSnapshotParquetFiles",
     extraOptions
