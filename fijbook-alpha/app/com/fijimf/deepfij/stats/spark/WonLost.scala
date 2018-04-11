@@ -7,7 +7,6 @@ import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.services.elasticmapreduce.model.StepConfig
 import com.fijimf.deepfij.models.Season
 import com.fijimf.deepfij.models.services.ScheduleSerializer
-import com.fijimf.deepfij.stats.spark.GenerateSnapshotParquetFiles.createStepConfig
 import org.apache.spark.SparkConf
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -16,44 +15,38 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
 
-object WonLost extends Serializable with SparkStepConfig {
-  
+object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
+
   val yyyymmdd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
   val winner: (String, Int, String, Int) => Option[String] = (h, hs, a, as) => if (hs > as) Some(h) else if (as > hs) Some(a) else None
   val winnerUdf: UserDefinedFunction = udf(winner)
   val loser: (String, Int, String, Int) => Option[String] = (h, hs, a, as) => if (hs < as) Some(h) else if (as < hs) Some(a) else None
   val loserUdf: UserDefinedFunction = udf(loser)
-  val wp:(Int, Int)=>Double = (w,l)=>if ((w+l)>0) w.toDouble/(w+l).toDouble else 0.0
-  
-  val wpUdf:UserDefinedFunction = udf(wp)
-  
+  val wp: (Int, Int) => Double = (w, l) => if ((w + l) > 0) w.toDouble / (w + l).toDouble else 0.0
+
+  val wpUdf: UserDefinedFunction = udf(wp)
+
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("Create won lost statistics")
     val session = SparkSession.builder().config(conf).getOrCreate()
     val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
-    run(session,timestamp)
+    run(session, timestamp)
   }
 
-  def run(session: SparkSession, timestamp: String, overrideCredentials:Option[AWSCredentials]=None): Unit = {
-    import session.implicits._
-    
-    overrideCredentials.foreach(cred=>{
+  def run(session: SparkSession, timestamp: String, overrideCredentials: Option[AWSCredentials] = None): Unit = {
+
+    overrideCredentials.foreach(cred => {
       session.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", cred.getAWSAccessKeyId)
       session.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", cred.getAWSSecretKey)
     })
-    
+
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
     val teams = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/teams.parquet")
 
-    val prop = new java.util.Properties
-    prop.setProperty("driver", "com.mysql.jdbc.Driver")
-    prop.setProperty("user", System.getProperty("stats.deepfij.user"))
-    prop.setProperty("password", System.getProperty("stats.deepfij.user"))
-   
-    createWonLostStatistics(session, games).write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats",prop)
+    createWonLostStatistics(session, games).write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties)
   }
 
-   def createWonLostStatistics(session: SparkSession, games: DataFrame) = {
+  def createWonLostStatistics(session: SparkSession, games: DataFrame) = {
     import session.implicits._
     val results =
       games.filter("(home_score is not null) and (away_score is not null) and (away_score<>home_score)")
@@ -89,7 +82,7 @@ object WonLost extends Serializable with SparkStepConfig {
     wins.union(losses).union(wp)
   }
 
-  private def loadDates(session: SparkSession, games: DataFrame):DataFrame = {
+  private def loadDates(session: SparkSession, games: DataFrame): DataFrame = {
     import session.implicits._
     games.select($"season".as[Int]).distinct().flatMap(y => {
       Season.dates(y).map(d => {
@@ -107,7 +100,7 @@ object WonLost extends Serializable with SparkStepConfig {
     )
   }
 
-  override def stepConfig(extraOptions:Map[String, String]): StepConfig = createStepConfig(
+  override def stepConfig(extraOptions: Map[String, String]): StepConfig = createStepConfig(
     "Calculate won/lost stats",
     "com.fijimf.deepfij.stats.spark.WonLost",
     extraOptions

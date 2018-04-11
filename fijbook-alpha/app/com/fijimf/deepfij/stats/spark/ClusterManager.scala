@@ -42,8 +42,8 @@ object ClusterManager {
 
   def main(args: Array[String]): Unit = {
     val dbOptions = Map(
-      "stats.deepfijdb.user"-> System.getenv("SPARK_DEEPFIJDB_USER"),
-      "stats.deepfijdb.password"-> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
+      StatsDbAccess.USER_KEY -> System.getenv("SPARK_DEEPFIJDB_USER"),
+      StatsDbAccess.PASSWORD_KEY -> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
     )
     runSteps(Array(enableDebugging, GenerateSnapshotParquetFiles.stepConfig(Map.empty[String, String]), WonLost.stepConfig(dbOptions)))
   }
