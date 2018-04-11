@@ -3,13 +3,14 @@ package com.fijimf.deepfij.stats.spark
 import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 
-import com.amazonaws.auth.{AWSCredentials, DefaultAWSCredentialsProviderChain}
+import com.amazonaws.auth.AWSCredentials
+import com.amazonaws.services.elasticmapreduce.model.StepConfig
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
-object GenerateSnapshotParquetFiles extends Serializable {
+object GenerateSnapshotParquetFiles extends Serializable with SparkStepConfig {
   val yyyymmdd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
   def main(args: Array[String]): Unit = {
@@ -122,6 +123,13 @@ object GenerateSnapshotParquetFiles extends Serializable {
       structType
     )
   }
+
+  override def stepConfig(extraOptions:Map[String, String]: StepConfig = createStepConfig(
+    "Generate parquet schedule files",
+    "com.fijimf.deepfij.stats.spark.GenerateSnapshotParquetFiles",
+    extraOptions
+  )
+    
 }
 
 

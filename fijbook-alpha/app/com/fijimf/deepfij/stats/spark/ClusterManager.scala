@@ -3,47 +3,31 @@ package com.fijimf.deepfij.stats.spark
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.elasticmapreduce._
-import com.amazonaws.services.elasticmapreduce.model.{Application, HadoopJarStepConfig, JobFlowInstancesConfig, ListStepsRequest, RunJobFlowRequest, StepConfig}
+import com.amazonaws.services.elasticmapreduce.model.{Application, JobFlowInstancesConfig, RunJobFlowRequest, StepConfig}
 import com.amazonaws.services.elasticmapreduce.util.StepFactory
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 
 object ClusterManager {
-  
-  def main(args: Array[String]): Unit = {
-    val emr: AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard()
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withEndpointConfiguration(new EndpointConfiguration("elasticmapreduce.amazonaws.com","us-east-1"))
-      .build()
+  val CLUSTER_NAME = "DeepFij Stats transient cluster"
+  val emr: AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard()
+    .withCredentials(new DefaultAWSCredentialsProviderChain())
+    .withEndpointConfiguration(new EndpointConfiguration("elasticmapreduce.amazonaws.com", "us-east-1"))
+    .build()
 
-    
-    val stepFactory = new StepFactory
-    val enabledebugging = new StepConfig()
-      .withName("Enable debugging")
-      .withActionOnFailure("TERMINATE_JOB_FLOW")
-      .withHadoopJarStep(stepFactory.newEnableDebuggingStep)
+  val enableDebugging: StepConfig = new StepConfig()
+    .withName("Enable debugging")
+    .withActionOnFailure("TERMINATE_JOB_FLOW")
+    .withHadoopJarStep(new StepFactory().newEnableDebuggingStep)
 
-    val runWonLost = new StepConfig()
-      .withName("Generate parquet schedule files")
-      .withActionOnFailure("TERMINATE_JOB_FLOW")
-      .withHadoopJarStep(
-        new HadoopJarStepConfig()
-          .withJar("command-runner.jar")
-          .withArgs(
-            "spark-submit",
-            "--class", "com.fijimf.deepfij.stats.spark.GenerateSnapshotParquetFiles",
-            "--master", "yarn",
-            "--deploy-mode", "cluster",
-            "--executor-memory", "5g",
-            "--num-executors", "10",
-            "s3://deepfij-spark-libs/fijbook-alpha-assembly.jar"
-          )
-      )
-    val spark = new Application().withName("Spark")
+  val spark: Application = new Application().withName("Spark")
+
+  def runSteps(steps: Array[StepConfig]): Unit = {
 
     val request = new RunJobFlowRequest()
-      .withName("DeepFij Stats transient cluster")
+      .withName(CLUSTER_NAME)
       .withReleaseLabel("emr-5.13.0")
-      .withSteps(enabledebugging, runWonLost).withApplications(spark).withLogUri("s3://deepfij-emr/logs/")
+      .withSteps(
+        steps: _*
+      ).withApplications(spark).withLogUri("s3://deepfij-emr/logs/")
       .withServiceRole("EMR_DefaultRole")
       .withJobFlowRole("EMR_EC2_DefaultRole")
       .withInstances(
@@ -53,13 +37,14 @@ object ClusterManager {
           .withMasterInstanceType("m3.xlarge")
           .withSlaveInstanceType("m3.xlarge")
       ).withLogUri("s3://deepfij-emr/logs/")
+    emr.runJobFlow(request)
+  }
 
-    
-    val result = emr.runJobFlow(request)
-    System.out.println("This is result: " + result.toString)
-    val resultX = emr.listClusters()
-    println(resultX.toString)
-    val resultY = emr.listSteps(new ListStepsRequest().withClusterId(result.getJobFlowId))
-    println(resultY.toString)
+  def main(args: Array[String]): Unit = {
+    val dbOptions = Map(
+      "stats.deepfijdb.user"-> System.getenv("SPARK_DEEPFIJDB_USER"),
+      "stats.deepfijdb.password"-> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
+    )
+    runSteps(Array(enableDebugging, GenerateSnapshotParquetFiles.stepConfig(Map.empty[String, String]), WonLost.stepConfig(dbOptions)))
   }
 }
