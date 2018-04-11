@@ -8,7 +8,7 @@ object StatsDbAccess {
 }
 trait StatsDbAccess {
   
-  val dbProperties: Properties = {
+  def dbProperties(): Properties = {
     val props = new java.util.Properties
     props.setProperty("driver", "com.mysql.jdbc.Driver")
     props.setProperty("user", System.getProperty(StatsDbAccess.USER_KEY))
