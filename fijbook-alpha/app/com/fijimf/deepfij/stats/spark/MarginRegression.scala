@@ -84,8 +84,7 @@ object MarginRegression extends Serializable with SparkStepConfig with StatsDbAc
     indexToString
       .setInputCol("index")
       .setOutputCol("team")
-      .transform(f1)
-     f1.select($"season", $"date", $"team", $"value").withColumn("stat", lit("base_ols"))
+      .transform(f1).select($"season", $"date", $"team", $"value").withColumn("stat", lit("base_ols"))
   }
 
 
