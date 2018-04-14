@@ -18,13 +18,6 @@ import org.apache.spark.sql.types._
 object Scoring extends Serializable with SparkStepConfig with StatsDbAccess {
 
   val yyyymmdd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-  val winner: (String, Int, String, Int) => Option[String] = (h, hs, a, as) => if (hs > as) Some(h) else if (as > hs) Some(a) else None
-  val winnerUdf: UserDefinedFunction = udf(winner)
-  val loser: (String, Int, String, Int) => Option[String] = (h, hs, a, as) => if (hs < as) Some(h) else if (as < hs) Some(a) else None
-  val loserUdf: UserDefinedFunction = udf(loser)
-  val wp: (Int, Int) => Double = (w, l) => if ((w + l) > 0) w.toDouble / (w + l).toDouble else 0.0
-
-  val wpUdf: UserDefinedFunction = udf(wp)
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("Create won lost statistics")

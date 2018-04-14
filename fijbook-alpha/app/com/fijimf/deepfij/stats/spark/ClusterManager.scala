@@ -5,6 +5,7 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.elasticmapreduce._
 import com.amazonaws.services.elasticmapreduce.model.{Application, JobFlowInstancesConfig, RunJobFlowRequest, StepConfig}
 import com.amazonaws.services.elasticmapreduce.util.StepFactory
+import com.fijimf.deepfij.stats.LeastSquares
 
 object ClusterManager {
   val CLUSTER_NAME = "DeepFij Stats transient cluster"
@@ -45,6 +46,10 @@ object ClusterManager {
       StatsDbAccess.USER_KEY -> System.getenv("SPARK_DEEPFIJDB_USER"),
       StatsDbAccess.PASSWORD_KEY -> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
     )
-    runSteps(Array(enableDebugging, GenerateSnapshotParquetFiles.stepConfig(Map.empty[String, String]), WonLost.stepConfig(dbOptions)))
+    runSteps(
+      Array(
+        enableDebugging, 
+        GenerateSnapshotParquetFiles.stepConfig(Map.empty[String, String]), 
+        MarginRegression.stepConfig(dbOptions)))
   }
 }
