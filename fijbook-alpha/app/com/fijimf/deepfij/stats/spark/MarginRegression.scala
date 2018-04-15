@@ -49,7 +49,10 @@ object MarginRegression extends Serializable with SparkStepConfig with StatsDbAc
     val teams = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/teams.parquet")
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
 
-    createMarginRegressionStatistics(session, games, teams).write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
+    createMarginRegressionStatistics(session, games, teams)
+//      .write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
+      .write.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/model-regression.parquet")
+
   }
 
   def createMarginRegressionStatistics(session: SparkSession, games: DataFrame, teams: DataFrame): DataFrame = {

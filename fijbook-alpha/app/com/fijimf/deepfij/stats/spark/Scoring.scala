@@ -35,7 +35,10 @@ object Scoring extends Serializable with SparkStepConfig with StatsDbAccess {
 
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
 
-    createScoringStatistics(session, games).write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
+    createScoringStatistics(session, games)
+//      .write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
+      .write.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/model-scoring.parquet")
+
   }
 
   def createScoringStatistics(session: SparkSession, games: DataFrame): DataFrame = {
