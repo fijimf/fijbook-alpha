@@ -43,7 +43,7 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
     val losses = accumulatedResults
       .groupBy($"season", $"date", $"loser")
       .agg(count("loser").as("lost"))
-      .select($"season", $"date", $"loser".as("team"), $"lost".as("value")).withColumn("stat", lit("lost")).createOrReplaceGlobalTempView()
+      .select($"season", $"date", $"loser".as("team"), $"lost".as("value")).withColumn("stat", lit("lost"))
 
     val wp = wins.select($"season", $"date", $"team", $"value".as("won"))
       .join(
