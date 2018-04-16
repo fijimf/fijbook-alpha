@@ -43,17 +43,17 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
     val losses = accumulatedResults
       .groupBy($"season", $"date", $"loser")
       .agg(count("loser").as("lost"))
-      .select($"season", $"date", $"loser".as("team"), $"lost".as("value")).withColumn("stat", lit("lost"))
+      .select($"season", $"date", $"loser".as("team"), $"lost".as("value")).withColumn("stat", lit("lost")).createOrReplaceGlobalTempView()
 
-    val wp = wins.withColumn("won", $"value")
+    val wp = wins.select($"season", $"date", $"team", $"value".as("won"))
       .join(
-        losses.withColumn("lost", $"value"),
+        losses.select($"season", $"date", $"team", $"value".as("lost")),
         List("season", "date", "team"),
         "outer")
       .select($"season", $"date", $"team", $"won", $"lost")
       .na.fill(0, List("won", "lost"))
-      .withColumn("wp", wpUdf($"won", $"lost"))
-      .select($"season", $"date", $"team", $"wp".as("value")).withColumn("stat", lit("wp"))
+      .withColumn("value", wpUdf($"won", $"lost"))
+      .select($"season", $"date", $"team", $"value").withColumn("stat", lit("wp"))
 
     wins.union(losses).union(wp)
   }

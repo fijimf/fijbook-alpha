@@ -44,6 +44,13 @@ class WonLostSpec extends FunSpec {
       val rows = testRows(wl, "wp")
       assert(rows.count() > 0)
       rows.show(60)
+    }   
+    
+    it("should enrich stats correctly wp") {
+     val p=WonLost.enrichedSanitizedStats(wl)
+      val rows = testRows(p, "won")
+      assert(rows.count() > 0)
+      rows.show(60)
     }
   }
 
