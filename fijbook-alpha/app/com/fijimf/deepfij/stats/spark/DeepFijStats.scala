@@ -21,16 +21,20 @@ trait DeepFijStats {
     val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
     enrichTeamStats(
       createStatistics(session, timestamp)
+        .na.drop(Array("value"))
+    ).na.replace(
+      Seq("mean", "stddev"),
+      Map("NaN" -> "null")
     )
       .write
       .mode("append")
       .jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "_xstats", dbProperties())
-    
-  }
-  
-  def appName:String
 
-  def createStatistics(session: SparkSession, timestamp:  String): DataFrame
+  }
+
+  def appName: String
+
+  def createStatistics(session: SparkSession, timestamp: String): DataFrame
 
   def enrichTeamStats(stats: DataFrame): DataFrame = {
     val summary = stats
