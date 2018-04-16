@@ -3,22 +3,17 @@ package com.fijimf.deepfij.stats.spark
 import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 
-import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.services.elasticmapreduce.model.StepConfig
-import com.fijimf.deepfij.models.Season
-import com.fijimf.deepfij.models.services.ScheduleSerializer
-import org.apache.spark.SparkConf
 import org.apache.spark.ml.feature.{IndexToString, OneHotEncoder, StringIndexer}
 import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.ml.regression.LinearRegression
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 
 
-object MarginRegression extends Serializable with SparkStepConfig with StatsDbAccess {
+object MarginRegression extends Serializable with SparkStepConfig with DeepFijStats with StatsDbAccess {
 
   val yyyymmdd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
@@ -32,27 +27,11 @@ object MarginRegression extends Serializable with SparkStepConfig with StatsDbAc
     udf(mkFilter(season, date))
   }
 
-  def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("Create won lost statistics")
-    val session = SparkSession.builder().config(conf).getOrCreate()
-    val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
-    run(session, timestamp)
-  }
 
-  def run(session: SparkSession, timestamp: String, overrideCredentials: Option[AWSCredentials] = None): Unit = {
-
-    overrideCredentials.foreach(cred => {
-      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", cred.getAWSAccessKeyId)
-      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", cred.getAWSSecretKey)
-    })
-
+  def createStatistics(session: SparkSession, timestamp: String): DataFrame = {
     val teams = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/teams.parquet")
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
-
     createMarginRegressionStatistics(session, games, teams)
-//      .write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
-      .write.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/model-regression.parquet")
-
   }
 
   def createMarginRegressionStatistics(session: SparkSession, games: DataFrame, teams: DataFrame): DataFrame = {
@@ -91,30 +70,13 @@ object MarginRegression extends Serializable with SparkStepConfig with StatsDbAc
   }
 
 
-  private def loadDates(session: SparkSession, games: DataFrame): DataFrame = {
-    import session.implicits._
-    games.select($"season".as[Int]).distinct().flatMap(y => {
-      Season.dates(y).map(d => {
-        Row(y, Timestamp.valueOf(d.atStartOfDay()))
-      })
-    })(
-      RowEncoder(
-        StructType(
-          List(
-            StructField("season", IntegerType, nullable = false),
-            StructField("date", TimestampType, nullable = false)
-          )
-        )
-      )
-    )
-  }
-
   override def stepConfig(extraOptions: Map[String, String]): StepConfig = createStepConfig(
     "Calculate margin regression",
     "com.fijimf.deepfij.stats.spark.MarginRegression",
     extraOptions
   )
 
+  override def appName: String = "MarginRegression"
 }
 
 

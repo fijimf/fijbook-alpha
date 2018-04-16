@@ -12,13 +12,16 @@ class GenerateSnapshotParquetFilesSpec extends FunSpec {
   describe("The parquet file generator") {
     val conf = new SparkConf()
       .setMaster("local[*]")
-      .setAppName("Jim Rules")
+      .setAppName("DEEPFIJ")
       .set("spark.ui.enabled", "true")
     val spark: SparkSession = SparkSession.builder()
       .config(
         conf
       ).getOrCreate()
     val credentials: AWSCredentials = new DefaultAWSCredentialsProviderChain().getCredentials
+    spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", credentials.getAWSAccessKeyId)
+    spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", credentials.getAWSSecretKey)
+    
     val optStamp = GenerateSnapshotParquetFiles.run(spark, Some(credentials))
 
     it("should not fail") {

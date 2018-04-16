@@ -1,21 +1,14 @@
 package com.fijimf.deepfij.stats.spark
 
-import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 
-import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.services.elasticmapreduce.model.StepConfig
-import com.fijimf.deepfij.models.Season
-import com.fijimf.deepfij.models.services.ScheduleSerializer
-import org.apache.spark.SparkConf
 import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types._
 
 
-object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
+object WonLost extends Serializable with SparkStepConfig with DeepFijStats with StatsDbAccess {
 
   val yyyymmdd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
   val winner: (String, Int, String, Int) => Option[String] = (h, hs, a, as) => if (hs > as) Some(h) else if (as > hs) Some(a) else None
@@ -26,29 +19,10 @@ object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
 
   val wpUdf: UserDefinedFunction = udf(wp)
 
-  def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setAppName("Create won lost statistics")
-    val session = SparkSession.builder().config(conf).getOrCreate()
-    val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
-    run(session, timestamp)
-  }
-
-  def run(session: SparkSession, timestamp: String, overrideCredentials: Option[AWSCredentials] = None): Unit = {
-
-    overrideCredentials.foreach(cred => {
-      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", cred.getAWSAccessKeyId)
-      session.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", cred.getAWSSecretKey)
-    })
+  def createStatistics(session: SparkSession, timestamp: String): DataFrame = {
+    import session.implicits._
 
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
-
-    createWonLostStatistics(session, games)
-    //  .write.mode("append").jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "xstats", dbProperties())
-      .write.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/model-wonlost.parquet")  
-  }
-
-  def createWonLostStatistics(session: SparkSession, games: DataFrame): Dataset[Row] = {
-    import session.implicits._
     val results =
       games.filter("(home_score is not null) and (away_score is not null) and (away_score<>home_score)")
         .withColumn("winner", winnerUdf($"home_team", $"home_score", $"away_team", $"away_score"))
@@ -80,25 +54,8 @@ object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
       .na.fill(0, List("won", "lost"))
       .withColumn("wp", wpUdf($"won", $"lost"))
       .select($"season", $"date", $"team", $"wp".as("value")).withColumn("stat", lit("wp"))
-    wins.union(losses).union(wp)
-  }
 
-  private def loadDates(session: SparkSession, games: DataFrame): DataFrame = {
-    import session.implicits._
-    games.select($"season".as[Int]).distinct().flatMap(y => {
-      Season.dates(y).map(d => {
-        Row(y, Timestamp.valueOf(d.atStartOfDay()))
-      })
-    })(
-      RowEncoder(
-        StructType(
-          List(
-            StructField("season", IntegerType, nullable = false),
-            StructField("date", TimestampType, nullable = false)
-          )
-        )
-      )
-    )
+    enrichTeamStats(wins.union(losses).union(wp))
   }
 
   override def stepConfig(extraOptions: Map[String, String]): StepConfig = createStepConfig(
@@ -107,6 +64,7 @@ object WonLost extends Serializable with SparkStepConfig with StatsDbAccess {
     extraOptions
   )
 
+  override def appName: String = "WonLost"
 }
 
 

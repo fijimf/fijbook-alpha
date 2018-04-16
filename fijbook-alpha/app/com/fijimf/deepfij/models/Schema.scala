@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models
 
+import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
@@ -138,6 +139,8 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
   require(!modelKey.contains(":") && !modelKey.contains(" "), "Model key cannot contain ':' or ' '")
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
+
+case class XStat(seasonYear:Int, date:Timestamp, statKey:String, teamKey:String, value:Double, rankAsc:Int, rankDesc:Int, percentileAsc:Double,percentileDesc:Double,mean:Double,stdDev:Double, min:Double, max:Double, n:Int)
 
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
@@ -390,7 +393,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[Quote] = (id, quote, source, url, key) <> (Quote.tupled, Quote.unapply)
 
   }
-
+  
   class StatValueTable(tag: Tag) extends Table[StatValue](tag, "stat_value") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)

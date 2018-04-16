@@ -15,22 +15,19 @@ class MarginRegressionSpec extends FunSpec {
   describe("The WonLost calculator") {
     val conf = new SparkConf()
       .setMaster("local[*]")
-      .setAppName("Jim Rules")
+      .setAppName("DEEPFIJ")
       .set("spark.ui.enabled", "true")
     val spark: SparkSession = SparkSession.builder()
       .config(
         conf
       ).getOrCreate()
     val credentials: AWSCredentials = new DefaultAWSCredentialsProviderChain().getCredentials
-
     spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", credentials.getAWSAccessKeyId)
     spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", credentials.getAWSSecretKey)
+
     val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
 
-    val games = spark.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
-    val teams = spark.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/teams.parquet")
-
-    val wl = MarginRegression.createMarginRegressionStatistics(spark, games, teams)
+    val wl = MarginRegression.createStatistics(spark, timestamp)
     it("should calculate x") {
     wl.show(500)
     }
