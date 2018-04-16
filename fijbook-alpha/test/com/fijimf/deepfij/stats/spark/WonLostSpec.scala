@@ -24,7 +24,7 @@ class WonLostSpec extends FunSpec {
     val credentials: AWSCredentials = new DefaultAWSCredentialsProviderChain().getCredentials
     spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", credentials.getAWSAccessKeyId)
     spark.sparkContext.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", credentials.getAWSSecretKey)
-    
+
     val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
 
     val wl = WonLost.createStatistics(spark, timestamp)
@@ -44,7 +44,6 @@ class WonLostSpec extends FunSpec {
       val rows = testRows(wl, "wp")
       assert(rows.count() > 0)
       rows.show(60)
-
     }
   }
 

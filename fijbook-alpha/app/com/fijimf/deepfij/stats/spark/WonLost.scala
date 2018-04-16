@@ -55,7 +55,7 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
       .withColumn("wp", wpUdf($"won", $"lost"))
       .select($"season", $"date", $"team", $"wp".as("value")).withColumn("stat", lit("wp"))
 
-    enrichTeamStats(wins.union(losses).union(wp))
+    wins.union(losses).union(wp)
   }
 
   override def stepConfig(extraOptions: Map[String, String]): StepConfig = createStepConfig(
