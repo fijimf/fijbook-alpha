@@ -112,6 +112,7 @@ GET         /deepfij/admin/ws                                   controllers.Scra
 
 GET         /deepfij/admin/writeSnapshot                        controllers.AdminController.writeSnapshot
 GET         /deepfij/admin/readSnapshot:key                     controllers.AdminController.readSnapshot(key:String)
+GET         /deepfij/admin/deleteSnapshot:key                     controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 
 GET         /deepfij/admin/spark/tests                          controllers.SparkStatController.update()

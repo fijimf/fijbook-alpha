@@ -243,7 +243,9 @@ object ScheduleSerializer {
   }
 
   def deleteSchedulesFromS3(key: String) = {
-    deleteObjects(bucket, key)
+    Future.successful{
+      deleteObjects(bucket, key)
+    }
   }
 
   def deleteObjects(bucket: String, prefix: String): Option[DeleteObjectsResult] = {
