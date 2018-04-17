@@ -28,6 +28,9 @@ class AdminController @Inject()(val controllerComponents: ControllerComponents, 
   def readSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
     ScheduleSerializer.readSchedulesFromS3(key,scheduleDao,repo).map(_=>Redirect(routes.AdminController.index()))
   }
+  def deleteSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
+    ScheduleSerializer.deleteSchedulesFromS3(key).map(_=>Redirect(routes.AdminController.listSnapshots()))
+  }
 
   def listSnapshots = silhouette.SecuredAction.async  { implicit rs =>
     Future {

@@ -31,7 +31,10 @@
                 </thead>
                 <tbody>
                     @for(s<-ss){
-                        <tr><td><a href="@routes.AdminController.readSnapshot(s._1)" class="btn btn-mini btn-success">Load</a></td>
+                        <tr><td>
+                            <a href="@routes.AdminController.readSnapshot(s._1)" class="btn btn-xs btn-success">Load</a>
+                            <a href="@routes.AdminController.deleteSnapshot(s._1)" class="btn btn-xs btn-danger">Delete</a>
+                        </td>
                             <td>@s._1</td>
                             <td>@{"%5.2f".format(s._2/1000000.0)}</td>
                             <td>@{s._3.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:MM:ss.SSS"))}</td>

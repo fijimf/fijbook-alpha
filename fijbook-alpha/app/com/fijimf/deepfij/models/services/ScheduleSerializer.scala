@@ -18,6 +18,8 @@ import scala.concurrent.Future
 
 object ScheduleSerializer {
 
+
+
   val bucket = "deepfij-data"
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -238,6 +240,10 @@ object ScheduleSerializer {
     val last = s3.listObjects(bucket).getObjectSummaries.maxBy(_.getLastModified.getTime)
     val obj = s3.getObject(bucket, last.getKey)
     Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse]
+  }
+
+  def deleteSchedulesFromS3(key: String) = {
+    deleteObjects(bucket, key)
   }
 
   def deleteObjects(bucket: String, prefix: String): Option[DeleteObjectsResult] = {
