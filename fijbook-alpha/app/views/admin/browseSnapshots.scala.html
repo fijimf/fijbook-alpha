@@ -7,9 +7,9 @@
 @import org.apache.commons.lang3.StringUtils
 @(user:User,ss:List[(String, Long, LocalDateTime)])(implicit flash: Flash)
 @mainX(
-    MainMeta.base("Serialize", Some(user))
+    MainMeta.base("Data snapshots", Some(user))
             .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Serialize"))
+            .withCrumbs(Breadcrumbs.admin.appendLeaf("Data snapshots"))
 ){
     <div class="row">
         <div class="col-md-2">
@@ -19,7 +19,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <div class="panel">
+            
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -42,7 +42,6 @@
                     }
                 </tbody>
             </table>
-            </div>
             
         </div>
     </div>

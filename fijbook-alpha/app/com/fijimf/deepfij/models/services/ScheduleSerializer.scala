@@ -1,7 +1,8 @@
 package com.fijimf.deepfij.models.services
 
 import java.io.ByteArrayInputStream
-import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.sql.Timestamp
+import java.time.{Instant, _}
 import java.util.UUID
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -230,8 +231,8 @@ object ScheduleSerializer {
   def listSaved(): List[(String, Long, LocalDateTime)] = {
     val s3: AmazonS3 = createClient()
     val summaries = s3.listObjects(bucket).getObjectSummaries
-    0.until(summaries.size()).map(summaries.get(_)).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
-    )).toList
+    0.until(summaries.size()).map(summaries.get).map(os => (os.getKey, os.getSize, LocalDateTime.ofInstant(os.getLastModified.toInstant, ZoneId.systemDefault())
+    )).toList.sortBy(t=> -Timestamp.valueOf(t._3).getTime)
   }
 
   def readLatestSnapshot(): Option[MappedUniverse] = {
