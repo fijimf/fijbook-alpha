@@ -32,19 +32,19 @@
     <logger name="access" level="INFO" additivity="false">
         <appender-ref ref="ACCESS_FILE"/>
     </logger>
-    <logger name="play" level="INFO">
+    <logger name="play" level="INFO" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
-    <logger name="application" level="WARN">
+    <logger name="application" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
-    <logger name="slick.jdbc" level="INFO">
+    <logger name="slick.jdbc" level="INFO" additivity="false">
         <appender-ref ref="FILE"/>
     </logger> <!-- Will log all statements -->
-    <logger name="com.zaxxer.hikari" level="INFO">
+    <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
         <appender-ref ref="FILE"/>
     </logger> <!-- Will log all statements -->
-    <logger name="com.fijimf" level="INFO">
+    <logger name="com.fijimf" level="INFO" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
