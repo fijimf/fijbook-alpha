@@ -5,7 +5,7 @@ import java.util.{Date, UUID}
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.elasticmapreduce._
-import com.amazonaws.services.elasticmapreduce.model.{Application, DescribeClusterRequest, JobFlowInstancesConfig, ListClustersRequest, RunJobFlowRequest, StepConfig}
+import com.amazonaws.services.elasticmapreduce.model.{Application, ClusterState, JobFlowInstancesConfig, ListClustersRequest, RunJobFlowRequest, StepConfig}
 import com.amazonaws.services.elasticmapreduce.util.StepFactory
 
 object ClusterManager {
@@ -21,7 +21,12 @@ object ClusterManager {
 
   val spark: Application = new Application().withName("Spark")
 
-  def runSteps(clusterName:String, steps: Array[StepConfig]): Unit = {
+  val dbOptions = Map(
+    StatsDbAccess.USER_KEY -> System.getenv("SPARK_DEEPFIJDB_USER"),
+    StatsDbAccess.PASSWORD_KEY -> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
+  )
+
+  def runSteps(clusterName: String, steps: Array[StepConfig]): Unit = {
 
     val request = new RunJobFlowRequest()
       .withName(clusterName)
@@ -41,34 +46,38 @@ object ClusterManager {
     emr.runJobFlow(request)
   }
 
-  def main(args: Array[String]): Unit = {
-    import scala.collection.JavaConversions._
-    val now = new Date()
-    val name = recreateAllStatistics()
-    while (true) {
-      emr.listClusters(new ListClustersRequest().withCreatedAfter(now)).getClusters.find(_.getName == name) match {
-        case Some(csum) =>
-          val describeClusterResult = emr.describeCluster(new DescribeClusterRequest().withClusterId(csum.getId))
-          println(new Date()+"===============================================")
-          println(csum.getId)
-          println(csum.getName)
-          println(csum.getNormalizedInstanceHours)
-          println(csum.getStatus.getState)
-          println(csum.getStatus.getTimeline.getCreationDateTime)
-          println(csum.getStatus.getTimeline.getReadyDateTime)
-          println(csum.getStatus.getTimeline.getEndDateTime)
-      }
-      Thread.sleep(20000L)
-    }
-  }
-  
-  
-  def recreateAllStatistics(): String ={
-    val name = "DF-"+UUID.randomUUID().toString
-    val dbOptions = Map(
-      StatsDbAccess.USER_KEY -> System.getenv("SPARK_DEEPFIJDB_USER"),
-      StatsDbAccess.PASSWORD_KEY -> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
+
+  def generateSnapshotParquetFiles(): (String, Date) = {
+    val name = "SNAP-" + UUID.randomUUID().toString
+
+    runSteps(
+      name,
+      Array(
+        enableDebugging,
+        GenerateSnapshotParquetFiles.stepConfig(Map.empty[String, String])
+      )
     )
+    (name, new Date())
+  }
+
+  def generateTeamStatistics(): (String, Date) = {
+    val name = "DF-" + UUID.randomUUID().toString
+
+    runSteps(
+      name,
+      Array(
+        enableDebugging,
+        WonLost.stepConfig(dbOptions),
+        Scoring.stepConfig(dbOptions),
+        MarginRegression.stepConfig(dbOptions)
+      )
+    )
+    (name, new Date())
+  }
+
+  def recreateAll(): (String, Date) = {
+    val name = "ALL-" + UUID.randomUUID().toString
+
     runSteps(
       name,
       Array(
@@ -79,6 +88,18 @@ object ClusterManager {
         MarginRegression.stepConfig(dbOptions)
       )
     )
-    name
+    (name, new Date())
+  }
+
+  def isClusterRunning(name: String, start: Date): Boolean = {
+    getClusterState(name, start) match {
+      case Some(c) => c == ClusterState.TERMINATED || c == ClusterState.TERMINATED_WITH_ERRORS
+      case None => false
+    }
+  }
+
+  def getClusterState(name: String, start: Date): Option[ClusterState] = {
+    import scala.collection.JavaConversions._
+    emr.listClusters(new ListClustersRequest().withCreatedAfter(start)).getClusters.find(_.getName == name).map(_.getStatus.getState).map(ClusterState.valueOf(_))
   }
 }
