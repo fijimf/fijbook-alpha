@@ -4,7 +4,7 @@
 @import com.fijimf.deepfij.models.Team
 @import helper._
 
-@(user:User, host:String)(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@(user:User)(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 
 @mainX(MainMeta.base("Data Scraping", Some(user))
@@ -52,7 +52,7 @@
         <script src="/assets/javascripts/manageScraping.js"></script>
         <script>
                 $(function() {
-                    setupManagerSocket("ws://@host@routes.ScrapingManagerController.socket()");
+                    setupManagerSocket("ws://localhost:9000@routes.ScrapingManagerController.socket()");
                 });
         </script>
     </div>

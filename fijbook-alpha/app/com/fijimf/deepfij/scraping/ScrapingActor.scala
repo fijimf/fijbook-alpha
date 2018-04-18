@@ -7,7 +7,6 @@ import java.util.concurrent.{ExecutorService, Executors}
 import akka.actor.{Actor, ActorRef, Props}
 import com.fijimf.deepfij.models.ScheduleRepository
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.scraping.nextgen.ScrapingManagerActor
 import com.google.inject.Inject
 import play.api.Logger
 import play.api.libs.json.Json

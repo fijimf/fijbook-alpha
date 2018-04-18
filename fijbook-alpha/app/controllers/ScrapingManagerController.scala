@@ -30,7 +30,7 @@ class ScrapingManagerController @Inject()(val controllerComponents: ControllerCo
   
   def page() = silhouette.SecuredAction.async { implicit rs =>
     Future {
-      Ok(views.html.admin.manageScraping(rs.identity))
+      Ok(views.html.admin.manageScraping(rs.identity, rs.request.host))
     }
   }
 

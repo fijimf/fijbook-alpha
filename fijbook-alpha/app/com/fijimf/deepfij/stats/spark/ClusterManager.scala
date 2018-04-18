@@ -5,7 +5,7 @@ import java.util.{Date, UUID}
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.elasticmapreduce._
-import com.amazonaws.services.elasticmapreduce.model.{Application, ClusterState, JobFlowInstancesConfig, ListClustersRequest, RunJobFlowRequest, StepConfig}
+import com.amazonaws.services.elasticmapreduce.model.{Application, Cluster, ClusterState, ClusterStatus, ClusterSummary, DescribeClusterRequest, JobFlowInstancesConfig, ListClustersRequest, ListStepsRequest, RunJobFlowRequest, StepConfig, TerminateJobFlowsRequest}
 import com.amazonaws.services.elasticmapreduce.util.StepFactory
 
 object ClusterManager {
@@ -91,15 +91,32 @@ object ClusterManager {
     (name, new Date())
   }
 
+  def listActiveClusters(): List[Cluster] = {
+    import scala.collection.JavaConversions._
+    emr.listClusters(new ListClustersRequest()).getClusters.map(cs => emr.describeCluster(new DescribeClusterRequest().withClusterId(cs.getId)).getCluster).toList
+  }
+
+  def terminateCluster(id: String): String = {
+    import scala.collection.JavaConversions._
+    val steps = emr.listSteps(new ListStepsRequest().withClusterId(id))
+    val keys = steps.getSteps.filter(step => List("PENDING", "RUNNING").contains(step.getStatus.getState)).map(_.getId)
+    val result = emr.terminateJobFlows(new TerminateJobFlowsRequest(keys))
+    result.getSdkResponseMetadata.getRequestId
+  }
+
   def isClusterRunning(name: String, start: Date): Boolean = {
-    getClusterState(name, start) match {
+    getClusterStatus(name, start).map(s => ClusterState.valueOf(s.getState)) match {
       case Some(c) => c == ClusterState.TERMINATED || c == ClusterState.TERMINATED_WITH_ERRORS
       case None => false
     }
   }
 
-  def getClusterState(name: String, start: Date): Option[ClusterState] = {
+  def getClusterStatus(name: String, start: Date): Option[ClusterStatus] = {
+    getClusterSummary(name, start).map(_.getStatus)
+  }
+
+  def getClusterSummary(name: String, start: Date): Option[ClusterSummary] = {
     import scala.collection.JavaConversions._
-    emr.listClusters(new ListClustersRequest().withCreatedAfter(start)).getClusters.find(_.getName == name).map(_.getStatus.getState).map(ClusterState.valueOf(_))
+    emr.listClusters(new ListClustersRequest().withCreatedAfter(start)).getClusters.find(_.getName == name)
   }
 }
