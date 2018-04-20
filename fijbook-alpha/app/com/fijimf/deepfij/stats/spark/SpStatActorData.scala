@@ -15,7 +15,7 @@ sealed trait SpStatActorData
 
 case class ClusterNotRunning
 (
-  last: Option[ClusterStatus],
+  list: List[StatClusterSummary],
   listeners:List[ActorRef]
 ) extends SpStatActorData
 

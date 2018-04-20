@@ -45,6 +45,7 @@ GET         /deepfij/admin/updateNeutralSites                   controllers.Team
 GET         /deepfij/admin/verifyResults/:y                     controllers.GameScrapeController.verifyResults(y:Int)
 ########### DATA
 GET         /deepfij/admin/scrapeManager                        controllers.ScrapingManagerController.page()
+GET         /deepfij/admin/statManager                        controllers.SparkStatsManagerController.page()
 GET         /deepfij/admin/uber-scrape                          controllers.UberScrapeController.uberScrape()
 GET         /deepfij/admin/uber-ncaa/:filename                  controllers.UberScrapeController.markNcaaGames(filename:String)
 ##### TEAMS
@@ -107,12 +108,12 @@ POST        /deepfij/admin/saveAlias                            controllers.Data
 GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)
 GET         /deepfij/admin/deleteAlias/:id                      controllers.DataController.deleteAlias(id:Long)
 
-
-GET         /deepfij/admin/ws                                   controllers.ScrapingManagerController.socket
+GET         /deepfij/admin/scraper/ws                           controllers.ScrapingManagerController.socket
+GET         /deepfij/admin/sparkstat/ws                         controllers.SparkStatsManagerController.socket
 
 GET         /deepfij/admin/writeSnapshot                        controllers.AdminController.writeSnapshot
 GET         /deepfij/admin/readSnapshot:key                     controllers.AdminController.readSnapshot(key:String)
-GET         /deepfij/admin/deleteSnapshot:key                     controllers.AdminController.deleteSnapshot(key:String)
+GET         /deepfij/admin/deleteSnapshot:key                   controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 
 GET         /deepfij/admin/spark/tests                          controllers.SparkStatController.update()

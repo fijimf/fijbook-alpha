@@ -4,43 +4,42 @@
 @import com.fijimf.deepfij.models.Team
 @import helper._
 
-@(user:User)(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@(user:User, host:String)(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 
-@mainX(MainMeta.base("Data Scraping", Some(user))
+@mainX(MainMeta.base("Generate Statistics", Some(user))
         .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin.appendLeaf("Manage scraping"))
+        .withCrumbs(Breadcrumbs.admin.appendLeaf("Manage statisticss"))
 ) {
     <div class="row">
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <button class="btn btn-block btn-default" id="btnRequestStatus"s>
                 <span class="fa fa-refresh"> </span> Refresh Status
             </button>
-            <button class="btn btn-block btn-danger" id="btnCancelTask">
-                <span class="fa fa-times"> </span> Cancel Current Task
+            <button class="btn btn-block btn-danger" id="btnTerminateCluster">
+                <span class="fa fa-times"> </span> Terminate Cluster
             </button>
-            <button class="btn btn-block btn-danger" id="btnCancelTaskList">
-                <span class="fa fa-times"> </span> Cancel All Tasks
+            <button class="btn btn-block btn-info" id="btnGenerateParquet">
+                <span class="fa fa-database"> </span> Generate Parquet Files
             </button>
-            <button class="btn btn-block btn-info" id="btnFullRebuild">
-                <span class="fa fa-database"> </span> Full Rebuild
+            <button class="btn btn-block btn-info" id="btnGenerateStats">
+                <span class="fa fa-area-chart"> </span> Generate Stats from Parquet
             </button>
-            <button class="btn btn-block btn-info" id="btnUpdateCurrent">
-                <span class="fa fa-calendar"> </span> Update Current
+            <button class="btn btn-block btn-info" id="btnGenerateAll">
+                <span class="fa fa-gears"> </span> Generate All
             </button>
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="panel panel-default">
                 <div class="panel-heading"><h4>Status <span id="status-badge" class="badge">Unknown</span></h4></div>
                 <div class="panel-body">
                     <table class="table table-bordered table-condensed faci"><thead>
                         <tr>
-                            <th style="width:3%" ></th>
-                            <th style="width:15%">Name</th>
-                            <th style="width:20%">Started</th>
-                            <th style="width:20%">Completed</th>
-                            <th style="width:10%">Elapsed</th>
-                            <th style="width:25%">Message</th>
+                            <th>Name</th>
+                            <th style="width:20%">Status</th>
+                            <th style="width:18%">Creation</th>
+                            <th style="width:18%">Ready</th>
+                            <th style="width:18%">Termination</th>
                         </tr>
                     </thead>
                     <tbody id="task-data">
@@ -49,10 +48,10 @@
                 </div>
             </div>
         </div>
-        <script src="/assets/javascripts/manageScraping.js"></script>
+        <script src="/assets/javascripts/manageStats.js"></script>
         <script>
                 $(function() {
-                    setupManagerSocket("ws://localhost:9000@routes.ScrapingManagerController.socket()");
+                    setupManagerSocket("ws://@host@routes.SparkStatsManagerController.socket()");
                 });
         </script>
     </div>

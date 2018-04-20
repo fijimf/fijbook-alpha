@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import play.api.Logger
+import play.api.libs.json._
 import play.api.libs.ws.WSClient
 
 object SparkStatsManagerActor {
@@ -25,7 +26,6 @@ case class SparkStatsManagerActor(
 
 
   val log = Logger(this.getClass)
-
   override def receive: Receive = {
     case (s: String) if s.toLowerCase == "$command::status" =>
       log.info("Received status command")
@@ -39,10 +39,12 @@ case class SparkStatsManagerActor(
     case (s: String) if s.toLowerCase == "$command::generate_all" =>
       log.info("Received status command")
       sparkStatActor ! SpStatGenAll
-    case (s: String) if s.toLowerCase == "$command::cancel_spark_jobs" =>
+    case (s: String) if s.toLowerCase == "$command::terminate_cluster" =>
       log.info("Received full rebuild command")
       sparkStatActor ! SpStatCancel
+    case (stat:ClusterNotRunning) => out ! Json.toJson(stat.list).toString()
     case _ =>
       log.error("Received an unexpected message")
+
   }
 }

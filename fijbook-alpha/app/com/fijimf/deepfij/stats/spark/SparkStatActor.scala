@@ -24,7 +24,7 @@ case object ClusterActive extends SpStatActorState
 
 class SpStatActor() extends FSM[SpStatActorState, SpStatActorData] {
 
-  startWith(ClusterReady, ClusterNotRunning(None, List.empty[ActorRef]))
+  startWith(ClusterReady, ClusterNotRunning(ClusterManager.getClusterList, List.empty[ActorRef]))
 
   when(ClusterReady) {
     case Event(SpStatStatus, r: ClusterNotRunning) => if (!r.listeners.contains(sender())) {
@@ -95,7 +95,7 @@ class SpStatActor() extends FSM[SpStatActorState, SpStatActorData] {
       stay using q replying q
     } else {
       goto(ClusterReady) using {
-        ClusterNotRunning(ClusterManager.getClusterStatus(q.clusterName, q.clusterTime), q.listeners)
+        ClusterNotRunning(ClusterManager.getClusterList, q.listeners)
       }
     }
   }

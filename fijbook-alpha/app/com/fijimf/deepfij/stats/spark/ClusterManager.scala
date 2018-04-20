@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.stats.spark
 
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.{Date, UUID}
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -118,5 +120,23 @@ object ClusterManager {
   def getClusterSummary(name: String, start: Date): Option[ClusterSummary] = {
     import scala.collection.JavaConversions._
     emr.listClusters(new ListClustersRequest().withCreatedAfter(start)).getClusters.find(_.getName == name)
+  }
+
+  def getClusterList:List[StatClusterSummary] = {
+    import scala.collection.JavaConversions._
+    emr.listClusters(new ListClustersRequest())
+      .getClusters.filter(c => c.getName.startsWith("SNAP-") || c.getName.startsWith("DF-") || c.getName.startsWith("ALL-"))
+      .sortBy(_.getStatus.getTimeline.getCreationDateTime.getTime * -1)
+      .map(StatClusterSummary(_)).toList
+  }
+}
+
+case class StatClusterSummary(name: String, status: String, creation: String, ready: String, terminated: String)
+object StatClusterSummary {
+  def apply(cs:ClusterSummary): StatClusterSummary = {
+    val create = Option(cs.getStatus.getTimeline.getCreationDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    val ready = Option(cs.getStatus.getTimeline.getReadyDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    val end = Option(cs.getStatus.getTimeline.getEndDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    StatClusterSummary(cs.getName, cs.getStatus.getState,create, ready, end)
   }
 }

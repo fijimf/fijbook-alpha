@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.fijimf.deepfij.models.ScheduleRepository
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.stats.spark.SparkStatsManagerActor
+import com.fijimf.deepfij.stats.spark.{ClusterManager, SparkStatsManagerActor}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -28,7 +28,7 @@ class SparkStatsManagerController @Inject()(val controllerComponents: Controller
 
   def page() = silhouette.SecuredAction.async { implicit rs =>
     Future {
-      Ok(views.html.admin.manageSparkStats(rs.identity))
+      Ok(views.html.admin.manageSparkStats(rs.identity, rs.request.host))
     }
   }
 
