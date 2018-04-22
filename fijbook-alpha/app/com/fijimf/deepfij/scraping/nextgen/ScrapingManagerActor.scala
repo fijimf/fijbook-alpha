@@ -67,8 +67,7 @@ case class ScrapingManagerActor(
         SeedConferenceMaps(dao),
         ScrapeGames(dao, gameThrottler),
         TourneyUpdater("/ncaa-tourn.txt",dao),
-        NeutralSiteSolver(dao),
-        UpdateStatistics(dao,None)
+        NeutralSiteSolver(dao)
       ))
       superScraper ! msg
     case (r: ReadyData) =>
