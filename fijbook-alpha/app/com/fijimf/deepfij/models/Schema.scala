@@ -59,7 +59,7 @@ case object Season {
 }
 
 //TODO -- DO we use lock record or not?
-case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String){
+case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
   def sameData(c: Conference): Boolean = (key == c.key
     && name == c.name
     && logoLgUrl == c.logoLgUrl
@@ -107,7 +107,6 @@ case class Team(id: Long, key: String, name: String, longName: String, nickname:
     )
 
 
-
 }
 
 case class Alias(id: Long, alias: String, key: String)
@@ -140,12 +139,12 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-case class XStat(seasonYear:Int, date:Timestamp, statKey:String, teamKey:String, value:Double, rankAsc:Int, rankDesc:Int, percentileAsc:Double,percentileDesc:Double,mean:Double,stdDev:Double, min:Double, max:Double, n:Int)
+case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
 
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
-case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]){
-  def odds:Option[Double]=probability.map(x=> x/(1-x))
+case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
+  def odds: Option[Double] = probability.map(x => x / (1 - x))
 }
 
 case class UserProfileData(id: Long, userID: String, key: String, value: String)
@@ -344,7 +343,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def lockBefore: Rep[Option[LocalDate]] = column[Option[LocalDate]]("lockBefore")
 
 
-    def * : ProvenShape[Season] = (id, year, lock, lockBefore) <> ((Season.apply _) .tupled, Season.unapply)
+    def * : ProvenShape[Season] = (id, year, lock, lockBefore) <> ((Season.apply _).tupled, Season.unapply)
 
     def idx1: Index = index("season_idx1", year, unique = true)
 
@@ -393,7 +392,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[Quote] = (id, quote, source, url, key) <> (Quote.tupled, Quote.unapply)
 
   }
-  
+
   class StatValueTable(tag: Tag) extends Table[StatValue](tag, "stat_value") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -417,6 +416,43 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx3: Index = index("stat_value_idx3", (modelKey, statKey), unique = false)
 
     def idx4: Index = index("stat_value_idx4", modelKey, unique = false)
+
+  }
+  
+  //case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
+ class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
+
+    def seasonYear:Rep[Int] = column[Int]("season")
+    def statDate: Rep[Timestamp] = column[Timestamp]("date")
+    def statKey: Rep[String] = column[String]("stat", O.Length(32))
+
+    def teamKey: Rep[String] = column[String]("team", O.Length(32))
+
+    
+
+    def value: Rep[Double] = column[Double]("value")
+    
+    def rankAscending: Rep[Int] = column[Int]("rank_asc")
+    def rankDescending: Rep[Int] = column[Int]("rank_desc")
+    
+    def percentileAscending: Rep[Double] = column[Double]("pctile_asc")
+    def percentileDescending: Rep[Double] = column[Double]("pctile_desc")
+    def mean: Rep[Double] = column[Double]("mean")
+    def stdDev: Rep[Double] = column[Double]("std_dev")
+    def min: Rep[Double] = column[Double]("min")
+    def max: Rep[Double] = column[Double]("max")
+    def n: Rep[Int] = column[Int]("n")
+    
+
+    def * : ProvenShape[XStat] = (seasonYear, statDate,statKey, teamKey,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
+
+    def idx1: Index = index("stat_value_idx1", (seasonYear, statDate, statKey, teamKey), unique = true)
+
+    def idx2: Index = index("stat_value_idx2", (seasonYear, statDate, statKey), unique = false)
+
+    def idx3: Index = index("stat_value_idx3", (seasonYear, statKey, teamKey), unique = false)
+
+    def idx4: Index = index("stat_value_idx4", (seasonYear, statDate, teamKey), unique = false)
 
   }
 
@@ -453,7 +489,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def coefficient: Rep[Double] = column[Double]("coefficient")
 
-    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of",O.Length(32))
+    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of", O.Length(32))
 
     def * : ProvenShape[LogisticModelParameter] = (id, modelName, parameterName, normShift, normScale, coefficient, fittedAsOf) <> (LogisticModelParameter.tupled, LogisticModelParameter.unapply)
 
@@ -486,6 +522,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
   lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
   lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]
+  lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
 
   lazy val ddl = conferenceMaps.schema ++
     games.schema ++
@@ -498,5 +535,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     statValues.schema ++
     gamePredictions.schema ++
     logisticModels.schema ++
-    userProfiles.schema
+    userProfiles.schema ++
+    xstats.schema
 }
