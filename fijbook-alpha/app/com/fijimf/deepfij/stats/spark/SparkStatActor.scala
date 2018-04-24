@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.stats.spark
 
 import akka.actor.{ActorRef, FSM}
+import org.apache.commons.lang3.StringUtils
 
 import scala.concurrent.duration._
 
@@ -15,88 +16,74 @@ case object SpStatGenAll
 
 case object SpStatCancel
 
-sealed trait SpStatActorState
+sealed trait SparkStatActorState
 
-case object ClusterReady extends SpStatActorState
+case object ClusterReady extends SparkStatActorState
 
-case object ClusterActive extends SpStatActorState
+case object ClusterActive extends SparkStatActorState
 
 
-class SpStatActor() extends FSM[SpStatActorState, SpStatActorData] {
+class SpStatActor() extends FSM[SparkStatActorState, SparkStatActorData] {
 
-  startWith(ClusterReady, ClusterNotRunning(ClusterManager.getClusterList, List.empty[ActorRef]))
+  private val initState = SparkStatActorData( ClusterManager.getClusterList, List.empty[ActorRef])
+ 
+  startWith(if (initState.isRunning) ClusterActive else ClusterReady,initState )
 
   when(ClusterReady) {
-    case Event(SpStatStatus, r: ClusterNotRunning) => if (!r.listeners.contains(sender())) {
-      val r1 = r.copy(listeners = sender() :: r.listeners)
-      stay replying r1
+    case Event(SpStatStatus, r: SparkStatActorData) => if (!r.listeners.contains(sender())) {
+      evaluateClusterStatus(sender() :: r.listeners)
     } else {
-      stay replying r
+      evaluateClusterStatus(r.listeners)
     }
 
     case Event(SpStatGenFiles, _) => goto(ClusterActive) using {
       val (name, time) = ClusterManager.generateSnapshotParquetFiles()
-      ClusterRunning(name, time, GenerateParquetSnapshot, List(sender()))
+      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
     }
     case Event(SpStatGenStats, _) => goto(ClusterActive) using {
-      val (name, time) = ClusterManager.generateSnapshotParquetFiles()
-      ClusterRunning(name, time, GenerateParquetSnapshot, List(sender()))
+      val (name, time) = ClusterManager.generateTeamStatistics()
+      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
     }
     case Event(SpStatGenAll, _) => goto(ClusterActive) using {
-      val (name, time) = ClusterManager.generateSnapshotParquetFiles()
-      ClusterRunning(name, time, GenerateParquetSnapshot, List(sender()))
+      val (name, time) = ClusterManager.generateTeamStatistics()
+      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
     }
   }
 
 
   when(ClusterActive) {
-    case Event(SpStatStatus, p: ClusterRunning) =>
-      val q = if (!p.listeners.contains(sender())) {
-        p.copy(listeners = sender() :: p.listeners)
-      } else {
-        p
+    case Event(SpStatStatus, r: SparkStatActorData) => if (!r.listeners.contains(sender())) {
+      evaluateClusterStatus(sender() :: r.listeners)
+    } else {
+      evaluateClusterStatus(r.listeners)
+    }
+
+    case Event(SpStatCancel, p: SparkStatActorData) =>
+      p.activeCluster() match {
+        case Some(c)=>ClusterManager.getClusterSummary(c).map(_.getId).foreach(id => ClusterManager.terminateCluster(id))
       }
-      evaluateClusterStatus(q)
-
-    case Event(SpStatCancel, p: ClusterRunning) =>
-      ClusterManager.getClusterSummary(p.clusterName, p.clusterTime).map(_.getId).foreach(id => ClusterManager.terminateCluster(id))
-      evaluateClusterStatus(p)
-
-    case Event(_, p: ClusterRunning) =>
+      evaluateClusterStatus(p.listeners)
+    case Event(_, _) =>
       log.warning("Received a command while still running.")
       stay
   }
 
   onTransition {
-    case ClusterReady -> ClusterActive =>
-      println("Transform: Ready->Processing")
+    case _ =>
       nextStateData match {
-        case (p: ClusterRunning) => p.listeners.foreach(_ ! p)
-        case _ =>
-      }
-    case ClusterActive -> ClusterActive =>
-      println("Transform: Processing->Processing")
-      nextStateData match {
-        case (p: ClusterRunning) => p.listeners.foreach(_ ! p)
-        case _ =>
-      }
-    case ClusterActive -> ClusterReady =>
-      println("Transform: Processing->Ready")
-      (stateData, nextStateData) match {
-        case (p: ClusterRunning, r: ClusterNotRunning) => p.listeners.foreach(_ ! r)
+        case (p: SparkStatActorData) => p.listeners.foreach(_ ! p)
         case _ =>
       }
   }
 
   setTimer("StatusUpdater", SpStatStatus, 15.seconds, repeat = true)
 
-  private def evaluateClusterStatus(q: ClusterRunning): FSM.State[SpStatActorState, SpStatActorData] = {
-    if (ClusterManager.isClusterRunning(q.clusterName, q.clusterTime)) {
-      stay using q replying q
+  private def evaluateClusterStatus(p:List[ActorRef]): FSM.State[SparkStatActorState, SparkStatActorData] = {
+    val c = SparkStatActorData(ClusterManager.getClusterList, p)
+    if (c.isRunning) {
+      goto(ClusterActive) using c
     } else {
-      goto(ClusterReady) using {
-        ClusterNotRunning(ClusterManager.getClusterList, q.listeners)
-      }
+      goto(ClusterReady) using c
     }
   }
 

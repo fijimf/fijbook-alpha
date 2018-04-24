@@ -1,28 +1,36 @@
 package com.fijimf.deepfij.stats.spark
 
-import java.util.Date
-
 import akka.actor.ActorRef
-import com.amazonaws.services.elasticmapreduce.model.ClusterStatus
+import org.apache.commons.lang3.StringUtils
 
-sealed trait SpStatActorCommand 
+sealed trait SpStatActorCommand {
+  val prefix: String
+}
 
-object GenerateParquetSnapshot extends SpStatActorCommand
-object GenerateTeamStatistics extends SpStatActorCommand
-object GenerateAll extends SpStatActorCommand
+object GenerateParquetSnapshot extends SpStatActorCommand {
+  override val prefix: String = "SNAP"
+}
 
-sealed trait SpStatActorData
+object GenerateTeamStatistics extends SpStatActorCommand {
+  override val prefix: String = "DF"
+}
 
-case class ClusterNotRunning
-(
-  list: List[StatClusterSummary],
-  listeners:List[ActorRef]
-) extends SpStatActorData
+object GenerateAll extends SpStatActorCommand {
+  override val prefix: String = "ALL"
+}
 
-case class ClusterRunning
-(
-  clusterName: String,
-  clusterTime: Date,
-  command:SpStatActorCommand,
-  listeners:List[ActorRef]
-) extends SpStatActorData
+object SpStatActorCommand {
+  def apply(prefix: String): SpStatActorCommand = {
+    prefix match {
+      case GenerateParquetSnapshot.prefix => GenerateParquetSnapshot
+      case GenerateTeamStatistics.prefix => GenerateTeamStatistics
+      case GenerateAll.prefix => GenerateAll
+    }
+  }
+}
+
+case class SparkStatActorData(list: List[StatClusterSummary], listeners: List[ActorRef]) {
+  def isRunning: Boolean = list.nonEmpty && StringUtils.isBlank(list.head.terminated)
+
+  def activeCluster(): Option[String] = if (isRunning) Some(list.head.name) else None
+}

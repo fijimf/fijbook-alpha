@@ -22,7 +22,7 @@ trait DeepFijStats {
     enrichedSanitizedStats(createStatistics(session, timestamp))
       .write
       .mode("append")
-      .jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "_xstats", dbProperties())
+      .jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "_xstat", dbProperties())
 
   }
 

@@ -24,6 +24,7 @@ trait XStatDAOImpl extends XStatDAO with DAOSlick {
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
   override def createXStatsFromSparkDump: Future[Boolean] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
     db.run(
       DBIO.sequence(
         Seq(

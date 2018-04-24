@@ -69,12 +69,12 @@ function setupManagerSocket(addr) {
         }
 
 
-        // badge.text("Running");
-        // badge.attr("class", "badge badge-blue");
+        badge.text(s.status);
+        badge.attr("class", "badge badge-blue");
         var tbody = $("#task-data");
       
         tbody.html("");
-        var completedTaskRows = $.map(s, function (val, i) {
+        var completedTaskRows = $.map(s.list, function (val, i) {
             return createTaskRow(val);
         });
         $.each(completedTaskRows, function (i, val) {

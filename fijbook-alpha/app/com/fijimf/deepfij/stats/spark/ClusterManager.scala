@@ -1,7 +1,6 @@
 package com.fijimf.deepfij.stats.spark
 
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.{Date, UUID}
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -23,10 +22,13 @@ object ClusterManager {
 
   val spark: Application = new Application().withName("Spark")
 
-  val dbOptions = Map(
-    StatsDbAccess.USER_KEY -> System.getenv("SPARK_DEEPFIJDB_USER"),
-    StatsDbAccess.PASSWORD_KEY -> System.getenv("SPARK_DEEPFIJDB_PASSWORD")
-  )
+  val dbOptions: Map[String, String] = Map(
+    StatsDbAccess.USER_KEY -> Option(System.getenv("SPARK_DEEPFIJDB_USER")).orElse(Option(System.getProperty(StatsDbAccess.USER_KEY))),
+    StatsDbAccess.PASSWORD_KEY -> Option(System.getenv("SPARK_DEEPFIJDB_PASSWORD")).orElse(Option(System.getProperty(StatsDbAccess.PASSWORD_KEY)))
+  ).filter { case (k, v) => v.isDefined }.map { case (k, v) => k -> v.get }
+
+  require(dbOptions(StatsDbAccess.USER_KEY) != null)
+  require(dbOptions(StatsDbAccess.PASSWORD_KEY) != null)
 
   def runSteps(clusterName: String, steps: Array[StepConfig]): Unit = {
 
@@ -77,7 +79,7 @@ object ClusterManager {
     (name, new Date())
   }
 
-  def recreateAll(): (String, Date) = {
+  def generateAll(): (String, Date) = {
     val name = "ALL-" + UUID.randomUUID().toString
 
     runSteps(
@@ -106,23 +108,23 @@ object ClusterManager {
     result.getSdkResponseMetadata.getRequestId
   }
 
-  def isClusterRunning(name: String, start: Date): Boolean = {
-    getClusterStatus(name, start).map(s => ClusterState.valueOf(s.getState)) match {
+  def isClusterRunning(name: String): Boolean = {
+    getClusterStatus(name).map(s => ClusterState.valueOf(s.getState)) match {
       case Some(c) => c == ClusterState.TERMINATED || c == ClusterState.TERMINATED_WITH_ERRORS
       case None => false
     }
   }
 
-  def getClusterStatus(name: String, start: Date): Option[ClusterStatus] = {
-    getClusterSummary(name, start).map(_.getStatus)
+  def getClusterStatus(name: String): Option[ClusterStatus] = {
+    getClusterSummary(name).map(_.getStatus)
   }
 
-  def getClusterSummary(name: String, start: Date): Option[ClusterSummary] = {
+  def getClusterSummary(name: String):Option[ClusterSummary]={
     import scala.collection.JavaConversions._
-    emr.listClusters(new ListClustersRequest().withCreatedAfter(start)).getClusters.find(_.getName == name)
+    emr.listClusters(new ListClustersRequest()).getClusters.find(_.getName == name)
   }
 
-  def getClusterList:List[StatClusterSummary] = {
+  def getClusterList: List[StatClusterSummary] = {
     import scala.collection.JavaConversions._
     emr.listClusters(new ListClustersRequest())
       .getClusters.filter(c => c.getName.startsWith("SNAP-") || c.getName.startsWith("DF-") || c.getName.startsWith("ALL-"))
@@ -132,11 +134,12 @@ object ClusterManager {
 }
 
 case class StatClusterSummary(name: String, status: String, creation: String, ready: String, terminated: String)
+
 object StatClusterSummary {
-  def apply(cs:ClusterSummary): StatClusterSummary = {
-    val create = Option(cs.getStatus.getTimeline.getCreationDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
-    val ready = Option(cs.getStatus.getTimeline.getReadyDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
-    val end = Option(cs.getStatus.getTimeline.getEndDateTime).map(d=>new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
-    StatClusterSummary(cs.getName, cs.getStatus.getState,create, ready, end)
+  def apply(cs: ClusterSummary): StatClusterSummary = {
+    val create = Option(cs.getStatus.getTimeline.getCreationDateTime).map(d => new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    val ready = Option(cs.getStatus.getTimeline.getReadyDateTime).map(d => new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    val end = Option(cs.getStatus.getTimeline.getEndDateTime).map(d => new SimpleDateFormat("MMM-d HH:mm:ss").format(d)).getOrElse("")
+    StatClusterSummary(cs.getName, cs.getStatus.getState, create, ready, end)
   }
 }
