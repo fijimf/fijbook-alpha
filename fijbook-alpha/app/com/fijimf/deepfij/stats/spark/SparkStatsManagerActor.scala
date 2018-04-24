@@ -42,7 +42,7 @@ case class SparkStatsManagerActor(
     case (s: String) if s.toLowerCase == "$command::terminate_cluster" =>
       log.info("Received full rebuild command")
       sparkStatActor ! SpStatCancel
-    case (stat:SparkStatActorData) => out ! Json.toJson(Json.obj("status"->(if (stat.isRunning)"Runnning" else "Ready"), "list"->stat.list)).toString()
+    case (stat:SparkStatActorData) => out ! Json.toJson(Json.obj("status"-> stat.status.toString, "list"->stat.list)).toString()
     case _ =>
       log.error("Received an unexpected message")
 

@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.stats.spark
 
 import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.Season
@@ -16,6 +17,7 @@ import org.apache.spark.sql.types.{IntegerType, StructField, StructType, Timesta
 trait DeepFijStats {
 
   def main(args: Array[String]): Unit = {
+    val start =  Timestamp.valueOf(LocalDateTime.now())
     val conf = new SparkConf().setAppName(appName)
     val session = SparkSession.builder().config(conf).getOrCreate()
     val timestamp = ScheduleSerializer.readLatestSnapshot().map(_.timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))).getOrElse("")
@@ -23,7 +25,12 @@ trait DeepFijStats {
       .write
       .mode("append")
       .jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "_xstat", dbProperties())
-
+    val end =  Timestamp.valueOf(LocalDateTime.now())
+    import session.implicits._
+    Seq((appName, timestamp, start, end)).toDF("name", "timestamp", "start", "finish")
+      .write
+      .mode("append")
+      .jdbc("jdbc:mysql://www.fijimf.com:3306/deepfijdb", "_xstat_metadata", dbProperties())
   }
 
   def enrichedSanitizedStats(frame:DataFrame): DataFrame = {

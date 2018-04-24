@@ -16,53 +16,71 @@ case object SpStatGenAll
 
 case object SpStatCancel
 
-sealed trait SparkStatActorState
-
-case object ClusterReady extends SparkStatActorState
-
-case object ClusterActive extends SparkStatActorState
 
 
-class SpStatActor() extends FSM[SparkStatActorState, SparkStatActorData] {
 
-  private val initState = SparkStatActorData( ClusterManager.getClusterList, List.empty[ActorRef])
+class SpStatActor() extends FSM[SparkStatClusterStatus, SparkStatActorData] {
+
+  private val initState = SparkStatActorData( None, ClusterManager.getClusterList, List.empty[ActorRef])
  
-  startWith(if (initState.isRunning) ClusterActive else ClusterReady,initState )
+  startWith(initState.status,initState )
 
-  when(ClusterReady) {
-    case Event(SpStatStatus, r: SparkStatActorData) => if (!r.listeners.contains(sender())) {
-      evaluateClusterStatus(sender() :: r.listeners)
-    } else {
-      evaluateClusterStatus(r.listeners)
-    }
+  when(NotRunning) {
+    case Event(SpStatStatus, r: SparkStatActorData) =>
+      if (!r.listeners.contains(sender())) {
+        evaluateClusterStatus(r.copy(listeners=sender() :: r.listeners))
+      } else {
+        evaluateClusterStatus(r)
+      }
 
-    case Event(SpStatGenFiles, _) => goto(ClusterActive) using {
-      val (name, time) = ClusterManager.generateSnapshotParquetFiles()
-      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
-    }
-    case Event(SpStatGenStats, _) => goto(ClusterActive) using {
-      val (name, time) = ClusterManager.generateTeamStatistics()
-      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
-    }
-    case Event(SpStatGenAll, _) => goto(ClusterActive) using {
-      val (name, time) = ClusterManager.generateTeamStatistics()
-      SparkStatActorData(ClusterManager.getClusterList, List(sender()))
-    }
+    case Event(SpStatGenFiles, _) => 
+      val (name, _) = ClusterManager.generateSnapshotParquetFiles()
+      val data = SparkStatActorData(Some(name), ClusterManager.getClusterList, List(sender()))
+      goto (data.status) using data
+      
+    case Event(SpStatGenStats, _) => 
+      val (name, _) = ClusterManager.generateTeamStatistics()
+      val data = SparkStatActorData(Some(name), ClusterManager.getClusterList, List(sender()))
+      goto (data.status) using data
+    
+    case Event(SpStatGenAll, _) => 
+      val (name, _) = ClusterManager.generateTeamStatistics()
+      val data = SparkStatActorData(Some(name), ClusterManager.getClusterList, List(sender()))
+      goto (data.status) using data
   }
 
 
-  when(ClusterActive) {
-    case Event(SpStatStatus, r: SparkStatActorData) => if (!r.listeners.contains(sender())) {
-      evaluateClusterStatus(sender() :: r.listeners)
-    } else {
-      evaluateClusterStatus(r.listeners)
-    }
-
+  when(RunningRequest) {
+    case Event(SpStatStatus, r: SparkStatActorData) =>
+      if (!r.listeners.contains(sender())) {
+        evaluateClusterStatus(r.copy(listeners=sender() :: r.listeners))
+      } else {
+        evaluateClusterStatus(r)
+      }
+      
     case Event(SpStatCancel, p: SparkStatActorData) =>
-      p.activeCluster() match {
+      p.activeCluster match {
         case Some(c)=>ClusterManager.getClusterSummary(c).map(_.getId).foreach(id => ClusterManager.terminateCluster(id))
       }
-      evaluateClusterStatus(p.listeners)
+      evaluateClusterStatus(p)
+    case Event(_, _) =>
+      log.warning("Received a command while still running.")
+      stay
+  }
+  
+  when(OrphanRequest) {
+    case Event(SpStatStatus, r: SparkStatActorData) =>
+      if (!r.listeners.contains(sender())) {
+        evaluateClusterStatus(r.copy(listeners=sender() :: r.listeners))
+      } else {
+        evaluateClusterStatus(r)
+      }
+      
+    case Event(SpStatCancel, p: SparkStatActorData) =>
+      p.activeCluster match {
+        case Some(c)=>ClusterManager.getClusterSummary(c).map(_.getId).foreach(id => ClusterManager.terminateCluster(id))
+      }
+      evaluateClusterStatus(p)
     case Event(_, _) =>
       log.warning("Received a command while still running.")
       stay
@@ -78,13 +96,12 @@ class SpStatActor() extends FSM[SparkStatActorState, SparkStatActorData] {
 
   setTimer("StatusUpdater", SpStatStatus, 15.seconds, repeat = true)
 
-  private def evaluateClusterStatus(p:List[ActorRef]): FSM.State[SparkStatActorState, SparkStatActorData] = {
-    val c = SparkStatActorData(ClusterManager.getClusterList, p)
-    if (c.isRunning) {
-      goto(ClusterActive) using c
-    } else {
-      goto(ClusterReady) using c
-    }
+  private def evaluateClusterStatus(d:SparkStatActorData): FSM.State[SparkStatClusterStatus, SparkStatActorData] = {
+    val c = SparkStatActorData(d.name, ClusterManager.getClusterList, d.listeners)
+    if (c.status == NotRunning)
+      goto (c.status) using c.copy(name=None)
+    else 
+      goto (c.status) using c
   }
 
 

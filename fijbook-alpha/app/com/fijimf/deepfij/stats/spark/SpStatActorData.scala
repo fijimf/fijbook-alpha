@@ -29,8 +29,31 @@ object SpStatActorCommand {
   }
 }
 
-case class SparkStatActorData(list: List[StatClusterSummary], listeners: List[ActorRef]) {
-  def isRunning: Boolean = list.nonEmpty && StringUtils.isBlank(list.head.terminated)
+sealed trait SparkStatClusterStatus
 
-  def activeCluster(): Option[String] = if (isRunning) Some(list.head.name) else None
+case object NotRunning extends SparkStatClusterStatus {
+  override def toString: String = "Ready"
+}
+
+case object OrphanRequest extends SparkStatClusterStatus{
+  override def toString: String = "Unknown Request"
+}
+
+case object RunningRequest extends SparkStatClusterStatus{
+  override def toString: String = "Running Request"
+}
+
+case class SparkStatActorData(name: Option[String], list: List[StatClusterSummary], listeners: List[ActorRef]) {
+
+  def isAnyClusterRunning: Boolean = list.nonEmpty && StringUtils.isBlank(list.head.terminated)
+
+  def status: SparkStatClusterStatus = {
+    activeCluster match {
+      case Some(clusterName) if name.contains(clusterName) => RunningRequest
+      case Some(clusterName) if !name.contains(clusterName) => OrphanRequest
+      case None => NotRunning
+    }
+  }
+
+  def activeCluster: Option[String] = if (isAnyClusterRunning) Some(list.head.name) else None
 }
