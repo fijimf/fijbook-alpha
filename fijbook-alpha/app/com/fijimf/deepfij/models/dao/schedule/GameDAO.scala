@@ -2,7 +2,7 @@ package com.fijimf.deepfij.models.dao.schedule
 
 import java.time.LocalDate
 
-import com.fijimf.deepfij.models.{Game, Result}
+import com.fijimf.deepfij.models.{Game, Result, Season}
 
 import scala.concurrent.Future
 
@@ -29,5 +29,7 @@ trait GameDAO {
   def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]]
 
   def gamesById(id:Long): Future[Option[(Game, Option[Result])]]
+
+  def teamGames(key:String):Future[List[(Season,Game,Result)]]
 
 }

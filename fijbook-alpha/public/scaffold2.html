@@ -1,0 +1,134 @@
+<html>
+<head>
+    <title>Vega Scaffold</title>
+    <meta charset="utf-8">
+    <style>
+
+
+        body {
+            font: 10px sans-serif;
+        }
+
+        .bar {
+            fill: #9a7;
+            shape-rendering: crispEdges;
+        }
+
+        .line {
+            fill: none;
+            stroke: #000;
+            stroke-width: 1.5px;
+        }
+        
+
+    </style>
+</head>
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+    // var teamGames = [
+    //     {season: 2018, date: "2017-11-11", opponent: "Eastern Ill.", wonLost: "W"},
+    //     {season: 2018, date: "2017-11-13", opponent: "North Texas", wonLost: "W"},
+    //     {season: 2018, date: "2017-11-16", opponent: "St. John's (NY)", wonLost: "L"},
+    //     {season: 2018, date: "2017-11-19", opponent: "North Dakota", wonLost: "W"},
+    //     {season: 2018, date: "2017-11-23", opponent: "UCF", wonLost: "L"},
+    //     {season: 2018, date: "2017-11-24", opponent: "Marist", wonLost: "W"},
+    //     {season: 2018, date: "2017-11-26", opponent: "Long Beach St.", wonLost: "W"},
+    //     {season: 2018, date: "2017-11-29", opponent: "Boston College", wonLost: "W"},
+    //     {season: 2018, date: "2017-12-03", opponent: "Michigan St.", wonLost: "L"},
+    //     {season: 2018, date: "2017-12-05", opponent: "Minnesota", wonLost: "W"},
+    //     {season: 2018, date: "2017-12-09", opponent: "Creighton", wonLost: "L"},
+    //     {season: 2018, date: "2017-12-16", opponent: "Kansas", wonLost: "L"},
+    //     {season: 2018, date: "2017-12-20", opponent: "UTSA", wonLost: "W"},
+    //     {season: 2018, date: "2017-12-22", opponent: "Delaware St.", wonLost: "W"},
+    //     {season: 2018, date: "2017-12-29", opponent: "Stetson", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-02", opponent: "Northwestern", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-06", opponent: "Purdue", wonLost: "L"},
+    //     {season: 2018, date: "2018-01-09", opponent: "Wisconsin", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-12", opponent: "Penn St.", wonLost: "L"},
+    //     {season: 2018, date: "2018-01-15", opponent: "Illinois", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-18", opponent: "Michigan", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-22", opponent: "Ohio St.", wonLost: "L"},
+    //     {season: 2018, date: "2018-01-24", opponent: "Rutgers", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-27", opponent: "Iowa", wonLost: "W"},
+    //     {season: 2018, date: "2018-01-29", opponent: "Wisconsin", wonLost: "W"},
+    //     {season: 2018, date: "2018-02-06", opponent: "Minnesota", wonLost: "W"},
+    //     {season: 2018, date: "2018-02-10", opponent: "Rutgers", wonLost: "W"},
+    //     {season: 2018, date: "2018-02-13", opponent: "Maryland", wonLost: "W"},
+    //     {season: 2018, date: "2018-02-18", opponent: "Illinois", wonLost: "L"},
+    //     {season: 2018, date: "2018-02-20", opponent: "Indiana", wonLost: "W"},
+    //     {season: 2018, date: "2018-02-25", opponent: "Penn St.", wonLost: "W"},
+    //     {season: 2018, date: "2018-03-02", opponent: "Michigan", wonLost: "L"},
+    //     {season: 2018, date: "2018-03-14", opponent: "Mississippi St.", wonLost: "L"}
+    // ];
+
+ 
+    //
+    //     var distinctValues = d3.map(statvals, function(d) { return d; }).size();
+    //
+    //     var histogram = d3.layout.histogram()
+    //         .frequency(true).bins(distinctValues<20?distinctValues:20);
+    //
+    //     var data = histogram(statvals);
+    //
+    //     ymax = d3.max(data, function(d){return d.y;});
+    //
+    //     var y = d3.scale.linear()
+    //         .domain([0, ymax+1])
+    //         .range([height, 0]);
+    //
+    //
+    //     var yAxis = d3.svg.axis()
+    //         .scale(y)
+    //         .orient("left");
+    //
+    //     var line = d3.svg.line()
+    //         .x(function (d) {
+    //             return x(d[0]);
+    //         })
+    //         .y(function (d) {
+    //             return y(d[1]);
+    //         });
+    //
+    //     svg.append("g")
+    //         .attr("class", "y axis")
+    //         .call(yAxis);
+    //
+    //     console.log(data)
+    //     //var kde = kernelDensityEstimator(epanechnikovKernel(7), x.ticks(100));
+    //     var kde = kernelDensityEstimator(epanechnikovKernel(bandwith), x.ticks(100));
+    //
+    //     svg.selectAll(".bar")
+    //         .data(data)
+    //         .enter().insert("rect", ".axis")
+    //         .attr("class", "bar")
+    //         .attr("x", function (d) {
+    //             return x(d.x) + 1;
+    //         })
+    //         .attr("y", function (d) {
+    //             return y(d.y);
+    //         })
+    //         .attr("width", x(data[0].dx + data[0].x) - x(data[0].x) - 1)
+    //         .attr("height", function (d) {
+    //             return height - y(d.y);
+    //         });
+    //
+    //     // show the kernel density plot
+    //     if (showKDP == true) {
+    //         svg.append("path")
+    //             .datum(kde(data))
+    //             .attr("class", "line")
+    //             .attr("d", line);
+    //     }
+    // });
+    //
+</script>
+
+<div>
+    <p>Hi</p>
+</div>
+
+</body>
+</html>

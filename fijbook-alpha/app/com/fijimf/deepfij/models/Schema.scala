@@ -519,6 +519,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
   lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
+  lazy val completedResults: Query[((SeasonsTable, GamesTable), ResultsTable), ((Season, Game), Result), Seq] = (seasons join games on (_.id === _.seasonId)) join results on (_._2.id === _.gameId)
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
   lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
   lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]

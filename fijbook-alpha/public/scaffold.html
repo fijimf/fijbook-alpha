@@ -4,22 +4,13 @@
     <meta charset="utf-8">
     <style>
 
-        <!--
-        based on http:
-
-        /
-        /
-        bl.ocks.org /mbostock/
-
-        4341954
-        -->
 
         body {
             font: 10px sans-serif;
         }
 
         .bar {
-            fill: #bbb;
+            fill: #9a7;
             shape-rendering: crispEdges;
         }
 
@@ -149,27 +140,7 @@
                 .attr("d", line);
         }
     });
-
-    function kernelDensityEstimator(kernel, x) {
-        return function (sample) {
-            return x.map(function (x) {
-                //console.log(x + " ... " + d3.mean(sample, function(v) { return kernel(x - v); }));
-                return [x, d3.mean(sample, function (v) {
-                    return kernel(x - v);
-                })];
-            });
-        };
-    }
-
-    function epanechnikovKernel(bandwith) {
-        return function (u) {
-            //return Math.abs(u /= bandwith) <= 1 ? .75 * (1 - u * u) / bandwith : 0;
-            if (Math.abs(u = u / bandwith) <= 1) {
-                return 0.75 * (1 - u * u) / bandwith;
-            } else return 0;
-        };
-    }
-
+    
 </script>
 
 <div>

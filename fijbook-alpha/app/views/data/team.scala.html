@@ -12,9 +12,15 @@
     user = user,
     icon = t.logoSmUrl.getOrElse("/assets/images/deepfij.png"),
     lineColor = t.primaryColor.getOrElse("#ddd"),
-    quoteKey = Some(t.key)
+    quoteKey = Some(t.key),
+    extraCss = List("gameDots.css"),
+    extraJs = List("gameDots.js")
 ) {
-
+    <div class="row">
+        <div class="col-sm-12" id="gameDotsDiv">
+            <h3 style="margin-top:0px; margin-bottom:0px;">Last 5 seasons</h3>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-4">
             @teamdata.schedule(curr,t)
@@ -27,4 +33,7 @@
             @teamdata.stat_panel(stats)
         </div>
     </div>
+    <script >
+            gameDots("@t.key",@{s"[${0.until(5).map(i=>curr.season.year-i).mkString(", ")}]"});
+    </script>
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
@@ -11,6 +12,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
+import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{BaseController, ControllerComponents}
 import utils.DefaultEnv
 
@@ -51,6 +53,75 @@ class TeamController @Inject()(
         }
       }
     })
+  }
+
+  def teamGames(key: String) = silhouette.UserAwareAction.async { implicit request =>
+    teamDao.loadSchedules().map(f => {
+      f.flatMap(s => {
+        s.teams.find(_.key == key) match {
+          case Some(team) => getTeamGames(s, team)
+          case None => List.empty[JsObject]
+        }
+      })
+    }).map(l => JsArray.apply(l)).map(Ok(_))
+  }
+
+
+  private def getTeamGames(s: Schedule, team: Team): List[JsObject] = {
+    val year = s.season.year
+    s.gameResults.flatMap {
+      case (g, Some(r)) if g.homeTeamId == team.id =>
+        val date = g.date.format(DateTimeFormatter.ISO_DATE)
+        val wonLost = if (r.isHomeWinner) "W" else "L"
+        val opponent = s.teamsMap(g.awayTeamId)
+        val location = g.location.getOrElse("")
+        val longDate = g.datetime.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"))
+        val time = g.datetime.format(DateTimeFormatter.ofPattern("hh:mm "))
+        val han = if (g.isNeutralSite) "neutral-game" else "home-game"
+        Some(
+          Json.obj(
+            "season" -> Json.toJson(year),
+            "date" -> Json.toJson(date),
+            "longdate" -> Json.toJson(longDate),
+            "time" -> Json.toJson(time),
+            "location" -> Json.toJson(location),
+            "oppName" -> Json.toJson(opponent.name),
+            "oppKey" -> Json.toJson(opponent.key),
+            "oppLogo" -> Json.toJson(opponent.logoSmUrl.getOrElse("")),
+            "wonLost" -> Json.toJson(wonLost),
+            "atVs" -> Json.toJson("v"),
+            "score" -> Json.toJson(r.homeScore),
+            "oppScore" -> Json.toJson(r.awayScore),
+            "homeAwayClass" -> Json.toJson(han)
+          )
+        )
+      case (g, Some(r)) if g.awayTeamId == team.id =>
+        val date = g.date.format(DateTimeFormatter.ISO_DATE)
+        val wonLost = if (r.isAwayWinner) "W" else "L"
+        val opponent = s.teamsMap(g.homeTeamId)
+        val location = g.location.getOrElse("")
+        val longDate = g.datetime.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy"))
+        val time = g.datetime.format(DateTimeFormatter.ofPattern("h:mm a"))
+        val han = if (g.isNeutralSite) "neutral-game" else "away-game"
+        Some(
+          Json.obj(
+            "season" -> Json.toJson(year),
+            "date" -> Json.toJson(date),
+            "longDate" -> Json.toJson(longDate),
+            "time" -> Json.toJson(time),
+            "location" -> Json.toJson(location),
+            "oppName" -> Json.toJson(opponent.name),
+            "oppKey" -> Json.toJson(opponent.key),
+            "oppLogo" -> Json.toJson(opponent.logoSmUrl.getOrElse("")),
+            "wonLost" -> Json.toJson(wonLost),
+            "atVs" -> Json.toJson("@"),
+            "score" -> Json.toJson(r.awayScore),
+            "oppScore" -> Json.toJson(r.homeScore),
+            "homeAwayClass" -> Json.toJson(han)
+          )
+        )
+      case (_, _) => None
+    }
   }
 
   def loadTeamStats(t: Team, sch: Schedule): Future[List[ModelTeamContext]] = {

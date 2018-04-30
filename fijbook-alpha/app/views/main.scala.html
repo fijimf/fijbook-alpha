@@ -4,7 +4,20 @@
 @import com.fijimf.deepfij.models.User
 @import java.time.LocalDate
 @import java.time.format._
-@(title: String, pageHead:String, pageSubHead:String="",breadcrumbs:Option[Breadcrumbs]=None, navBar: NavBar=StandardNavBar.active(), user:Option[User]=None, icon:String="/assets/images/deepfij.png", lineColor:String="#ddd", quoteKey:Option[String]=None, datebook:Option[LocalDate]=None)(content: Html)(implicit flash: Flash)
+@(
+        title: String, 
+        pageHead:String, 
+        pageSubHead:String="",
+        breadcrumbs:Option[Breadcrumbs]=None, 
+        navBar: NavBar=StandardNavBar.active(), 
+        user:Option[User]=None, 
+        icon:String="/assets/images/deepfij.png", 
+        lineColor:String="#ddd", 
+        quoteKey:Option[String]=None, 
+        datebook:Option[LocalDate]=None,
+        extraJs:List[String]=List.empty[String],
+        extraCss:List[String]=List.empty[String]
+)(content: Html)(implicit flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -30,9 +43,13 @@
 
         <link href="/assets/stylesheets/deepfij.css" rel="stylesheet">
 
+        @for(c<-extraCss){
+            <link href=@{s"/assets/stylesheets/$c"} rel="stylesheet">
+        }
         <script src="//d3js.org/d3.v3.min.js"></script>
-
-
+        @for(j<-extraJs){
+            <script src=@{s"/assets/javascripts/$j"} ></script>
+        }
     </head>
 
     <body>
