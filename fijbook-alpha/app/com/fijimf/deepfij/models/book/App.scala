@@ -94,14 +94,14 @@ case class App
     Success(this)
   }
 
-  def offerBet(game:Game, side:Side, spreadTimes2:Int, amount:Int): Try[App] ={
-    bookMap.get(gameKey(game)) match {
-      case Some(book)=>{
-        book.addOffer(side, spreadTimes2, amount).map
-      }
-      case None=> Failure(new RuntimeException(s"Book not found for game ${gameKey(game)}"))
-    }
-  }
+//  def offerBet(game:Game, side:Side, spreadTimes2:Int, amount:Int): Try[App] ={
+//    bookMap.get(gameKey(game)) match {
+//      case Some(book)=>{
+//        book.addOffer(side, spreadTimes2, amount).map
+//      }
+//      case None=> Failure(new RuntimeException(s"Book not found for game ${gameKey(game)}"))
+//    }
+//  }
   def showBookDetail(gameId: Long): Book = ???
 
   def showBettorDetail(bettorId: Long): Bettor = ???
