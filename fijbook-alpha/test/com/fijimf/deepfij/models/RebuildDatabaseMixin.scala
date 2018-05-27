@@ -14,6 +14,8 @@ trait RebuildDatabaseMixin {
   val testDbTimeout = 20.seconds
 
   override def beforeEach() = {
+//    import slick.jdbc.H2Profile.api._
+//    Await.result(repo.db.run(sqlu"DROP ALL OBJECTS"), Duration.Inf)
     Await.result(repo.createSchema(), Duration.Inf)
   }
 

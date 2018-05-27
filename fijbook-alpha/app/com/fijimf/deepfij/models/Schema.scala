@@ -446,13 +446,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[XStat] = (seasonYear, statDate,statKey, teamKey,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
 
-    def idx1: Index = index("stat_value_idx1", (seasonYear, statDate, statKey, teamKey), unique = true)
+    def idx1: Index = index("statx_value_idx1", (seasonYear, statDate, statKey, teamKey), unique = true)
 
-    def idx2: Index = index("stat_value_idx2", (seasonYear, statDate, statKey), unique = false)
+    def idx2: Index = index("statx_value_idx2", (seasonYear, statDate, statKey), unique = false)
 
-    def idx3: Index = index("stat_value_idx3", (seasonYear, statKey, teamKey), unique = false)
+    def idx3: Index = index("statx_value_idx3", (seasonYear, statKey, teamKey), unique = false)
 
-    def idx4: Index = index("stat_value_idx4", (seasonYear, statDate, teamKey), unique = false)
+    def idx4: Index = index("statx_value_idx4", (seasonYear, statDate, teamKey), unique = false)
 
   }
 

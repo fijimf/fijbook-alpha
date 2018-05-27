@@ -26,14 +26,6 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
   val rng = new Random(0L)
   val today = LocalDateTime.now
 
-  override def beforeEach() = {
-    Await.result(repo.createSchema(), testDbTimeout)
-  }
-
-  override def afterEach() = {
-    Await.result(repo.dropSchema(), testDbTimeout)
-  }
-
   private def assertEmptySchedule(tag: String): Unit = {
     assertTableSizes(0, 0, 0, 0, tag)
   }
