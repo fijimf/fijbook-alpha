@@ -1,17 +1,26 @@
 package com.fijimf.deepfij.models.services
 
+import java.io.InputStream
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.models.{Alias, Quote, Team}
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.{Alias, Quote, RebuildDatabaseMixin, Team}
+import com.fijimf.deepfij.scraping.NcaaComGameScraperSpec
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
-import play.api.test.WithApplication
+import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.util.{Failure, Success}
+import scala.io.Source
 
-class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest {
-  val now = LocalDateTime.now()
+class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+  val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
+
+  val isS3Json: InputStream = classOf[ScheduleSerializerSpec].getResourceAsStream("/test-data/s3Sched.json")
+  val s3Sched: Array[Byte] = Source.fromInputStream(isS3Json).mkString.getBytes
+
+  val now: LocalDateTime = LocalDateTime.now()
 
   val baselineTeamTestData = Team(1L, "georgetown", "Georgetown", "Georgetown", "Hoyas", "bigeast", Some("http://largeLogo.png"), Some("http://smallLogo.png"), Some("blue"), Some("gray"), Some("oifficialUrl"), Some("officialTwitter"), Some("officialFB"), now, "test")
 
@@ -74,6 +83,31 @@ class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest {
         case (quote: Quote, json: String) => {
           assert(quote === Json.parse(json).as[Quote])
         }
+      }
+    }
+
+    "parse a whole mapped universe bytes" in {
+      Json.parse(s3Sched).asOpt[MappedUniverse] match {
+        case Some(uni) =>
+          assert(uni.teams.size === 351)
+          assert(uni.conferences.size === 32)
+          assert(uni.aliases.size === 161)
+          assert(uni.seasons.size === 5)
+
+        case None =>
+
+      }
+    }
+
+    "parse a whole mapped universe bytes and save it into db " in {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      Json.parse(s3Sched).asOpt[MappedUniverse] match {
+        case Some(uni) => saveToDb(uni, dao, repo)
+          assert(Await.result(dao.listTeams.map(_.size), testDbTimeout) === 351)
+          assert(Await.result(dao.listConferences.map(_.size), testDbTimeout) === 32)
+          assert(Await.result(dao.listAliases.map(_.size), testDbTimeout) === 161)
+          assert(Await.result(dao.listSeasons.map(_.size), testDbTimeout) === 5)
+        case None =>
       }
     }
 
