@@ -102,7 +102,8 @@ class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest with BeforeAndA
     "parse a whole mapped universe bytes and save it into db " in {
       import scala.concurrent.ExecutionContext.Implicits.global
       Json.parse(s3Sched).asOpt[MappedUniverse] match {
-        case Some(uni) => saveToDb(uni, dao, repo)
+        case Some(uni) =>
+          Await.result(saveToDb(uni, dao, repo),testDbTimeout)
           assert(Await.result(dao.listTeams.map(_.size), testDbTimeout) === 351)
           assert(Await.result(dao.listConferences.map(_.size), testDbTimeout) === 32)
           assert(Await.result(dao.listAliases.map(_.size), testDbTimeout) === 161)
