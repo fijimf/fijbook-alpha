@@ -20,9 +20,14 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
   val wpUdf: UserDefinedFunction = udf(wp)
 
   def createStatistics(session: SparkSession, timestamp: String): DataFrame = {
-    import session.implicits._
 
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
+    calculate(session, games)
+  }
+
+  def calculate(session: SparkSession, games: DataFrame):DataFrame = {
+    import session.implicits._
+
     val results =
       games.filter("(home_score is not null) and (away_score is not null) and (away_score<>home_score)")
         .withColumn("winner", winnerUdf($"home_team", $"home_score", $"away_team", $"away_score"))
