@@ -20,12 +20,12 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
   val wpUdf: UserDefinedFunction = udf(wp)
 
   def createStatistics(session: SparkSession, timestamp: String): DataFrame = {
-
     val games = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/games.parquet")
-    calculate(session, games)
+    val teams = session.read.parquet(s"s3n://deepfij-emr/data/snapshots/$timestamp/teams.parquet")
+    calculate(session, games, teams)
   }
 
-  def calculate(session: SparkSession, games: DataFrame):DataFrame = {
+  def calculate(session: SparkSession, games: DataFrame, teams: DataFrame): DataFrame = {
     import session.implicits._
 
     val results =
@@ -34,33 +34,45 @@ object WonLost extends Serializable with SparkStepConfig with DeepFijStats with 
         .withColumn("loser", loserUdf($"home_team", $"home_score", $"away_team", $"away_score"))
         .select($"season".as("game_season"), $"date".as("game_date"), $"winner", $"loser")
 
-    val seasonDates = loadDates(session, games)
+    val seasonDates = loadDates(session, games).repartition($"season",$"date").coalesce(1)
+
+    val seasonDateTeams = seasonDates.crossJoin(teams).select($"season", $"date", $"key".as("team")).coalesce(1)
+
     val accumulatedResults = seasonDates.join(
       results,
       seasonDates.col("season") === results.col("game_season") &&
         seasonDates.col("date") > results.col("game_date")
-    )
-    val wins = accumulatedResults
-      .groupBy($"season", $"date", $"winner")
-      .agg(count("winner").as("won"))
-      .select($"season", $"date", $"winner".as("team"), $"won".as("value")).withColumn("stat", lit("won"))
+    ).coalesce(1)
 
-    val losses = accumulatedResults
-      .groupBy($"season", $"date", $"loser")
-      .agg(count("loser").as("lost"))
-      .select($"season", $"date", $"loser".as("team"), $"lost".as("value")).withColumn("stat", lit("lost"))
+    val wins = seasonDateTeams.withColumn("stat", lit("won"))
+      .join(
+        accumulatedResults
+          .groupBy($"season", $"date", $"winner")
+          .agg(count("winner").as("won"))
+          .select($"season", $"date", $"winner".as("team"), $"won".as("value"))
+          .withColumn("stat", lit("won")),
+        Seq("season", "date", "team", "stat"),
+        "left"
+      ).na.fill(0, Seq("value"))
 
+    val losses = seasonDateTeams.withColumn("stat", lit("lost"))
+      .join(
+        accumulatedResults
+          .groupBy($"season", $"date", $"loser")
+          .agg(count("loser").as("lost"))
+          .select($"season", $"date", $"loser".as("team"), $"lost".as("value"))
+          .withColumn("stat", lit("lost")),
+        Seq("season", "date", "team", "stat"),
+        "left"
+      ).na.fill(0, Seq("value"))
     val wp = wins.select($"season", $"date", $"team", $"value".as("won"))
       .join(
         losses.select($"season", $"date", $"team", $"value".as("lost")),
         List("season", "date", "team"),
-        "outer")
-      .select($"season", $"date", $"team", $"won", $"lost")
-      .na.fill(0, List("won", "lost"))
-      .withColumn("value", wpUdf($"won", $"lost"))
-      .select($"season", $"date", $"team", $"value").withColumn("stat", lit("wp"))
+        "inner")
 
-    wins.union(losses).union(wp)
+      .withColumn("value", wpUdf($"won", $"lost")).withColumn("stat", lit("wp")).select($"season", $"date", $"team", $"stat", $"value")
+    wins.union(losses).union(wp).coalesce(1)
   }
 
   override def stepConfig(extraOptions: Map[String, String]): StepConfig = createStepConfig(

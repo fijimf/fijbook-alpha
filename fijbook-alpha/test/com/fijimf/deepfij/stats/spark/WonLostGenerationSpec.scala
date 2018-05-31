@@ -13,7 +13,7 @@ import scala.io.Source
 
 class WonLostGenerationSpec extends FunSpec {
 
-  describe("The dataframe creators") {
+  describe("The WonLost model") {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("DEEPFIJ")
@@ -27,17 +27,28 @@ class WonLostGenerationSpec extends FunSpec {
 
     val universe = Json.parse(s3Sched).as[MappedUniverse]
 
-    it("should create a teams DataFrame") {
-      import spark.implicits._
-      val teams = TeamsDataFrame.create(spark, universe)
-      val conferences = ConferencesDataFrame.create(spark, universe)
-      val conferencesMap = ConferencesMapDataFrame.create(spark, universe)
-      val games = GamesDataFrame.create(spark, universe)
+    val teams = TeamsDataFrame.create(spark, universe)
+    val games = GamesDataFrame.create(spark, universe)
+    val (wl,n, latency) = {
+      val start = System.currentTimeMillis()
+      val wl = WonLost.calculate(spark, games, teams)
+      val end = System.currentTimeMillis()
+      (wl, wl.count(), end - start)
+    }
 
-      val wl: DataFrame = WonLost.calculate(spark, games)
+    it ("should generate results in less than 30 seconds"){
+      assert(n>0)
+      assert(latency<30000)
+    }
 
-      assert(wl.filter("season = 2018 and date ='2017-11-11 00:00:00' and stat='won'").count==351)
-
+    it("should generate won, lost & wp for each team for each date") {
+      assert(wl.filter("season = 2018 and date ='2017-11-11 00:00:00' and stat='won'").count == 351)
+      assert(wl.filter("season = 2018 and date ='2017-11-11 00:00:00' and stat='lost'").count == 351)
+      assert(wl.filter("season = 2018 and date ='2017-11-11 00:00:00' and stat='wp'").count == 351)
+      assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='won'").count == 351)
+      assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='lost'").count == 351)
+      assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='wp'").count == 351)
+      //TODO Add some real checks
     }
   }
 }
