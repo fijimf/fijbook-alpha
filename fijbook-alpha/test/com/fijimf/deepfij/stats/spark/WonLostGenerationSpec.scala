@@ -48,7 +48,36 @@ class WonLostGenerationSpec extends FunSpec {
       assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='won'").count == 351)
       assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='lost'").count == 351)
       assert(wl.filter("season = 2017 and date ='2016-12-31 00:00:00' and stat='wp'").count == 351)
-      //TODO Add some real checks
+    }
+
+    it ("should generate correct win totals for a team") {
+      def x(dateStr:String, statStr:String) = wl.filter(s"season = 2018 and date = '$dateStr' and stat='$statStr' and team='georgetown'").select("value")
+      assert(x("2017-11-12 00:00:00", "won").head.getAs[Double](0)===0.0)
+      assert(x("2017-11-13 00:00:00", "won").head.getAs[Double](0)===1.0)
+      assert(x("2017-12-13 00:00:00", "won").head.getAs[Double](0)===8.0)
+      assert(x("2017-12-16 00:00:00", "won").head.getAs[Double](0)===8.0)
+      assert(x("2017-12-17 00:00:00", "won").head.getAs[Double](0)===8.0)
+      assert(x("2018-03-23 00:00:00", "won").head.getAs[Double](0)===15.0)
+    }
+
+    it ("should generate correct loss totals for a team") {
+      def x(dateStr:String, statStr:String) = wl.filter(s"season = 2018 and date = '$dateStr' and stat='$statStr' and team='georgetown'").select("value")
+      assert(x("2017-11-12 00:00:00", "lost").head.getAs[Double](0)===0.0)
+      assert(x("2017-11-13 00:00:00", "lost").head.getAs[Double](0)===0.0)
+      assert(x("2017-12-13 00:00:00", "lost").head.getAs[Double](0)===0.0)
+      assert(x("2017-12-16 00:00:00", "lost").head.getAs[Double](0)===0.0)
+      assert(x("2017-12-17 00:00:00", "lost").head.getAs[Double](0)===1.0)
+      assert(x("2018-03-23 00:00:00", "lost").head.getAs[Double](0)===15.0)
+    }
+
+    it ("should generate correct wp totals for a team") {
+      def x(dateStr:String, statStr:String) = wl.filter(s"season = 2018 and date = '$dateStr' and stat='$statStr' and team='georgetown'").select("value")
+      assert(x("2017-11-12 00:00:00", "wp").head.getAs[Double](0)===0.0)
+      assert(x("2017-11-13 00:00:00", "wp").head.getAs[Double](0)===1.0)
+      assert(x("2017-12-13 00:00:00", "wp").head.getAs[Double](0)===1.0)
+      assert(x("2017-12-16 00:00:00", "wp").head.getAs[Double](0)===1.0)
+      assert(x("2017-12-17 00:00:00", "wp").head.getAs[Double](0)===8.0/9.0)
+      assert(x("2018-03-23 00:00:00", "wp").head.getAs[Double](0)===0.5)
     }
   }
 }
