@@ -6,11 +6,12 @@ import com.fijimf.deepfij.models.services.ScheduleSerializer.MappedUniverse
 import com.fijimf.deepfij.models.services.ScheduleSerializerSpec
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.FunSpec
+import org.scalatest.{DoNotDiscover, FunSpec}
 import play.api.libs.json.Json
 
 import scala.io.Source
 
+@DoNotDiscover
 class WonLostGenerationSpec extends FunSpec {
 
   describe("The WonLost model") {
