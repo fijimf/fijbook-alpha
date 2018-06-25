@@ -14,7 +14,6 @@ class AppSpec extends FlatSpec {
     val app = App.create("Test App", LocalDateTime.now())
     assert(app.name == "Test App")
     assert(app.time.isBefore(LocalDateTime.now()))
-    assert(app.seq.next() != app.seq.next())
     assert(app.bettors.isEmpty)
     assert(app.books.isEmpty)
   }
@@ -27,7 +26,7 @@ class AppSpec extends FlatSpec {
     }
   }
 
-  "An App" should "allow multiple bettors to be added" in {
+  it should "allow multiple bettors to be added" in {
     val app = for {
       a <- App.create("Test App", LocalDateTime.now()).addBettor("Jim")
       b <- a.addBettor("Zeke", 100)
@@ -39,7 +38,7 @@ class AppSpec extends FlatSpec {
     }
   }
 
-  "An App" should "enforce uniqueness of bettors" in {
+  it should "enforce uniqueness of bettors" in {
     val app = for {
       a <- App.create("Test App", LocalDateTime.now()).addBettor("Jim")
       b <- a.addBettor("Zeke", 100)
@@ -51,7 +50,7 @@ class AppSpec extends FlatSpec {
     }
   }
 
-  "An app" should "allow a game to be added" in {
+  it should "allow a game to be added" in {
     val d = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val app = for {
       a <- App.create("Test App", LocalDateTime.now()).addGame("georgetown", "villanova", d)
@@ -70,7 +69,7 @@ class AppSpec extends FlatSpec {
     }
   }
 
-  "An app" should "prevent poorly formed games from being added" in {
+  it should "prevent poorly formed games from being added" in {
     val d = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val app = for {
       a <- App.create("Test App", LocalDateTime.now()).addGame("georgetown", "georgetown", d)
@@ -81,7 +80,7 @@ class AppSpec extends FlatSpec {
     }
   }
 
-  "An app" should "allow multiple games to be added" in {
+  it should "allow multiple games to be added" in {
     val d1 = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val d2 = d1.plusHours(3)
     val d3 = d1.plusDays(1)
@@ -107,7 +106,7 @@ class AppSpec extends FlatSpec {
 
   }
 
-  "An app" should "prevent duplicate games (identical)" in {
+  it should "prevent duplicate games (identical)" in {
     val d1 = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val app = for {
       w <- App.create("Test App", LocalDateTime.now())
@@ -120,7 +119,7 @@ class AppSpec extends FlatSpec {
     }
 
   }
-  "An app" should "prevent duplicate games (swapped home/away)" in {
+  it should "prevent duplicate games (swapped home/away)" in {
     val d1 = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val app = for {
       w <- App.create("Test App", LocalDateTime.now())
@@ -133,7 +132,7 @@ class AppSpec extends FlatSpec {
     }
   }
   
-  "An app" should "prevent duplicate games (same day different time)" in {
+  it should "prevent duplicate games (same day different time)" in {
     val d1 = LocalDateTime.parse("2018-03-12T19:30:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val d2 = d1.plusHours(3)
     val app = for {

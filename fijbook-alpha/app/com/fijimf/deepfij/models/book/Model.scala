@@ -1,10 +1,10 @@
 package com.fijimf.deepfij.models.book
 
 import java.time.format.DateTimeFormatter
+import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.time.{Duration, LocalDateTime}
 
 import scala.util.{Failure, Success, Try}
-
 
 
 case class Bettor
@@ -43,12 +43,16 @@ case class Offer
 
 case class Game
 (
-  id: Long,
   homeTeam: String,
   awayTeam: String,
   result: Option[Result],
   date: LocalDateTime
-)
+) {
+  require(homeTeam != awayTeam)
+  val key = s"${date.format(DateTimeFormatter.ISO_LOCAL_DATE)}-$homeTeam-$awayTeam"
+
+  def isSameGame(g: Game): Boolean = g.date.truncatedTo(ChronoUnit.DAYS) == date.truncatedTo(ChronoUnit.DAYS) && Set(g.homeTeam, g.awayTeam) == Set(homeTeam, awayTeam)
+}
 
 case class Result
 (
@@ -68,7 +72,3 @@ sealed trait BookState
 case object Open extends BookState
 
 case object Closed extends BookState
-
-trait SequenceNumberGenerator {
-  def next(): Long
-}

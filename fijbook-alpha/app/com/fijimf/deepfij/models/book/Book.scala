@@ -6,7 +6,6 @@ import scala.util.{Failure, Success, Try}
 
 case class Book
 (
-  id: Long,
   state: BookState,
   game: Game,
   offers: List[Offer],
