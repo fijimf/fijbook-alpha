@@ -18,6 +18,12 @@ class AppSpec extends FlatSpec {
     assert(app.books.isEmpty)
   }
 
+  it should "generate a valid JSON representation" in {
+    val app = App.create("Test App", LocalDateTime.now())
+    assert(app.show.toString().startsWith("{\"name\":\"Test App\",\"currentTime\":\""))
+    assert(app.show.toString().endsWith("\",\"openWindow\":\"PT168H\",\"closeWindow\":\"PT2H\",\"bettors\":[],\"books\":[]}"))
+  }
+
   "An App" should "allow a bettor to be added" in {
     val app = App.create("Test App", LocalDateTime.now())
     app.addBettor("Jim") match {

@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models.book
 import java.time.{Duration, LocalDateTime}
 import java.time.format.DateTimeFormatter
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success, Try}
 
@@ -13,6 +13,14 @@ import scala.util.{Failure, Success, Try}
 ///app/bettor/list
 ///app/bettor/n/show
 ///app/bettor/n/delete
+
+// WHat is the lifecycle of this thing
+
+//POST /app/create {name:"Name"} <= App page
+//POST /app/bettor/create {name:"name"} <=App page
+//GET  /app/{name} <=App page
+//GET  /
+
 
 
 object App {
@@ -101,6 +109,6 @@ case class App
 
   def showBettorDetail(bettorId: Long): Bettor = ???
 
-  def show = Json.toJson(this)
+  def show: JsValue = Json.toJson(this)
 
 }
