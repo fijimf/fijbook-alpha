@@ -1,7 +1,11 @@
 name := """fijbook-alpha"""
 
+lazy val fijbookLibrary = project
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
+  .aggregate(fijbookLibrary)
+  .dependsOn(fijbookLibrary)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fijimf.deepfij"
