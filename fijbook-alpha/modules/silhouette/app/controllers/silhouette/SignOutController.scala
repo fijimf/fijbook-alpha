@@ -1,11 +1,11 @@
-package controllers
-
-import javax.inject.Inject
+package controllers.silhouette
 
 import com.mohiva.play.silhouette.api.{LogoutEvent, Silhouette}
+import controllers.silhouette.utils.DefaultEnv
+import controllers.{WebJarAssets}
+import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
 
 /**
   * The basic application controller.
@@ -27,7 +27,7 @@ class SignOutController @Inject()(
     * @return The result to display.
     */
   def signOut = silhouette.SecuredAction.async { implicit request =>
-    val result = Redirect(routes.IndexController.index())
+    val result = Redirect("/")
     silhouette.env.eventBus.publish(LogoutEvent(request.identity, request))
     silhouette.env.authenticatorService.discard(request.authenticator, result)
   }

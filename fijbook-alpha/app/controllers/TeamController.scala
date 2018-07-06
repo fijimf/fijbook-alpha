@@ -14,7 +14,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.concurrent.duration._

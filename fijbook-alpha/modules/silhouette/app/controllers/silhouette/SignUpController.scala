@@ -1,7 +1,6 @@
-package controllers
+package controllers.silhouette
 
 import java.util.UUID
-import javax.inject.Inject
 
 import com.fijimf.deepfij.models.User
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
@@ -10,12 +9,14 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
+import controllers.silhouette.utils.DefaultEnv
+import controllers.{WebJarAssets}
 import forms.silhouette.SignUpForm
+import javax.inject.Inject
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,7 +50,7 @@ class SignUpController @Inject() (
     * @return The result to display.
     */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.silhouette.signUp(SignUpForm.form)))
+    Future.successful(Ok(views.html.signUp(SignUpForm.form)))
   }
 
   /**
@@ -59,7 +60,7 @@ class SignUpController @Inject() (
     */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.silhouette.signUp(form))),
+      form => Future.successful(BadRequest(views.html.signUp(form))),
       data => {
         val result = Redirect(routes.SignUpController.view()).flashing("info" -> Messages("sign.up.email.sent", data.email))
         val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
@@ -71,8 +72,8 @@ class SignUpController @Inject() (
               subject = Messages("email.already.signed.up.subject"),
               from = Messages("email.from"),
               to = Seq(data.email),
-              bodyText = Some(views.txt.silhouette.emails.alreadySignedUp(user, url).body),
-              bodyHtml = Some(views.html.silhouette.emails.alreadySignedUp(user, url).body)
+              bodyText = Some(views.txt.emails.alreadySignedUp(user, url).body),
+              bodyHtml = Some(views.html.emails.alreadySignedUp(user, url).body)
             ))
 
             Future.successful(result)
@@ -99,8 +100,8 @@ class SignUpController @Inject() (
                 subject = Messages("email.sign.up.subject"),
                 from = Messages("email.from"),
                 to = Seq(data.email),
-                bodyText = Some(views.txt.silhouette.emails.signUp(user, url).body),
-                bodyHtml = Some(views.html.silhouette.emails.signUp(user, url).body)
+                bodyText = Some(views.txt.emails.signUp(user, url).body),
+                bodyHtml = Some(views.html.emails.signUp(user, url).body)
               ))
 
               silhouette.env.eventBus.publish(SignUpEvent(user, request))

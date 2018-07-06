@@ -1,11 +1,15 @@
 name := """fijbook-alpha"""
 
+scalaVersion in ThisBuild := "2.11.8"
+
 lazy val fijbookLibrary = project
+
+lazy val silhouette = (project in file("modules/silhouette")).enablePlugins(PlayScala).dependsOn(fijbookLibrary)
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
-  .aggregate(fijbookLibrary)
-  .dependsOn(fijbookLibrary)
+  .aggregate(fijbookLibrary, silhouette)
+  .dependsOn(fijbookLibrary, silhouette)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fijimf.deepfij"
@@ -13,7 +17,6 @@ lazy val root = (project in file("."))
 
 buildInfoOptions += BuildInfoOption.BuildTime
 
-scalaVersion := "2.11.8"
 
 routesGenerator := InjectedRoutesGenerator
 

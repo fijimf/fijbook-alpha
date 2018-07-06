@@ -1,16 +1,16 @@
 
-package controllers
-
-import javax.inject.Inject
+package controllers.silhouette
 
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import controllers.silhouette.utils.DefaultEnv
+import controllers.{WebJarAssets}
 import forms.silhouette.ForgotPasswordForm
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
-import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,7 +43,7 @@ class ForgotPasswordController @Inject()(
     * @return The result to display.
     */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.silhouette.forgotPassword(ForgotPasswordForm.form)))
+    Future.successful(Ok(views.html.forgotPassword(ForgotPasswordForm.form)))
   }
 
   /**
@@ -56,7 +56,7 @@ class ForgotPasswordController @Inject()(
     */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     ForgotPasswordForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.silhouette.forgotPassword(form))),
+      form => Future.successful(BadRequest(views.html.forgotPassword(form))),
       email => {
         val loginInfo = LoginInfo(CredentialsProvider.ID, email)
         val result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("reset.email.sent"))
@@ -69,8 +69,8 @@ class ForgotPasswordController @Inject()(
                 subject = Messages("email.reset.password.subject"),
                 from = Messages("email.from"),
                 to = Seq(email),
-                bodyText = Some(views.txt.silhouette.emails.resetPassword(user, url).body),
-                bodyHtml = Some(views.html.silhouette.emails.resetPassword(user, url).body)
+                bodyText = Some(views.txt.emails.resetPassword(user, url).body),
+                bodyHtml = Some(views.html.emails.resetPassword(user, url).body)
               ))
               result
             }

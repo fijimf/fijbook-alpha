@@ -17,7 +17,7 @@ import forms.ScrapeOneTeamForm
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}

@@ -2,7 +2,7 @@ package com.fijimf.deepfij.models
 
 import java.util.UUID
 
-import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
+import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 
 /**
   * The user object.

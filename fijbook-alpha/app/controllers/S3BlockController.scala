@@ -16,7 +16,7 @@ import forms.EditBlogPostForm
 import play.api.Logger
 import play.api.mvc.{BaseController, ControllerComponents}
 import play.twirl.api.Html
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 

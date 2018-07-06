@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 

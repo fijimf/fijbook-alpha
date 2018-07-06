@@ -1,16 +1,17 @@
-package controllers
+package controllers.silhouette
 
 import java.net.URLDecoder
 import java.util.UUID
-import javax.inject.Inject
 
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import controllers.silhouette.utils.DefaultEnv
+import controllers.{WebJarAssets}
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -54,8 +55,8 @@ class ActivateAccountController @Inject()(
             subject = Messages("email.activate.account.subject"),
             from = Messages("email.from"),
             to = Seq(decodedEmail),
-            bodyText = Some(views.txt.silhouette.emails.activateAccount(user, url).body),
-            bodyHtml = Some(views.html.silhouette.emails.activateAccount(user, url).body)
+            bodyText = Some(views.txt.emails.activateAccount(user, url).body),
+            bodyHtml = Some(views.html.emails.activateAccount(user, url).body)
           ))
           result
         }

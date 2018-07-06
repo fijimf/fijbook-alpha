@@ -15,7 +15,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import forms.{EditBlogPostForm, EditStaticPageForm}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 

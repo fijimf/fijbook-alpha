@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject.Inject
 import play.api.Logger
 import play.api.mvc.{BaseController, ControllerComponents, Flash}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 

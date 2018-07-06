@@ -11,7 +11,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContent, BaseController, ControllerComponents}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.ExecutionContext
 

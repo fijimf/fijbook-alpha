@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.basic.BasicProfile
-import utils._
+import controllers.silhouette.utils._
 
 import scala.concurrent.{ExecutionContext, Future}
 

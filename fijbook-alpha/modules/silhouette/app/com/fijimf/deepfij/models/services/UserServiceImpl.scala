@@ -1,22 +1,15 @@
 package com.fijimf.deepfij.models.services
 
-
-
-
-
-package models.services
-
 import java.util.UUID
-import javax.inject.Inject
 
 import com.fijimf.deepfij.models.User
 import com.fijimf.deepfij.models.dao.silhouette.UserDAO
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import play.api.libs.concurrent.Execution.Implicits._
+import javax.inject.Inject
 
 import scala.concurrent.Future
-
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   * Handles actions to users.
   *

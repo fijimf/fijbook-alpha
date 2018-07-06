@@ -1,0 +1,18 @@
+@import controllers.nav.NavBar
+@import controllers.nav.StandardNavBar
+@(navBar: NavBar=StandardNavBar.active())
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav side-nav">
+        @for(item<-navBar.items) {
+            @if(item.isActive) {
+                <li class="active">
+                    <a href=@item.href><i class="fa fa-fw @item.icon"></i> @item.display</a>
+                </li>
+            } else {
+                <li>
+                    <a href=@item.href><i class="fa fa-fw @item.icon"></i> @item.display</a>
+                </li>
+            }
+        }
+    </ul>
+</div>

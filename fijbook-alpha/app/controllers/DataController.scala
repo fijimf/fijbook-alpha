@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 import scala.io.Source

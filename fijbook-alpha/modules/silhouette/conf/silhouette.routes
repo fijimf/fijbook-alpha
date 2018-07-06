@@ -1,0 +1,17 @@
+GET         /deepfij/signOut                                    controllers.silhouette.SignOutController.signOut
+
+GET         /deepfij/signUp                                     controllers.silhouette.SignUpController.view
+POST        /deepfij/signUp                                     controllers.silhouette.SignUpController.submit
+
+GET         /deepfij/signIn                                     controllers.silhouette.SignInController.view
+POST        /deepfij/signIn                                     controllers.silhouette.SignInController.submit
+
+GET         /deepfij/password/forgot                            controllers.silhouette.ForgotPasswordController.view
+POST        /deepfij/password/forgot                            controllers.silhouette.ForgotPasswordController.submit
+GET         /deepfij/password/reset/:token                      controllers.silhouette.ResetPasswordController.view(token: java.util.UUID)
+POST        /deepfij/password/reset/:token                      controllers.silhouette.ResetPasswordController.submit(token: java.util.UUID)
+GET         /deepfij/password/change                            controllers.silhouette.ChangePasswordController.view
+POST        /deepfij/password/change                            controllers.silhouette.ChangePasswordController.submit
+
+GET         /deepfij/account/email/:email                       controllers.silhouette.ActivateAccountController.send(email: String)
+GET         /deepfij/account/activate/:token                    controllers.silhouette.ActivateAccountController.activate(token: java.util.UUID)

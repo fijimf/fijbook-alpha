@@ -1,17 +1,18 @@
-package controllers
+package controllers.silhouette
 
 import java.util.UUID
-import javax.inject.Inject
 
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import controllers.silhouette.utils.DefaultEnv
+import controllers.{WebJarAssets}
 import forms.silhouette.ResetPasswordForm
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{BaseController, ControllerComponents}
-import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +45,7 @@ class ResetPasswordController @Inject()(
     */
   def view(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).map {
-      case Some(authToken) => Ok(views.html.silhouette.resetPassword(ResetPasswordForm.form, token))
+      case Some(authToken) => Ok(views.html.resetPassword(ResetPasswordForm.form, token))
       case None => Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.reset.link"))
     }
   }
@@ -59,7 +60,7 @@ class ResetPasswordController @Inject()(
     authTokenService.validate(token).flatMap {
       case Some(authToken) =>
         ResetPasswordForm.form.bindFromRequest.fold(
-          form => Future.successful(BadRequest(views.html.silhouette.resetPassword(form, token))),
+          form => Future.successful(BadRequest(views.html.resetPassword(form, token))),
           password => userService.retrieve(authToken.userID).flatMap {
             case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
               val passwordInfo = passwordHasherRegistry.current.hash(password)

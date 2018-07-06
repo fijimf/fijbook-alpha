@@ -13,7 +13,7 @@ import play.api.i18n.I18nSupport
 import play.api.libs.streams.ActorFlow
 import play.api.libs.ws.WSClient
 import play.api.mvc.{BaseController, ControllerComponents, WebSocket}
-import utils.DefaultEnv
+import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
 

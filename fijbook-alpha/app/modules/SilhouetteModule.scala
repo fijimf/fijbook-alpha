@@ -1,8 +1,7 @@
 package modules
 
 import com.fijimf.deepfij.models.dao.silhouette._
-import com.fijimf.deepfij.models.services.models.services.UserServiceImpl
-import com.fijimf.deepfij.models.services.{AuthTokenService, AuthTokenServiceImpl, UserService}
+import com.fijimf.deepfij.models.services.{AuthTokenService, AuthTokenServiceImpl, UserService, UserServiceImpl}
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}
@@ -25,7 +24,8 @@ import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.CookieHeaderEncoding
-import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv}
+import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler}
+import controllers.silhouette.utils.DefaultEnv
 
 /**
   * The Guice module which wires all Silhouette dependencies.
