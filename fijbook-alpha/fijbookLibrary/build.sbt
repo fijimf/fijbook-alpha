@@ -10,6 +10,7 @@ resolvers += "Apache" at "https://repository.apache.org/content/repositories/rel
 
 libraryDependencies ++= Seq(
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
   "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
   specs2 % Test
 )

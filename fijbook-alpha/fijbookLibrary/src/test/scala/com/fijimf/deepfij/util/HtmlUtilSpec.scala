@@ -1,8 +1,7 @@
-package com.fijimf.deepfij.scraping
-
-import org.scalatest.FlatSpec
+package com.fijimf.deepfij.util
 
 import scala.xml.Node
+import org.scalatest.FlatSpec
 
 class HtmlUtilSpec extends FlatSpec {
   "HtmlUtil" should
