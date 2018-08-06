@@ -131,7 +131,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
   }
 
   def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[List[UpdateDbResult]] = {
-    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
+    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.flatMap(teamDictionary => {
         Future.sequence(dateList.map(d => {

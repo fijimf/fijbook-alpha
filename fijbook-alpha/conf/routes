@@ -1,6 +1,8 @@
 ########### INDEX
-->          /                                                   silhouette.Routes
 GET         /                                                   controllers.IndexController.redirect
+GET         /r                                                  controllers.ReactMainController.index
+->          /webjars                                            webjars.Routes
+->          /auth                                               silhouette.Routes
 GET         /deepfij                                            controllers.IndexController.redirect
 GET         /deepfij/index                                      controllers.IndexController.index
 GET         /deepfij/about                                      controllers.IndexController.about

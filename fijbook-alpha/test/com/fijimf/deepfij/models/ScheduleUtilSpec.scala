@@ -55,44 +55,44 @@ class ScheduleUtilSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEa
   )
 
   val confs = List(
-    Conference(0L, "colonial-athletic", "Colonial Athletic", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "atlantic-coast", "Atlantic Coast Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "independents", "Independents", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-west", "Big West Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "southland", "Southland Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "conference-usa", "Conference USA", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "southeastern", "Southeastern Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-12", "Big 12 Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "america-east", "America East Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "mountain-west", "Mountain West Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "western-athletic", "Western Athletic", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-south", "Big South Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "southern", "Southern Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-sky", "Big Sky Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "mid-eastern", "Mid-Eastern Athletic", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "ohio-valley", "Ohio Valley Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-ten", "Big Ten Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "american-athletic-conference", "American Athletic Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "patriot-league", "Patriot League", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "mid-american", "Mid-American Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "sun-belt", "Sun Belt Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "horizon", "Horizon League", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "southwestern-athletic", "Southwestern Athletic", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "metro-atlantic-athletic", "Metro Atlantic", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "atlantic-10", "Atlantic 10 Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "pac-12", "Pac-12 Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "west-coast", "West Coast Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "northeast", "Northeast Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "summit-league", "The Summit League", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "ivy-league", "The Ivy League", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "atlantic-sun", "Atlantic Sun Conference", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "missouri-valley", "Missouri Valley", None, None, None, None, None, false, LocalDateTime.now(), "test"),
-    Conference(0L, "big-east", "Big East Conference", None, None, None, None, None, false, LocalDateTime.now(), "test")
+    Conference(0L, "colonial-athletic", "Colonial Athletic", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "atlantic-coast", "Atlantic Coast Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "independents", "Independents", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-west", "Big West Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "southland", "Southland Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "conference-usa", "Conference USA", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "southeastern", "Southeastern Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-12", "Big 12 Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "america-east", "America East Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "mountain-west", "Mountain West Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "western-athletic", "Western Athletic", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-south", "Big South Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "southern", "Southern Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-sky", "Big Sky Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "mid-eastern", "Mid-Eastern Athletic", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "ohio-valley", "Ohio Valley Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-ten", "Big Ten Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "american-athletic-conference", "American Athletic Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "patriot-league", "Patriot League", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "mid-american", "Mid-American Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "sun-belt", "Sun Belt Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "horizon", "Horizon League", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "southwestern-athletic", "Southwestern Athletic", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "metro-atlantic-athletic", "Metro Atlantic", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "atlantic-10", "Atlantic 10 Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "pac-12", "Pac-12 Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "west-coast", "West Coast Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "northeast", "Northeast Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "summit-league", "The Summit League", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "ivy-league", "The Ivy League", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "atlantic-sun", "Atlantic Sun Conference", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "missouri-valley", "Missouri Valley", None, None, None, None, None, LocalDateTime.now(), "test"),
+    Conference(0L, "big-east", "Big East Conference", None, None, None, None, None, LocalDateTime.now(), "test")
   )
 
   "ScheduleUtil " should {
     "create seed mapped conferences" in new WithApplication() {
-      val s = Season(0L, 2017, "", None)
+      val s = Season(0L, 2017)
       val ss = Await.result(dao.saveSeason(s), testDbTimeout)
       val ts = Await.result(dao.saveTeams(teams), testDbTimeout)
       val cs = Await.result(dao.saveConferences(confs), testDbTimeout)

@@ -3,6 +3,7 @@ package com.fijimf.deepfij.models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
+import org.apache.commons.lang3.StringUtils
 
 /**
   * The user object.
@@ -30,13 +31,17 @@ case class User(
     *
     * @return Maybe a name.
     */
-  def name = fullName.orElse {
+  def name = fullName.getOrElse {
     firstName -> lastName match {
-      case (Some(f), Some(l)) => Some(f + " " + l)
-      case (Some(f), None) => Some(f)
-      case (None, Some(l)) => Some(l)
-      case _ => None
+      case (Some(f), Some(l)) => f + " " + l
+      case (Some(f), None) => f
+      case (None, Some(l)) => l
+      case _ => StringUtils.abbreviate(userID.toString,10)
     }
   }
+
+  def isDeepFijAdmin:Boolean = Option(System.getProperty("deepfij.admin.emails")).exists(_.split(",").contains(email))
+
 }
+
 

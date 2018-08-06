@@ -184,7 +184,7 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
 
 
 def mkQuickConf(id: Long, key: String, name: String): Conference = {
-  Conference(id, key, name, None, None, None, None, None, lockRecord = false, LocalDateTime.now(), "Test")
+  Conference(id, key, name, None, None, None, None, None, LocalDateTime.now(), "Test")
 }
 
 

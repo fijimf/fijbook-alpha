@@ -10,7 +10,6 @@ import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
 import controllers.silhouette.utils.DefaultEnv
-import controllers.{WebJarAssets}
 import forms.silhouette.SignUpForm
 import javax.inject.Inject
 import play.api.Logger
@@ -40,8 +39,7 @@ class SignUpController @Inject() (
                                    authTokenService: AuthTokenService,
                                    avatarService: AvatarService,
                                    passwordHasherRegistry: PasswordHasherRegistry,
-                                   mailerClient: MailerClient,
-                                   implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+                                   mailerClient: MailerClient)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
  val log = Logger(this.getClass)
   /**

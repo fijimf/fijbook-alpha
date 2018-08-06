@@ -7,7 +7,6 @@ import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import controllers.silhouette.utils.DefaultEnv
-import controllers.{WebJarAssets}
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
@@ -31,8 +30,7 @@ class ActivateAccountController @Inject()(
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
                                            authTokenService: AuthTokenService,
-                                           mailerClient: MailerClient,
-                                           implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+                                           mailerClient: MailerClient)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
   /**

@@ -8,7 +8,6 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import controllers.silhouette.utils.DefaultEnv
-import controllers.{WebJarAssets}
 import forms.silhouette.ResetPasswordForm
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
@@ -33,8 +32,8 @@ class ResetPasswordController @Inject()(
                                          userService: UserService,
                                          authInfoRepository: AuthInfoRepository,
                                          passwordHasherRegistry: PasswordHasherRegistry,
-                                         authTokenService: AuthTokenService,
-                                         implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+                                         authTokenService: AuthTokenService
+                                         )(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
   /**

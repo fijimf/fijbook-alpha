@@ -13,53 +13,25 @@ import slick.lifted._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait SeasonLockStatus {
-  def canUpdate(date: LocalDate): Boolean
-}
-
-case object Locked extends SeasonLockStatus {
-  def canUpdate(d: LocalDate) = false
-}
-
-case object Open extends SeasonLockStatus {
-  def canUpdate(d: LocalDate) = true
-}
-
-case object Updating extends SeasonLockStatus {
-  def canUpdate(d: LocalDate) = true
-}
-
-case class LockedBefore(date: LocalDate) extends SeasonLockStatus {
-  def canUpdate(d: LocalDate): Boolean = d.isAfter(date)
-}
-
-case class Season(id: Long, year: Int, lock: String, lockBefore: Option[LocalDate]) {
-  val status: SeasonLockStatus = lock.toLowerCase match {
-    case "lock" => Locked
-    case "update" => Updating
-    case _ =>
-      lockBefore match {
-        case Some(date) => LockedBefore(date)
-        case None => Open
-      }
-  }
+case class Season(id: Long, year: Int) {
   val startDate: LocalDate = Season.startDate(year)
   val endDate: LocalDate = Season.endDate(year)
   val dates: List[LocalDate] = Season.dates(year)
+
+  def canUpdate(d: LocalDate): Boolean = !(d.isBefore(startDate) || d.isAfter(endDate))
 }
 
 case object Season {
-  def startDate(y: Int) = LocalDate.of(y - 1, 11, 1)
+  def startDate(y: Int): LocalDate = LocalDate.of(y - 1, 11, 1)
 
-  def endDate(y: Int) = LocalDate.of(y, 5, 1)
+  def endDate(y: Int): LocalDate = LocalDate.of(y, 4, 30)
 
-  def dates(y: Int) = Iterator.iterate(startDate(y)) {
+  def dates(y: Int): List[LocalDate] = Iterator.iterate(startDate(y)) {
     _.plusDays(1)
   }.takeWhile(_.isBefore(endDate(y))).toList
 }
 
-//TODO -- DO we use lock record or not?
-case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String) {
+case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) {
   def sameData(c: Conference): Boolean = (key == c.key
     && name == c.name
     && logoLgUrl == c.logoLgUrl
@@ -132,7 +104,9 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
 
 case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key: Option[String])
 
-case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, lockRecord: Boolean, updatedAt: LocalDateTime, updatedBy: String)
+case class QuoteVote(id: Long, quoteId: Long, user: String, createdAt: LocalDateTime)
+
+case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, updatedAt: LocalDateTime, updatedBy: String)
 
 case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double) {
   require(!modelKey.contains(":") && !modelKey.contains(" "), "Model key cannot contain ':' or ' '")
@@ -148,6 +122,8 @@ case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: 
 }
 
 case class UserProfileData(id: Long, userID: String, key: String, value: String)
+
+case class FavoriteLink(id: Long, userID: String, displayAs: String, link: String, order: Int, createdAt: LocalDateTime)
 
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
@@ -260,7 +236,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Conference] = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, lockRecord, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
+    def * : ProvenShape[Conference] = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
 
     def idx1: Index = index("conf_idx1", key, unique = true)
 
@@ -343,7 +319,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def lockBefore: Rep[Option[LocalDate]] = column[Option[LocalDate]]("lockBefore")
 
 
-    def * : ProvenShape[Season] = (id, year, lock, lockBefore) <> ((Season.apply _).tupled, Season.unapply)
+    def * : ProvenShape[Season] = (id, year) <> ((Season.apply _).tupled, Season.unapply)
 
     def idx1: Index = index("season_idx1", year, unique = true)
 
@@ -371,7 +347,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[ConferenceMap] = (id, seasonId, conferenceId, teamId, lockRecord, updatedAt, updatedBy) <> (ConferenceMap.tupled, ConferenceMap.unapply)
+    def * : ProvenShape[ConferenceMap] = (id, seasonId, conferenceId, teamId, updatedAt, updatedBy) <> (ConferenceMap.tupled, ConferenceMap.unapply)
 
     def idx1: Index = index("confmap_idx1", (seasonId, conferenceId, teamId), unique = true)
 
@@ -391,6 +367,19 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Quote] = (id, quote, source, url, key) <> (Quote.tupled, Quote.unapply)
 
+  }
+
+  class QuoteVoteTable(tag: Tag) extends Table[QuoteVote](tag, "quote_vote") {
+
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def quoteId: Rep[Long] = column[Long]("quote_id")
+
+    def user: Rep[String] = column[String]("user")
+
+    def createdAt: Rep[LocalDateTime] = column[LocalDateTime]("created_at")
+
+    def * : ProvenShape[QuoteVote] = (id, quoteId, user, createdAt) <> (QuoteVote.tupled, QuoteVote.unapply)
   }
 
   class StatValueTable(tag: Tag) extends Table[StatValue](tag, "stat_value") {
@@ -496,16 +485,34 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx1: Index = index("log_param_idx1", (modelName, parameterName, fittedAsOf), unique = true)
   }
 
+
   class UserProfileDataTable(tag: Tag) extends Table[UserProfileData](tag, "user_profile_data") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def userId = column[String]("user_id", O.Length(144))
+    def userId: Rep[String] = column[String]("user_id", O.Length(144))
 
-    def key = column[String]("key")
+    def key: Rep[String] = column[String]("key")
 
-    def value = column[String]("value")
+    def value: Rep[String] = column[String]("value")
 
     def * = (id, userId, key, value) <> (UserProfileData.tupled, UserProfileData.unapply)
+  }
+
+
+  class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_links") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def userId: Rep[String] = column[String]("user_id", O.Length(144))
+
+    def displayAs: Rep[String] = column[String]("display_as")
+
+    def link: Rep[String] = column[String]("link")
+
+    def order: Rep[Int] = column[Int]("order")
+
+    def createdAt: Rep[LocalDateTime] = column[LocalDateTime]("created_at")
+
+    def * = (id, userId, displayAs, link, order, createdAt) <> (FavoriteLink.tupled, FavoriteLink.unapply)
   }
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
@@ -516,6 +523,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferences: TableQuery[ConferencesTable] = TableQuery[ConferencesTable]
   lazy val conferenceMaps: TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
   lazy val quotes: TableQuery[QuoteTable] = TableQuery[QuoteTable]
+  lazy val quoteVotes: TableQuery[QuoteVoteTable] = TableQuery[QuoteVoteTable]
   lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
   lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
@@ -523,6 +531,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
   lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
   lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]
+  lazy val favoriteLinks: TableQuery[FavoriteLinkTable] = TableQuery[FavoriteLinkTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
 
   lazy val ddl = conferenceMaps.schema ++
@@ -537,5 +546,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     gamePredictions.schema ++
     logisticModels.schema ++
     userProfiles.schema ++
-    xstats.schema
+    xstats.schema ++
+    quoteVotes.schema ++
+    favoriteLinks.schema
 }

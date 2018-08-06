@@ -1,4 +1,4 @@
-name := """fijbook-alpha"""
+name := """fijbookAlpha"""
 
 scalaVersion in ThisBuild := "2.11.8"
 
@@ -6,7 +6,7 @@ lazy val fijbookLibrary = project
 
 lazy val silhouette = (project in file("modules/silhouette")).enablePlugins(PlayScala).dependsOn(fijbookLibrary)
 
-lazy val root = (project in file("."))
+lazy val fijbookAlpha = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
   .aggregate(fijbookLibrary, silhouette)
   .dependsOn(fijbookLibrary, silhouette)
@@ -39,10 +39,11 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
-  "org.webjars" %% "webjars-play" % "2.6.0-M1",
-  "org.webjars" % "bootstrap" % "3.3.7-1",
-  "org.webjars" % "jquery" % "3.1.1",
-  "org.webjars" % "font-awesome" % "4.7.0",
+  "org.webjars" %% "webjars-play" % "2.6.3",
+  "org.webjars" % "bootstrap" % "4.1.2",
+  "org.webjars" % "jquery" % "3.3.1-1",
+  "org.webjars" % "font-awesome" % "5.2.0",
+  "org.webjars.npm" % "feather-icons" % "4.7.3",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
   specs2 % Test
 )

@@ -65,7 +65,7 @@ case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)
         val key = s.toLowerCase.replace(' ', '-')
         val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
         val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), tag))
+        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, LocalDateTime.now(), tag))
       case None =>
         None
     }

@@ -172,7 +172,7 @@ object ScheduleSerializer {
   def saveSeasons(uni: MappedUniverse, dao: ScheduleDAO, teamMap: Map[String, Team], confMap: Map[String, Conference]): Future[List[Long]] = {
     uni.seasons.foldLeft(Future.successful(List.empty[List[Long]])) { case (fll: Future[List[List[Long]]], ms: MappedSeason) =>
       fll.flatMap(ll => {
-        val seas = Season(0L, ms.year, "", None)
+        val seas = Season(0L, ms.year)
         dao.saveSeason(seas).flatMap(season => {
           log.info(s"Saving season ${seas.year}.")
           saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap).map(gs => {
@@ -190,7 +190,7 @@ object ScheduleSerializer {
           t <- teamMap.get(tk)
           c <- confMap.get(cm.key)
         } yield {
-          ConferenceMap(0L, id, c.id, t.id, lockRecord = false, ts, "")
+          ConferenceMap(0L, id, c.id, t.id,  ts, "")
         }
       })
 

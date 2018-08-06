@@ -2,20 +2,17 @@ package com.fijimf.deepfij.models.dao.schedule
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-import javax.inject.Inject
 
-import akka.actor.{ActorSystem, Scheduler}
-import akka.pattern.after
+import akka.actor.ActorSystem
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
+import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Random, Success}
+import scala.util.{Failure, Success}
 
 
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
@@ -31,7 +28,9 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with StatValueDAOImpl
     with GamePredictionDAOImpl
     with LogisticModelDAOImpl
-    with UserProfileDAOImpl {
+    with UserProfileDAOImpl
+    with QuoteVoteDAOImpl
+    with FavoriteLinkDAOImpl {
 
   import dbConfig.profile.api._
 

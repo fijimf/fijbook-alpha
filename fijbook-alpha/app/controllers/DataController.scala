@@ -86,7 +86,7 @@ class DataController @Inject()(
         Future.successful(BadRequest(views.html.admin.createSeason(request.identity, form)))
       },
       data => {
-        val s = Season(data.id, data.year, data.lock, data.lockBefore)
+        val s = Season(data.id, data.year)
         val future: Future[Season] = teamDao.saveSeason(s)
         future.onComplete {
           case Success(ss) => logger.info("Saved season: " + ss)
@@ -223,7 +223,7 @@ class DataController @Inject()(
         })
       },
       data => {
-        val q = Conference(data.id, data.key, data.name, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, false, LocalDateTime.now(),
+        val q = Conference(data.id, data.key, data.name, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, LocalDateTime.now(),
           request.identity.userID.toString)
         val future: Future[Conference] = teamDao.saveConference(q)
         future.onComplete {

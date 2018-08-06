@@ -9,7 +9,6 @@ import com.mohiva.play.silhouette.api.util.{Clock, Credentials}
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import controllers.silhouette.utils.DefaultEnv
-import controllers.{WebJarAssets}
 import forms.silhouette.SignInForm
 import javax.inject.Inject
 import net.ceedubs.ficus.Ficus._
@@ -40,8 +39,8 @@ class SignInController @Inject()(
                                   authInfoRepository: AuthInfoRepository,
                                   credentialsProvider: CredentialsProvider,
                                   configuration: Configuration,
-                                  clock: Clock,
-                                  implicit val webJarAssets: WebJarAssets)(implicit ec: ExecutionContext)
+                                  clock: Clock
+                                  )(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
   /**

@@ -24,7 +24,7 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
 
     "save a result " in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
-      val ss = Await.result(dao.saveSeason(Season(0L, 2017,"", None)), testDbTimeout)
+      val ss = Await.result(dao.saveSeason(Season(0L, 2017)), testDbTimeout)
       val ts = Await.result(dao.saveTeams(List(
         Team(0L, "georgetown","Georgetown","Geogetown","Hoyas","Big East",None,None,None,None,None,None,None, LocalDateTime.now(),"me"),
         Team(0L, "st-johns","St. John's","St. John's","Red Storm","Big East",None,None,None,None,None,None,None, LocalDateTime.now(),"me")
@@ -50,7 +50,7 @@ class RepoResultSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach
 
     "not save two results to a game " in new WithApplication() {
       assert(Await.result(dao.listResults, testDbTimeout).isEmpty)
-      val ss = Await.result(dao.saveSeason(Season(0L, 2017,"", None)), testDbTimeout)
+      val ss = Await.result(dao.saveSeason(Season(0L, 2017)), testDbTimeout)
       val ts = Await.result(dao.saveTeams(List(
         Team(0L, "georgetown","Georgetown","Geogetown","Hoyas","Big East",None,None,None,None,None,None,None, LocalDateTime.now(),"me"),
         Team(0L, "st-johns","St. John's","St. John's","Red Storm","Big East",None,None,None,None,None,None,None, LocalDateTime.now(),"me")

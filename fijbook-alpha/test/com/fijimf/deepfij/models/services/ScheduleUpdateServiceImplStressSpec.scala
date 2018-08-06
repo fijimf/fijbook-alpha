@@ -38,7 +38,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
   }
 
   private def createNewSeason: Season = {
-    val season = Await.result(dao.saveSeason(Season(0L, 2017, "", None)), testDbTimeout)
+    val season = Await.result(dao.saveSeason(Season(0L, 2017)), testDbTimeout)
     val seasons = Await.result(dao.listSeasons, testDbTimeout)
     assert(seasons.size == 1)
     assert(season == seasons.head)

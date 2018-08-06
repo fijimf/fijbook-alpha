@@ -1,0 +1,10 @@
+{
+  "name": "fijbook-alpha",
+  "version": "0.0.1",
+  "dependencies": {
+    "jquery": "latest"
+  },
+  "devDependencies": {
+    "jquery": "latest"
+  }
+}

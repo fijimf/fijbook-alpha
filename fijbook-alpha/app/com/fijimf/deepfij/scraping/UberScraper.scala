@@ -150,7 +150,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
         val key = s.toLowerCase.replace(' ', '-')
         val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
         val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), tag))
+        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None,  LocalDateTime.now(), tag))
       case None =>
         None
     }
@@ -167,7 +167,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
   }
 
   def createSeasons(start: Int, end: Int): Future[List[Tracking]] = {
-    dao.saveSeasons(start.to(end).map(y => Season(0L, y, "", None)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
+    dao.saveSeasons(start.to(end).map(y => Season(0L, y)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
   }
 
   def seedConferenceMaps(tag: String): Future[List[Tracking]] = {
