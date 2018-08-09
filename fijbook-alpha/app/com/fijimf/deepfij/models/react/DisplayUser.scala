@@ -6,6 +6,7 @@ case class DisplayUser
 (
   user:Option[User],
   isAdmin:Boolean,
+  isLoggedIn:Boolean,
   favorites:List[DisplayLink],
   dailyQuotesLiked:List[Int]
 ){

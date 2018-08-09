@@ -1,6 +1,7 @@
 ########### INDEX
 GET         /                                                   controllers.IndexController.redirect
 GET         /r                                                  controllers.ReactMainController.index
+GET         /du                                                 controllers.ReactMainController.displayUser()
 ->          /webjars                                            webjars.Routes
 ->          /auth                                               silhouette.Routes
 GET         /deepfij                                            controllers.IndexController.redirect

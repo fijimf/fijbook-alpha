@@ -40,7 +40,14 @@ case class User(
     }
   }
 
-  def isDeepFijAdmin:Boolean = Option(System.getProperty("deepfij.admin.emails")).exists(_.split(",").contains(email))
+  def isDeepFijAdmin:Boolean = {
+    (for {
+      x <- Option(System.getProperty("admin.user"))
+      y <- email
+    } yield {
+      x.trim.toLowerCase == y.trim.toLowerCase
+    }).getOrElse(false)
+  }
 
 }
 

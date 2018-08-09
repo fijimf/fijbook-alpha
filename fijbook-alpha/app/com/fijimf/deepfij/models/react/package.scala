@@ -18,6 +18,7 @@ package object react {
           )
         }),
         "isAdmin" -> u.isAdmin,
+        "isLoggedIn"-> u.isLoggedIn,
         "favorites" -> Json.arr(
           u.favorites.map(l => Json.toJson(l))
         ),

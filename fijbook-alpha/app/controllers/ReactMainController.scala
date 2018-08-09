@@ -1,54 +1,50 @@
 package controllers
 
-import java.time.LocalDate
-
-import com.amazonaws.util.IOUtils
-import com.fijimf.deepfij.models.S3StaticAsset
+import com.fijimf.deepfij.models.QuoteVote
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser}
 import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
 import org.apache.commons.lang3.StringUtils
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.libs.json.Json
+import play.api.mvc.{AnyContent, BaseController, ControllerComponents}
+import play.twirl.api.Html
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
+
+/**
+  * reactMain is a bastard of a controller, becausae I really have no ide what I'm doing.
+  *
+  * @param controllerComponents
+  * @param dao
+  * @param userService
+  * @param silhouette
+  * @param s3BlockController
+  * @param ec
+  */
 class ReactMainController @Inject()(
                                  val controllerComponents: ControllerComponents,
                                  val dao: ScheduleDAO,
                                  val userService: UserService,
                                  val silhouette: Silhouette[DefaultEnv],
                                  val s3BlockController: S3BlockController)(implicit ec: ExecutionContext)
-  extends BaseController {
+  extends BaseController with WithDao with ReactEnricher {
 
 
   def index() = silhouette.UserAwareAction.async { implicit rs =>
+    loadDisplayUser(rs).map(du=>Ok(views.html.reactMain(du)))
+  }
 
-
-    val lookupName=  rs.identity.map(_.name) match {
-      case None=> rs.connection.remoteAddressString
-      case Some(n) if StringUtils.isBlank(n)=> rs.connection.remoteAddressString
-      case Some(n)=>n
-    }
-
-    val favorites = rs.identity match {
-      case Some(u) =>
-        dao.findFavoriteLinksByUser(u.userID.toString).map(_.map(fl => DisplayLink(fl.displayAs, fl.link, "fa-star")))
-      case None =>
-        Future.successful(List.empty[DisplayLink])
-    }
-
-    val likedQuotes = dao.findQuoteVoteByUser(lookupName, 24.hours)
-    for {
-      f<-favorites
-      l<-likedQuotes
-    } yield {
-      val user = DisplayUser(rs.identity, rs.identity.exists(_.isDeepFijAdmin),f,l.map(_.quoteId.toInt))
-        Ok(views.html.reactMain(user))
-    }
-
+  def displayUser()  = silhouette.UserAwareAction.async { implicit rs =>
+    loadDisplayUser(rs).map(du => Ok(s"var displayUser=${Json.toJson(du)}").as(JAVASCRIPT))
   }
 }
+
+
+
+

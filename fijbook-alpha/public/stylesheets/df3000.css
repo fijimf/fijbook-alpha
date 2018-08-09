@@ -105,9 +105,9 @@ body {
 }
 
 .vote-button-liked {
-    font-size: 75%;
-    color:red;
-}.vote-button-unliked {
-    font-size: 75%;
-    color:lightgray;
+    color:darkred;
+}
+
+.vote-button-unliked {
+    color:darkgray;
 }
