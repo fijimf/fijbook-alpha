@@ -14,6 +14,7 @@ class TopNav extends React.Component {
     constructor(props) {
         super(props);
         this.state = props;
+        console.info(this.state);
     }
 
 
@@ -78,5 +79,5 @@ class Quote extends React.Component {
 }
 
 const topNav= document.querySelector('#top_nav');
-ReactDOM.render(React.createElement(TopNav), topNav);
+ReactDOM.render(React.createElement(TopNav, displayUser), topNav);
 
