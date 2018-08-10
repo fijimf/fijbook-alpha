@@ -1,19 +1,14 @@
 package controllers
 
-import com.fijimf.deepfij.models.QuoteVote
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser}
 import com.fijimf.deepfij.models.services.UserService
-import com.mohiva.play.silhouette.api.Silhouette
-import com.mohiva.play.silhouette.api.actions.UserAwareRequest
+import com.mohiva.play.silhouette.api.{LogoutEvent, Silhouette}
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
-import org.apache.commons.lang3.StringUtils
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, BaseController, ControllerComponents}
-import play.twirl.api.Html
+import play.api.mvc.{BaseController, ControllerComponents}
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -33,14 +28,28 @@ class ReactMainController @Inject()(
                                  val userService: UserService,
                                  val silhouette: Silhouette[DefaultEnv],
                                  val s3BlockController: S3BlockController)(implicit ec: ExecutionContext)
-  extends BaseController with WithDao with ReactEnricher {
+  extends BaseController with WithDao with ReactEnricher with I18nSupport {
 
 
   def index() = silhouette.UserAwareAction.async { implicit rs =>
-    loadDisplayUser(rs).map(du=>Ok(views.html.reactMain(du)))
+    Future.successful(Ok(views.html.reactMain("FrontPage")))
   }
 
-  def displayUser()  = silhouette.UserAwareAction.async { implicit rs =>
+  def signIn() = silhouette.UnsecuredAction.async { implicit rs =>
+    Future.successful(Ok(views.html.reactMain("SignIn")))
+  }
+
+  def signUp() = silhouette.UnsecuredAction.async { implicit rs =>
+    Future.successful(Ok(views.html.reactMain("SignUp")))
+  }
+
+  def signOut() = silhouette.SecuredAction.async { implicit rs =>
+    val result = Redirect("/r/index")
+    silhouette.env.eventBus.publish(LogoutEvent(rs.identity, rs))
+    silhouette.env.authenticatorService.discard(rs.authenticator, result)
+  }
+
+  def loadUser() = silhouette.UserAwareAction.async { implicit rs =>
     loadDisplayUser(rs).map(du => Ok(s"var displayUser=${Json.toJson(du)}").as(JAVASCRIPT))
   }
 }

@@ -1,14 +1,5 @@
 'use strict';
 
-/*
- {
-    user:{
-
-    sidebar:{
-
-    }
- }
- */
 class TopNav extends React.Component {
 
     constructor(props) {
@@ -19,15 +10,15 @@ class TopNav extends React.Component {
 
 
     render() {
-
-
+        const isLoggedIn = this.state.isLoggedIn;
+        const userName = this.state.user.name;
         return <nav className="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
             <a className="navbar-brand col-sm-2 mr-0" href="#"><img
                 src="/assets/images/deepfij-tiny.png" width="30" height="34"
                 className="d-inline-block mx-3" alt=""/>deepfij</a>
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
                     aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
+                <span className="navbar-toggler-icon"/>
             </button>
 
             <div className="collapse navbar-collapse col-sm-8" id="navbarsExample03">
@@ -36,23 +27,33 @@ class TopNav extends React.Component {
                         <Quote></Quote>
                     </li>
                 </ul>
-                <ul className="navbar-nav ml-auto">
-                    <li className="nav-item dropdown">
-                        <a className="nav-link dropdown-toggle" href="https://example.com" id="dropdown03"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                        <div className="dropdown-menu" aria-labelledby="dropdown03">
-                            <a className="dropdown-item" href="#">Action</a>
-                            <a className="dropdown-item" href="#">Another action</a>
-                            <a className="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </li>
-                </ul>
+                {isLoggedIn ? (
+                    <ul className="navbar-nav ml-auto">
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="https://example.com" id="dropdown03"
+                               data-toggle="dropdown" aria-haspopup="true"
+                               aria-expanded="false">{userName}</a>
+                            <div className="dropdown-menu" aria-labelledby="dropdown03">
+                                <a className="dropdown-item" href="#">View Profile</a>
+                                <a className="dropdown-item" href="/r/signOut">Sign Out</a>
+                            </div>
+                        </li>
+                    </ul>
+                ) : (
+                    <ul className="navbar-nav ml-auto">
+                        <li className="nav-item ">
+                            <a className="nav-link" href="/r/signIn" id="signIn">Sign In</a>
+                        </li>
+                    </ul>
+                )}
+
             </div>
-            <input className="form-control form-control-dark col-sm-2 mx-1 " type="text" placeholder="Search"></input>
+            <input className="form-control form-control-dark col-sm-2 mx-1 " type="text" placeholder="Search"/>
         </nav>;
     }
 
 }
+
 
 class Quote extends React.Component {
     constructor(props) {
