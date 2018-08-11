@@ -5,6 +5,9 @@ GET         /r/index                                            controllers.Reac
 GET         /r/signIn                                           controllers.ReactMainController.signIn
 GET         /r/signOut                                          controllers.ReactMainController.signOut
 GET         /r/signUp                                          controllers.ReactMainController.signUp
+
+GET         /r/likequote/:id                                    controllers.QuoteController.likequote(id:Long)
+
 GET         /du                                                 controllers.ReactMainController.loadUser()
 ->          /webjars                                            webjars.Routes
 ->          /auth                                               silhouette.Routes

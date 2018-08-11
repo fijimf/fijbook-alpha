@@ -2,7 +2,7 @@ package controllers
 
 import com.fijimf.deepfij.models.{QuoteVote, User}
 import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser}
-import com.mohiva.play.silhouette.api.actions.UserAwareRequest
+import com.mohiva.play.silhouette.api.actions.{SecuredAction, SecuredRequest, UserAwareRequest}
 import controllers.silhouette.utils.DefaultEnv
 import org.apache.commons.lang3.StringUtils
 import play.api.mvc.{AnyContent, Request}
@@ -22,6 +22,18 @@ trait ReactEnricher {
       l<-likedQuotes
     } yield {
       DisplayUser(rs.identity, rs.identity.exists(_.isDeepFijAdmin), rs.identity.isDefined,f,l.map(_.quoteId.toInt))
+    }
+  }
+
+  def loadDisplayUser(rs: SecuredRequest[DefaultEnv, AnyContent] )(implicit executionContext: ExecutionContext):Future[DisplayUser]={
+    val favorites = loadUserFavorites(Some(rs.identity))
+
+    val likedQuotes = loadUserLikedQuotes(Some(rs.identity),rs)
+    for {
+      f<-favorites
+      l<-likedQuotes
+    } yield {
+      DisplayUser(Some(rs.identity), rs.identity.isDeepFijAdmin, isLoggedIn = true,f,l.map(_.quoteId.toInt))
     }
   }
 

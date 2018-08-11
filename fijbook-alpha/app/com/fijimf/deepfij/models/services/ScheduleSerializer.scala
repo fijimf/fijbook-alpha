@@ -37,10 +37,7 @@ object ScheduleSerializer {
 
   case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
 
-  implicit val formatsTeam: Format[Team] = Json.format[Team]
-  implicit val formatsAlias: Format[Alias] = Json.format[Alias]
-  implicit val formatsConference: Format[Conference] = Json.format[Conference]
-  implicit val formatsQuotes: Format[Quote] = Json.format[Quote]
+  import  com.fijimf.deepfij.models._
   implicit val formatsConfMap: Format[ConfMap] = Json.format[ConfMap]
   implicit val formatsMappedGame: Format[MappedGame] = Json.format[MappedGame]
   implicit val formatsScoreboard: Format[Scoreboard] = Json.format[Scoreboard]
