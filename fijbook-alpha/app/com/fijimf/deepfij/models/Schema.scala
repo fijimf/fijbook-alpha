@@ -407,7 +407,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx4: Index = index("stat_value_idx4", modelKey, unique = false)
 
   }
-  
+
   //case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
  class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
 
@@ -417,13 +417,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def teamKey: Rep[String] = column[String]("team", O.Length(32))
 
-    
+
 
     def value: Rep[Double] = column[Double]("value")
-    
+
     def rankAscending: Rep[Int] = column[Int]("rank_asc")
     def rankDescending: Rep[Int] = column[Int]("rank_desc")
-    
+
     def percentileAscending: Rep[Double] = column[Double]("pctile_asc")
     def percentileDescending: Rep[Double] = column[Double]("pctile_desc")
     def mean: Rep[Double] = column[Double]("mean")
@@ -431,7 +431,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def min: Rep[Double] = column[Double]("min")
     def max: Rep[Double] = column[Double]("max")
     def n: Rep[Int] = column[Int]("n")
-    
+
 
     def * : ProvenShape[XStat] = (seasonYear, statDate,statKey, teamKey,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
 

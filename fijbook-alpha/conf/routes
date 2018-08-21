@@ -4,9 +4,9 @@ GET         /r                                                  controllers.Reac
 GET         /r/index                                            controllers.ReactMainController.index
 GET         /r/signIn                                           controllers.ReactMainController.signIn
 GET         /r/signOut                                          controllers.ReactMainController.signOut
-GET         /r/signUp                                          controllers.ReactMainController.signUp
+GET         /r/signUp                                           controllers.ReactMainController.signUp
 
-GET         /r/likequote/:id                                    controllers.QuoteController.likequote(id:Long)
+GET         /api/vote/quote/:id                                 controllers.QuoteController.likequote(id:Long)
 
 GET         /du                                                 controllers.ReactMainController.loadUser()
 ->          /webjars                                            webjars.Routes

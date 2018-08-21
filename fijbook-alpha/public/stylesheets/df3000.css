@@ -111,3 +111,8 @@ body {
 .vote-button-unliked {
     color:darkgray;
 }
+
+.vote-disabled{
+    pointer-events: all;
+    cursor: default;
+}

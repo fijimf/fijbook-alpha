@@ -1,6 +1,10 @@
 'use strict';
 
-class TopNav extends React.Component {
+import React, { Component } from 'react';
+
+import { Quote } from './Quote.js';
+
+export class TopNav extends React.Component {
 
     constructor(props) {
         super(props);
@@ -11,7 +15,13 @@ class TopNav extends React.Component {
 
     render() {
         const isLoggedIn = this.state.isLoggedIn;
-        const userName = this.state.user.name;
+        const user = this.state.user;
+        const userName = user.name;
+        const emptyQuote = {
+            id: -1,
+            quote: '',
+            source: ''
+        };
         return <nav className="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
             <a className="navbar-brand col-sm-2 mr-0" href="#"><img
                 src="/assets/images/deepfij-tiny.png" width="30" height="34"
@@ -24,7 +34,7 @@ class TopNav extends React.Component {
             <div className="collapse navbar-collapse col-sm-8" id="navbarsExample03">
                 <ul className="navbar-nav mr-auto">
                     <li className="navbar-text ml-2">
-                        <Quote></Quote>
+                        <Quote user={user} quote={emptyQuote}/>
                     </li>
                 </ul>
                 {isLoggedIn ? (
@@ -55,30 +65,7 @@ class TopNav extends React.Component {
 }
 
 
-class Quote extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            quote: ""
-        };
-    }
 
-    render() {
-        return <div className="quote-box">
-            <a href={"/api/vote/quote/"+this.state.quote} title="Like this quote"><i className="fa fa-heart ml-0 mr-2 pt-1 vote-button-liked" > </i></a>
-            <a className="quote"><em>{this.state.quote}</em></a>
 
-        </div>;
-    }
 
-    componentDidMount() {
-        let component = this;
-        $.getJSON("/deepfij/quotes/random", function (data) {
-            component.setState(data);
-        });
-    }
-}
-
-const topNav= document.querySelector('#top_nav');
-ReactDOM.render(React.createElement(TopNav, displayUser), topNav);
 
