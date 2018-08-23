@@ -3,7 +3,6 @@ package controllers
 import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.react._
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{Quote, QuoteVote, _}
 import com.mohiva.play.silhouette.api.Silhouette
@@ -60,11 +59,13 @@ class QuoteController @Inject()(
 
   }
 
+  //TODO there could be a race condition below, but not a very important one.  Same user, same quote on two tabs.  Could vote twice.
   def likequote(id: Long) = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
     dao.saveQuoteVote(QuoteVote(0L, id, rs.identity.userID.toString, LocalDateTime.now())).flatMap(_ => {
-      loadDisplayUser(rs).map(du => {
-        Ok(Json.toJson(du))
-      })
+      dao.findQuoteById(id).flatMap {
+        case Some(quote) => quoteUserResponse(rs, quote)
+        case None => Future.successful(Ok(Json.toJson(missingQuote)))
+      }
     })
   }
 
@@ -81,6 +82,12 @@ class QuoteController @Inject()(
       case None =>
         Future.successful(Ok(Json.toJson(QuoteWrapper(quote, isLiked = false, canVote = false))))
     }
+  }
+
+  private def quoteUserResponse(req: SecuredRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
+    dao.findQuoteVoteByUser(req.identity.userID.toString, 7.days)
+      .map(!_.exists(_.quoteId == quote.id))
+      .map(canVote => Ok(Json.toJson(QuoteWrapper(quote, isLiked = !canVote, canVote = canVote))))
   }
 
 }
