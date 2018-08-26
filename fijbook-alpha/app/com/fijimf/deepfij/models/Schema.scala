@@ -125,6 +125,10 @@ case class UserProfileData(id: Long, userID: String, key: String, value: String)
 
 case class FavoriteLink(id: Long, userID: String, displayAs: String, link: String, order: Int, createdAt: LocalDateTime)
 
+case class RssFeed(id: Long, name: String, url: String)
+
+case class RssItem(id: Long, rssFeedId: Long, title: String, url: String, image: Option[String], publishTime: LocalDateTime, recordedAt: LocalDateTime)
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -499,7 +503,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_links") {
+  class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_link") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
     def userId: Rep[String] = column[String]("user_id", O.Length(144))
@@ -514,6 +518,37 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * = (id, userId, displayAs, link, order, createdAt) <> (FavoriteLink.tupled, FavoriteLink.unapply)
   }
+
+  class RssFeedTable(tag: Tag) extends Table[RssFeed](tag, "rss_feed") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def name: Rep[String] = column[String]("name", O.Length(144))
+
+    def url: Rep[String] = column[String]("url", O.Length(256))
+
+    def * = (id, name, url) <> (RssFeed.tupled, RssFeed.unapply)
+
+  }
+
+  class RssItemTable(tag: Tag) extends Table[RssItem](tag, "rss_item") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def rssFeedId: Rep[Long] = column[Long]("rss_feed_id")
+
+    def title: Rep[String] = column[String]("title", O.Length(144))
+
+    def url: Rep[String] = column[String]("url", O.Length(256))
+
+    def image: Rep[Option[String]] = column[Option[String]]("image", O.Length(256))
+
+    def publishTime: Rep[LocalDateTime] = column[LocalDateTime]("publish_time")
+
+    def recordedAt: Rep[LocalDateTime] = column[LocalDateTime]("recorder_at")
+
+    def * = (id, rssFeedId, title, url, image, publishTime, recordedAt) <> (RssItem.tupled, RssItem.unapply)
+
+  }
+
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
@@ -532,6 +567,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
   lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]
   lazy val favoriteLinks: TableQuery[FavoriteLinkTable] = TableQuery[FavoriteLinkTable]
+  lazy val rssFeeds: TableQuery[RssFeedTable] = TableQuery[RssFeedTable]
+  lazy val rssItems: TableQuery[RssItemTable] = TableQuery[RssItemTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
 
   lazy val ddl = conferenceMaps.schema ++
@@ -548,5 +585,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     userProfiles.schema ++
     xstats.schema ++
     quoteVotes.schema ++
-    favoriteLinks.schema
+    favoriteLinks.schema ++
+    rssFeeds.schema ++
+    rssItems.schema
 }

@@ -1,12 +1,13 @@
 'use strict';
 
-import React, { Component } from "react";
+console.warn("Loaded FrontPage.js file");
 
-export class FrontPage extends React.Component {
+class FrontPage extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = props;
+        console.info(this.state);
     }
 
 
@@ -26,3 +27,7 @@ export class FrontPage extends React.Component {
         </div>;
     }
 }
+
+//This is terrible and unsustainable
+const main= document.querySelector('#mainComponent');
+ReactDOM.render(React.createElement(FrontPage), main);

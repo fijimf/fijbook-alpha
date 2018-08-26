@@ -4,10 +4,10 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.models.services.RssFeedUpdateServiceImpl
 import jobs.ScheduleUpdater.Update
 
-class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
+class ScheduleUpdater @Inject()(svc: RssFeedUpdateServiceImpl) extends Actor  {
 
   val logger = play.api.Logger(this.getClass)
 

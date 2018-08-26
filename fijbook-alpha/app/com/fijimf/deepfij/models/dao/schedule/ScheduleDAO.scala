@@ -19,7 +19,9 @@ trait ScheduleDAO
     with LogisticModelDAO
     with UserProfileDAO
     with QuoteVoteDAO
-    with FavoriteLinkDAO {
+    with FavoriteLinkDAO
+    with RssFeedDAO {
+
 
   def saveGameResult(g:Game,r:Option[Result]):Future[Option[Game]]
 

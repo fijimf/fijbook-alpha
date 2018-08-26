@@ -30,7 +30,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with LogisticModelDAOImpl
     with UserProfileDAOImpl
     with QuoteVoteDAOImpl
-    with FavoriteLinkDAOImpl {
+    with FavoriteLinkDAOImpl
+    with RssFeedDAOImpl {
 
   import dbConfig.profile.api._
 
