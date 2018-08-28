@@ -3,6 +3,7 @@ package controllers
 import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.react.QuoteWrapper
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{Quote, QuoteVote, _}
 import com.mohiva.play.silhouette.api.Silhouette
@@ -17,16 +18,18 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
+object QuoteController {
+  implicit val formatsQuoteWrappers: Format[QuoteWrapper] = Json.format[QuoteWrapper]
+}
+
 class QuoteController @Inject()(
                                  val controllerComponents: ControllerComponents,
                                  val dao: ScheduleDAO,
                                  val userService: UserService,
                                  val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
-  extends BaseController with WithDao with ReactEnricher {
+  extends BaseController with WithDao with UserEnricher {
 
-  case class QuoteWrapper(quote: Quote, isLiked: Boolean, canVote: Boolean)
-
-  implicit val formatsQuoteWrappers: Format[QuoteWrapper] = Json.format[QuoteWrapper]
+  import QuoteController._
 
   val missingQuote = QuoteWrapper(Quote(-1L, "Fridge rules.", None, None, None), isLiked = false, canVote = false)
 
@@ -60,7 +63,7 @@ class QuoteController @Inject()(
   }
 
   //TODO there could be a race condition below, but not a very important one.  Same user, same quote on two tabs.  Could vote twice.
-  def likequote(id: Long) = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
+  def likeQuote(id: Long) = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
     dao.saveQuoteVote(QuoteVote(0L, id, rs.identity.userID.toString, LocalDateTime.now())).flatMap(_ => {
       dao.findQuoteById(id).flatMap {
         case Some(quote) => quoteUserResponse(rs, quote)

@@ -1,6 +1,8 @@
 'use strict';
 
-class ResetPassword extends React.Component {
+import React, { Component } from 'react';
+
+export class ResetPassword extends React.Component {
 
     constructor(props) {
         super(props);
@@ -43,7 +45,3 @@ class ResetPassword extends React.Component {
         </div>;
     }
 }
-
-//This is terrible and unsustainable
-const main= document.querySelector('#mainComponent');
-ReactDOM.render(React.createElement(ResetPassword), main);

@@ -503,7 +503,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   }
 
 
-  class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_link") {
+  class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_links") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
     def userId: Rep[String] = column[String]("user_id", O.Length(144))

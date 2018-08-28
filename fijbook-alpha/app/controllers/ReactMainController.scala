@@ -8,6 +8,7 @@ import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{BaseController, ControllerComponents}
+import play.filters.csrf.CSRF
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,11 +29,15 @@ class ReactMainController @Inject()(
                                  val userService: UserService,
                                  val silhouette: Silhouette[DefaultEnv],
                                  val s3BlockController: S3BlockController)(implicit ec: ExecutionContext)
-  extends BaseController with WithDao with ReactEnricher with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
 
   def index() = silhouette.UserAwareAction.async { implicit rs =>
-    Future.successful(Ok(views.html.reactMain("FrontPage")))
+   for {
+     du<- loadDisplayUser(rs)
+     qw<-getQuoteWrapper(du)
+
+   } yield {Ok(views.html.main3000(du,qw,"XXX"))}
   }
 
   def signIn() = silhouette.UnsecuredAction.async { implicit rs =>
@@ -51,6 +56,12 @@ class ReactMainController @Inject()(
 
   def loadUser() = silhouette.UserAwareAction.async { implicit rs =>
     loadDisplayUser(rs).map(du => Ok(s"var displayUser=${Json.toJson(du)}").as(JAVASCRIPT))
+  }
+
+  def csrfToken() = silhouette.UserAwareAction.async { implicit rs =>
+    Future.successful(
+      Ok(s"var token='${CSRF.getToken.map(_.value).getOrElse("")}'").as(JAVASCRIPT)
+    )
   }
 }
 

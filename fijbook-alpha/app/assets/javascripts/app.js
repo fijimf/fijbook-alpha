@@ -23,7 +23,7 @@ module.exports ={
                 ReactDOM.render(React.createElement(FrontPage), document.querySelector('#mainComponent'));
             },
             'SignIn': function () {
-                ReactDOM.render(React.createElement(SignIn), document.querySelector('#mainComponent'));
+                ReactDOM.render(React.createElement(SignIn, token), document.querySelector('#mainComponent'));
             },
             'SignUp': function () {
                 ReactDOM.render(React.createElement(SignUp), document.querySelector('#mainComponent'));

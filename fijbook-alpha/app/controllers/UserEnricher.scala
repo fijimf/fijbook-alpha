@@ -9,7 +9,7 @@ import play.api.mvc.{AnyContent, Request}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ReactEnricher {
+trait UserEnricher {
 
   self:WithDao=>
 
@@ -51,12 +51,10 @@ trait ReactEnricher {
 
    private def loadUserLikedQuotes(optUser:Option[User], req: Request[AnyContent]): Future[List[QuoteVote]] = {
      import scala.concurrent.duration._
-    val lookupName = optUser.map(_.name) match {
-      case None => req.connection.remoteAddressString
-      case Some(n) if StringUtils.isBlank(n) => req.connection.remoteAddressString
-      case Some(n) => n
+     optUser.map(_.userID.toString) match {
+      case None => Future.successful(List.empty)
+      case Some(n) => dao.findQuoteVoteByUser(n, 24.hours)
     }
-    dao.findQuoteVoteByUser(lookupName, 24.hours)
   }
 
   private def loadUserFavorites(optUser:Option[User])(implicit executionContext: ExecutionContext): Future[List[DisplayLink]] = {

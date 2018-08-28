@@ -1,19 +1,22 @@
 'use strict';
 
-class SignIn extends React.Component {
+import React, { Component } from 'react';
+
+export class SignIn extends React.Component {
 
     constructor(props) {
         super(props);
+        console.log(props);
         this.state = props;
-        console.info(this.state);
     }
 
     render() {
+        console.log(state);
         return <div className="row">
             <fieldset className="col-md-6 col-md-offset-3">
                 <legend>Sign in with your credentials</legend>
-                <form action="/auth/deepfij/signIn" method="POST" > //TODO fixme
-                    <input type="hidden" name="csrfToken" value="70a278b055a6d73f31f2479601d832ec888f4cd0-1533871115934-2ac4b8015857af5d48664d7f"/>
+                <form action="/auth/deepfij/signIn" method="POST" >
+                    <input type="hidden" name="csrfToken" value={this.state.token}/>
                     <div className="form-group  " id="email_field">
                         <label className="control-label sr-only" htmlFor="email">Email</label>
                         <input type="email" id="email" name="email" defaultValue="" placeholder="Email" className="form-control form-control input-lg"/>
@@ -43,7 +46,3 @@ class SignIn extends React.Component {
         </div>;
     }
 }
-
-//This is terrible and unsustainable
-const main= document.querySelector('#mainComponent');
-ReactDOM.render(React.createElement(SignIn), main);

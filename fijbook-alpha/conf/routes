@@ -6,9 +6,10 @@ GET         /r/signIn                                           controllers.Reac
 GET         /r/signOut                                          controllers.ReactMainController.signOut
 GET         /r/signUp                                           controllers.ReactMainController.signUp
 
-GET         /api/vote/quote/:id                                 controllers.QuoteController.likequote(id:Long)
+GET         /api/vote/quote/:id                                 controllers.QuoteController.likeQuote(id:Long)
 
 GET         /du                                                 controllers.ReactMainController.loadUser()
+GET         /csrf                                               controllers.ReactMainController.csrfToken()
 ->          /webjars                                            webjars.Routes
 ->          /auth                                               silhouette.Routes
 GET         /deepfij                                            controllers.IndexController.redirect

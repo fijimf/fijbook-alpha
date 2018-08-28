@@ -9,7 +9,7 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.models.services.{ComputedStatisticService, RssFeedUpdateServiceImpl}
+import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService}
 import play.api.Logger
 
 import scala.concurrent.Future
@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: RssFeedUpdateServiceImpl, statSvc: ComputedStatisticService, throttler: ActorRef) {
+case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global

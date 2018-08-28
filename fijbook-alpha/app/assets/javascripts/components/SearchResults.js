@@ -1,8 +1,8 @@
 'use strict';
 
-console.warn("Loaded FrontPage.js file");
+import React, { Component } from 'react';
 
-class FrontPage extends React.Component {
+export class SearchResults extends React.Component {
 
     constructor(props) {
         super(props);
@@ -27,7 +27,3 @@ class FrontPage extends React.Component {
         </div>;
     }
 }
-
-//This is terrible and unsustainable
-const main= document.querySelector('#mainComponent');
-ReactDOM.render(React.createElement(FrontPage), main);

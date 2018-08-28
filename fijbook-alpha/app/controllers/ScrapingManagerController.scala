@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.fijimf.deepfij.models.ScheduleRepository
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.RssFeedUpdateServiceImpl
+import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import com.fijimf.deepfij.scraping.nextgen.ScrapingManagerActor
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -22,7 +22,7 @@ class ScrapingManagerController @Inject()(val controllerComponents: ControllerCo
                                           val ws: WSClient,
                                           val dao: ScheduleDAO,
                                           val repo:ScheduleRepository,
-                                          val schedSvc:RssFeedUpdateServiceImpl,
+                                          val schedSvc:ScheduleUpdateService,
                                           silhouette: Silhouette[DefaultEnv]) (implicit system: ActorSystem, mat: Materializer)
   extends BaseController with I18nSupport {
 

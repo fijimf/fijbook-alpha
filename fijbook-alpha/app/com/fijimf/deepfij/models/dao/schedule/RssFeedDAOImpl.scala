@@ -7,7 +7,7 @@ import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
 
-class RssFeedDAOImpl extends RssFeedDAO with DAOSlick {
+trait RssFeedDAOImpl extends RssFeedDAO with DAOSlick {
 
   val log: Logger
   val dbConfigProvider: DatabaseConfigProvider
