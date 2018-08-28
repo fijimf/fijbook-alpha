@@ -1,4 +1,4 @@
-package utils
+package controllers.silhouette.utils
 
 import com.mohiva.play.silhouette.api.actions.UnsecuredErrorHandler
 import play.api.mvc.RequestHeader
@@ -20,6 +20,6 @@ class CustomUnsecuredErrorHandler extends UnsecuredErrorHandler {
     * @return The result to send to the client.
     */
   override def onNotAuthorized(implicit request: RequestHeader) = {
-    Future.successful(Redirect(controllers.routes.ReactMainController.index))
+    Future.successful(Redirect("/"))
   }
 }

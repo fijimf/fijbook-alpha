@@ -2,14 +2,8 @@ name := """fijbookAlpha"""
 
 scalaVersion in ThisBuild := "2.11.8"
 
-lazy val fijbookLibrary = project
-
-lazy val silhouette = (project in file("modules/silhouette")).enablePlugins(PlayScala).dependsOn(fijbookLibrary)
-
 lazy val fijbookAlpha = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
-  .aggregate(fijbookLibrary, silhouette)
-  .dependsOn(fijbookLibrary, silhouette)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fijimf.deepfij"
@@ -74,7 +68,7 @@ libraryDependencies ++= Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.297",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
-  "org.apache.spark" %% "spark-mllib" % "2.2.1" 
+  "org.apache.spark" %% "spark-mllib" % "2.2.1"
 )
 
 test in assembly := {}
@@ -87,7 +81,7 @@ assemblyMergeStrategy in assembly := {
   case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.discard
   case PathList(ps @ _*) if ps.last endsWith "messages" => MergeStrategy.concat
   case PathList(ps @ _*) if ps.last endsWith "types" => MergeStrategy.last
-  case x => 
+  case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }

@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
-@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, mainComponent:String){
+@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, title:String="Deep Fij")(content:Html)(implicit flash: Flash){
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../../../favicon.ico">
 
-    <title>Dashboard Template for Bootstrap</title>
+    <title>D@title</title>
 
     <link rel="stylesheet" media="screen" href="/assets/lib/bootstrap/css/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="/assets/lib/font-awesome/css/all.css">
@@ -33,6 +33,7 @@
                 @view3000.sidebar(displayUser)
             </div>
             <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"  id="mainComponent">
+                @content
             </div>
         </div>
     </div>

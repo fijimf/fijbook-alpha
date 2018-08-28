@@ -56,11 +56,11 @@ class StatsController @Inject()(
                 Future.successful(Ok(views.html.data.stat(request.identity, statContext)))
               })
             }
-            case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded"))
+            case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> "No current schedule loaded"))
           }
         })
       }
-      case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> ("Could not identify statmodel:stat '" + modelKey + ":" + statKey + "'")))
+      case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> ("Could not identify statmodel:stat '" + modelKey + ":" + statKey + "'")))
     }
   }
 
@@ -89,7 +89,7 @@ class StatsController @Inject()(
     statWriterService.lookupModel(modelKey) match {
       case Some(model) => {
         teamDao.loadLatestSchedule().flatMap {
-          case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No seasons loaded"))
+          case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> "No seasons loaded"))
           case Some(sch) => {
             for {
               stats <- teamDao.loadStatValues(modelKey, sch.season.startDate, sch.season.endDate)
@@ -101,7 +101,7 @@ class StatsController @Inject()(
           }
         }
       }
-      case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> ("Could not identify model '" + modelKey + "'")))
+      case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> ("Could not identify model '" + modelKey + "'")))
     }
 
   }

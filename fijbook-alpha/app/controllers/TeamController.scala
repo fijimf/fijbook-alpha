@@ -35,7 +35,7 @@ class TeamController @Inject()(
   def team(key: String, season: Option[Int]) = silhouette.UserAwareAction.async { implicit request =>
     teamDao.loadSchedules().flatMap(ss => {
       if (ss.isEmpty) {
-        Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No schedules are loaded."))
+        Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> "No schedules are loaded."))
       } else {
         val year = season match {
           case Some(y) => y
@@ -49,7 +49,7 @@ class TeamController @Inject()(
               Ok(views.html.data.team(request.identity, t, sch, lstat))
             })
           }
-          case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> s"No schedule found for year $year"))
+          case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> s"No schedule found for year $year"))
         }
       }
     })
@@ -165,7 +165,7 @@ class TeamController @Inject()(
               Ok(views.html.data.teams(request.identity, columns))
           }
         }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+        case None => Redirect(routes.ReactMainController.index).flashing("info" -> "No current schedule loaded")
       }
     })
   }
@@ -179,7 +179,7 @@ class TeamController @Inject()(
           val c = sch.conferenceKeyMap(key)
           Ok(views.html.data.conference(request.identity, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
         }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+        case None => Redirect(routes.ReactMainController.index).flashing("info" -> "No current schedule loaded")
       }
 
     })
@@ -195,7 +195,7 @@ class TeamController @Inject()(
           val cmap = sch.conferences.map(c => c -> sch.conferenceStandings(c)).sortBy(_._1.name)
           Ok(views.html.data.conferences(request.identity, cmap))
         }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+        case None => Redirect(routes.ReactMainController.index).flashing("info" -> "No current schedule loaded")
       }
 
     })

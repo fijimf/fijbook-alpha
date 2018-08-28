@@ -1,19 +1,38 @@
 ########### INDEX
 GET         /                                                   controllers.IndexController.redirect
-GET         /r                                                  controllers.ReactMainController.index
-GET         /r/index                                            controllers.ReactMainController.index
+GET         /r                                                  controllers.ReactMainController.index()
+GET         /r/index                                            controllers.ReactMainController.index()
 GET         /r/signIn                                           controllers.ReactMainController.signIn
 GET         /r/signOut                                          controllers.ReactMainController.signOut
 GET         /r/signUp                                           controllers.ReactMainController.signUp
 
 GET         /api/vote/quote/:id                                 controllers.QuoteController.likeQuote(id:Long)
 
-GET         /du                                                 controllers.ReactMainController.loadUser()
-GET         /csrf                                               controllers.ReactMainController.csrfToken()
 ->          /webjars                                            webjars.Routes
-->          /auth                                               silhouette.Routes
-GET         /deepfij                                            controllers.IndexController.redirect
-GET         /deepfij/index                                      controllers.IndexController.index
+
+
+GET         /deepfij/signOut                                    controllers.SignOutController.signOut
+
+GET         /deepfij/signUp                                     controllers.SignUpController.view
+POST        /deepfij/signUp                                     controllers.SignUpController.submit
+
+GET         /deepfij/signIn                                     controllers.SignInController.view
+POST        /deepfij/signIn                                     controllers.SignInController.submit
+
+GET         /deepfij/password/forgot                            controllers.ForgotPasswordController.view
+POST        /deepfij/password/forgot                            controllers.ForgotPasswordController.submit
+GET         /deepfij/password/reset/:token                      controllers.ResetPasswordController.view(token: java.util.UUID)
+POST        /deepfij/password/reset/:token                      controllers.ResetPasswordController.submit(token: java.util.UUID)
+GET         /deepfij/password/change                            controllers.ChangePasswordController.view
+POST        /deepfij/password/change                            controllers.ChangePasswordController.submit
+
+GET         /deepfij/account/email/:email                       controllers.ActivateAccountController.send(email: String)
+GET         /deepfij/account/activate/:token                    controllers.ActivateAccountController.activate(token: java.util.UUID)
+
+
+
+GET         /deepfij                                            controllers.ReactMainController.index()
+GET         /deepfij/index                                      controllers.ReactMainController.index()
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])

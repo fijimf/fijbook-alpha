@@ -9,6 +9,7 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{BaseController, ControllerComponents}
 import play.filters.csrf.CSRF
+import play.twirl.api.Html
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,7 +38,7 @@ class ReactMainController @Inject()(
      du<- loadDisplayUser(rs)
      qw<-getQuoteWrapper(du)
 
-   } yield {Ok(views.html.main3000(du,qw,"XXX"))}
+   } yield {Ok(views.html.main3000(du,qw, "DeepFij")(Html("<p>Fridge Rules</p>")))}
   }
 
   def signIn() = silhouette.UnsecuredAction.async { implicit rs =>

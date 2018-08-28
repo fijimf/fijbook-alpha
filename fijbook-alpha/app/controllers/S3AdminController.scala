@@ -146,7 +146,7 @@ class S3AdminController @Inject()(
       Ok(views.html.frontPage(rs.identity, LocalDate.now(), content))
 
     } else {
-      Redirect(routes.IndexController.index).flashing("error" -> "Page not found")
+      Redirect(routes.ReactMainController.index()).flashing("error" -> "Page not found")
     })
 
   }
