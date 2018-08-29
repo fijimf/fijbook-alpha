@@ -2,6 +2,7 @@ package controllers
 
 import java.util.UUID
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
@@ -27,39 +28,39 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ResetPasswordController @Inject()(
                                          val controllerComponents: ControllerComponents,
-
+                                         val dao: ScheduleDAO,
                                          silhouette: Silhouette[DefaultEnv],
                                          userService: UserService,
                                          authInfoRepository: AuthInfoRepository,
                                          passwordHasherRegistry: PasswordHasherRegistry,
                                          authTokenService: AuthTokenService
                                          )(implicit ec: ExecutionContext)
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
-  /**
-    * Views the `Reset Password` page.
-    *
-    * @param token The token to identify a user.
-    * @return The result to display.
-    */
+
   def view(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
-    authTokenService.validate(token).map {
-      case Some(authToken) => Ok(views.html.resetPassword(ResetPasswordForm.form, token))
-      case None => Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.reset.link"))
+    for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      tok <- authTokenService.validate(token)
+    } yield {
+      tok match {
+        case Some(authToken) => Ok(views.html.resetPassword(du, qw, ResetPasswordForm.form, token))
+        case None => Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.reset.link"))
+      }
     }
   }
 
-  /**
-    * Resets the password.
-    *
-    * @param token The token to identify a user.
-    * @return The result to display.
-    */
   def submit(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) =>
         ResetPasswordForm.form.bindFromRequest.fold(
-          form => Future.successful(BadRequest(views.html.resetPassword(form, token))),
+          form => for {
+            du <- loadDisplayUser(request)
+            qw <- getQuoteWrapper(du)
+          } yield {
+            BadRequest(views.html.resetPassword(du, qw, form, token))
+          },
           password => userService.retrieve(authToken.userID).flatMap {
             case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
               val passwordInfo = passwordHasherRegistry.current.hash(password)

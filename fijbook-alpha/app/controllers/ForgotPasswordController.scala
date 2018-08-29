@@ -1,6 +1,7 @@
 
 package controllers
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
@@ -24,24 +25,18 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ForgotPasswordController @Inject()(
                                           val controllerComponents: ControllerComponents,
-
+                                          val dao:ScheduleDAO,
                                           silhouette: Silhouette[DefaultEnv],
                                           userService: UserService,
                                           authTokenService: AuthTokenService,
                                           mailerClient: MailerClient)(implicit ec: ExecutionContext)
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
-  def zzz = Action { (rs: Request[AnyContent]) =>
-    Ok("OK")
-  }
-
-  /**
-    * Views the `Forgot Password` page.
-    *
-    * @return The result to display.
-    */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.forgotPassword(ForgotPasswordForm.form)))
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+    } yield {Ok(views.html.forgotPassword(du, qw, ForgotPasswordForm.form))}
   }
 
   /**
@@ -54,10 +49,13 @@ class ForgotPasswordController @Inject()(
     */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     ForgotPasswordForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.forgotPassword(form))),
+      form => for {
+        du<- loadDisplayUser(request)
+        qw<-getQuoteWrapper(du)
+      } yield {BadRequest(views.html.forgotPassword(du,qw,form))},
       email => {
         val loginInfo = LoginInfo(CredentialsProvider.ID, email)
-        val result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("reset.email.sent"))
+        val result = Redirect(routes.SignInController.view()).flashing(FlashUtil.info(Messages("reset.email.sent")))
         userService.retrieve(loginInfo).flatMap {
           case Some(user) if user.email.isDefined =>
             authTokenService.create(user.userID).map { authToken =>

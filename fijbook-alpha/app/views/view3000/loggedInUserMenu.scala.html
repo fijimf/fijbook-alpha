@@ -7,7 +7,8 @@
             aria-expanded="false">@displayUser.user.map(_.name).getOrElse("")</a>
             <div class="dropdown-menu" aria-labelledby="dropdown03">
                 <a class="dropdown-item" href="#">View Profile</a>
-                <a class="dropdown-item" href="/r/signOut">Sign Out</a>
+                <a class="dropdown-item" href="@routes.ChangePasswordController.view">Change Password</a>
+                <a class="dropdown-item" href="@routes.SignOutController.signOut">Sign Out</a>
             </div>
         </li>
     </ul>

@@ -1,5 +1,6 @@
 package controllers
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
@@ -12,7 +13,8 @@ import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{BaseController, ControllerComponents}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
   * The `Change Password` controller.
@@ -26,21 +28,28 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ChangePasswordController @Inject() (
                                            val controllerComponents:ControllerComponents,
+                                           val dao:ScheduleDAO,
 
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
                                            credentialsProvider: CredentialsProvider,
                                            authInfoRepository: AuthInfoRepository,
                                            passwordHasherRegistry: PasswordHasherRegistry)(implicit ec:ExecutionContext)
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
+
 
   /**
     * Views the `Change Password` page.
     *
     * @return The result to display.
     */
-  def view = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)) { implicit request =>
-    Ok(views.html.changePassword(ChangePasswordForm.form, request.identity))
+  def view = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
+    for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+    } yield {
+        Ok(views.html.changePassword(du, qw,ChangePasswordForm.form, request.identity))
+    }
   }
 
   /**
@@ -50,18 +59,21 @@ class ChangePasswordController @Inject() (
     */
   def submit = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
     ChangePasswordForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.changePassword(form, request.identity))),
+      form => for {
+        du <- loadDisplayUser(request)
+        qw <- getQuoteWrapper(du)
+      } yield {BadRequest(views.html.changePassword(du,qw,form, request.identity))},
       password => {
         val (currentPassword, newPassword) = password
         val credentials = Credentials(request.identity.email.getOrElse(""), currentPassword)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
           val passwordInfo = passwordHasherRegistry.current.hash(newPassword)
           authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { _ =>
-            Redirect(routes.ChangePasswordController.view()).flashing("success" -> Messages("password.changed"))
+            Redirect(routes.ChangePasswordController.view()).flashing(FlashUtil.success( Messages("password.changed")))
           }
         }.recover {
           case e: ProviderException =>
-            Redirect(routes.ChangePasswordController.view()).flashing("error" -> Messages("current.password.invalid"))
+            Redirect(routes.ChangePasswordController.view()).flashing(FlashUtil.danger(Messages("current.password.invalid")))
         }
       }
     )

@@ -3,6 +3,7 @@ package controllers
 import java.util.UUID
 
 import com.fijimf.deepfij.models.User
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
@@ -12,27 +13,15 @@ import com.mohiva.play.silhouette.impl.providers._
 import controllers.silhouette.utils.DefaultEnv
 import forms.silhouette.SignUpForm
 import javax.inject.Inject
-import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.{BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * The `Sign Up` controller.
-  *
-  * @param silhouette             The Silhouette stack.
-  * @param userService            The user service implementation.
-  * @param authInfoRepository     The auth info repository implementation.
-  * @param authTokenService       The auth token service implementation.
-  * @param avatarService          The avatar service implementation.
-  * @param passwordHasherRegistry The password hasher registry.
-  * @param mailerClient           The mailer client.
-  * @param webJarAssets           The webjar assets implementation.
-  */
 class SignUpController @Inject() (
                                    val controllerComponents:ControllerComponents,
+                                   val dao: ScheduleDAO,
                                    silhouette: Silhouette[DefaultEnv],
                                    userService: UserService,
                                    authInfoRepository: AuthInfoRepository,
@@ -40,31 +29,28 @@ class SignUpController @Inject() (
                                    avatarService: AvatarService,
                                    passwordHasherRegistry: PasswordHasherRegistry,
                                    mailerClient: MailerClient)(implicit ec: ExecutionContext)
-  extends BaseController with I18nSupport {
- val log = Logger(this.getClass)
-  /**
-    * Views the `Sign Up` page.
-    *
-    * @return The result to display.
-    */
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with  I18nSupport {
+
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.signUp(SignUpForm.form)))
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+    } yield {
+      Ok(views.html.signUp(du,qw,SignUpForm.form))
+    }
   }
 
-  /**
-    * Handles the submitted form.
-    *
-    * @return The result to display.
-    */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.signUp(form))),
+      form => for {
+        du<- loadDisplayUser(request)
+        qw<-getQuoteWrapper(du)
+      } yield {BadRequest(views.html.signUp(du,qw,form))},
       data => {
-        val result = Redirect(routes.SignUpController.view()).flashing("info" -> Messages("sign.up.email.sent", data.email))
+        val result = Redirect(routes.SignUpController.view()).flashing(FlashUtil.info(Messages("sign.up.email.sent", data.email)))
         val loginInfo = LoginInfo(CredentialsProvider.ID, data.email)
         userService.retrieve(loginInfo).flatMap {
           case Some(user) =>
-            log.info("Already signed up -- why no redirect")
             val url = routes.SignInController.view().absoluteURL()
             mailerClient.send(Email(
               subject = Messages("email.already.signed.up.subject"),

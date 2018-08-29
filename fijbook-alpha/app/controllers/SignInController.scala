@@ -92,7 +92,7 @@ class SignInController @Inject()(
           }
         }.recover {
           case e: ProviderException =>
-            Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.credentials"))
+            Redirect(routes.SignInController.view()).flashing(FlashUtil.danger(Messages("invalid.credentials")))
         }
       }
     )
