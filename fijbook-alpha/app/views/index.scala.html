@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.models.{Schedule,User,Game}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
-@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], yesterdayGames:List[Game], todayGames:List[Game])(implicit flash: Flash)
+@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], yesterdayGames:List[Game], todayGames:List[Game])(implicit request: RequestHeader, flash: Flash)
 @main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
     @if(currOpt.isDefined){
         <div class="row">

@@ -5,7 +5,7 @@
 @import java.time.LocalDateTime
 @import java.time.format.DateTimeFormatter
 @import org.apache.commons.lang3.StringUtils
-@(user:User,ss:List[(String, Long, LocalDateTime)])(implicit flash: Flash)
+@(user:User,ss:List[(String, Long, LocalDateTime)])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Data snapshots", Some(user))
             .withNav("admin")
@@ -19,7 +19,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            
+
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -42,7 +42,7 @@
                     }
                 </tbody>
             </table>
-            
+
         </div>
     </div>
 }

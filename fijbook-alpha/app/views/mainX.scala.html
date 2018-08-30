@@ -5,7 +5,7 @@
 @import com.fijimf.deepfij.models.User
 @import java.time.LocalDate
 @import java.time.format._
-@(mm: MainMeta)(content: Html)(implicit flash: Flash)
+@(mm: MainMeta)(content: Html)(implicit request: RequestHeader, flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>

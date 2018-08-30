@@ -2,7 +2,7 @@
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
-@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate, modelKey:String, predictors:List[(String, String)])(implicit flash: Flash)
+@(user: Option[User], today:LocalDate, currOpt:Option[Schedule], todayGames:List[Game], yesterday:LocalDate, tomorrow:LocalDate, modelKey:String, predictors:List[(String, String)])(implicit request: RequestHeader, flash: Flash)
 @main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user,datebook=Some(today)) {
     @if(currOpt.isDefined){
         @defining(GprCohort(currOpt.get, today, modelKey)) { gs =>

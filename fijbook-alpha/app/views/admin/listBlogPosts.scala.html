@@ -2,7 +2,7 @@
 @import controllers.nav.{Breadcrumbs, MainMeta}
 @import com.fijimf.deepfij.models.S3StaticAsset
 @import com.fijimf.deepfij.models.S3BlogMetaData
-@(user: User, metas: List[S3BlogMetaData])(implicit flash: Flash)
+@(user: User, metas: List[S3BlogMetaData])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Blog Posts", Some(user))
             .withNav("admin")

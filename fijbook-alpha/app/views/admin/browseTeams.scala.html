@@ -2,7 +2,7 @@
 @import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
-@(user:User,teams:List[Team])(implicit flash: Flash)
+@(user:User,teams:List[Team])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Teams", Some(user))
             .withNav("admin")

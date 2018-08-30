@@ -4,7 +4,7 @@
 @import com.fijimf.deepfij.models.GameInfo
 @import java.time.format.DateTimeFormatter
 @import org.apache.commons.lang3.StringUtils
-@(user:User,gs:List[GameInfo], q:Option[String])(implicit flash: Flash)
+@(user:User,gs:List[GameInfo], q:Option[String])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Games", Some(user))
             .withNav("admin")

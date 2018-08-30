@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.{Quote, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
-@(user: User, qs: List[Quote])(implicit flash: Flash)
+@(user: User, qs: List[Quote])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Quotes", Some(user))
             .withNav("admin")

@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.models.{Quote, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
 @import com.fijimf.deepfij.models.S3StaticAsset
-@(user: User, infos: List[S3StaticAsset])(implicit flash: Flash)
+@(user: User, infos: List[S3StaticAsset])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Static Pages", Some(user))
             .withNav("admin")

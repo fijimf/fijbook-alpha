@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.{Alias, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
-@(user: User, as: List[Alias])(implicit flash: Flash)
+@(user: User, as: List[Alias])(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base("Browse Aliases", Some(user))
             .withNav("admin")

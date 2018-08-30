@@ -17,7 +17,7 @@
         datebook:Option[LocalDate]=None,
         extraJs:List[String]=List.empty[String],
         extraCss:List[String]=List.empty[String]
-)(content: Html)(implicit flash: Flash)
+)(content: Html)(implicit request: RequestHeader, flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
