@@ -53,3 +53,9 @@ User for MySQL for Spark access
 -Dstats.deepfij.password=
 ```
 Password for MySQL for Spark access
+
+#### Environment
+```
+SPARK_DEEPFIJDB_PASSWORD=
+SPARK_DEEPFIJDB_USER=
+```
