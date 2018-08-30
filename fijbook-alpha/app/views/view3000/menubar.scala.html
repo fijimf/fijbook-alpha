@@ -1,28 +1,31 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
-@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper)
+@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper)(implicit request: RequestHeader)
 
-<nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-2 mr-0" href="#"><img
-    src="/assets/images/deepfij-tiny.png" width="30" height="34"
-    class="d-inline-block mx-3" alt=""/>deepfij</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
-    aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"/>
-    </button>
+@defining(if(Utils.isAdminRequest(request)) "admin-highlight" else "") { extraClass =>
 
-    <div class="collapse navbar-collapse col-sm-8" id="navbarsExample03">
-        <ul class="navbar-nav mr-auto">
-            <li class="navbar-text ml-2">
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow @extraClass">
+        <a class="navbar-brand col-sm-2 mr-0" href="#"><img
+        src="/assets/images/deepfij-tiny.png" width="30" height="34"
+        class="d-inline-block mx-3" alt=""/>deepfij</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
+        aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"/>
+        </button>
+
+        <div class="collapse navbar-collapse col-sm-8" id="navbarsExample03">
+            <ul class="navbar-nav mr-auto">
+                <li class="navbar-text ml-2">
                 @quote(quoteWrapper)
-            </li>
-        </ul>
-        @if(displayUser.isLoggedIn) {
-            @loggedInUserMenu(displayUser)
-        } else {
-            @unknownUserMenu()
-        }
+                </li>
+            </ul>
+            @if(displayUser.isLoggedIn) {
+                @loggedInUserMenu(displayUser)
+            } else {
+                @unknownUserMenu()
+            }
 
-    </div>
-    <input class="form-control form-control-dark col-sm-2 mx-1 " type="text" placeholder="Search"/>
-</nav>;
+        </div>
+        <input class="form-control form-control-dark col-sm-2 mx-1 " type="text" placeholder="Search"/>
+    </nav>
+}

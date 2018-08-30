@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.User
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: Option[User])(implicit flash: Flash)
+@(user: Option[User])(implicit  request: RequestHeader, flash: Flash)
     @main("deepfij", "Deep Fij", "About", Some(Breadcrumbs.base), StandardNavBar.active("about",user), user) {
         <div class="row">
             <div class="col-sm-3">

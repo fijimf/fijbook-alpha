@@ -144,3 +144,7 @@ body {
 .panel-red h3{
     padding:7px;
 }
+
+.admin-highlight {
+    border-bottom: 4px solid crimson;
+}

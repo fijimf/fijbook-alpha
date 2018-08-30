@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
-@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, title:String="Deep Fij")(content:Html)(implicit flash: Flash){
+@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, title:String="Deep Fij")(content:Html)(implicit request:RequestHeader, flash: Flash){
 <!doctype html>
 <html lang="en">
 <head>

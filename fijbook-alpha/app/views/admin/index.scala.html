@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.{Schedule, User}
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
-@(displayUser:DisplayUser, quoteWrapper: QuoteWrapper, userList: List[User], schedules:List[Schedule])(implicit flash: Flash)
+@(displayUser:DisplayUser, quoteWrapper: QuoteWrapper, userList: List[User], schedules:List[Schedule])(implicit  request: RequestHeader,flash: Flash)
 @main3000(displayUser,quoteWrapper) {
 
     <div class="row">
