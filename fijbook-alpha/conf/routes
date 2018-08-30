@@ -62,8 +62,8 @@ GET         /deepfij/admin                                      controllers.Admi
 GET         /deepfij/admin/userProfile/:id                      controllers.AdminController.userProfile(id:String)
 
 ########### DATABASE
-GET         /deepfij/admin/schema                               controllers.SchemaController.dumpSchema
-GET         /deepfij/admin/schema-user                          controllers.SchemaController.dumpUserSchema
+GET         /deepfij/admin/schema                               controllers.SchemaController.showSchema
+GET         /deepfij/admin/schema-user                          controllers.SchemaController.showUserSchema
 GET         /deepfij/admin/dropCreateSchema                     controllers.SchemaController.dropCreateSchema
 GET         /deepfij/admin/dropCreateSchema-user                controllers.SchemaController.dropCreateUserSchema
 

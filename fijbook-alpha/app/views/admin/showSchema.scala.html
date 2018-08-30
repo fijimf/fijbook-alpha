@@ -1,10 +1,9 @@
 @import controllers.nav.{Breadcrumbs, MainMeta}
 @import com.fijimf.deepfij.models.User
-@(statements: (Iterable[String], Iterable[String]),user:Option[User])(implicit flash: Flash)
-@mainX( MainMeta.base("Show Schema", user)
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin.appendLeaf("Show Schema"))
-) {
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser,quoteWrapper: QuoteWrapper,    statements: (Iterable[String], Iterable[String]))(implicit flash: Flash)
+@main3000(displayUser, quoteWrapper) {
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-green">
