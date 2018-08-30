@@ -11,8 +11,10 @@
 @import org.apache.commons.lang3.StringUtils
 @import controllers.LogisticPerformanceSummary
 @import helper._
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
 @(
-        user:Option[User],
+        displayUser: DisplayUser, quoteWrapper: QuoteWrapper,
         seasons:List[Season],
         teams:List[Team],
         features:List[(String, String)],
@@ -30,11 +32,7 @@
     b3.vertical.fieldConstructor
 }
 
-@mainX(
-    MainMeta.base("Logistic Stat Models", user)
-            .withNav("predict")
-            .withCrumbs(Breadcrumbs.base.appendChild("Statistics","/stats","fa-area-chart").appendLeaf("Logistic Models"))
-){
+    @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <ul class="nav nav-tabs" role="tablist">
             @if(mode=="request") {

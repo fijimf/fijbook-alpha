@@ -24,13 +24,15 @@ class ScrapingManagerController @Inject()(val controllerComponents: ControllerCo
                                           val repo:ScheduleRepository,
                                           val schedSvc:ScheduleUpdateService,
                                           silhouette: Silhouette[DefaultEnv]) (implicit system: ActorSystem, mat: Materializer)
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher  with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   def page() = silhouette.SecuredAction.async { implicit rs =>
-    Future {
-      Ok(views.html.admin.manageScraping(rs.identity, rs.request.host))
+    for {du <- loadDisplayUser(rs)
+         qw <- getQuoteWrapper(du)
+    }yield{
+      Ok(views.html.admin.manageScraping(du,qw, rs.request.host))
     }
   }
 

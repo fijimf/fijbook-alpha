@@ -22,13 +22,15 @@ class SparkStatsManagerController @Inject()(val controllerComponents: Controller
                                             val dao: ScheduleDAO,
                                             val repo: ScheduleRepository,
                                             silhouette: Silhouette[DefaultEnv])(implicit system: ActorSystem, mat: Materializer)
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher  with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   def page() = silhouette.SecuredAction.async { implicit rs =>
-    Future {
-      Ok(views.html.admin.manageSparkStats(rs.identity, rs.request.host))
+    for {du <- loadDisplayUser(rs)
+         qw <- getQuoteWrapper(du)
+    }yield{
+      Ok(views.html.admin.manageSparkStats(du,qw, rs.request.host))
     }
   }
 

@@ -2,12 +2,10 @@
 @import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Conference
-@(user:User,conferences:List[Conference])(implicit request: RequestHeader, flash: Flash)
-@mainX(
-    MainMeta.base("Browse Conferences", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Conferences"))
-) {
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, conferences:List[Conference])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-condensed table-bordered">

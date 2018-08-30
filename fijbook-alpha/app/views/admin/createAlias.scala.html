@@ -3,15 +3,13 @@
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
 @import helper._
-
-@(user:User, seasonForm: Form[forms.EditAliasForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, seasonForm: Form[forms.EditAliasForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@mainX( MainMeta.base("Edit Alias", Some(user))
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin.appendLeaf("Edit Alias"))
-){
+    @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.DataController.saveAlias()) {

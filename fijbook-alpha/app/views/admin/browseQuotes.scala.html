@@ -1,11 +1,9 @@
 @import com.fijimf.deepfij.models.{Quote, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
-@(user: User, qs: List[Quote])(implicit request: RequestHeader, flash: Flash)
-@mainX(
-    MainMeta.base("Browse Quotes", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Quotes"))
-) {
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,  qs: List[Quote])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-3">
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createQuote()">Create Quote</a></p>

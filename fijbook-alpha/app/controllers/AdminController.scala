@@ -33,18 +33,22 @@ class AdminController @Inject()
   }
 
   def writeSnapshot = silhouette.SecuredAction.async  { implicit rs =>
-    ScheduleSerializer.writeSchedulesToS3(dao).map(_=>Redirect(routes.AdminController.listSnapshots()))
+      ScheduleSerializer.writeSchedulesToS3(dao).map(_=>Redirect(routes.AdminController.listSnapshots()))
   }
   def readSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
-    ScheduleSerializer.readSchedulesFromS3(key, dao, repo).map{case(ts,cs,gs)=>Redirect(routes.AdminController.index()).flashing("info"->s"Loaded schedule from snapshot: $ts teams, $cs conferences, $gs games")}
+   ScheduleSerializer.readSchedulesFromS3(key, dao, repo).map{case(ts,cs,gs)=>Redirect(routes.AdminController.index()).flashing("info"->s"Loaded schedule from snapshot: $ts teams, $cs conferences, $gs games")}
   }
   def deleteSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
-    ScheduleSerializer.deleteSchedulesFromS3(key).map(_=>Redirect(routes.AdminController.listSnapshots()))
+      ScheduleSerializer.deleteSchedulesFromS3(key).map(_=>Redirect(routes.AdminController.listSnapshots()))
   }
 
   def listSnapshots = silhouette.SecuredAction.async  { implicit rs =>
-    Future {
-      Ok(views.html.admin.browseSnapshots(rs.identity,ScheduleSerializer.listSaved()))
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+
+      Ok(views.html.admin.browseSnapshots(du,qw,ScheduleSerializer.listSaved()))
     }
   }
 

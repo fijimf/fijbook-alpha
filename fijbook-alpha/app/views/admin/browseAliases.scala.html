@@ -1,11 +1,9 @@
 @import com.fijimf.deepfij.models.{Alias, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
-@(user: User, as: List[Alias])(implicit request: RequestHeader, flash: Flash)
-@mainX(
-    MainMeta.base("Browse Aliases", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Aliases"))
-){
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, as: List[Alias])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-3">
             <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>

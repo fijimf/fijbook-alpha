@@ -23,11 +23,11 @@ import scala.concurrent.Future
 
 class PredictionModelController @Inject()(
                                            val controllerComponents: ControllerComponents,
-                                           val teamDao: ScheduleDAO,
+                                           val dao: ScheduleDAO,
                                            val gamePredictorService: GamePredictorService,
                                            val silhouette: Silhouette[DefaultEnv]
                                          )
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
   val log = Logger(this.getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,15 +39,17 @@ class PredictionModelController @Inject()(
 
   def logisticRequest() = silhouette.UserAwareAction.async { implicit rs =>
     for {
-      ls <- teamDao.listSeasons
-      ts <- teamDao.listTeams
-      sch <- teamDao.loadLatestSchedule()
+      ls <- dao.listSeasons
+      ts <- dao.listTeams
+      sch <- dao.loadLatestSchedule()
+      du<-loadDisplayUser(rs)
+      qw<-getQuoteWrapper(du)
     } yield {
       sch match {
         case Some(s)=>
           Ok (
             views.html.admin.logreg (
-              user = rs.identity,
+              du,qw,
               seasons = ls,
               teams = ts,
               features = features,
@@ -78,17 +80,23 @@ class PredictionModelController @Inject()(
   }
 
   private def handleModelCalibrationAndPrediction(data: PredictionModelForm.Data)(implicit rs: UserAwareRequest[DefaultEnv, AnyContent]) = {
-    StatValueGameFeatureMapper.create(data.features, data.normalization, teamDao).flatMap { fm =>
+    (for {
+     du<-loadDisplayUser(rs)
+     qw<-getQuoteWrapper(du)
+   } yield {
+     (du,qw)
+   }).flatMap {
+      case (d, q) => StatValueGameFeatureMapper.create(data.features, data.normalization, dao).flatMap { fm =>
       LogisticRegressionContext.selectTrainingSet(
         data.seasonsIncluded.map(_.toInt),
         data.excludeMonths.map(_.toInt),
-        teamDao
+        dao
       ).flatMap(gors => {
-        val context: LogisticRegressionContext = LogisticRegressionContext.create(fm, StraightWinCategorizer, gors, teamDao)
+        val context: LogisticRegressionContext = LogisticRegressionContext.create(fm, StraightWinCategorizer, gors, dao)
         val resultLines = context.modelPerformance()
         val eventualTuple: Future[(Map[Long, Season], Map[Long, Team], Option[Schedule])] = for {
-          seasons <- teamDao.listSeasons
-          sch <- teamDao.loadLatestSchedule()
+          seasons <- dao.listSeasons
+          sch <- dao.loadLatestSchedule()
         } yield {
           (seasons.map(s => s.id -> s).toMap, sch.map(_.teamsMap).getOrElse(Map.empty[Long, Team]), sch)
         }
@@ -100,31 +108,34 @@ class PredictionModelController @Inject()(
             case (None, Some(to)) => context.predictDates(s, LocalDate.now(), to)
             case (None, None) => List.empty[(LocalDate, List[GamePrediction])]
           }
-          val teamPredictions = context.predictTeams(s, data.predictTeams).map(tup=>{
-            TeamPredictionView(tup._1,tup._2.map(gp => PredictionView.create(s, gp)).filter(_.isDefined).map(_.get).sortBy(_.date.toEpochDay))
+          val teamPredictions = context.predictTeams(s, data.predictTeams).map(tup => {
+            TeamPredictionView(tup._1, tup._2.map(gp => PredictionView.create(s, gp)).filter(_.isDefined).map(_.get).sortBy(_.date.toEpochDay))
           })
           val perfSummary = LogisticPerformanceSummary(resultLines, seasonMap, teamMap)
           val form = PredictionModelForm.form.fill(data)
 
-          Ok(views.html.admin.logreg(rs.identity, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s, context.showFeatureCoefficients, "response")
+          Ok(views.html.admin.logreg(d, q, seasonMap.values.toList, teamMap.values.toList, features, normalizations, form, datePredictions, teamPredictions, perfSummary, s, context.showFeatureCoefficients, "response")
           )
         }
       })
+    }
     }
   }
 
   private def handleFormErrors(form: Form[PredictionModelForm.Data])(implicit rs: UserAwareRequest[DefaultEnv, AnyContent]): Future[Result] = {
     for {
-      ls <- teamDao.listSeasons
-      ts <- teamDao.listTeams
-      sch <- teamDao.loadLatestSchedule()
+      ls <- dao.listSeasons
+      ts <- dao.listTeams
+      sch <- dao.loadLatestSchedule()
+      du<-loadDisplayUser(rs)
+      qw<-getQuoteWrapper(du)
     } yield {
       log.warn(s"Bad request $form")
       sch match {
         case Some(s)=>
           BadRequest(
             views.html.admin.logreg(
-              user = rs.identity,
+              du,qw,
               seasons = ls,
               teams = ts,
               features = features,

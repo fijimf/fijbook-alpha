@@ -4,12 +4,10 @@
 @import com.fijimf.deepfij.models.GameInfo
 @import java.time.format.DateTimeFormatter
 @import org.apache.commons.lang3.StringUtils
-@(user:User,gs:List[GameInfo], q:Option[String])(implicit request: RequestHeader, flash: Flash)
-@mainX(
-    MainMeta.base("Browse Games", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Games"))
-){
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,gs:List[GameInfo], q:Option[String])(implicit request: RequestHeader, flash: Flash)
+    @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-md-12">
             <form class="navbar-form" role="search">
