@@ -1,6 +1,6 @@
 name := """fijbookAlpha"""
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.12"
 
 lazy val fijbookAlpha = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)

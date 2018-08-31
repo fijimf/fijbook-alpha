@@ -6,10 +6,10 @@
 @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>
+            <p><a class="btn btn-small btn-block btn-default" href="@routes.DataController.createAlias()">Create Alias</a></p>
         </div>
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.initializeAliases()">Initialize Aliases</a></p>
+            <p><a class="btn btn-small btn-block btn-default" href="@routes.DataController.initializeAliases()">Initialize Aliases</a></p>
         </div>
     </div>
     <div class="row">
@@ -21,7 +21,7 @@
                     <th>Team key to use</th>
                     <th></th>
                     <th></th>
-                </tr></thead>
+                </tr></thead>browseTeams
                 <tbody >
                 @for(a <- as) {
                     <tr>
