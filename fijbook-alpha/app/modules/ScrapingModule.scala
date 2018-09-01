@@ -26,6 +26,8 @@ class ScrapingModule extends AbstractModule with ScalaModule with AkkaGuiceSuppo
     bind[ComputedStatisticService].to[ComputedStatisticServiceImpl]
     bind[MemoryMonitorService].to[MemoryMonitorServiceImpl]
     bind[GamePredictorService].to[GamePredictorServiceImpl]
+  bind[RssFeedUpdateService].to[RssFeedUpdateServiceImpl]
   }
+
 
 }

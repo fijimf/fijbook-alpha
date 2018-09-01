@@ -18,7 +18,7 @@ trait RssFeedDAOImpl extends RssFeedDAO with DAOSlick {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  def findRssFeedById(id: Long): Future[Option[RssFeed]] = {
+  override def findRssFeedById(id: Long): Future[Option[RssFeed]] = {
     db.run(repo.rssFeeds.filter(_.id === id).result.headOption)
   }
 
@@ -38,5 +38,5 @@ trait RssFeedDAOImpl extends RssFeedDAO with DAOSlick {
 
   override def deleteRssFeed(id: Long): Future[Int] = db.run(repo.rssFeeds.filter(_.id === id).delete)
 
-
+  override def listRssFeeds(): Future[List[RssFeed]] = db.run(repo.rssFeeds.to[List].result)
 }

@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.dao.schedule
 
-import com.fijimf.deepfij.models.RssItem
+import com.fijimf.deepfij.models.{RssFeed, RssItem}
 
 import scala.concurrent.Future
 
@@ -14,4 +14,8 @@ trait RssItemDAO {
   def saveRssItems(is: List[RssItem]): Future[List[RssItem]]
 
   def deleteRssItem(id: Long): Future[Int]
+
+  def deleteRssItemsByFeedId(feedId:Long): Future[Int]
+
+  def listRssItems(): Future[List[RssItem]]
 }

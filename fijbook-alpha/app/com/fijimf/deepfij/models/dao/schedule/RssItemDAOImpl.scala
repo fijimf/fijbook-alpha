@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{RssItem, ScheduleRepository}
+import com.fijimf.deepfij.models.{RssFeed, RssItem, ScheduleRepository}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -42,5 +42,7 @@ trait RssItemDAOImpl extends RssItemDAO with DAOSlick {
 
   override def deleteRssItem(id: Long): Future[Int] = db.run(repo.rssItems.filter(_.id === id).delete)
 
+  override def deleteRssItemsByFeedId(feedId: Long): Future[Int] = db.run(repo.rssItems.filter(_.rssFeedId === feedId).delete)
 
+  override def listRssItems(): Future[List[RssItem]] = db.run(repo.rssItems.to[List].result)
 }

@@ -139,6 +139,13 @@ GET         /deepfij/admin/createAlias                          controllers.Data
 POST        /deepfij/admin/saveAlias                            controllers.DataController.saveAlias
 GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)
 GET         /deepfij/admin/deleteAlias/:id                      controllers.DataController.deleteAlias(id:Long)
+##### RSSFEED
+GET         /deepfij/admin/browseRssFeeds                       controllers.DataController.browseRssFeeds
+GET         /deepfij/admin/createRssFeed                        controllers.DataController.createRssFeed
+POST        /deepfij/admin/saveRssFeed                          controllers.DataController.saveRssFeed
+GET         /deepfij/admin/editRssFeed/:id                      controllers.DataController.editRssFeed(id:Long)
+GET         /deepfij/admin/deleteRssFeed/:id                    controllers.DataController.deleteRssFeed(id:Long)
+GET         /deepfij/admin/pollRssFeed/:id                      controllers.DataController.pollRssFeed(id:Long)
 
 GET         /deepfij/admin/scraper/ws                           controllers.ScrapingManagerController.socket
 GET         /deepfij/admin/sparkstat/ws                         controllers.SparkStatsManagerController.socket

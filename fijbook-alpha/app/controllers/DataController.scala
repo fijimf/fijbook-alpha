@@ -1,9 +1,10 @@
 package controllers
 
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.{LocalDateTime, ZoneId, ZoneOffset}
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.services.RssFeedUpdateService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
@@ -20,6 +21,7 @@ import scala.util.{Failure, Success}
 class DataController @Inject()(
                                 val controllerComponents: ControllerComponents,
                                 val dao: ScheduleDAO,
+                                val rssUpdater: RssFeedUpdateService,
                                 silhouette: Silhouette[DefaultEnv]
                               )
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
@@ -487,5 +489,94 @@ class DataController @Inject()(
       dao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
   }
 
+  def browseRssFeeds() = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      feeds <- dao.listRssFeeds()
+      items <- dao.listRssItems()
+    } yield {
+      val groupedItems: Map[Long, List[RssItem]] = items.groupBy(_.rssFeedId)
+      val feedStatuses =feeds.map(f => {
+        val feedItems: List[RssItem] = groupedItems.getOrElse(f.id, List.empty[RssItem])
+
+        feedItems match {
+          case Nil => RSSFeedStatus(f, None, None, 0, 0)
+          case _ => RSSFeedStatus(f,
+            Some(feedItems.maxBy(_.publishTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).publishTime),
+            Some(feedItems.maxBy(_.recordedAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).recordedAt),
+            feedItems.size,
+            feedItems.count(_.publishTime.isAfter(LocalDateTime.now.minusWeeks(1)))
+          )
+        }
+
+      })
+      Ok(views.html.admin.browseRssFeeds(du, qw, feedStatuses))
+    }
+  }
+
+  def createRssFeed() = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+      Ok(views.html.admin.createRssFeed(du,qw, EditRssFeedForm.form))
+    }
+  }
+
+  def saveRssFeed() = silhouette.SecuredAction.async { implicit rs =>
+    EditRssFeedForm.form.bindFromRequest.fold(
+      form => {
+        logger.error(form.errors.mkString("\n"))
+        for {
+          du <- loadDisplayUser(rs)
+          qw <- getQuoteWrapper(du)
+        } yield {
+          (BadRequest(views.html.admin.createRssFeed(du,qw, form)))
+        }
+      },
+      data => {
+        for {
+          _<-dao.saveRssFeed(RssFeed(data.id, data.name, data.url))
+        } yield {
+          Redirect(routes.DataController.browseRssFeeds()).flashing("info" -> ("Created feed " + data.name + " at " + data.url))
+        }
+      })
+  }
+
+  def editRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      feed <- dao.findRssFeedById(id)
+    } yield {
+      feed match {
+        case Some(f)=>
+          Ok(views.html.admin.createRssFeed(du,qw,EditRssFeedForm.form.fill(EditRssFeedForm.Data(id, f.name, f.url))))
+        case None=>Redirect(routes.DataController.browseRssFeeds()).flashing(FlashUtil.warning("RSS Feed not found"))
+      }
+    }
+  }
+
+  def deleteRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      n<-dao.deleteRssItemsByFeedId(id)
+      _<-dao.deleteRssFeed(id)
+    } yield {
+      Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Deleted RSS feed $id and $n items"))
+    }
+  }
+
+  def pollRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      items<-rssUpdater.updateFeed(id)
+    } yield {
+      Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Updated RSS feed $id and got ${items.size} items"))
+    }
+
+
+  }
 
 }

@@ -2,6 +2,7 @@ package com.fijimf.deepfij.util
 
 import org.scalatest.FlatSpec
 
+import scala.util.{Failure, Success}
 import scala.xml.Node
 
 class HtmlUtilSpec extends FlatSpec {

@@ -12,4 +12,7 @@ trait RssFeedDAO {
   def saveRssFeeds(fs: List[RssFeed]): Future[List[RssFeed]]
 
   def deleteRssFeed(id: Long): Future[Int]
+
+  def listRssFeeds(): Future[List[RssFeed]]
+
 }
