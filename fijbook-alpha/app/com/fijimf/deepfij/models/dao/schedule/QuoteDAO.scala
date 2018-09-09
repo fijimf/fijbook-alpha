@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
+import java.time.{LocalDate, LocalDateTime}
+
 import com.fijimf.deepfij.models.Quote
 
 import scala.concurrent.Future
@@ -17,4 +19,6 @@ trait QuoteDAO {
   def findQuoteByKey(key: Option[String]): Future[List[Quote]]
 
   def deleteQuote(id: Long): Future[Int]
+
+  def getWeeklyVoteCounts(asOf: LocalDate): Future[List[(Quote, Int, LocalDateTime)]]
 }

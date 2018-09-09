@@ -1,0 +1,24 @@
+@import java.time.LocalDateTime
+@import controllers.Utils._
+@import com.fijimf.deepfij.models.Quote
+@(qotw:Quote, numVotes:Int, lastVote:LocalDateTime)
+@if(qotw.quote.trim.length>0){
+    <div class="row">
+        <div class="card w-100 my-1">
+            <div class="card-header">
+                <h5>Quote of the Week</h5>
+            </div>
+            <div class="card-body" style="font-family: 'Merriweather', serif; font-size:14px;">
+                <p class="my-1 text-center"><em>@qotw.quote</em></p>
+                <p class="my-1 text-center">@qotw.source</p>
+            </div>
+            <div class="card-footer text-muted text-sm-center">
+            @if(numVotes==1) {
+                <p class="my-0">(1 vote as of @{lastVote.fmt("h:mm a MMMM d")}) <a href="#">See all.</a> </p>
+            }else{
+                <p class="my-0">(@numVotes votes as of @{lastVote.fmt("h:mm a MMMM d")}) <a href="#">See all.</a></p>
+            }
+            </div>
+        </div>
+    </div>
+}

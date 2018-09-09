@@ -1,7 +1,10 @@
 package com.fijimf.deepfij.models.dao.schedule
 
+import java.time.{LocalDate, LocalDateTime}
+
+import akka.actor.ActorSystem
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Quote, ScheduleRepository}
+import com.fijimf.deepfij.models.{Quote, QuoteVote, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -42,4 +45,22 @@ trait QuoteDAOImpl extends QuoteDAO with DAOSlick {
 
   override def deleteQuote(id: Long): Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 
+  override def getWeeklyVoteCounts(asOf: LocalDate): Future[List[(Quote, Int, LocalDateTime)]] = {
+    import controllers.Utils._
+    val fzs: Future[List[(Quote, QuoteVote)]] = db.run((for {
+      q <- repo.quotes
+      qv <- repo.quoteVotes if qv.quoteId === q.id
+    } yield {
+      q -> qv
+    }).to[List].result)
+
+    fzs.map(zs => {
+      val grouped = zs.groupBy(_._1)
+      grouped.map { case (q, vals) =>
+        val date = vals.maxBy(_._2.createdAt.toMillis)._2.createdAt
+        val count = vals.count(_._2.createdAt.isAfter(asOf.atStartOfDay().minusWeeks(1)))
+        (q, count, date)
+      }
+    }.toList)
+  }
 }

@@ -19,6 +19,7 @@ case class Season(id: Long, year: Int) {
   val dates: List[LocalDate] = Season.dates(year)
 
   def canUpdate(d: LocalDate): Boolean = !(d.isBefore(startDate) || d.isAfter(endDate))
+  def isInSeason(d: LocalDate): Boolean = !(d.isBefore(startDate) || d.isAfter(endDate))
 }
 
 case object Season {

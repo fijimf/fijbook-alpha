@@ -17,6 +17,7 @@ class JobModule extends ScalaModule with AkkaGuiceSupport {
     bindActor[ScheduleUpdater]("schedule-updater")
     bindActor[StatsUpdater]("stats-updater")
     bindActor[PredictionsUpdater]("predictions-updater")
+    bindActor[RssUpdater]("rss-updater")
     bind[Scheduler].asEagerSingleton()
   }
 }

@@ -13,7 +13,18 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 import scala.xml.{Node, XML}
 
-class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient:WSClient)(implicit ec: ExecutionContext) extends RssFeedUpdateService  {
+class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient: WSClient)(implicit ec: ExecutionContext) extends RssFeedUpdateService {
+
+  import scala.concurrent.ExecutionContext.Implicits._
+
+  val logger = play.api.Logger(this.getClass)
+
+  override def updateAllFeeds(): Future[List[RssItem]] = {
+    dao.listRssFeeds().flatMap(lst => Future.sequence(lst.map(rf =>
+      updateFeed(rf.id)
+    ))).map(_.flatten)
+  }
+
   override def updateFeed(id: Long): Future[List[RssItem]] = {
     dao.findRssFeedById(id).flatMap {
       case Some(feed) =>
@@ -44,7 +55,7 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient:WSClient)(im
       Try {
         XML.loadString(r.body)
       } match {
-        case Success(value) => println(value)
+        case Success(value) =>
           (for {
             channel <- (value \ "channel").headOption
           } yield {
@@ -66,19 +77,18 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient:WSClient)(im
         pubDate <- (item \ "pubDate").headOption
         date <- parseDate(pubDate.text)
       } yield {
-        println(date)
         RssItem(0L, id, title.text.trim, link.text.trim, None, date.toLocalDateTime, LocalDateTime.now())
       }
     }).toList.flatten
   }
 
-  private def parseDate(str: String) = {
+  private def parseDate(str: String): Option[ZonedDateTime] = {
     val formatters = List(
       DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss zzz"), //Espn
       DateTimeFormatter.ofPattern("EEE, d MMM yyyy HH:mm:ss Z"), //CBS
       DateTimeFormatter.ISO_ZONED_DATE_TIME
     )
-    formatters.foldLeft(Option.empty[ZonedDateTime]) { case (o, f) =>
+    val ot = formatters.foldLeft(Option.empty[ZonedDateTime]) { case (o, f) =>
       o match {
         case Some(dt) => o
         case None => Try {
@@ -86,5 +96,7 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient:WSClient)(im
         }.toOption
       }
     }
+    if (ot.isEmpty) logger.warn(s"Failed to parse the following date: $str")
+    ot
   }
 }

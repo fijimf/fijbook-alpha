@@ -1,15 +1,12 @@
 ########### INDEX
 GET         /                                                   controllers.IndexController.redirect
-GET         /r                                                  controllers.ReactMainController.index()
-GET         /r/index                                            controllers.ReactMainController.index()
-GET         /r/signIn                                           controllers.ReactMainController.signIn
-GET         /r/signOut                                          controllers.ReactMainController.signOut
-GET         /r/signUp                                           controllers.ReactMainController.signUp
+GET         /deepfij                                            controllers.ReactMainController.index()
+GET         /deepfij/index                                      controllers.ReactMainController.index()
+GET         /deepfij/$d<\d{8}>                                  controllers.ReactMainController.dateIndex(d:String)
 
 GET         /api/vote/quote/:id                                 controllers.QuoteController.likeQuote(id:Long)
 
 ->          /webjars                                            webjars.Routes
-
 
 GET         /deepfij/signOut                                    controllers.SignOutController.signOut
 
@@ -31,8 +28,6 @@ GET         /deepfij/account/activate/:token                    controllers.Acti
 
 
 
-GET         /deepfij                                            controllers.ReactMainController.index()
-GET         /deepfij/index                                      controllers.ReactMainController.index()
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])
