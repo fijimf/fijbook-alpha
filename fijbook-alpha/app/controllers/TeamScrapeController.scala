@@ -106,7 +106,7 @@ class TeamScrapeController @Inject()(
     val teamList = Await.result(dao.listTeams, 600.seconds)
 
     val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
-    val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, LocalDateTime.now(), userTag) :: names.map(n => {
+    val conferences: List[Conference] = Conference(0L, "independents", "Independents", "Unknown", None, None, None, None, None, LocalDateTime.now(), userTag) :: names.map(n => {
       val candidate: Future[Option[String]] = Future.sequence(
         transforms.map(f => f(n)).toSet.map((k: String) => {
           logger.info("Trying " + k)
@@ -117,7 +117,7 @@ class TeamScrapeController @Inject()(
       val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
       val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
       val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, LocalDateTime.now(), userTag)
+      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), "Low Major", Some(lgLogo), Some(smLogo), None, None, None, LocalDateTime.now(), userTag)
     }).toList
     dao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
   }

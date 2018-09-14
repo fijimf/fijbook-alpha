@@ -1,7 +1,8 @@
 package controllers
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.time.{LocalDate, LocalDateTime, ZoneId, ZonedDateTime}
+import java.util.{Locale, TimeZone}
 
 import play.api.mvc.RequestHeader
 
@@ -25,6 +26,11 @@ object Utils {
     }
 
     def fmt(pattern: String): String = dt.format(DateTimeFormatter.ofPattern(pattern))
+    def fmt(pattern: String, zoneId: ZoneId): String = {
+      ZonedDateTime.of(dt, zoneId).format(DateTimeFormatter.ofPattern(pattern))
+    }
+
+    def fmtzny(pattern:String) = fmt(pattern, ZoneId.of("America/New_York"))
   }
 
   implicit class LocalDateWrapper(dt: LocalDate) {

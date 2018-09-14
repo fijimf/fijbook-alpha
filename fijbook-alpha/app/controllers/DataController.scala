@@ -331,7 +331,7 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, q) => dao.findConferenceById(id).map {
-      case Some(c) => Ok(views.html.admin.editConference(d,q, c, EditConferenceForm.form.fill(EditConferenceForm.Data(id, c.key, c.name, c.logoSmUrl, c.logoLgUrl, c.officialUrl, c.officialTwitter, c.officialFacebook))))
+      case Some(c) => Ok(views.html.admin.editConference(d,q, c, EditConferenceForm.form.fill(EditConferenceForm.Data(id, c.key, c.name, c.level, c.logoSmUrl, c.logoLgUrl, c.officialUrl, c.officialTwitter, c.officialFacebook))))
       case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
     }
     }
@@ -353,7 +353,7 @@ class DataController @Inject()(
         })
       },
       data => {
-        val q = Conference(data.id, data.key, data.name, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, LocalDateTime.now(),
+        val q = Conference(data.id, data.key, data.name,  data.level, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, LocalDateTime.now(),
           d.user.get.userID.toString)
         val future: Future[Conference] = dao.saveConference(q)
         future.onComplete {

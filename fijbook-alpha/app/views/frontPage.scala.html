@@ -12,9 +12,7 @@
            <div class="card-header">
          <h6>Today's games</h6>
            </div>
-           <div class="card-body">
-         <p>No games scheduled</p>
-           </div>
+           @resultList(fp.todaysGames, fp.oSchedule )
       </div>
        <div class="card w-50 my-1">
            <div class="card-header">
@@ -25,7 +23,8 @@
            </div>
       </div>
     </div>
-    <div class="card">
+    <div class="row">
+    <div class="card w-100">
         <div class="card-header">
             <h5>Latest News</h5>
         </div>
@@ -38,5 +37,6 @@
       </div>
         <div class="card-footer text-muted text-sm-center"><a href=""#">See all.</a></div>
    </div>
+    </div>
 
 }

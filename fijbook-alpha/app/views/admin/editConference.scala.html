@@ -17,6 +17,7 @@
                 @b3.hidden( "id", confForm("id").value.getOrElse(""), '_label -> "ID" )
                 @b3.text( confForm("key"), '_label -> "Key" )
                 @b3.text( confForm("name"), '_label -> "Name" )
+                @b3.select(confForm("level"),List(("High Major", "High Major"),("Mid Major", "Mid Major"),("Low Major", "Low Major"),("Unknown", "Unknown")),'_label->"Conference Strength"))
                 @b3.text( confForm("logoSmUrl"), '_label->"Small Logo" )
                 @b3.text( confForm("logoLgUrl"), '_label->"Large Logo" )
                 @b3.text( confForm("officialUrl"), '_label->"Official URL" )

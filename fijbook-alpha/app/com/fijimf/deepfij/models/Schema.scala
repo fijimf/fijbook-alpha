@@ -32,9 +32,13 @@ case object Season {
   }.takeWhile(_.isBefore(endDate(y))).toList
 }
 
-case class Conference(id: Long, key: String, name: String, logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) {
+case class Conference(id: Long, key: String, name: String, level:String = "Unknown", logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) {
+  private val strengthMap = Map("High Major" -> 3, "Mid Major" -> 2, "Low Major" -> 1, "Unknown" -> 0)
+  require(strengthMap.contains(level))
+  val strength: Int =strengthMap(level)
   def sameData(c: Conference): Boolean = (key == c.key
     && name == c.name
+    && level == c.level
     && logoLgUrl == c.logoLgUrl
     && logoSmUrl == c.logoSmUrl
     && officialUrl == c.officialUrl
@@ -101,6 +105,12 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   def isHomeLoser: Boolean = homeScore < awayScore
 
   def isAwayLoser: Boolean = homeScore > awayScore
+
+  def showPeriods: String = periods match {
+    case x: Int if x < 3 => ""
+    case x: Int if x > 3 => s"${x - 2}OT"
+    case _ => "OT"
+  }
 }
 
 case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key: Option[String])
@@ -223,6 +233,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def name: Rep[String] = column[String]("name", O.Length(64))
 
+    def level: Rep[String] = column[String]("level", O.Length(16))
+
     def longName: Rep[String] = column[String]("long_name", O.Length(144))
 
     def logoLgUrl: Rep[Option[String]] = column[Option[String]]("logo_lg_url", O.Length(144))
@@ -241,7 +253,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
-    def * : ProvenShape[Conference] = (id, key, name, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
+    def * : ProvenShape[Conference] = (id, key, name, level, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
 
     def idx1: Index = index("conf_idx1", key, unique = true)
 
