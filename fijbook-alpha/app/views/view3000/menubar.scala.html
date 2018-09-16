@@ -5,7 +5,7 @@
 @defining(if(Utils.isAdminRequest(request)) "admin-highlight" else "") { extraClass =>
 
     <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow @extraClass">
-        <a class="navbar-brand col-sm-2 mr-0" href="#"><img
+        <a class="navbar-brand col-sm-2 mr-0" href="@routes.ReactMainController.index()"><img
         src="/assets/images/deepfij-tiny.png" width="30" height="34"
         class="d-inline-block mx-3" alt=""/>deepfij</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"

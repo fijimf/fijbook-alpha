@@ -10,17 +10,15 @@
     <div class="row">
        <div class="card w-50 my-1">
            <div class="card-header">
-         <h6>Today's games</h6>
+         <h6>@fp.todayStr</h6>
            </div>
            @resultList(fp.todaysGames, fp.oSchedule )
       </div>
        <div class="card w-50 my-1">
            <div class="card-header">
-               <h6>Yesterday's results</h6>
+               <h6>@fp.prevStr</h6>
            </div>
-           <div class="card-body">
-               <p>No games scheduled</p>
-           </div>
+           @resultList(fp.previousGames, fp.oSchedule )
       </div>
     </div>
     <div class="row">
