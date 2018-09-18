@@ -23,6 +23,13 @@ trait TeamDAOImpl extends TeamDAO with DAOSlick {
 
   override def findTeamById(id: Long): Future[Option[Team]] = db.run(repo.teams.filter(team => team.id === id).result.headOption)
 
+  override def findTeamsLike(k:String):Future[List[Team]] = {
+    val str =s"%${k.trim}%"
+    db.run(
+      repo.teams.filter(team => team.name.like(str) || team.longName.like(str) || team.nickname.like(str) || team.key.like(str)).to[List].result
+    )
+  }
+
   override def saveTeam(team: Team): Future[Team] = saveTeams(List(team)).map(_.head)
 
   override def saveTeams(teams: List[Team]): Future[List[Team]] = {

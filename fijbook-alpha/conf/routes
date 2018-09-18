@@ -4,6 +4,7 @@ GET         /deepfij                                            controllers.Reac
 GET         /deepfij/index                                      controllers.ReactMainController.index()
 GET         /deepfij/$d<\d{8}>                                  controllers.ReactMainController.dateIndex(d:String)
 
+GET         /deepfij/search                                     controllers.SearchController.search
 GET         /api/vote/quote/:id                                 controllers.QuoteController.likeQuote(id:Long)
 
 ->          /webjars                                            webjars.Routes

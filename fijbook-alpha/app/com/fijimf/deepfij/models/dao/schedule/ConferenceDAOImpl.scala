@@ -22,6 +22,13 @@ trait ConferenceDAOImpl extends ConferenceDAO with DAOSlick {
 
   override def findConferenceByKey(key: String): Future[Option[Conference]] = db.run(repo.conferences.filter(_.key === key).result.headOption)
 
+  override def findConferencesLike(str:String): Future[List[Conference]]= {
+    val k = s"%${str.trim}%"
+    db.run(
+      repo.conferences.filter(conf => conf.name.like(k) || conf.key.like(k)).to[List].result
+    )
+  }
+
   override def deleteConference(id: Long): Future[Int] = db.run(repo.conferences.filter(_.id === id).delete)
 
   override def saveConference(c: Conference): Future[Conference] = saveConferences(List(c)).map(_.head)

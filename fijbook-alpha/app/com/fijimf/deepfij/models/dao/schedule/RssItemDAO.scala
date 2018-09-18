@@ -13,6 +13,8 @@ trait RssItemDAO {
 
   def findRssItemsByDate(asOf: LocalDateTime, lookBackDays: Int):  Future[List[(RssItem, RssFeed)]]
 
+  def findRssItemsLike(key:String):  Future[List[(RssItem, RssFeed)]]
+
   def saveRssItem(i: RssItem): Future[RssItem]
 
   def saveRssItems(is: List[RssItem]): Future[List[RssItem]]

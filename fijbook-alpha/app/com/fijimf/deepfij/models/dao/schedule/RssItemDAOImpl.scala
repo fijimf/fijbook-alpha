@@ -45,6 +45,17 @@ trait RssItemDAOImpl extends RssItemDAO with DAOSlick {
     }).to[List].result).map(_.filter(_._1.publishTime.isBetween(asOf.minusDays(lookBackDays), asOf, inclusive = true)))
   }
 
+  override def findRssItemsLike(key:String):  Future[List[(RssItem, RssFeed)]] = {
+    val str = s"%${key.trim}%"
+    db.run(a = (for {
+      item <- repo.rssItems if item.title.like(str)
+      feed <- repo.rssFeeds if feed.id === item.rssFeedId
+    } yield {
+      (item, feed)
+    }).to[List].result)
+  }
+
+
   override def saveRssItem(f: RssItem): Future[RssItem] = db.run(
     (repo.rssItems returning repo.rssItems.map(_.id)).insertOrUpdate(f)
       .flatMap(i => {

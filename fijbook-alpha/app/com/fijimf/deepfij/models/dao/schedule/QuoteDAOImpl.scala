@@ -29,6 +29,13 @@ trait QuoteDAOImpl extends QuoteDAO with DAOSlick {
     case None => db.run(repo.quotes.filter(_.key.isEmpty).to[List].result)
   }
 
+  override def findQuotesLike(key:String): Future[List[Quote]] = {
+    val str=s"%${key.trim}%"
+    db.run(
+      repo.quotes.filter(q => q.quote.like(str) || q.source.like(str)).to[List].result
+    )
+  }
+
   override def saveQuote(q: Quote): Future[Quote] = db.run(
     (repo.quotes returning repo.quotes.map(_.id)).insertOrUpdate(q)
       .flatMap(i => {

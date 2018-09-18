@@ -18,6 +18,8 @@ trait QuoteDAO {
 
   def findQuoteByKey(key: Option[String]): Future[List[Quote]]
 
+  def findQuotesLike(key:String): Future[List[Quote]]
+
   def deleteQuote(id: Long): Future[Int]
 
   def getWeeklyVoteCounts(asOf: LocalDate): Future[List[(Quote, Int, LocalDateTime)]]
