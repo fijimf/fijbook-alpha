@@ -19,7 +19,7 @@ class PredictionsUpdater @Inject()(svc:GamePredictorService) extends Actor {
 
     case object Update
 
-
+val name ="predictions-updater"
 
 
 }

@@ -17,6 +17,7 @@ class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
 object StatsUpdater {
 
   case class Update(whichDays: Option[Int])
+  val name = "stats-updater"
 
 }
 

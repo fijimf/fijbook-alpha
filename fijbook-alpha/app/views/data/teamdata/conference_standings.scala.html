@@ -3,7 +3,7 @@
 <h5>@{
     s"$name Standings"
 }</h5>
-<table class="table table-condensed table-schedule" >
+<table class="table table-sm table-schedule" >
 @for(r<-standings.records) {
     <tr>
         <td><a href="@routes.TeamController.team(r._3.key,None)">@r._3.name</a></td>

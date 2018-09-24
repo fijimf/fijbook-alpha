@@ -93,6 +93,13 @@ GET         /deepfij/admin/browseConferences                    controllers.Data
 GET         /deepfij/admin/editConference/:id                   controllers.DataController.editConference(id:Long)
 POST        /deepfij/admin/saveConference                       controllers.DataController.saveConference
 
+##### JOB
+GET         /deepfij/admin/browseJobs                           controllers.JobControlController.browseJobs
+GET         /deepfij/admin/createJob                            controllers.JobControlController.createJob()
+GET         /deepfij/admin/editJob/:id                          controllers.JobControlController.editJob(id:Long)
+POST        /deepfij/admin/saveJob                              controllers.JobControlController.saveJob
+GET         /deepfij/admin/deleteJob/:id                        controllers.JobControlController.deleteJob(id:Long)
+
 ##### SEASONS
 GET         /deepfij/admin/createSeason                         controllers.DataController.createSeason
 POST        /deepfij/admin/saveSeason                           controllers.DataController.saveSeason

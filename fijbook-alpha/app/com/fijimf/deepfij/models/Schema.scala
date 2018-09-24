@@ -4,6 +4,7 @@ import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
+import akka.actor.{ActorContext, ActorRef, ActorSelection, Props}
 import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -11,6 +12,7 @@ import slick.basic.DatabaseConfig
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 import slick.lifted._
 
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Season(id: Long, year: Int) {
@@ -140,6 +142,16 @@ case class RssFeed(id: Long, name: String, url: String)
 
 case class RssItem(id: Long, rssFeedId: Long, title: String, url: String, image: Option[String], publishTime: LocalDateTime, recordedAt: LocalDateTime)
 
+case class Job(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message: String, timeout: FiniteDuration, isEnabled: Boolean, updatedAt: LocalDateTime) {
+  val actorPath:String = s"/user/$name"
+
+  def actorSelection(context: ActorContext): ActorSelection = context.actorSelection(actorPath)
+}
+
+case class JobRun(id: Long, jobId: Long, startTime: LocalDateTime, endTime: Option[LocalDateTime], status: String, message: String) {
+  require(Set("Running", "Failure", "Success").contains(status))
+}
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -157,16 +169,25 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
   )
 
+  implicit val FiniteDurationMapper: BaseColumnType[FiniteDuration] = MappedColumnType.base[FiniteDuration, String](
+    dur => dur.toString,
+    str =>
+      Duration.create(str) match {
+        case d: FiniteDuration => d
+        case _ => throw new RuntimeException
+      }
+  )
+
   def dumpSchema()(implicit ec: ExecutionContext): Future[(Iterable[String], Iterable[String])] = {
     Future((ddl.create.statements, ddl.drop.statements))
   }
 
-  def createSchema() = {
+  def createSchema(): Future[Unit] = {
     log.debug("Creating schedule schema")
     db.run(ddl.create.transactionally)
   }
 
-  def dropSchema() = {
+  def dropSchema(): Future[Unit] = {
     log.debug("Dropping schedule schema")
     db.run(ddl.drop.transactionally)
   }
@@ -562,6 +583,47 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
+  class JobTable(tag: Tag) extends Table[Job](tag, "job") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def name: Rep[String] = column[String]("name", O.Length(144))
+
+    def description: Rep[String] = column[String]("description", O.Length(144))
+
+    def cronSchedule: Rep[String] = column[String]("cron_schedule", O.Length(64))
+
+    def timezone: Rep[String] = column[String]("timezone", O.Length(64))
+
+    def actorClass: Rep[Option[String]] = column[Option[String]]("actor_class", O.Length(256))
+
+    def message: Rep[String] = column[String]("message", O.Length(256))
+
+    def timeout: Rep[FiniteDuration] = column[FiniteDuration]("timeout")
+
+    def isEnabled: Rep[Boolean] = column[Boolean]("is_enabled")
+
+    def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
+
+    def * = (id, name, description, cronSchedule, timezone, actorClass, message, timeout, isEnabled, updatedAt) <> (Job.tupled, Job.unapply)
+
+    def idx1: Index = index("job_idx1", name, unique = true)
+  }
+
+  class JobRunTable(tag: Tag) extends Table[JobRun](tag, "job_run") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def jobId: Rep[Long] = column[Long]("jobId")
+
+    def startTime: Rep[LocalDateTime] = column[LocalDateTime]("startTime")
+
+    def endTime: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("endTime")
+
+    def status: Rep[String] = column[String]("status")
+
+    def message: Rep[String] = column[String]("message")
+
+    def * = (id, jobId, startTime, endTime, status, message) <> (JobRun.tupled, JobRun.unapply)
+  }
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
@@ -582,6 +644,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val favoriteLinks: TableQuery[FavoriteLinkTable] = TableQuery[FavoriteLinkTable]
   lazy val rssFeeds: TableQuery[RssFeedTable] = TableQuery[RssFeedTable]
   lazy val rssItems: TableQuery[RssItemTable] = TableQuery[RssItemTable]
+  lazy val jobs: TableQuery[JobTable] = TableQuery[JobTable]
+  lazy val jobRuns: TableQuery[JobRunTable] = TableQuery[JobRunTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
 
   lazy val ddl = conferenceMaps.schema ++
@@ -600,5 +664,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     quoteVotes.schema ++
     favoriteLinks.schema ++
     rssFeeds.schema ++
-    rssItems.schema
+    rssItems.schema ++
+    jobs.schema ++
+    jobRuns.schema
 }

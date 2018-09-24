@@ -13,7 +13,7 @@
                         <a class="text-right" style="margin: 3px;" href="@routes.GamesController.gamesByDate(tomorrow.format(DateTimeFormatter.BASIC_ISO_DATE), Some(modelKey))">
                             Next<i class="small fa fa-arrow-circle-o-right" style="margin: 3px;"></i></a>
                     </p>
-                    <table class="table table-condensed table-schedule">
+                    <table class="table table-sm table-schedule">
                         <tr><th colspan="2">Prediction models</th></tr>
                     @for(tp<-predictors){
                         @if(tp._1==modelKey){
@@ -55,7 +55,7 @@
                     </script>
                 </div>
                 <div class="col-sm-4">
-<table class="table table-condensed table-schedule">
+<table class="table table-sm table-schedule">
     <tr><th colspan="4">Naive Linear Regression Estimate</th> </tr>
     <tr>
         <td>% predicted</td>
@@ -89,7 +89,7 @@
 
 
                 <div class="col-sm-12">
-                    <table class="table table-condensed table-schedule" >
+                    <table class="table table-sm table-schedule" >
                         <thead>
                             <tr>
                                 <th>Date</th>

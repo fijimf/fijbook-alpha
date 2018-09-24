@@ -1,7 +1,7 @@
 package jobs
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.{ComputedStatisticService, RssFeedUpdateService}
+import com.fijimf.deepfij.models.services.RssFeedUpdateService
 import javax.inject.Inject
 
 class RssUpdater @Inject()(svc: RssFeedUpdateService) extends Actor {
@@ -17,4 +17,5 @@ object RssUpdater {
 
   case object Update
 
+  val name = "rss-updater"
 }
