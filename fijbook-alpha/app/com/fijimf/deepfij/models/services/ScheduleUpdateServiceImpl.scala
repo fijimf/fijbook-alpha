@@ -2,7 +2,6 @@ package com.fijimf.deepfij.models.services
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, ZoneId}
-import javax.inject.Inject
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -13,32 +12,61 @@ import com.fijimf.deepfij.scraping._
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
+import javax.inject.Inject
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
-import play.api.libs.mailer.{Email, MailerClient}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
+import scala.util.matching.Regex
 import scala.util.{Failure, Success}
 
-class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: MailerClient, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef)(implicit ec: ExecutionContext) extends ScheduleUpdateService with I18nSupport {
+case class UpdateControlString(str: String) {
+  val wholeSeason: Regex = """(\d{4})\.(?i)(all)""".r
+  val seasonBeforeAndAfterNow: Regex = """(\d{4})\.(\d+)\.(d+)""".r
+  val seasonDate: Regex = """(\d{4})\.(\d{8})""".r
+  val (season: Int, dates:Option[List[LocalDate]]) = str match {
+    case wholeSeason(s, _) => (s.toInt, Option.empty[List[LocalDate]])
+    case seasonBeforeAndAfterNow(s, b, a) =>
+      val today = LocalDate.now()
+      (s.toInt, Some((-1 * b.toInt).to(a.toInt).map(i => today.plusDays(i)).toList))
+    case seasonBeforeAndAfterNow(s, d) =>
+      (s.toInt, Some(List(LocalDate.parse(d, DateTimeFormatter.ofPattern("yyyyMMdd")))))
+  }
+}
+
+
+class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val messagesApi: MessagesApi, @Named("data-load-actor") teamLoad: ActorRef, @Named("throttler") throttler: ActorRef)(implicit ec: ExecutionContext) extends ScheduleUpdateService with I18nSupport {
   val logger = Logger(this.getClass)
 
   val zoneId: ZoneId = ZoneId.of("America/New_York")
-  implicit val timeout = Timeout(600.seconds)
-  val activeYear = 2017
+  implicit val timeout: Timeout = Timeout(600.seconds)
 
-  def update(optOffsets: Option[List[Int]] = None, mailReport: Boolean = false): Unit = {
+
+  def update(str: String): Future[String] = update(UpdateControlString(str))
+
+  def update(ucs: UpdateControlString): Future[String] = {
+    dao.findSeasonByYear(ucs.season).flatMap {
+      case Some(s) => updateSeason(ucs.dates, s).map(collapseResults(s.year, _))
+      case None => Future(s"No schedule found for ${ucs.season}")
+    }
+  }
+
+  def update(optOffsets: Option[List[Int]] = None): Future[String] = {
     val now = LocalDate.now()
     val optDates = optOffsets.map(_.map(i => now.plusDays(i)))
-    dao.findSeasonByYear(activeYear).map {
-      case None =>
-        scheduleNotFound(optDates, mailReport)
-      case Some(s) =>
-        updateSeason(optDates, s, mailReport)
+    dao.listSeasons.map(_.filter(_.dates.contains(now)).headOption).flatMap {
+      case None => Future(s"No schedule found for $now")
+      case Some(s) => updateSeason(optDates, s).map(collapseResults(s.year, _))
     }
+  }
+
+  def collapseResults(y: Int,rs:List[UpdateDbResult]):String={
+    val (u,d)=rs.foldLeft((0L,0L)){case ((ups, del),r ) =>(ups+r.upserted.sum, del+r.deleted.sum)}
+    s"$y: $u records updated/inserted, $d deleted"
+
   }
 
   def loadSeason(s: Season, tag: String): Future[List[UpdateDbResult]] = {
@@ -50,71 +78,38 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, mailerClient: Mailer
     f
   }
 
-  def updateSeason(optDates: Option[List[LocalDate]], mailReport: Boolean): Future[List[UpdateDbResult]] = {
+  def updateSeason(optDates: Option[List[LocalDate]]): Future[List[UpdateDbResult]] = {
     dao.listSeasons.flatMap(ss => {
-      runSeasonDates(optDates, mailReport, ss)
+      runSeasonDates(optDates, ss)
     })
   }
 
-  private def runSeasonDates(optDates: Option[List[LocalDate]], mailReport: Boolean, ss: List[Season]): Future[List[UpdateDbResult]] = {
+  private def runSeasonDates(optDates: Option[List[LocalDate]], ss: List[Season]): Future[List[UpdateDbResult]] = {
     (optDates match {
       case Some(ds) =>
         val eventualResultses = ds.groupBy(d => ss.find(s => s.dates.contains(d)))
           .filter { case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty }
-          .map { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get, mailReport) }
+          .map { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get) }
         Future.sequence(eventualResultses).map(_.flatten)
-      case None => updateSeason(None, ss.maxBy(_.year), mailReport)
+      case None => updateSeason(None, ss.maxBy(_.year))
     }).map(_.toList)
   }
 
-  def updateSeason(optDates: Option[List[LocalDate]], s: Season, mailReport: Boolean): Future[List[UpdateDbResult]] = {
+  def updateSeason(optDates: Option[List[LocalDate]], s: Season): Future[List[UpdateDbResult]] = {
     logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
     val updatedBy: String = "Scraper[Updater]"
     val results: Future[List[UpdateDbResult]] = scrapeSeasonGames(s, optDates, updatedBy)
     results.onComplete {
       case Success(_) =>
         logger.info("Schedule update scrape complete.")
-        if (mailReport) {
-          logger.info("Mailing summary")
-          mailSuccessReport(optDates)
-        }
       case Failure(thr) =>
         logger.error("Schedule update scrape failed.", thr)
-        if (mailReport) {
-          logger.info("Mailing summary")
-          maillErrorReport(optDates)
-        }
     }
     results
   }
 
-  private def scheduleNotFound(optDates: Option[List[LocalDate]], mailReport: Boolean): Unit = {
-    logger.warn(s"Schedule not found for year $activeYear. Cannot run update")
-    if (mailReport) {
-      maillErrorReport(optDates)
-    }
-  }
-
-  private def mailSuccessReport(optDates: Option[List[LocalDate]]) = {
-    mailerClient.send(Email(
-      subject = ms("email.daily.update.subject"),
-      from = ms("email.from"),
-      to = Seq(System.getProperty("admin.user", "nope@nope.com")),
-      bodyHtml = Some(views.html.admin.emails.dailyUpdate(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
-    ))
-  }
-
   implicit def ms: Messages = {
     messagesApi.preferred(Seq(Lang.defaultLang))
-  }
-
-  private def maillErrorReport(optDates: Option[List[LocalDate]]) = {
-    mailerClient.send(Email(
-      subject = ms("email.daily.updateError.subject"),
-      from = ms("email.from"),
-      to = Seq(System.getProperty("admin.user", "nope@nope.com")),
-      bodyHtml = Some(views.html.admin.emails.dailyUpdateError(optDates.map(_.mkString(", ")).getOrElse(s" entire $activeYear season ")).body)
-    ))
   }
 
   def completeScrape(seasonId: Long): Future[Int] = {

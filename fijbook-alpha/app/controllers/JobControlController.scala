@@ -10,9 +10,10 @@ import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import forms.EditJobForm
 import javax.inject.Inject
-import jobs.DeepFijQuartzSchedulerExtension
+import jobs.{DeepFijQuartzSchedulerExtension, ExecuteScheduledJob}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
+import play.twirl.api.Html
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -89,4 +90,44 @@ class JobControlController @Inject()(
     }
   }
 
+  def runJobNow(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    (for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+      (du, qw)
+    }).flatMap { case (d, q) => dao.findJobById(id).map(_ match {
+      case Some(job) =>
+        system.actorSelection("/user/wrapper") ! ExecuteScheduledJob(job)
+        Redirect(routes.JobControlController.viewJob(id))
+      case None =>
+        Redirect(routes.JobControlController.browseJobs()).flashing("error" -> ("Job " + id + " was not found"))
+    })
+    }
+  }
+
+  def viewJob(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+    import controllers.Utils._
+    (for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+      (du, qw)
+    }).flatMap { case (d, q) =>
+     loadJobRuns(id).map{
+        case Some((job, jobRuns)) => Ok(views.html.admin.viewJobRuns(d,q,job,jobRuns.sortBy(- _.startTime.toMillis)))
+        case None => Redirect(routes.JobControlController.browseJobs()).flashing("error" -> ("Job " + id + " was not found"))
+      }
+    }
+  }
+
+
+  private def loadJobRuns(id: Long): Future[Option[(Job, List[JobRun])]] = {
+    for {
+      job <- dao.findJobById(id)
+      jobRuns <- dao.findJobRunsByJobId(id)
+    } yield {
+      job.map(_ -> jobRuns)
+    }
+  }
 }

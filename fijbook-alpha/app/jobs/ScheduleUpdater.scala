@@ -8,11 +8,13 @@ import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import jobs.ScheduleUpdater.Update
 
 class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
-
+  import scala.concurrent.ExecutionContext.Implicits.global
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case Update(od, sendEmail)=> svc.updateSeason(od, sendEmail)
+    case str:String=>
+      val mysender=sender()
+      svc.update(str).onComplete(mysender ! _)
   }
 }
 

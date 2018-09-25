@@ -99,6 +99,8 @@ GET         /deepfij/admin/createJob                            controllers.JobC
 GET         /deepfij/admin/editJob/:id                          controllers.JobControlController.editJob(id:Long)
 POST        /deepfij/admin/saveJob                              controllers.JobControlController.saveJob
 GET         /deepfij/admin/deleteJob/:id                        controllers.JobControlController.deleteJob(id:Long)
+GET         /deepfij/admin/runJobNow/:id                        controllers.JobControlController.runJobNow(id:Long)
+GET         /deepfij/admin/view/:id                        controllers.JobControlController.viewJob(id:Long)
 
 ##### SEASONS
 GET         /deepfij/admin/createSeason                         controllers.DataController.createSeason

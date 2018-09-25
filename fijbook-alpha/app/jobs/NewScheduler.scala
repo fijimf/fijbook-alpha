@@ -8,11 +8,12 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Job, JobRun}
 import com.google.inject.Inject
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
 case class ExecuteScheduled(jobName: String, message: String)
+case class ExecuteScheduledJob(job: Job)
 
 case class CreateWrappedJob(job: Job)
 
@@ -35,25 +36,29 @@ class JobWrapperActor(dao: ScheduleDAO) extends Actor {
       logger.info(s"Executing $jobName '$message'")
       dao.findJobByName(jobName).flatMap {
         case Some(job) =>
-          logger.info(s"Found job $job in DB")
-          dao.saveJobRun(JobRun(0L, job.id, LocalDateTime.now(), None, "Running", "")).flatMap(run => {
-            val response = context.actorSelection(job.actorPath).ask(message)(job.timeout)
-            response.onComplete {
-              case Success(a: Any) =>
-                logger.info("Job succeeded")
-                dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Success", message = a.toString))
-              case Failure(thr: Throwable) =>
-                logger.error("Job failed", thr)
-                dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Failure", message = thr.getMessage))
-            }
-            response
-          })
+          runJob(job, message)
         case None =>
           logger.error(s"No such job  '$jobName' found in DB")
           dao.saveJobRun(JobRun(0L, -1, LocalDateTime.now(), None, "Failure", s"Job named $jobName was not found"))
       }
+    case ExecuteScheduledJob(job) => runJob(job, job.message)
+    case m:Any => logger.error(s"Unknown message $m")
+  }
 
-    case _ =>
+   def runJob(job:Job, message: String): Future[_] = {
+    logger.info(s"Found job $job in DB")
+    dao.saveJobRun(JobRun(0L, job.id, LocalDateTime.now(), None, "Running", "")).flatMap(run => {
+      val response = context.actorSelection(job.actorPath).ask(message)(job.timeout)
+      response.onComplete {
+        case Success(a: Any) =>
+          logger.info("Job succeeded")
+          dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Success", message = a.toString))
+        case Failure(thr: Throwable) =>
+          logger.error("Job failed", thr)
+          dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Failure", message = thr.getMessage))
+      }
+      response
+    })
   }
 }
 

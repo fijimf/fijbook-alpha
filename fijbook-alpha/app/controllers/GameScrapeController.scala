@@ -24,7 +24,7 @@ class GameScrapeController @Inject()(
 
   def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs => {
     dao.findSeasonById(seasonId).map {
-      case Some(seas) => scheduleUpdateService.updateSeason(None, seas, mailReport = false)
+      case Some(seas) => scheduleUpdateService.updateSeason(None, seas)
         Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
       case None => Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
     }
@@ -32,14 +32,14 @@ class GameScrapeController @Inject()(
   }
 
   def scrapeToday() = silhouette.SecuredAction.async { implicit rs => {
-    scheduleUpdateService.updateSeason(Some(List(LocalDate.now())), mailReport = false)
+    scheduleUpdateService.updateSeason(Some(List(LocalDate.now())))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Scraping today "))
   }
   }
 
   def scrapeForDay(yyyymmdd: String) = silhouette.SecuredAction.async { implicit rs => {
     val d = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
-    scheduleUpdateService.updateSeason(Some(List(d)), mailReport = false)
+    scheduleUpdateService.updateSeason(Some(List(d)))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping $yyyymmdd "))
   }
   }
