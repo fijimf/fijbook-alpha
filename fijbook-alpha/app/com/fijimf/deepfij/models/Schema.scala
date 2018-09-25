@@ -6,6 +6,7 @@ import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.{ActorContext, ActorRef, ActorSelection, Props}
 import javax.inject.Inject
+import org.quartz.{JobKey, TriggerKey}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
@@ -144,6 +145,10 @@ case class RssItem(id: Long, rssFeedId: Long, title: String, url: String, image:
 
 case class Job(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message: String, timeout: FiniteDuration, isEnabled: Boolean, updatedAt: LocalDateTime) {
   val actorPath:String = s"/user/$name"
+
+  val quartzTriggerKey:TriggerKey =new TriggerKey(s"qz-trigger-$id",s"$name")
+
+  val quartzJobKey:JobKey = new JobKey(s"qz-job-$id",s"$name")
 
   def actorSelection(context: ActorContext): ActorSelection = context.actorSelection(actorPath)
 }

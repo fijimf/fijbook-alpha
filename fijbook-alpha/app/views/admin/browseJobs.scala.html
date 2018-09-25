@@ -43,7 +43,7 @@
                             <td>@j.message</td>
                             <td>@j.isEnabled</td>
                             <td>@j.updatedAt.fmt("yyyyMMdd HH:mm:ss")</td>
-                            <td>@fq.nextTrigger(j.name)</td>
+                            <td>@fq.nextTrigger(j)</td>
                             <td class="text-center"><a href="@routes.JobControlController.editJob(j.id)"><i class="fa fa-edit text-success"> </i></a></td>
                             <td class="text-center"><a href="@routes.JobControlController.deleteJob(j.id)"><i class="fa fa-times text-danger"> </i></a></td>
                             <td class="text-center"><a href="@routes.JobControlController.runJobNow(j.id)"><i class="fa fa-bolt text-primary"> </i></a></td>

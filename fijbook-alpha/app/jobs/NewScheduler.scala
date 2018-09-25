@@ -48,16 +48,20 @@ class JobWrapperActor(dao: ScheduleDAO) extends Actor {
    def runJob(job:Job, message: String): Future[_] = {
     logger.info(s"Found job $job in DB")
     dao.saveJobRun(JobRun(0L, job.id, LocalDateTime.now(), None, "Running", "")).flatMap(run => {
-      val response = context.actorSelection(job.actorPath).ask(message)(job.timeout)
-      response.onComplete {
-        case Success(a: Any) =>
-          logger.info("Job succeeded")
-          dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Success", message = a.toString))
-        case Failure(thr: Throwable) =>
-          logger.error("Job failed", thr)
-          dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Failure", message = thr.getMessage))
+      if (job.isEnabled) {
+        val response = context.actorSelection(job.actorPath).ask(message)(job.timeout)
+        response.onComplete {
+          case Success(a: Any) =>
+            logger.info("Job succeeded")
+            dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Success", message = a.toString))
+          case Failure(thr: Throwable) =>
+            logger.error("Job failed", thr)
+            dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Failure", message = thr.getMessage))
+        }
+        response
+      } else {
+        dao.saveJobRun(run.copy(endTime = Some(LocalDateTime.now()), status = "Success", message = "Job is not enabled -- skipping execution."))
       }
-      response
     })
   }
 }

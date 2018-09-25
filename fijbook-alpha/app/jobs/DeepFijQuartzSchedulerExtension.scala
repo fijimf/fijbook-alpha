@@ -14,7 +14,8 @@ import org.quartz.impl.DirectSchedulerFactory
 import org.quartz.simpl.{RAMJobStore, SimpleThreadPool}
 import org.quartz.spi.{JobStore, ThreadPool}
 
-import scala.collection.mutable
+import scala.concurrent.Future
+import scala.util.Try
 
 object DeepFijQuartzSchedulerExtension extends ExtensionId[DeepFijQuartzSchedulerExtension] with ExtensionIdProvider {
   override def lookup: DeepFijQuartzSchedulerExtension.type = DeepFijQuartzSchedulerExtension
@@ -62,7 +63,7 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
     * RECAST KEY AS UPPERCASE TO AVOID RUNTIME LOOKUP ISSUES
     */
 
-  val runningJobs: mutable.Map[String, JobKey] = mutable.Map.empty[String, JobKey]
+  //  val runningJobs: mutable.Map[String, JobKey] = mutable.Map.empty[String, JobKey]
 
 
   initialiseCalendars()
@@ -95,12 +96,10 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
   /**
     * Returns the next Date a schedule will be fired
     */
-  def nextTrigger(name: String): Option[Date] = {
-    import scala.collection.JavaConverters._
-    for {
-      jobKey <- runningJobs.get(name)
-      trigger <- scheduler.getTriggersOfJob(jobKey).asScala.headOption
-    } yield trigger.getNextFireTime
+  def nextTrigger(j: Job): Option[Date] = {
+    Try {
+      Option(scheduler.getTrigger(j.quartzTriggerKey))
+    }.toOption.flatten.map(_.getNextFireTime)
   }
 
   /**
@@ -121,72 +120,23 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
   }
 
   /**
-    * Attempts to suspend (pause) the given job
-    *
-    * @param name The name of the job, as defined in the schedule
-    * @return Success or Failure in a Boolean
-    */
-  def suspendJob(name: String): Boolean = {
-    runningJobs.get(name) match {
-      case Some(job) =>
-        log.info("Suspending Quartz Job '{}'", name)
-        scheduler.pauseJob(job)
-        true
-      case None =>
-        log.warning("No running Job named '{}' found: Cannot suspend", name)
-        false
-    }
-    // TODO - Exception checking?
-  }
-
-  /**
-    * Attempts to resume (un-pause) the given job
-    *
-    * @param name The name of the job, as defined in the schedule
-    * @return Success or Failure in a Boolean
-    */
-  def resumeJob(name: String): Boolean = {
-    runningJobs.get(name) match {
-      case Some(job) =>
-        log.info("Resuming Quartz Job '{}'", name)
-        scheduler.resumeJob(job)
-        true
-      case None =>
-        log.warning("No running Job named '{}' found: Cannot unpause", name)
-        false
-    }
-    // TODO - Exception checking?
-  }
-
-  /**
-    * Unpauses all jobs in the scheduler
-    */
-  def resumeAll(): Unit = {
-    log.info("Resuming all Quartz jobs.")
-    scheduler.resumeAll()
-  }
-
-  /**
     * Cancels the running job and all associated triggers
     *
     * @param name The name of the job, as defined in the schedule
     * @return Success or Failure in a Boolean
     */
-  def cancelJob(name: String): Boolean = {
-    runningJobs.get(name) match {
-      case Some(job) =>
-        log.info("Cancelling Quartz Job '{}'", name)
-        val result = scheduler.deleteJob(job)
-        runningJobs -= name
-        result
-      case None =>
-        log.warning("No running Job named '{}' found: Cannot cancel", name)
-        false
-    }
-    // TODO - Exception checking?
+  def cancelJob(j: Job): Boolean = {
+    log.info("Cancelling Quartz Job '{}'", j.quartzJobKey)
+    scheduler.deleteJob(j.quartzJobKey)
   }
 
   //  protected def scheduleJob(name: String, receiver: AnyRef, msg: AnyRef, startDate: Option[Date])(schedule: QuartzSchedule): Date = {
+  def scheduleJob(j: Job): Future[Date] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.duration._
+    system.actorSelection("/user/wrapper").resolveOne(1.minute).map(scheduleJob(j, _))
+  }
+
   def scheduleJob(j: Job, wrapper: ActorRef): Date = {
 
     import scala.collection.JavaConverters._
@@ -203,20 +153,25 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
 
     val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
     val job: JobDetail = JobBuilder.newJob(classOf[SimpleActorMessageJob])
-      .withIdentity(j.name + "_Job")
+      .withIdentity(j.quartzJobKey)
       .usingJobData(jobData)
       .withDescription(j.description)
+      .storeDurably(true)
       .build()
 
     log.info(s"Adding jobKey ${job.getKey} to runningJobs map.")
+    scheduler.addJob(job, true)
 
-    runningJobs += j.name -> job.getKey
     log.info(s"Building Trigger with startDate '${new Date()}")
 
-    val trigger = TriggerBuilder.newTrigger().forJob(job).withSchedule(CronScheduleBuilder.cronSchedule(j.cronSchedule)).startNow().build()
-
-    log.info(s"Scheduling Job '$job' and Trigger '$trigger'. Is Scheduler Running? ${scheduler.isStarted}")
-    scheduler.scheduleJob(job, trigger)
+    val trigger = TriggerBuilder.newTrigger().withIdentity(j.quartzTriggerKey).forJob(job).withSchedule(CronScheduleBuilder.cronSchedule(j.cronSchedule)).startNow().build()
+    if (scheduler.checkExists(j.quartzTriggerKey)) {
+      log.info(s"Rescheduling Job '$job' and Trigger '$trigger'. Is Scheduler Running? ${scheduler.isStarted}")
+      scheduler.rescheduleJob(j.quartzTriggerKey, trigger)
+    } else {
+      log.info(s"Scheduling Job '$job' and Trigger '$trigger'. Is Scheduler Running? ${scheduler.isStarted}")
+      scheduler.scheduleJob(trigger)
+    }
   }
 
 
