@@ -13,7 +13,6 @@ import javax.inject.Inject
 import jobs.{DeepFijQuartzSchedulerExtension, ExecuteScheduledJob}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{BaseController, ControllerComponents}
-import play.twirl.api.Html
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -96,13 +95,13 @@ class JobControlController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.findJobById(id).map(_ match {
+    }).flatMap { case (d, q) => dao.findJobById(id).map {
       case Some(job) =>
         system.actorSelection("/user/wrapper") ! ExecuteScheduledJob(job)
         Redirect(routes.JobControlController.viewJob(id))
       case None =>
         Redirect(routes.JobControlController.browseJobs()).flashing("error" -> ("Job " + id + " was not found"))
-    })
+    }
     }
   }
 
