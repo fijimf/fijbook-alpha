@@ -41,13 +41,19 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient: WSClient)(i
 
   private def removeDupes(feed: List[RssItem], db: List[RssItem]): List[RssItem] = {
     val map = db.map(i => i.url -> i).toMap
-    feed.foldLeft(List.empty[RssItem]) { case (lst, item) =>
+    val newItems = feed.foldLeft(List.empty[RssItem]) { case (lst, item) =>
       map.get(item.url) match {
-        case Some(fi) if item.publishTime.isAfter(fi.publishTime) => item.copy(id = fi.id) :: lst
+        case Some(fi) if item.publishTime.isAfter(fi.publishTime) =>
+          logger.info(s"Updating ${fi.id} at ${fi.publishTime} with ${item.publishTime}")
+          item.copy(id = fi.id) :: lst
         case Some(_) => lst
-        case _ => item :: lst
+        case _ =>
+          logger.info(s"Adding ${item.url}")
+          item :: lst
       }
     }
+    logger.info(s"Kept ${newItems.size} of ${feed.size}")
+    newItems
   }
 
   private def loadRssItems(feed: RssFeed): Future[List[RssItem]] = {
