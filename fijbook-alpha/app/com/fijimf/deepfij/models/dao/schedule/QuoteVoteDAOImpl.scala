@@ -25,15 +25,20 @@ trait QuoteVoteDAOImpl extends QuoteVoteDAO with DAOSlick {
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
 
-  def saveQuoteVotes(qs: List[QuoteVote]): Future[List[QuoteVote]] = {
-    val ops = qs.map(q =>
-      (repo.quoteVotes returning repo.quoteVotes.map(_.id)).insertOrUpdate(q).flatMap(ii => repo.quoteVotes.filter(_.id === ii).result.head)
-    )
-    db.run(DBIO.sequence(ops).transactionally)
+  def saveQuoteVotes(qs: List[QuoteVote]): Future[List[QuoteVote]] =
+
+    db.run(DBIO.sequence(qs.map(upsert)).transactionally)
+
+
+  override def saveQuoteVote(q: QuoteVote): Future[QuoteVote] = db.run(upsert(q))
+
+  private def upsert(x: QuoteVote) = {
+    (repo.quoteVotes returning repo.quoteVotes.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.quoteVotes.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
   }
 
-
-  override def saveQuoteVote(q: QuoteVote): Future[QuoteVote] = saveQuoteVotes(List(q)).map(_.head)
 
   override def listQuotesVotes: Future[List[QuoteVote]] = db.run(repo.quoteVotes.to[List].result)
 

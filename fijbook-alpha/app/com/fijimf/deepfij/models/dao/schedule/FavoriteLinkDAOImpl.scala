@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{FavoriteLink, ScheduleRepository}
+import com.fijimf.deepfij.models.{Alias, FavoriteLink, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -17,24 +17,19 @@ trait FavoriteLinkDAOImpl extends FavoriteLinkDAO with DAOSlick {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def saveFavoriteLink(f: FavoriteLink): Future[FavoriteLink] = db.run(
-    (repo.favoriteLinks returning repo.favoriteLinks.map(_.id)).insertOrUpdate(f)
-      .flatMap(i => {
-        repo.favoriteLinks.filter(ss => ss.id === i.getOrElse(f.id)).result.headOption
-      })
-  ).map(_.getOrElse(f))
+  override def saveFavoriteLink(f: FavoriteLink): Future[FavoriteLink] = db.run(upsert(f))
 
   override def saveFavoriteLinks(fs: List[FavoriteLink]): Future[List[FavoriteLink]] = {
-    val ops = fs.map(f =>
-      (repo.favoriteLinks returning repo.favoriteLinks.map(_.id))
-        .insertOrUpdate(f)
-        .flatMap(ii => repo.favoriteLinks.filter(_.id === ii).result)
-    )
-    db.run(DBIO.sequence(ops).transactionally).map(ls=>{
-      ls.zip(fs).map{case (result: Seq[FavoriteLink], link: FavoriteLink) => result.headOption.getOrElse(link)
-      }
-    })
+    db.run(DBIO.sequence(fs.map(upsert)).transactionally)
   }
+
+  private def upsert(x: FavoriteLink) = {
+    (repo.favoriteLinks returning repo.favoriteLinks.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.favoriteLinks.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
+  }
+
 
   override def listFavoriteLinks: Future[List[FavoriteLink]] = db.run(repo.favoriteLinks.to[List].result)
 

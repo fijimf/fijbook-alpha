@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Alias, ScheduleRepository}
+import com.fijimf.deepfij.models.{Alias, RssItem, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -19,20 +19,18 @@ trait AliasDAOImpl extends AliasDAO with DAOSlick {
 
   override def findAliasById(id: Long): Future[Option[Alias]] = db.run(repo.aliases.filter(_.id === id).result.headOption)
 
-  override def saveAlias(alias: Alias): Future[Alias] = saveAliases(List(alias)).map(_.head)
+  override def saveAlias(alias: Alias): Future[Alias] = db.run(upsert(alias))
 
   override def saveAliases(aliases: List[Alias]): Future[List[Alias]] = {
-    val ops = aliases.map(c1 => repo.aliases.filter(c => c.alias === c1.alias).result.flatMap(cs =>
-      cs.headOption match {
-        case Some(c) =>
-          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(c1.copy(id = c.id))
-        case None =>
-          (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(c1)
-      }
-    ).flatMap(_ => repo.aliases.filter(t => t.alias === c1.alias).result.head))
-    db.run(DBIO.sequence(ops).transactionally)
+    db.run(DBIO.sequence(aliases.map(upsert)).transactionally)
   }
 
+  private def upsert(x: Alias) = {
+    (repo.aliases returning repo.aliases.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.aliases.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
+  }
 
   override def listAliases: Future[List[Alias]] = db.run(repo.aliases.to[List].result)
 

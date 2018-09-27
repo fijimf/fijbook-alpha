@@ -35,13 +35,15 @@ trait GamePredictionDAOImpl extends GamePredictionDAO with DAOSlick {
     })).map(_.flatten)
   }
 
-  override def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]] = {
-    val saveResults = Future.sequence(gps.map(gp => db.run(repo.gamePredictions.insertOrUpdate(gp))))
-    saveResults.onComplete {
-      case Success(is) => log.info("Save results: " + is.mkString(","))
-      case Failure(ex) => log.error("Failed upserting prediction", ex)
+  override def saveGamePredictions(gps: List[GamePrediction]): Future[List[GamePrediction]] = {
+   db.run(DBIO.sequence(gps.map(upsert)).transactionally)
+  }
+
+  private def upsert(x: GamePrediction) = {
+    (repo.gamePredictions returning repo.gamePredictions.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.gamePredictions.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
     }
-    saveResults
   }
 
 }

@@ -35,7 +35,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
           assert(lst.size == 1)
-          assert(lst(0) > 0)
+          assert(lst(0).id > 0)
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
     }
@@ -60,7 +60,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
           assert(lst.size == 12)
-          assert(lst.forall(_ > 0))
+          assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
     }
@@ -93,7 +93,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
           assert(lst.size == 12)
-          assert(lst.forall(_ > 0))
+          assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
       Await.result(dao.loadGamePredictions(List(g3, g4, g5), "My Model").andThen {

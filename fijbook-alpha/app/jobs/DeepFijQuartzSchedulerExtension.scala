@@ -196,7 +196,9 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
 
   protected val jobStore: JobStore = new RAMJobStore()
   protected val scheduler: quartz.Scheduler = {
-    DirectSchedulerFactory.getInstance.createScheduler(schedulerName, system.name, threadPool, jobStore)
+    if (DirectSchedulerFactory.getInstance().getScheduler(schedulerName)==null) {
+      DirectSchedulerFactory.getInstance.createScheduler(schedulerName, system.name, threadPool, jobStore)
+    }
     val scheduler = DirectSchedulerFactory.getInstance().getScheduler(schedulerName)
 
     log.info(s"Initialized a Quartz Scheduler '$scheduler'")

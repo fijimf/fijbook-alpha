@@ -49,8 +49,8 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
           qid <- (repo.games returning repo.games.map(_.id)) += game
         ) yield qid).transactionally)
     }
-  }  
-  
+  }
+
   override def saveGames(gts: List[(Game, Option[Result])]): Future[List[Long]] = {
     db.run(DBIO.sequence(gts.map(gt => {
       val (game, optResult) = gt
@@ -85,7 +85,7 @@ trait GameDAOImpl extends GameDAO with DAOSlick {
 
   override def gamesById(id:Long): Future[Option[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.id === id).to[List].result.headOption)
-  
+
   override def teamGames(key:String):Future[List[(Season,Game,Result)]] = {
     db.run(repo.teams.filter(_.key===key).flatMap(t=>repo.completedResults.filter(gr=> gr._1._2.homeTeamId===t.id || gr._1._2.awayTeamId===t.id)).to[List].result).map(_.map(x=>(x._1._1,x._1._2,x._2)))
   }

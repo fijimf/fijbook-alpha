@@ -14,7 +14,7 @@ trait SchedulePredictor {
   val dao: ScheduleDAO
   val key: String
 
-  def predictSchedule(sch: Schedule): Future[List[Int]] = {
+  def predictSchedule(sch: Schedule): Future[List[GamePrediction]] = {
     Future.sequence(sch.games.groupBy(_.date).map { case (date: LocalDate, games: List[Game]) => {
       logger.info("Handling date " + date)
       predictAndSaveDate(games, date, sch)
@@ -53,7 +53,7 @@ trait SchedulePredictor {
     })
   }
 
-  def predictAndSaveDate(games: List[Game], d: LocalDate, sch: Schedule): Future[List[Int]] = {
+  def predictAndSaveDate(games: List[Game], d: LocalDate, sch: Schedule): Future[List[GamePrediction]] = {
     val predictions: Future[List[GamePrediction]] = dao.loadGamePredictions(games, key).map(ops => {
       logger.info(s"Loaded ${ops.size} old predictions")
       val idMap = ops.map(op => op.gameId -> op.id).toMap

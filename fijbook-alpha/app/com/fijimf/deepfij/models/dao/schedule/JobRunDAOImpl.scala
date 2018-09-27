@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Job, JobRun, Result, ScheduleRepository}
+import com.fijimf.deepfij.models.{Alias, Job, JobRun, Result, ScheduleRepository}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -20,12 +20,14 @@ trait JobRunDAOImpl extends JobRunDAO with DAOSlick {
 
   override def listJobRuns: Future[List[JobRun]] = db.run(repo.jobRuns.to[List].result)
 
-  override def saveJobRun(run: JobRun): Future[JobRun] = db.run(
-    (repo.jobRuns returning repo.jobRuns.map(_.id)).insertOrUpdate(run)
-      .flatMap(i => {
-        repo.jobRuns.filter(js => js.id === i.getOrElse(run.id)).result.headOption
-      })
-  ).map(_.getOrElse(run))
+  override def saveJobRun(run: JobRun): Future[JobRun] = db.run(upsert(run))
+
+  private def upsert(x: JobRun) = {
+    (repo.jobRuns returning repo.jobRuns.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.jobRuns.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
+  }
 
 
   override def findJobRunsByJobId(jobId: Long): Future[List[JobRun]] = db.run(repo.jobRuns.filter(_.jobId===jobId).to[List].result)

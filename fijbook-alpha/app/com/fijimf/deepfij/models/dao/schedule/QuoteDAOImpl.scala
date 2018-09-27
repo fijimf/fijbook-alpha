@@ -4,7 +4,7 @@ import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.ActorSystem
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Quote, QuoteVote, ScheduleRepository}
+import com.fijimf.deepfij.models.{Alias, Quote, QuoteVote, ScheduleRepository}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
@@ -36,19 +36,19 @@ trait QuoteDAOImpl extends QuoteDAO with DAOSlick {
     )
   }
 
-  override def saveQuote(q: Quote): Future[Quote] = db.run(
-    (repo.quotes returning repo.quotes.map(_.id)).insertOrUpdate(q)
-      .flatMap(i => {
-        repo.quotes.filter(ss => ss.id === i.getOrElse(q.id)).result.head
-      })
-  )
+  override def saveQuote(q: Quote): Future[Quote] = db.run(upsert(q))
 
   override def saveQuotes(qs: List[Quote]): Future[List[Quote]] = {
-    val ops = qs.map(q =>
-      (repo.quotes returning repo.quotes.map(_.id)).insertOrUpdate(q).flatMap(ii => repo.quotes.filter(_.id === ii).result.head)
-    )
-    db.run(DBIO.sequence(ops).transactionally)
+    db.run(DBIO.sequence(qs.map(upsert)).transactionally)
   }
+
+  private def upsert(x: Quote) = {
+    (repo.quotes returning repo.quotes.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.quotes.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
+  }
+
 
   override def deleteQuote(id: Long): Future[Int] = db.run(repo.quotes.filter(_.id === id).delete)
 

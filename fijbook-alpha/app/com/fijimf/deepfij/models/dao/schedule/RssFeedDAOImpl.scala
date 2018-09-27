@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.{Quote, RssFeed, ScheduleRepository}
+import com.fijimf.deepfij.models.{Alias, Quote, RssFeed, ScheduleRepository}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -22,19 +22,19 @@ trait RssFeedDAOImpl extends RssFeedDAO with DAOSlick {
     db.run(repo.rssFeeds.filter(_.id === id).result.headOption)
   }
 
-  override def saveRssFeed(f: RssFeed): Future[RssFeed] = db.run(
-    (repo.rssFeeds returning repo.rssFeeds.map(_.id)).insertOrUpdate(f)
-      .flatMap(i => {
-        repo.rssFeeds.filter(ss => ss.id === i.getOrElse(f.id)).result.head
-      })
-  )
+  override def saveRssFeed(f: RssFeed): Future[RssFeed] = db.run(upsert(f))
 
   override def saveRssFeeds(fs: List[RssFeed]): Future[List[RssFeed]] = {
-    val ops = fs.map(f =>
-      (repo.rssFeeds returning repo.rssFeeds.map(_.id)).insertOrUpdate(f).flatMap(ii => repo.rssFeeds.filter(_.id === ii).result.head)
-    )
-    db.run(DBIO.sequence(ops).transactionally)
+    db.run(DBIO.sequence(fs.map(upsert)).transactionally)
   }
+
+  private def upsert(x: RssFeed) = {
+    (repo.rssFeeds returning repo.rssFeeds.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.rssFeeds.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
+  }
+
 
   override def deleteRssFeed(id: Long): Future[Int] = db.run(repo.rssFeeds.filter(_.id === id).delete)
 

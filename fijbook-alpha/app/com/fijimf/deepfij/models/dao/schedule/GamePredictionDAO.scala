@@ -12,6 +12,6 @@ trait GamePredictionDAO {
 
   def loadGamePredictions(games: List[Game], modelKey: String): Future[List[GamePrediction]]
 
-  def saveGamePredictions(gps: List[GamePrediction]): Future[List[Int]]
+  def saveGamePredictions(gps: List[GamePrediction]): Future[List[GamePrediction]]
 
 }
