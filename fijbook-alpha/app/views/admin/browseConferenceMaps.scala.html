@@ -1,0 +1,40 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.ConferenceMap
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.Job
+@import controllers.Utils._
+@import jobs.DeepFijQuartzSchedulerExtension
+@import com.fijimf.deepfij.models.Team
+@import com.fijimf.deepfij.models.Conference
+@import com.fijimf.deepfij.models.Season
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, cms:Map[Season,Map[Conference,List[Team]]])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Conference Maps</h4>
+        </div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Teams Mapped</th>
+                        <th>Conferences Mapped</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(k<-cms.keys.toList.sortBy(_.year)) {
+                        <tr>
+                            <td><a href="@routes.DataController.browseConferenceMap(k.id)">@k.year</a></td>
+                            <td>@{cms(k).values.map(_.size).sum}</td>
+                            <td>@{cms(k).size}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

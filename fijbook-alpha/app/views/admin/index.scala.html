@@ -40,6 +40,9 @@
                 Browse Conferences</a></p>
             <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseQuotes()">
                 Browse Quotes</a></p>
+            <p><a class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseConferenceMaps()">
+                Browse Conference Maps
+            </a></p>
             @for(s<-schedules) {
                 <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseGames(s.season.id, None)">
                     Browse Games <strong>(@s.season.year)</strong></a>
@@ -48,7 +51,7 @@
         </div>
         <div class="col-sm-3 col-sm-offset-1">
             <div class="page-header-condensed">
-                <h4>Update/Restore Actions</h4>
+                <h4>Manage/Update/Restore Actions</h4>
             </div>
             <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.JobControlController.browseJobs()">
                 Manage Scheduled Jobs</a></p>

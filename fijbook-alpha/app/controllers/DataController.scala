@@ -16,7 +16,7 @@ import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.Future
 import scala.io.Source
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class DataController @Inject()(
                                 val controllerComponents: ControllerComponents,
@@ -42,7 +42,7 @@ class DataController @Inject()(
         form => {
           val formId: Int = form("id").value.getOrElse("0").toInt
           dao.findTeamById(formId).map {
-            case Some(t) => BadRequest(views.html.admin.editTeam(d,q ,t, form))
+            case Some(t) => BadRequest(views.html.admin.editTeam(d, q, t, form))
             case None => Redirect(routes.DataController.browseTeams()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
           }
         },
@@ -114,21 +114,21 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, q) =>
-    EditSeasonForm.form.bindFromRequest.fold(
-      form => {
-        logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.createSeason(d, q, form)))
-      },
-      data => {
-        val s = Season(data.id, data.year)
-        val future: Future[Season] = dao.saveSeason(s)
-        future.onComplete {
-          case Success(ss) => logger.info("Saved season: " + ss)
-          case Failure(thr) => logger.error("Failed to save season: " + s, thr)
+      EditSeasonForm.form.bindFromRequest.fold(
+        form => {
+          logger.error(form.errors.mkString("\n"))
+          Future.successful(BadRequest(views.html.admin.createSeason(d, q, form)))
+        },
+        data => {
+          val s = Season(data.id, data.year)
+          val future: Future[Season] = dao.saveSeason(s)
+          future.onComplete {
+            case Success(ss) => logger.info("Saved season: " + ss)
+            case Failure(thr) => logger.error("Failed to save season: " + s, thr)
+          }
+          future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
         }
-        future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
-      }
-    )
+      )
     }
   }
 
@@ -138,7 +138,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.listQuotes.map(qs => Ok(views.html.admin.browseQuotes(d,q, qs))) }
+    }).flatMap { case (d, q) => dao.listQuotes.map(qs => Ok(views.html.admin.browseQuotes(d, q, qs))) }
   }
 
   def createQuote() = silhouette.SecuredAction.async { implicit rs =>
@@ -147,7 +147,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.createQuote(d,q, EditQuoteForm.form.fill(EditQuoteForm.Data(0L, "", None, None, None)))))
+    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.createQuote(d, q, EditQuoteForm.form.fill(EditQuoteForm.Data(0L, "", None, None, None)))))
     }
   }
 
@@ -168,7 +168,7 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, qq) => dao.findQuoteById(id).map {
-      case Some(q) => Ok(views.html.admin.createQuote(d,qq, EditQuoteForm.form.fill(EditQuoteForm.Data(id, q.quote, q.source, q.url, q.key))))
+      case Some(q) => Ok(views.html.admin.createQuote(d, qq, EditQuoteForm.form.fill(EditQuoteForm.Data(id, q.quote, q.source, q.url, q.key))))
       case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
     }
     }
@@ -183,7 +183,7 @@ class DataController @Inject()(
     }).flatMap { case (d, q) => EditQuoteForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.createQuote(d,q, form)))
+        Future.successful(BadRequest(views.html.admin.createQuote(d, q, form)))
       },
       data => {
         val q = Quote(data.id, data.quote, data.source, data.url, data.key)
@@ -205,7 +205,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.bulkCreateQuote(d,q, BulkEditQuoteForm.form.fill(BulkEditQuoteForm.Data("")))))
+    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.bulkCreateQuote(d, q, BulkEditQuoteForm.form.fill(BulkEditQuoteForm.Data("")))))
     }
   }
 
@@ -218,7 +218,7 @@ class DataController @Inject()(
     }).flatMap { case (d, q) => BulkEditQuoteForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.bulkCreateQuote(d,q, form)))
+        Future.successful(BadRequest(views.html.admin.bulkCreateQuote(d, q, form)))
       },
       data => {
         val qs = data.quotes.split("\n").map(_.trim.split("\t").toList).flatMap {
@@ -245,7 +245,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.createAlias(d,q, EditAliasForm.form)))
+    }).flatMap { case (d, q) => Future.successful(Ok(views.html.admin.createAlias(d, q, EditAliasForm.form)))
     }
   }
 
@@ -255,7 +255,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.listAliases.map(qs => Ok(views.html.admin.browseAliases(d,q, qs)))
+    }).flatMap { case (d, q) => dao.listAliases.map(qs => Ok(views.html.admin.browseAliases(d, q, qs)))
     }
   }
 
@@ -268,7 +268,7 @@ class DataController @Inject()(
     }).flatMap { case (d, q) => EditAliasForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.createAlias(d,q, form)))
+        Future.successful(BadRequest(views.html.admin.createAlias(d, q, form)))
       },
       data => {
         val q = Alias(data.id, data.alias, data.key)
@@ -286,7 +286,7 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, qq) => dao.findAliasById(id).map {
-      case Some(q) => Ok(views.html.admin.createAlias(d,qq, EditAliasForm.form.fill(EditAliasForm.Data(id, q.alias, q.key))))
+      case Some(q) => Ok(views.html.admin.createAlias(d, qq, EditAliasForm.form.fill(EditAliasForm.Data(id, q.alias, q.key))))
       case None => Redirect(routes.DataController.browseAliases()).flashing("warn" -> ("No alias found with id " + id))
     }
     }
@@ -310,7 +310,7 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, q) =>
-      dao.listConferences.map(oc => Ok(views.html.admin.browseConferences(d,q, oc.sortBy(_.name))))
+      dao.listConferences.map(oc => Ok(views.html.admin.browseConferences(d, q, oc.sortBy(_.name))))
     }
   }
 
@@ -331,7 +331,7 @@ class DataController @Inject()(
     } yield {
       (du, qw)
     }).flatMap { case (d, q) => dao.findConferenceById(id).map {
-      case Some(c) => Ok(views.html.admin.editConference(d,q, c, EditConferenceForm.form.fill(EditConferenceForm.Data(id, c.key, c.name, c.level, c.logoSmUrl, c.logoLgUrl, c.officialUrl, c.officialTwitter, c.officialFacebook))))
+      case Some(c) => Ok(views.html.admin.editConference(d, q, c, EditConferenceForm.form.fill(EditConferenceForm.Data(id, c.key, c.name, c.level, c.logoSmUrl, c.logoLgUrl, c.officialUrl, c.officialTwitter, c.officialFacebook))))
       case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
     }
     }
@@ -348,12 +348,12 @@ class DataController @Inject()(
         val formId: Int = form("id").value.getOrElse("0").toInt
         val fot: Future[Option[Conference]] = dao.findConferenceById(formId)
         fot.map(ot => ot match {
-          case Some(t) => BadRequest(views.html.admin.editConference(d,q, t, form))
+          case Some(t) => BadRequest(views.html.admin.editConference(d, q, t, form))
           case None => Redirect(routes.DataController.browseConferences()).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
         })
       },
       data => {
-        val q = Conference(data.id, data.key, data.name,  data.level, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, LocalDateTime.now(),
+        val q = Conference(data.id, data.key, data.name, data.level, data.logoLgUrl, data.logoSmUrl, data.officialUrl, data.officialTwitter, data.officialFacebook, LocalDateTime.now(),
           d.user.get.userID.toString)
         val future: Future[Conference] = dao.saveConference(q)
         future.onComplete {
@@ -385,7 +385,88 @@ class DataController @Inject()(
 
   def deleteTeam(id: Long) = play.mvc.Results.TODO
 
-  def browseConferenceMap(seasonId: Long) = play.mvc.Results.TODO
+  def browseConferenceMap(seasonId: Long) =silhouette.SecuredAction.async { implicit rs =>
+    (for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+      (du, qw)
+    }).flatMap { case (d, q) =>
+      dao.listSeasons.flatMap(ss => {
+        dao.listTeams.flatMap(ts => {
+          dao.listConferences.flatMap(cs => {
+            dao.listConferenceMaps.map(cms => {
+              ss.find(_.id == seasonId) match {
+                case Some(season)=>
+                  val map = hydrateConferenceMaps(cms, ss, ts, cs).getOrElse(season, Map.empty[Conference, List[Team]])
+                  Ok(views.html.admin.browseConferenceMap(d, q, season, map,cs.sortBy(_.name),ts))
+                case None=>
+                  Redirect(routes.DataController.browseConferenceMaps()).flashing(FlashUtil.danger("Season not found"))
+              }
+            })
+          })
+        })
+      })
+    }
+  }
+
+  def browseConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
+    (for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+    } yield {
+      (du, qw)
+    }).flatMap { case (d, q) =>
+      dao.listSeasons.flatMap(ss => {
+        dao.listTeams.flatMap(ts => {
+          dao.listConferences.flatMap(cs => {
+            dao.listConferenceMaps.map(cms => {
+              val hcms = hydrateConferenceMaps(cms,ss,ts,cs)
+              Ok(views.html.admin.browseConferenceMaps(d, q, hcms))
+            })
+          })
+        })
+      })
+    }
+  }
+
+  def hydrateConferenceMaps(cms: List[ConferenceMap], ss: List[Season], ts: List[Team], cs: List[Conference]): Map[Season, Map[Conference, List[Team]]] = {
+    val sMap = ss.map(s => s.id -> s).toMap
+    val tMap = ts.map(t => t.id -> t).toMap
+    val cMap = cs.map(c => c.id -> c).toMap
+    cms.flatMap(cm => {
+      for {
+        season <- sMap.get(cm.seasonId)
+        team <- tMap.get(cm.teamId)
+        conf <- cMap.get(cm.conferenceId)
+      } yield {
+        (season, conf, team)
+      }
+    }).groupBy(_._1).mapValues(_.groupBy(_._2).mapValues(_.map(_._3).toList))
+  }
+
+
+  def deleteConferenceMapping(seasonId:Long, conferenceId:Long,teamId:Long) = silhouette.SecuredAction.async { implicit rs =>
+
+      dao.deleteConferenceMap(seasonId, conferenceId, teamId).map(_ => Redirect(routes.DataController.browseConferenceMap(seasonId)))
+
+  }
+
+  def moveConferenceMapping(seasonId: Long, conferenceId: Long, teamId: Long) = silhouette.SecuredAction.async { implicit rs =>
+    val eventualMaybeMap = dao.findConferenceMap(seasonId, teamId)
+    eventualMaybeMap.onComplete{
+      case Success(_)=> println("SUCCEEDED ++++++++++++++++++++++")
+      case Failure(thr)=> thr.printStackTrace()
+    }
+    eventualMaybeMap.flatMap(ocm =>
+      ocm match {
+        case Some(cm) =>
+          dao.saveConferenceMap(cm.copy(conferenceId = conferenceId)).map(_=> Redirect(routes.DataController.browseConferenceMap(seasonId)))
+        case None =>
+          Future(Redirect(routes.DataController.browseConferenceMap(seasonId)))
+      })
+
+  }
 
   def browseGames(id: Long, query: Option[String]) = silhouette.SecuredAction.async { implicit rs =>
     (for {
@@ -419,8 +500,8 @@ class DataController @Inject()(
         }.sortBy(g => (g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
 
         query match {
-          case Some(str) => Ok(views.html.admin.browseGames(d,q, infos.filter(_.matches(str)), Some(str)))
-          case None => Ok(views.html.admin.browseGames(d,q, infos, None))
+          case Some(str) => Ok(views.html.admin.browseGames(d, q, infos.filter(_.matches(str)), Some(str)))
+          case None => Ok(views.html.admin.browseGames(d, q, infos, None))
         }
 
       case None => Redirect(routes.AdminController.index()).flashing("warn" -> ("No schedule found with id " + id))
@@ -445,7 +526,7 @@ class DataController @Inject()(
       ot match {
         case Some(c) =>
           val teamData = lt.map(t => t.id.toString -> t.name).sortBy(_._2)
-          Ok(views.html.admin.editGame(d,q, c._1, EditGameForm.form.fill(EditGameForm.team2Data(c._1, c._2)), teamData))
+          Ok(views.html.admin.editGame(d, q, c._1, EditGameForm.form.fill(EditGameForm.team2Data(c._1, c._2)), teamData))
         case None => Redirect(routes.DataController.browseQuotes()).flashing("warn" -> ("No quote found with id " + id))
       }
     }
@@ -459,7 +540,7 @@ class DataController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) =>  dao.listTeams.flatMap(td => {
+    }).flatMap { case (d, q) => dao.listTeams.flatMap(td => {
       val teamData = td.map(t => t.id.toString -> t.name).sortBy(_._2)
       EditGameForm.form.bindFromRequest.fold(
         form => {
@@ -467,7 +548,7 @@ class DataController @Inject()(
           val formSeasonId: Int = form("seasonId").value.getOrElse("0").toInt
           val fot: Future[Option[(Game, Option[Result])]] = dao.gamesById(formId)
           fot.map {
-            case Some(tup) => BadRequest(views.html.admin.editGame(d,q, tup._1, form, teamData))
+            case Some(tup) => BadRequest(views.html.admin.editGame(d, q, tup._1, form, teamData))
             case None => Redirect(routes.DataController.browseGames(formSeasonId, None)).flashing("error" -> ("Bad request with an unknown id: " + form("id")))
           }
         },
@@ -481,7 +562,8 @@ class DataController @Inject()(
           future.map(i => Redirect(routes.DataController.browseGames(data.seasonId, None)).flashing("info" -> ("Saved " + data.id)))
         }
       )
-    })}
+    })
+    }
   }
 
   def deleteGame(id: Long) = silhouette.SecuredAction.async {
@@ -497,7 +579,7 @@ class DataController @Inject()(
       items <- dao.listRssItems()
     } yield {
       val groupedItems: Map[Long, List[RssItem]] = items.groupBy(_.rssFeedId)
-      val feedStatuses =feeds.map(f => {
+      val feedStatuses = feeds.map(f => {
         val feedItems: List[RssItem] = groupedItems.getOrElse(f.id, List.empty[RssItem])
 
         feedItems match {
@@ -520,7 +602,7 @@ class DataController @Inject()(
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
-      Ok(views.html.admin.createRssFeed(du,qw, EditRssFeedForm.form))
+      Ok(views.html.admin.createRssFeed(du, qw, EditRssFeedForm.form))
     }
   }
 
@@ -532,12 +614,12 @@ class DataController @Inject()(
           du <- loadDisplayUser(rs)
           qw <- getQuoteWrapper(du)
         } yield {
-          (BadRequest(views.html.admin.createRssFeed(du,qw, form)))
+          (BadRequest(views.html.admin.createRssFeed(du, qw, form)))
         }
       },
       data => {
         for {
-          _<-dao.saveRssFeed(RssFeed(data.id, data.name, data.url))
+          _ <- dao.saveRssFeed(RssFeed(data.id, data.name, data.url))
         } yield {
           Redirect(routes.DataController.browseRssFeeds()).flashing("info" -> ("Created feed " + data.name + " at " + data.url))
         }
@@ -551,17 +633,17 @@ class DataController @Inject()(
       feed <- dao.findRssFeedById(id)
     } yield {
       feed match {
-        case Some(f)=>
-          Ok(views.html.admin.createRssFeed(du,qw,EditRssFeedForm.form.fill(EditRssFeedForm.Data(id, f.name, f.url))))
-        case None=>Redirect(routes.DataController.browseRssFeeds()).flashing(FlashUtil.warning("RSS Feed not found"))
+        case Some(f) =>
+          Ok(views.html.admin.createRssFeed(du, qw, EditRssFeedForm.form.fill(EditRssFeedForm.Data(id, f.name, f.url))))
+        case None => Redirect(routes.DataController.browseRssFeeds()).flashing(FlashUtil.warning("RSS Feed not found"))
       }
     }
   }
 
   def deleteRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
     for {
-      n<-dao.deleteRssItemsByFeedId(id)
-      _<-dao.deleteRssFeed(id)
+      n <- dao.deleteRssItemsByFeedId(id)
+      _ <- dao.deleteRssFeed(id)
     } yield {
       Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Deleted RSS feed $id and $n items"))
     }
@@ -571,7 +653,7 @@ class DataController @Inject()(
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
-      items<-rssUpdater.updateFeed(id)
+      items <- rssUpdater.updateFeed(id)
     } yield {
       Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Updated RSS feed $id and got ${items.size} items"))
     }

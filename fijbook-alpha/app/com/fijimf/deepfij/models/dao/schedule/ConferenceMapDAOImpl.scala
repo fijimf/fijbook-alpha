@@ -22,15 +22,22 @@ trait ConferenceMapDAOImpl extends ConferenceMapDAO with DAOSlick {
 
   override def listConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.to[List].result)
 
+  override def findConferenceMap(seasonId: Long, teamId:Long): Future[Option[ConferenceMap]] =
+    db.run(repo.conferenceMaps.filter(cm=>cm.seasonId === seasonId && cm.teamId === teamId).result.headOption)
+
   override def deleteConferenceMap(id: Long): Future[Int] = db.run(repo.conferenceMaps.filter(_.id === id).delete)
 
   override def deleteAllConferenceMaps(): Future[Int] = {
     val f = db.run(repo.conferenceMaps.delete)
     f.onComplete {
       case Success(i)=> logger.info(s"Deleted $i conference mappings")
-      case Failure(ex) =>logger.error(s"Filed deleting conference maps",ex)
+      case Failure(ex) => logger.error(s"Failed deleting conference maps", ex)
     }
     f
+  }
+
+  override def deleteConferenceMap(seasonId: Long, conferenceId: Long, teamId: Long): Future[Int] = {
+    db.run(repo.conferenceMaps.filter(cm => cm.seasonId === seasonId && cm.conferenceId === conferenceId && cm.teamId === teamId).delete)
   }
 
   override def saveConferenceMap(cm: ConferenceMap): Future[ConferenceMap] = saveConferenceMaps(List(cm)).map(_.head)

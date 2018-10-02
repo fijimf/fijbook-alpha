@@ -109,7 +109,10 @@ GET         /deepfij/admin/lockSeason/:id                       controllers.Data
 
 ##### CONFERENCEMAP
 GET         /deepfij/admin/seedConferenceMap                    controllers.TeamScrapeController.seedConferenceMaps()
+GET         /deepfij/admin/browseConferenceMaps                 controllers.DataController.browseConferenceMaps
 GET         /deepfij/admin/browseConferenceMap/:seasonId        controllers.DataController.browseConferenceMap(seasonId:Long)
+GET         /deepfij/admin/deleteConferenceMap/:s/:c/:t        controllers.DataController.deleteConferenceMapping(s:Long, c:Long, t:Long)
+GET         /deepfij/admin/moveConferenceMap/:s/:t/:c        controllers.DataController.moveConferenceMapping(s:Long, c:Long, t:Long)
 
 ##### GAMES
 GET         /deepfij/admin/browseGames/:seasonId                controllers.DataController.browseGames(seasonId:Long, query:Option[String])
