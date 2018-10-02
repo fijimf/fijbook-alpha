@@ -10,27 +10,34 @@
 @import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.Conference
 @import com.fijimf.deepfij.models.Season
-@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, cms:Map[Season,Map[Conference,List[Team]]])(implicit request: RequestHeader, flash: Flash)
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, ss:List[Season],cms:Map[Season,Map[Conference,List[Team]]],unmapped:Map[Season,List[Team]])(implicit request: RequestHeader, flash: Flash)
 @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-12">
             <h4>Conference Maps</h4>
         </div>
         <div>
-            <table>
+            <table class="table table-sm table-bordered">
                 <thead>
                     <tr>
                         <th>Season</th>
                         <th>Teams Mapped</th>
                         <th>Conferences Mapped</th>
+                        <th>Unmapped Teams</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for(k<-cms.keys.toList.sortBy(_.year)) {
+                    @for(k<-ss) {
                         <tr>
                             <td><a href="@routes.DataController.browseConferenceMap(k.id)">@k.year</a></td>
-                            <td>@{cms(k).values.map(_.size).sum}</td>
-                            <td>@{cms(k).size}</td>
+                            <td>@{cms.getOrElse(k, Map.empty[Conference,List[Team]]).values.map(_.size).sum}</td>
+                            <td>@{cms.getOrElse(k, Map.empty[Conference,List[Team]]).size}</td>
+                            <td>@{unmapped(k).size}</td>
+                            <td>
+                                @for(pk<-ss.filter(_.year==k.year-1)){
+                                    <a href="@routes.DataController.resetSeasonConfMapping(pk.id,k.id)">Reset to mapping from @pk.year </a>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>

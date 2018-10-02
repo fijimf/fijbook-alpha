@@ -385,6 +385,14 @@ class DataController @Inject()(
 
   def deleteTeam(id: Long) = play.mvc.Results.TODO
 
+  def getUnmappedTeams(cms: List[ConferenceMap], ss: List[Season], ts: List[Team]) : Map[Season,List[Team]]={
+    val seasons: Map[Long, Set[Long]] = cms.groupBy(_.seasonId).mapValues(_.map(_.teamId).toSet)
+    ss.map(s=>{
+      val mappedIds = seasons.getOrElse(s.id,Set.empty[Long])
+      s->ts.filterNot(t=>mappedIds.contains(t.id))
+    }).toMap
+  }
+
   def browseConferenceMap(seasonId: Long) =silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
@@ -399,7 +407,8 @@ class DataController @Inject()(
               ss.find(_.id == seasonId) match {
                 case Some(season)=>
                   val map = hydrateConferenceMaps(cms, ss, ts, cs).getOrElse(season, Map.empty[Conference, List[Team]])
-                  Ok(views.html.admin.browseConferenceMap(d, q, season, map,cs.sortBy(_.name),ts))
+                  val unmappedTeams = getUnmappedTeams(cms,ss,ts)
+                  Ok(views.html.admin.browseConferenceMap(d, q, season, map,cs.sortBy(_.name),ts, unmappedTeams.getOrElse(season,List.empty[Team])))
                 case None=>
                   Redirect(routes.DataController.browseConferenceMaps()).flashing(FlashUtil.danger("Season not found"))
               }
@@ -422,7 +431,8 @@ class DataController @Inject()(
           dao.listConferences.flatMap(cs => {
             dao.listConferenceMaps.map(cms => {
               val hcms = hydrateConferenceMaps(cms,ss,ts,cs)
-              Ok(views.html.admin.browseConferenceMaps(d, q, hcms))
+              val unmappedTeams = getUnmappedTeams(cms,ss,ts)
+              Ok(views.html.admin.browseConferenceMaps(d, q, ss.sortBy(_.year), hcms, unmappedTeams))
             })
           })
         })
@@ -453,19 +463,20 @@ class DataController @Inject()(
   }
 
   def moveConferenceMapping(seasonId: Long, conferenceId: Long, teamId: Long) = silhouette.SecuredAction.async { implicit rs =>
-    val eventualMaybeMap = dao.findConferenceMap(seasonId, teamId)
-    eventualMaybeMap.onComplete{
-      case Success(_)=> println("SUCCEEDED ++++++++++++++++++++++")
-      case Failure(thr)=> thr.printStackTrace()
+    dao.findConferenceMap(seasonId, teamId).flatMap {
+      case Some(cm) =>
+        dao.saveConferenceMap(cm.copy(conferenceId = conferenceId, updatedAt = LocalDateTime.now())).map(_ => Redirect(routes.DataController.browseConferenceMap(seasonId)))
+      case None =>
+        dao.saveConferenceMap(ConferenceMap(0L, seasonId, conferenceId, teamId, LocalDateTime.now(), ""))
+        Future(Redirect(routes.DataController.browseConferenceMap(seasonId)))
     }
-    eventualMaybeMap.flatMap(ocm =>
-      ocm match {
-        case Some(cm) =>
-          dao.saveConferenceMap(cm.copy(conferenceId = conferenceId)).map(_=> Redirect(routes.DataController.browseConferenceMap(seasonId)))
-        case None =>
-          Future(Redirect(routes.DataController.browseConferenceMap(seasonId)))
-      })
 
+  }
+
+  def resetSeasonConfMapping(from:Long, to:Long) = silhouette.SecuredAction.async { implicit rs =>
+    dao.listConferenceMaps.map(_.filter(_.seasonId==from)).map(_.map(_.copy(id=0L, seasonId = to))).flatMap(cms=>{
+      dao.saveConferenceMaps(cms).map(_=>Redirect(routes.DataController.browseConferenceMaps()))
+    })
   }
 
   def browseGames(id: Long, query: Option[String]) = silhouette.SecuredAction.async { implicit rs =>
