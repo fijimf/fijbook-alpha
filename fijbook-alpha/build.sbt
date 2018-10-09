@@ -11,6 +11,8 @@ lazy val fijbookAlpha = (project in file("."))
 
 buildInfoOptions += BuildInfoOption.BuildTime
 
+scalacOptions += "-Ypartial-unification"
+
 
 routesGenerator := InjectedRoutesGenerator
 
@@ -38,7 +40,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery" % "3.3.1-1",
   "org.webjars" % "font-awesome" % "5.2.0",
   "org.webjars.npm" % "feather-icons" % "4.7.3",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test exclude  ("org.slf4j", "slf4j-simple"),
   specs2 % Test
 )
 
@@ -59,8 +61,8 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.commons" % "commons-text" % "1.1",
-  "org.scalanlp" %% "breeze" % "0.12",
-  "org.scalanlp" %% "breeze-natives" % "0.12",
+  "org.scalanlp" %% "breeze" % "0.13.2",
+  "org.scalanlp" %% "breeze-natives" % "0.13.2",
   "org.apache.mahout" % "mahout-math" % "0.12.2",
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
@@ -68,7 +70,10 @@ libraryDependencies ++= Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.297",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
-  "org.apache.spark" %% "spark-mllib" % "2.2.1"
+  "org.apache.spark" %% "spark-mllib" % "2.2.1",
+  "org.typelevel" %% "cats-core" % "1.4.0" ,
+  "org.typelevel" %% "cats-free" % "1.4.0",
+  "com.github.haifengl" %% "smile-scala" % "1.5.1"
 )
 
 test in assembly := {}

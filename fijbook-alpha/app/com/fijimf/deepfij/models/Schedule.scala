@@ -11,6 +11,7 @@ case class Schedule
   gameResults: List[(Game, Option[Result])],
   predictions: List[(Game, Option[GamePrediction])]
 ) {
+
   val conferenceKeyMap: Map[String, Conference] = conferences.map(t => t.key -> t).toMap
   val games: List[Game] = gameResults.map(_._1).sortBy(_.date.toEpochDay)
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
@@ -26,6 +27,8 @@ case class Schedule
   val teamConference: Map[Long, Long] = conferenceMap.map(c => c.teamId -> c.conferenceId).toMap
   val conferenceTeams: Map[Long, List[Long]] = conferenceMap.groupBy(_.conferenceId).map(c => c._1 -> c._2.map(_.teamId)).toMap
   val keyTeam: Map[String, Team] = teams.map(t => t.key -> t).toMap
+
+  val completeGames: List[(Game, Result)] =gameResults.flatMap(gr => gr._2.map(r => (gr._1, r)))
 
   def firstGame: Option[LocalDate] = games.headOption.map(_.date)
 

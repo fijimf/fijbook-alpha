@@ -237,7 +237,8 @@ object ScheduleSerializer {
   def readSchedulesFromS3(key: String, dao: ScheduleDAO, repo: ScheduleRepository): Future[(Int, Int, Int)] = {
     val s3: AmazonS3 = createClient()
     val obj = s3.getObject(bucket, key)
-    Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
+    val bytes = IOUtils.toByteArray(obj.getObjectContent)
+    Json.parse(bytes).asOpt[MappedUniverse] match {
       case Some(uni) => saveToDb(uni, dao, repo, clobberDB = true)
       case None => Future.failed(new RuntimeException(s"Failed to parse s3 object for bucket $bucket object $key"))
     }
@@ -271,7 +272,7 @@ object ScheduleSerializer {
     val list: List[String] = s3.listObjects(bucket, prefix).getObjectSummaries.map(_.getKey()).toList
     if (list.nonEmpty)
       Some(s3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(list: _*)))
-    else 
+    else
       None
   }
 
