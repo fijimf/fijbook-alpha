@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
-import akka.actor.{ActorContext, ActorRef, ActorSelection, Props}
+import akka.actor.{ActorContext, ActorSelection}
 import javax.inject.Inject
 import org.quartz.{JobKey, TriggerKey}
 import play.api.Logger
@@ -127,7 +127,7 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
+case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rankAsc: Option[Int], rankDesc: Option[Int], percentileAsc: Option[Double], percentileDesc: Option[Double], mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
 
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
@@ -454,37 +454,47 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   //case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
  class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
 
-    def seasonYear:Rep[Int] = column[Int]("season")
-    def statDate: Rep[Timestamp] = column[Timestamp]("date")
-    def statKey: Rep[String] = column[String]("stat", O.Length(32))
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
-    def teamKey: Rep[String] = column[String]("team", O.Length(32))
+    def seasonId: Rep[Long] = column[Long]("season_id")
+
+    def date: Rep[LocalDate] = column[LocalDate]("date")
+
+    def key: Rep[String] = column[String]("key", O.Length(32))
+
+    def teamId: Rep[Long] = column[Long]("team_id", O.Length(32))
 
 
+    def value: Rep[Option[Double]] = column[Option[Double]]("value")
 
-    def value: Rep[Double] = column[Double]("value")
+    def rankAscending: Rep[Option[Int]] = column[Option[Int]]("rank_asc")
 
-    def rankAscending: Rep[Int] = column[Int]("rank_asc")
-    def rankDescending: Rep[Int] = column[Int]("rank_desc")
+    def rankDescending: Rep[Option[Int]] = column[Option[Int]]("rank_desc")
 
-    def percentileAscending: Rep[Double] = column[Double]("pctile_asc")
-    def percentileDescending: Rep[Double] = column[Double]("pctile_desc")
-    def mean: Rep[Double] = column[Double]("mean")
-    def stdDev: Rep[Double] = column[Double]("std_dev")
-    def min: Rep[Double] = column[Double]("min")
-    def max: Rep[Double] = column[Double]("max")
+    def percentileAscending: Rep[Option[Double]] = column[Option[Double]]("pctile_asc")
+
+    def percentileDescending: Rep[Option[Double]] = column[Option[Double]]("pctile_desc")
+
+    def mean: Rep[Option[Double]] = column[Option[Double]]("mean")
+
+    def stdDev: Rep[Option[Double]] = column[Option[Double]]("std_dev")
+
+    def min: Rep[Option[Double]] = column[Option[Double]]("min")
+
+    def max: Rep[Option[Double]] = column[Option[Double]]("max")
+
     def n: Rep[Int] = column[Int]("n")
 
 
-    def * : ProvenShape[XStat] = (seasonYear, statDate,statKey, teamKey,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
+    def * : ProvenShape[XStat] = (id, seasonId, date ,key, teamId,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
 
-    def idx1: Index = index("statx_value_idx1", (seasonYear, statDate, statKey, teamKey), unique = true)
+    def idx1: Index = index("statx_value_idx1", (seasonId, date, key, teamId), unique = true)
 
-    def idx2: Index = index("statx_value_idx2", (seasonYear, statDate, statKey), unique = false)
+    def idx2: Index = index("statx_value_idx2", (seasonId, date, key), unique = false)
 
-    def idx3: Index = index("statx_value_idx3", (seasonYear, statKey, teamKey), unique = false)
+    def idx3: Index = index("statx_value_idx3", (seasonId, key, teamId), unique = false)
 
-    def idx4: Index = index("statx_value_idx4", (seasonYear, statDate, teamKey), unique = false)
+    def idx4: Index = index("statx_value_idx4", (seasonId, date, teamId), unique = false)
 
   }
 

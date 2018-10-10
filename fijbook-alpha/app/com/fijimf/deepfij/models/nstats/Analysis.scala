@@ -27,8 +27,8 @@ trait Analysis[B] {
 
 object Analysis {
 
-  def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B]): Unit = {
-    runAsLoop[(GameCalendar, B), Map[Long, Double]](analyzer.state, (GameCalendar.init(s), analyzer.zero), println(_), _._1.date.isEmpty)
+  def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B], work: Map[Long, Double]=> Unit): Unit = {
+    runAsLoop[(GameCalendar, B), Map[Long, Double]](analyzer.state, (GameCalendar.init(s), analyzer.zero), work, _._1.date.isEmpty)
   }
 
   def runAsLoop[S, A](state: State[S, A], init: S, work: A => Unit, terminate: S => Boolean): Unit = {
