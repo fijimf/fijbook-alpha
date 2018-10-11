@@ -68,4 +68,24 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.date>=from && sv.date<=to).to[List].result)
   }
 
+  override def saveXStats(xstats: List[XStat]): Future[List[XStat]] = {
+    db.run(DBIO.sequence(xstats.map(upsertByCompoundKey)).transactionally)
+  }
+
+  override def saveXStat(xstat: XStat): Future[XStat] = {
+    db.run(upsertByCompoundKey(xstat).transactionally)
+  }
+
+  def upsertByCompoundKey(xstat: XStat): DBIO[XStat] = {
+    for {
+      rowsAffected <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).update(xstat)
+      _ <- rowsAffected match {
+        case 0 => repo.xstats += xstat
+        case 1 => DBIO.successful(1)
+        case n => DBIO.failed(new RuntimeException(
+          s"Expected 0 or 1 change, not $n for ${xstat.date}, ${xstat.key}, ${xstat.teamId}"))
+      }
+      result <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.head
+    } yield result
+  }
 }
