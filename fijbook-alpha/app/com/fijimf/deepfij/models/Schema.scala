@@ -127,7 +127,7 @@ case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, 
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rankAsc: Option[Int], rankDesc: Option[Int], percentileAsc: Option[Double], percentileDesc: Option[Double], mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
+case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rank: Option[Int], percentile: Option[Double],mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
 
 case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
@@ -467,13 +467,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def value: Rep[Option[Double]] = column[Option[Double]]("value")
 
-    def rankAscending: Rep[Option[Int]] = column[Option[Int]]("rank_asc")
+    def rank: Rep[Option[Int]] = column[Option[Int]]("rank_asc")
 
-    def rankDescending: Rep[Option[Int]] = column[Option[Int]]("rank_desc")
-
-    def percentileAscending: Rep[Option[Double]] = column[Option[Double]]("pctile_asc")
-
-    def percentileDescending: Rep[Option[Double]] = column[Option[Double]]("pctile_desc")
+    def percentile: Rep[Option[Double]] = column[Option[Double]]("pctile_asc")
 
     def mean: Rep[Option[Double]] = column[Option[Double]]("mean")
 
@@ -486,7 +482,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def n: Rep[Int] = column[Int]("n")
 
 
-    def * : ProvenShape[XStat] = (id, seasonId, date ,key, teamId,  value, rankAscending, rankDescending, percentileAscending, percentileDescending, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
+    def * : ProvenShape[XStat] = (id, seasonId, date ,key, teamId,  value, rank, percentile, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
 
     def idx1: Index = index("statx_value_idx1", (seasonId, date, key, teamId), unique = true)
 
