@@ -7,8 +7,9 @@ import play.api.libs.json.JsValue
 
 import scala.util.{Failure, Success}
 
-case class ScoreboardByDateReq(date:LocalDate) extends JsonScrapeRequest[List[GameData]] with NcaaComGameScraper {
-  override def url = "http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html".format(date.getYear, date.getMonthValue ,date.getDayOfMonth )
+case class ScoreboardByDateReq(date:LocalDate, path:String="http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html") extends JsonScrapeRequest[List[GameData]] with NcaaComGameScraper {
+
+  override def url = path.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
   override def preProcessBody(s:String) = stripCallbackWrapper(s)
   override def scrape(js:JsValue):List[GameData] = {
     getGames(js) match {

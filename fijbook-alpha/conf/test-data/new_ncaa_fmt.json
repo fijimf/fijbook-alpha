@@ -1,0 +1,2152 @@
+{
+  games: [
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "EVANS",
+            full: "University of Evansville",
+            seo: "evansville",
+            short: "Evansville"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "013ac329-090d-4e6d-9406-3ad3e75ac6ab",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "LOYCHI",
+            full: "Loyola University (Illinois)",
+            seo: "loyola-il",
+            short: "Loyola (IL)"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "TBA",
+        startTimeEpoch: "1550685600",
+        title: "Loyola (IL) Evansville",
+        url: "/game/basketball-men/d1/2019/02/20/evansville-loyola-il",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big Ten Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big Ten",
+            conferenceSeo: "big-ten"
+          },
+          description: "",
+          names: {
+            char6: "RUTGER",
+            full: "Rutgers, State Univ of New Jersey, New Brunswick",
+            seo: "rutgers",
+            short: "Rutgers"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "8d7296ae-39c4-4107-8a6d-dd241a84a146",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big Ten Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big Ten",
+            conferenceSeo: "big-ten"
+          },
+          description: "",
+          names: {
+            char6: "MICHST",
+            full: "Michigan State University",
+            seo: "michigan-st",
+            short: "Michigan St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "06:30PM ET",
+        startTimeEpoch: "1550705400",
+        title: "Michigan St. Rutgers",
+        url: "/game/basketball-men/d1/2019/02/20/rutgers-michigan-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "NOVA",
+            full: "Villanova University",
+            seo: "villanova",
+            short: "Villanova"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "2ca9d1e9-6578-4596-a8a1-6946d0ba3b3f",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "GTOWN",
+            full: "Georgetown University",
+            seo: "georgetown",
+            short: "Georgetown"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "06:30PM ET",
+        startTimeEpoch: "1550705400",
+        title: "Georgetown Villanova",
+        url: "/game/basketball-men/d1/2019/02/20/villanova-georgetown",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "MISSST",
+            full: "Mississippi State University",
+            seo: "mississippi-st",
+            short: "Mississippi St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "3a0095c0-3a5c-4656-b92e-544ffba1d23d",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "UGA",
+            full: "University of Georgia",
+            seo: "georgia",
+            short: "Georgia"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "06:30PM ET",
+        startTimeEpoch: "1550705400",
+        title: "Georgia Mississippi St.",
+        url: "/game/basketball-men/d1/2019/02/20/mississippi-st-georgia",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "FLA",
+            full: "University of Florida",
+            seo: "florida",
+            short: "Florida"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "b7b5f86c-7b8b-49cc-9c10-20c63f67ae5d",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "LSU",
+            full: "Louisiana State University",
+            seo: "lsu",
+            short: "LSU"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "LSU Florida",
+        url: "/game/basketball-men/d1/2019/02/20/florida-lsu",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "UMASS",
+            full: "University of Massachusetts, Amherst",
+            seo: "massachusetts",
+            short: "Massachusetts"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "bd991dbb-4ff1-4550-a7a5-7c4e84b8b8a4",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "G WASH",
+            full: "George Washington University",
+            seo: "george-washington",
+            short: "George Washington"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "George Washington Massachusetts",
+        url: "/game/basketball-men/d1/2019/02/20/massachusetts-george-washington",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Gulf South Conference",
+            conferenceDivision: "d2",
+            conferenceName: "Gulf South",
+            conferenceSeo: "gulf-south"
+          },
+          description: "",
+          names: {
+            char6: "N ALA",
+            full: "University of North Alabama",
+            seo: "north-ala",
+            short: "North Ala."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "29fcb9e6-d061-478a-9a71-44e6befbfe51",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "KENSAW",
+            full: "Kennesaw State University",
+            seo: "kennesaw-st",
+            short: "Kennesaw St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Kennesaw St. North Ala.",
+        url: "/game/basketball-men/d1/2019/02/20/north-ala-kennesaw-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "BC",
+            full: "Boston College",
+            seo: "boston-college",
+            short: "Boston College"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "76bcbe52-43e9-452d-8837-1a0c634a91a6",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "NC ST",
+            full: "North Carolina State University",
+            seo: "north-carolina-st",
+            short: "North Carolina St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "North Carolina St. Boston College",
+        url: "/game/basketball-men/d1/2019/02/20/boston-college-north-carolina-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "LASALL",
+            full: "La Salle University",
+            seo: "la-salle",
+            short: "La Salle"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "08a307c5-444b-4b6e-bb26-042dab9cceeb",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "STBONA",
+            full: "St. Bonaventure University",
+            seo: "st-bonaventure",
+            short: "St. Bonaventure"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "St. Bonaventure La Salle",
+        url: "/game/basketball-men/d1/2019/02/20/la-salle-st-bonaventure",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "LOUIS",
+            full: "University of Louisville",
+            seo: "louisville",
+            short: "Louisville"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "e7807a01-832c-487f-b9fa-f4c279592bd1",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "SYR",
+            full: "Syracuse University",
+            seo: "syracuse",
+            short: "Syracuse"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Syracuse Louisville",
+        url: "/game/basketball-men/d1/2019/02/20/louisville-syracuse",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Patriot League",
+            conferenceDivision: "d1",
+            conferenceName: "Patriot League",
+            conferenceSeo: "patriot"
+          },
+          description: "",
+          names: {
+            char6: "ARMY",
+            full: "U.S. Military Academy",
+            seo: "army",
+            short: "Army"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "66e5be32-5d12-4a89-bd4c-42cdc2940a61",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Patriot League",
+            conferenceDivision: "d1",
+            conferenceName: "Patriot League",
+            conferenceSeo: "patriot"
+          },
+          description: "",
+          names: {
+            char6: "LEHIGH",
+            full: "Lehigh University",
+            seo: "lehigh",
+            short: "Lehigh"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Lehigh Army",
+        url: "/game/basketball-men/d1/2019/02/20/army-lehigh",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "XAVIER",
+            full: "Xavier University",
+            seo: "xavier",
+            short: "Xavier"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "06baa027-9549-4dc9-94c5-fdd0957106b0",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "SETON",
+            full: "Seton Hall University",
+            seo: "seton-hall",
+            short: "Seton Hall"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Seton Hall Xavier",
+        url: "/game/basketball-men/d1/2019/02/20/xavier-seton-hall",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "FORDHM",
+            full: "Fordham University",
+            seo: "fordham",
+            short: "Fordham"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "fa1cc311-1461-462e-84a1-549f5d3e7fa0",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic 10 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic 10",
+            conferenceSeo: "atlantic-10"
+          },
+          description: "",
+          names: {
+            char6: "RICH",
+            full: "University of Richmond",
+            seo: "richmond",
+            short: "Richmond"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Richmond Fordham",
+        url: "/game/basketball-men/d1/2019/02/20/fordham-richmond",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Patriot League",
+            conferenceDivision: "d1",
+            conferenceName: "Patriot League",
+            conferenceSeo: "patriot"
+          },
+          description: "",
+          names: {
+            char6: "AMER",
+            full: "American University",
+            seo: "american",
+            short: "American"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "3a669999-1f0b-4d05-b30d-7fb3aba901cf",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Patriot League",
+            conferenceDivision: "d1",
+            conferenceName: "Patriot League",
+            conferenceSeo: "patriot"
+          },
+          description: "",
+          names: {
+            char6: "LAFAYE",
+            full: "Lafayette College",
+            seo: "lafayette",
+            short: "Lafayette"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Lafayette American",
+        url: "/game/basketball-men/d1/2019/02/20/american-lafayette",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "LIPSCO",
+            full: "Lipscomb University",
+            seo: "lipscomb",
+            short: "Lipscomb"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "bcb0a11d-9699-4522-94b4-512f60bd88e7",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "FGCU",
+            full: "Florida Gulf Coast University",
+            seo: "fgcu",
+            short: "FGCU"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "FGCU Lipscomb",
+        url: "/game/basketball-men/d1/2019/02/20/lipscomb-fgcu",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "ILL ST",
+            full: "Illinois State University",
+            seo: "illinois-st",
+            short: "Illinois St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "0a7fb04c-3379-42d2-8ac4-ed41582432dd",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "IND ST",
+            full: "Indiana State University",
+            seo: "indiana-st",
+            short: "Indiana St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Indiana St. Illinois St.",
+        url: "/game/basketball-men/d1/2019/02/20/illinois-st-indiana-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "NO FLA",
+            full: "University of North Florida",
+            seo: "north-florida",
+            short: "North Florida"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "fd8e4dbc-f104-405a-a993-0c81ee696238",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "JVILLE",
+            full: "Jacksonville University",
+            seo: "jacksonville",
+            short: "Jacksonville"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Jacksonville North Florida",
+        url: "/game/basketball-men/d1/2019/02/20/north-florida-jacksonville",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "American Athletic Conference",
+            conferenceDivision: "d1",
+            conferenceName: "AAC",
+            conferenceSeo: "american-athletic"
+          },
+          description: "",
+          names: {
+            char6: "TULANE",
+            full: "Tulane University",
+            seo: "tulane",
+            short: "Tulane"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "abf36815-845d-4270-a437-4f555fa5cb4b",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "American Athletic Conference",
+            conferenceDivision: "d1",
+            conferenceName: "AAC",
+            conferenceSeo: "american-athletic"
+          },
+          description: "",
+          names: {
+            char6: "MEM",
+            full: "University of Memphis",
+            seo: "memphis",
+            short: "Memphis"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "Memphis Tulane",
+        url: "/game/basketball-men/d1/2019/02/20/tulane-memphis",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "STETSN",
+            full: "Stetson University",
+            seo: "stetson",
+            short: "Stetson"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "c2af0da3-e009-4b2a-b39c-9a70e661c404",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Sun Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Atlantic Sun",
+            conferenceSeo: "atlantic-sun"
+          },
+          description: "",
+          names: {
+            char6: "NJIT",
+            full: "New Jersey Institute of Technology",
+            seo: "njit",
+            short: "NJIT"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "07:00PM ET",
+        startTimeEpoch: "1550707200",
+        title: "NJIT Stetson",
+        url: "/game/basketball-men/d1/2019/02/20/stetson-njit",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "SIU",
+            full: "Southern Illinois University at Carbondale",
+            seo: "southern-ill",
+            short: "Southern Ill."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "94c1be52-c8b5-4e50-a216-e0b8e77a63fe",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Horizon League",
+            conferenceDivision: "d1",
+            conferenceName: "Horizon",
+            conferenceSeo: "horizon"
+          },
+          description: "",
+          names: {
+            char6: "VALPO",
+            full: "Valparaiso University",
+            seo: "valparaiso",
+            short: "Valparaiso"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "08:00PM ET",
+        startTimeEpoch: "1550710800",
+        title: "Valparaiso Southern Ill.",
+        url: "/game/basketball-men/d1/2019/02/20/southern-ill-valparaiso",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "N IOWA",
+            full: "University of Northern Iowa",
+            seo: "uni",
+            short: "UNI"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "a2c5febd-13cd-4da1-8c9a-8a6bd50ce99c",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Missouri Valley Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Missouri Valley",
+            conferenceSeo: "missouri-valley"
+          },
+          description: "",
+          names: {
+            char6: "MO ST",
+            full: "Missouri State University",
+            seo: "missouri-st",
+            short: "Missouri St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "08:00PM ET",
+        startTimeEpoch: "1550710800",
+        title: "Missouri St. UNI",
+        url: "/game/basketball-men/d1/2019/02/20/uni-missouri-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "ARK",
+            full: "University of Arkansas, Fayetteville",
+            seo: "arkansas",
+            short: "Arkansas"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "e2349211-16f5-4f90-8946-ad898ea87278",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Southeastern Conference",
+            conferenceDivision: "d1",
+            conferenceName: "SEC",
+            conferenceSeo: "southeastern"
+          },
+          description: "",
+          names: {
+            char6: "AUBURN",
+            full: "Auburn University",
+            seo: "auburn",
+            short: "Auburn"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "08:30PM ET",
+        startTimeEpoch: "1550712600",
+        title: "Auburn Arkansas",
+        url: "/game/basketball-men/d1/2019/02/20/arkansas-auburn",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "STJOHN",
+            full: "St. John's University (New York)",
+            seo: "st-johns-ny",
+            short: "St. John's (NY)"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "7a7e3b85-a7ae-43bd-b8fa-43899c73b188",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "PROV",
+            full: "Providence College",
+            seo: "providence",
+            short: "Providence"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "08:30PM ET",
+        startTimeEpoch: "1550712600",
+        title: "Providence St. John's (NY)",
+        url: "/game/basketball-men/d1/2019/02/20/st-johns-ny-providence",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big Ten Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big Ten",
+            conferenceSeo: "big-ten"
+          },
+          description: "",
+          names: {
+            char6: "NWSTRN",
+            full: "Northwestern University",
+            seo: "northwestern",
+            short: "Northwestern"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "12bf0809-4192-4075-91ab-d53b9c83919c",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big Ten Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big Ten",
+            conferenceSeo: "big-ten"
+          },
+          description: "",
+          names: {
+            char6: "OHIOST",
+            full: "The Ohio State University",
+            seo: "ohio-st",
+            short: "Ohio St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "08:30PM ET",
+        startTimeEpoch: "1550712600",
+        title: "Ohio St. Northwestern",
+        url: "/game/basketball-men/d1/2019/02/20/northwestern-ohio-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "PITT",
+            full: "University of Pittsburgh",
+            seo: "pittsburgh",
+            short: "Pittsburgh"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "741655bd-cbf2-4488-9ccf-42504d282556",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "GATECH",
+            full: "Georgia Institute of Technology",
+            seo: "georgia-tech",
+            short: "Georgia Tech"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "Georgia Tech Pittsburgh",
+        url: "/game/basketball-men/d1/2019/02/20/pittsburgh-georgia-tech",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "BUTLER",
+            full: "Butler University",
+            seo: "butler",
+            short: "Butler"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "d5d692d1-1e82-43e5-bc1e-da2db6c715a7",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "MARQ",
+            full: "Marquette University",
+            seo: "marquette",
+            short: "Marquette"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "Marquette Butler",
+        url: "/game/basketball-men/d1/2019/02/20/butler-marquette",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "STAN",
+            full: "Stanford University",
+            seo: "stanford",
+            short: "Stanford"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "d16c7d96-f32f-41c6-bfee-4f1fef388e2f",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "AZ ST",
+            full: "Arizona State University",
+            seo: "arizona-st",
+            short: "Arizona St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "Arizona St. Stanford",
+        url: "/game/basketball-men/d1/2019/02/20/stanford-arizona-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "UNC",
+            full: "University of North Carolina, Chapel Hill",
+            seo: "north-carolina",
+            short: "North Carolina"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "7c93756c-0148-4472-9624-7b43a434b450",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Atlantic Coast Conference",
+            conferenceDivision: "d1",
+            conferenceName: "ACC",
+            conferenceSeo: "atlantic-coast"
+          },
+          description: "",
+          names: {
+            char6: "DUKE",
+            full: "Duke University",
+            seo: "duke",
+            short: "Duke"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "Duke North Carolina",
+        url: "/game/basketball-men/d1/2019/02/20/north-carolina-duke",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "CREIGH",
+            full: "Creighton University",
+            seo: "creighton",
+            short: "Creighton"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "75e865d2-54fa-4320-84ba-c41daa54fc13",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big East Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big East",
+            conferenceSeo: "big-east"
+          },
+          description: "",
+          names: {
+            char6: "DEPAUL",
+            full: "DePaul University",
+            seo: "depaul",
+            short: "DePaul"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "DePaul Creighton",
+        url: "/game/basketball-men/d1/2019/02/20/creighton-depaul",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "American Athletic Conference",
+            conferenceDivision: "d1",
+            conferenceName: "AAC",
+            conferenceSeo: "american-athletic"
+          },
+          description: "",
+          names: {
+            char6: "WICHST",
+            full: "Wichita State University",
+            seo: "wichita-st",
+            short: "Wichita St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "f87bdcf7-a06a-4a75-ab6c-f30106e2f347",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "American Athletic Conference",
+            conferenceDivision: "d1",
+            conferenceName: "AAC",
+            conferenceSeo: "american-athletic"
+          },
+          description: "",
+          names: {
+            char6: "TULSA",
+            full: "University of Tulsa",
+            seo: "tulsa",
+            short: "Tulsa"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "09:00PM ET",
+        startTimeEpoch: "1550714400",
+        title: "Tulsa Wichita St.",
+        url: "/game/basketball-men/d1/2019/02/20/wichita-st-tulsa",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "COLO",
+            full: "University of Colorado, Boulder",
+            seo: "colorado",
+            short: "Colorado"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "566a44a9-ffee-4465-94ab-65575feeb299",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "WASHST",
+            full: "Washington State University",
+            seo: "washington-st",
+            short: "Washington St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "10:00PM ET",
+        startTimeEpoch: "1550718000",
+        title: "Washington St. Colorado",
+        url: "/game/basketball-men/d1/2019/02/20/colorado-washington-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "SJSU",
+            full: "San Jose State University",
+            seo: "san-jose-st",
+            short: "San Jose St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "931b4b8c-2a2b-4568-be24-f9f8ccdb0702",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "CO ST",
+            full: "Colorado State University",
+            seo: "colorado-st",
+            short: "Colorado St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "10:00PM ET",
+        startTimeEpoch: "1550718000",
+        title: "Colorado St. San Jose St.",
+        url: "/game/basketball-men/d1/2019/02/20/san-jose-st-colorado-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "AIRFOR",
+            full: "U.S. Air Force Academy",
+            seo: "air-force",
+            short: "Air Force"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "3522c581-2170-4eac-a553-8db215e458d1",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "FRESNO",
+            full: "California State University, Fresno",
+            seo: "fresno-st",
+            short: "Fresno St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "10:00PM ET",
+        startTimeEpoch: "1550718000",
+        title: "Fresno St. Air Force",
+        url: "/game/basketball-men/d1/2019/02/20/air-force-fresno-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Big West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big West",
+            conferenceSeo: "big-west"
+          },
+          description: "",
+          names: {
+            char6: "CSUN",
+            full: "California State University, Northridge",
+            seo: "cal-st-northridge",
+            short: "Cal St. Northridge"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "38fed1fe-9125-4e18-a1f4-c1443e8539df",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Big West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Big West",
+            conferenceSeo: "big-west"
+          },
+          description: "",
+          names: {
+            char6: "LBSU",
+            full: "Long Beach State University",
+            seo: "long-beach-st",
+            short: "Long Beach St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "10:00PM ET",
+        startTimeEpoch: "1550718000",
+        title: "Long Beach St. Cal St. Northridge",
+        url: "/game/basketball-men/d1/2019/02/20/cal-st-northridge-long-beach-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "NEVADA",
+            full: "University of Nevada",
+            seo: "nevada",
+            short: "Nevada"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "95f0d113-ec44-4172-8058-614527386bda",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "SDSU",
+            full: "San Diego State University",
+            seo: "san-diego-st",
+            short: "San Diego St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "11:00PM ET",
+        startTimeEpoch: "1550721600",
+        title: "San Diego St. Nevada",
+        url: "/game/basketball-men/d1/2019/02/20/nevada-san-diego-st",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "UTAH",
+            full: "University of Utah",
+            seo: "utah",
+            short: "Utah"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "c0b14ca0-6b2c-4c02-8ffb-729aad1d467b",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Pac-12 Conference",
+            conferenceDivision: "d1",
+            conferenceName: "Pac-12",
+            conferenceSeo: "pac-12"
+          },
+          description: "",
+          names: {
+            char6: "WASH",
+            full: "University of Washington",
+            seo: "washington",
+            short: "Washington"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "11:00PM ET",
+        startTimeEpoch: "1550721600",
+        title: "Washington Utah",
+        url: "/game/basketball-men/d1/2019/02/20/utah-washington",
+        videoState: ""
+      }
+    },
+    {
+      game: {
+        away: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "N MEX",
+            full: "University of New Mexico",
+            seo: "new-mexico",
+            short: "New Mexico"
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        bracketId: "",
+        bracketRegion: "",
+        bracketRound: "",
+        contestClock: "",
+        currentPeriod: "",
+        finalMessage: "",
+        gameID: "010bb87a-baea-4d87-9406-2504b9bedc4b",
+        gameState: "pre",
+        home: {
+          conferenceNames: {
+            conferenceDisplay: "Mountain West Conference",
+            conferenceDivision: "d1",
+            conferenceName: "MWC",
+            conferenceSeo: "mountain-west"
+          },
+          description: "",
+          names: {
+            char6: "UT ST",
+            full: "Utah State University",
+            seo: "utah-st",
+            short: "Utah St."
+          },
+          rank: "",
+          score: "0",
+          seed: "",
+          winner: false
+        },
+        liveVideoEnabled: false,
+        network: "",
+        startDate: "02-20-2019",
+        startTime: "11:00PM ET",
+        startTimeEpoch: "1550721600",
+        title: "Utah St. New Mexico",
+        url: "/game/basketball-men/d1/2019/02/20/new-mexico-utah-st",
+        videoState: ""
+      }
+    }
+  ],
+  inputMD5Sum: "c44c196dfdcbeb1b746798e0527b7919",
+  updated_at: "10-09-2018 18:54:51"
+}

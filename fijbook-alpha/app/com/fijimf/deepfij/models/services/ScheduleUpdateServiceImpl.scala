@@ -144,8 +144,11 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   def scrape(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
     logger.info("Loading date " + d)
-
-    val response = (throttler ? ScoreboardByDateReq(d)).mapTo[ScrapingResponse[List[GameData]]]
+    val path = if (season.year > 2018)
+      "https://data.ncaa.com/casablanca/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.json"
+    else
+      "http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html"
+    val response = (throttler ? ScoreboardByDateReq(d,path)).mapTo[ScrapingResponse[List[GameData]]]
     logScrapeResponse(d, response)
 
     response.map(_.result match {
@@ -158,7 +161,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     futScrapeResp.onComplete {
       case Success(resp) =>
         val dt = d.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        val u = StringUtils.abbreviateMiddle(resp.url, " ... ", 48)
+        val u = resp.url
         val lat = "%8d ms".format(resp.latencyMs)
         val sz = "%10d".format(resp.length)
         resp.result match {
