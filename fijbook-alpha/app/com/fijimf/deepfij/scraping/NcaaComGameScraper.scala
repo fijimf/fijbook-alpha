@@ -10,7 +10,7 @@ import play.api.libs.json._
 import scala.util.{Failure, Success, Try}
 
 
-trait NcaaComGameScraper {
+object NcaaComGameScraper {
   val logger: Logger = Logger(this.getClass)
   val zoneId: ZoneId = ZoneId.of("America/New_York")
 

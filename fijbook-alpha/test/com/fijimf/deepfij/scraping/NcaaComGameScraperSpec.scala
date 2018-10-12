@@ -12,48 +12,47 @@ import scala.util.Success
 class NcaaComGameScraperSpec extends FlatSpec {
   val isNov15 = classOf[NcaaComGameScraperSpec].getResourceAsStream("/test-data/nov15.txt")
   private val nov15 = Source.fromInputStream(isNov15).mkString
-  val scraper = new NcaaComGameScraper {}
   "NcaaComGameScraper" should "parse the JSON in " in {
-    val jsValue: JsValue = Json.parse(scraper.stripCallbackWrapper(nov15))
+    val jsValue: JsValue = Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))
     assert((jsValue \ "scoreboard").asOpt[JsArray].isDefined)
   }
 
   it should "extract an array of Json game data " in {
-    val jsValue: JsValue = Json.parse(scraper.stripCallbackWrapper(nov15))
-    assert(scraper.getGames(jsValue).isSuccess)
+    val jsValue: JsValue = Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))
+    assert(NcaaComGameScraper.getGames(jsValue).isSuccess)
   }
 
   it should "pull locations from games" in {
-    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-      case Success(js) => assert(js.value.flatMap(scraper.gameLocation) == locations)
+    NcaaComGameScraper.getGames(Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))) match {
+      case Success(js) => assert(js.value.flatMap(NcaaComGameScraper.gameLocation) == locations)
       case _ => fail()
     }
   }
 
   it should "pull start date time from games" in {
-    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-      case Success(js) => assert(js.value.flatMap(scraper.gameStartTime) == startTimes.map(LocalDateTime.parse(_)))
+    NcaaComGameScraper.getGames(Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))) match {
+      case Success(js) => assert(js.value.flatMap(NcaaComGameScraper.gameStartTime) == startTimes.map(LocalDateTime.parse(_)))
       case _ => fail()
     }
   }
 
   it should "pull final status" in {
-    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
-      case Success(js) => assert(js.value.forall(value => scraper.isGameFinal(value).getOrElse(false)))
+    NcaaComGameScraper.getGames(Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))) match {
+      case Success(js) => assert(js.value.forall(value => NcaaComGameScraper.isGameFinal(value).getOrElse(false)))
       case _ => fail()
     }
   }
   it should "pull home team " in {
-    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+    NcaaComGameScraper.getGames(Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))) match {
       case Success(js) =>
-        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
+        assert(js.value.map(gg=> NcaaComGameScraper.gameHomeTeam(gg))==homeTeamCandidates)
       case _ => fail()
     }
   }
   it should "pull away team " in {
-    scraper.getGames(Json.parse(scraper.stripCallbackWrapper(nov15))) match {
+    NcaaComGameScraper.getGames(Json.parse(NcaaComGameScraper.stripCallbackWrapper(nov15))) match {
       case Success(js) =>
-        assert(js.value.map(gg=> scraper.gameHomeTeam(gg))==homeTeamCandidates)
+        assert(js.value.map(gg=> NcaaComGameScraper.gameHomeTeam(gg))==homeTeamCandidates)
       case _ => fail()
     }
   }
@@ -104,7 +103,7 @@ class NcaaComGameScraperSpec extends FlatSpec {
     "2015-11-15T22:00"
   )
 
-  
+
   val homeTeamCandidates:Seq[List[String]] = Seq(
     List("ohio-st", "ohio-st", "Ohio State", "ohio-st", "Ohio State", "OHIOST"),
     List("rutgers", "rutgers", "Rutgers", "rutgers", "Rutgers", "RUTGER"),
