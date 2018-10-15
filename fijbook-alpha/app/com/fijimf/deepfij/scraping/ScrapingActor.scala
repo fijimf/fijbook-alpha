@@ -36,6 +36,7 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
   override def receive: Receive = {
     case r: HtmlScrapeRequest[_] => handleScrape(r)
     case r: JsonScrapeRequest[_] => handleJsonScrape(r)
+    case r: CasablancaJsonScrapeRequest[_] => handleCasablancaJsonScrape(r)
     case TestUrl(url) => handleTest(url)
     case uxm =>
       logger.error(s"Unexpected message ${uxm.toString}")
@@ -75,6 +76,19 @@ class ScrapingActor @Inject()(ws: WSClient) extends Actor {
         }
         t <- Try {
           r.scrape(js)
+        }
+      } yield t
+    })
+  }
+
+  def handleCasablancaJsonScrape[T](r: CasablancaJsonScrapeRequest[T]): Unit = {
+    handle(r, body => {
+      for {
+        pr <- Try {
+          r.preProcessBody(body)
+        }
+        t <- Try {
+          r.scrape(pr)
         }
       } yield t
     })

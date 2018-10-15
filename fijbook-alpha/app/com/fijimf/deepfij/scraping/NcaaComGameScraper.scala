@@ -13,6 +13,7 @@ import scala.util.{Failure, Success, Try}
 object NcaaComGameScraper {
   val logger: Logger = Logger(this.getClass)
   val zoneId: ZoneId = ZoneId.of("America/New_York")
+  val requestPath: String = "http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html"
 
   def getGames(v: JsValue): Try[JsArray] = ((v \ "scoreboard") (0) \ "games").validate[JsArray] match {
     case JsSuccess(value, _) => Success(value)

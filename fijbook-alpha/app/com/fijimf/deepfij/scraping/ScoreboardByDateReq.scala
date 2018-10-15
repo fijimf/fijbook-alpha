@@ -8,14 +8,30 @@ import play.api.libs.json.JsValue
 
 import scala.util.{Failure, Success}
 
-case class ScoreboardByDateReq(date: LocalDate, path: String = "http://data.ncaa.com/jsonp/scoreboard/basketball-men/d1/%04d/%02d/%02d/scoreboard.html") extends JsonScrapeRequest[List[GameData]] {
+case class ScoreboardByDateReq(date: LocalDate) extends JsonScrapeRequest[List[GameData]] {
   val logger = Logger(this.getClass)
-  override def url = path.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
+  override def url = NcaaComGameScraper.requestPath.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
   override def preProcessBody(s: String) = NcaaComGameScraper.stripCallbackWrapper(s)
   override def scrape(js:JsValue):List[GameData] = {
     NcaaComGameScraper.getGames(js) match {
       case Success(jsa) =>
         jsa.value.toList.flatMap(v => NcaaComGameScraper.getGameData(v, date.toString))
+      case Failure(ex) =>
+        logger.error("Failed scraping data ", ex)
+        List.empty
+    }
+  }
+}
+
+
+case class CasablancaScoreboardByDateReq(date: LocalDate) extends CasablancaJsonScrapeRequest[List[GameData]] {
+  val logger = Logger(this.getClass)
+  override def url = CasablancaGameScraper.requestPath.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
+  override def preProcessBody(s: String) = s
+  override def scrape(js:String):List[GameData] = {
+    CasablancaGameScraper.getGames(js) match {
+      case Success(jsa) =>
+        jsa.flatMap(v => CasablancaGameScraper.getGameData(v, date.toString))
       case Failure(ex) =>
         logger.error("Failed scraping data ", ex)
         List.empty
