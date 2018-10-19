@@ -2,7 +2,7 @@ package com.fijimf.deepfij.models.nstats
 
 object HigherOrderCounters {
 
-  case class ShorthandRecord(wins: List[Long] = List.empty, losses: List[Long] = List.empty) {
+  final case class ShorthandRecord(wins: List[Long] = List.empty, losses: List[Long] = List.empty) {
     def addWin(k: Long): ShorthandRecord = copy(wins = k :: wins)
 
     def addLoss(k: Long): ShorthandRecord = copy(losses = k :: losses)
@@ -70,7 +70,7 @@ object HigherOrderCounters {
   object losses extends base {
     override def extract(b: Map[Long, ShorthandRecord]): Map[Long, Double] = b.mapValues(_.l())
 
-    override def key: String = "ho-wins"
+    override def key: String = "ho-losses"
 
     override def higherIsBetter: Boolean = true
   }

@@ -12,6 +12,6 @@ object EditStaticPageForm {
      )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String, content: String)
+  final case class Data(key: String, content: String)
 
 }

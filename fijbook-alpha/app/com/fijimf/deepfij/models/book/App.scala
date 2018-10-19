@@ -35,7 +35,7 @@ object App {
   }
 }
 
-case class App
+final case class App
 (
   name: String,
   time: LocalDateTime,

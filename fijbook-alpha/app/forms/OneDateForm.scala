@@ -13,6 +13,6 @@ object OneDateForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(date:LocalDate)
+  final case class Data(date:LocalDate)
 
 }

@@ -27,7 +27,7 @@ object EditTeamForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(
+  final case class Data(
                    id: Long,
                    key: String,
                    name: String,

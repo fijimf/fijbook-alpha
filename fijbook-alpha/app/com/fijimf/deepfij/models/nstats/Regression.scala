@@ -14,7 +14,7 @@ import com.fijimf.deepfij.models.{Game, Result}
 
 object Regression {
 
-  case class RegState(keyMap: Map[Long, Int] = Map.empty, A: Array[Array[Double]] = Array.empty[Array[Double]], b: Array[Double] = Array.empty[Double]) {
+  final case class RegState(keyMap: Map[Long, Int] = Map.empty, A: Array[Array[Double]] = Array.empty[Array[Double]], b: Array[Double] = Array.empty[Double]) {
 
     require(A.forall(_.size == keyMap.size), s"Keymap knows ${keyMap.mkString(", ")} , ${A.zipWithIndex.find(_._1.size != keyMap.size).map(tup => s"${tup._2} --> [${tup._1.mkString(",")}]")}")
     require(A.size == b.size, s"A & b are different sizes, A rows ${A.size} b rows ${b.size}")

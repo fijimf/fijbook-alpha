@@ -7,7 +7,7 @@ import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future
 
-case class SeedConferenceMaps(dao: ScheduleDAO) extends SSTask[Int] {
+final case class SeedConferenceMaps(dao: ScheduleDAO) extends SSTask[Int] {
   import scala.concurrent.ExecutionContext.Implicits.global
   def run(messageListener: Option[ActorRef]): Future[Int] = {
     for {

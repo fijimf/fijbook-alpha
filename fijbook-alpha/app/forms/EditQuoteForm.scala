@@ -15,6 +15,6 @@ object EditQuoteForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long,  quote: String, source: Option[String], url: Option[String], key: Option[String])
+  final case class Data(id: Long,  quote: String, source: Option[String], url: Option[String], key: Option[String])
 
 }

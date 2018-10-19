@@ -28,7 +28,7 @@ object LogisticRegressionContext {
   }
 }
 
-case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, Option[Result])], dao: ScheduleDAO, m:LogisticRegressionModel) extends SchedulePredictor {
+final case class LogisticRegressionContext(key: String, classifier: Classifier[(Game, Option[Result])], dao: ScheduleDAO, m:LogisticRegressionModel) extends SchedulePredictor {
 
   val ts = m.summary.asInstanceOf[BinaryLogisticRegressionTrainingSummary]
   def modelPerformance(): List[LogisticResultLine] = {

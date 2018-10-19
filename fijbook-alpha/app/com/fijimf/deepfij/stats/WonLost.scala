@@ -7,7 +7,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostAccumulator] {
+final case class WonLost(s: Schedule, dates:List[LocalDate]) extends Analyzer[WonLostAccumulator] {
   val log = Logger(WonLost.getClass)
   val model: Model[WonLostAccumulator] = WonLost
   val data: Map[LocalDate, Map[Team, WonLostAccumulator]] = {

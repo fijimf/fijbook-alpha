@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.stats.predictor
 
-case class LogisticPerformanceSplit[B](key: B, correct: Int = 0, incorrect: Int = 0, avgLogLikelihood: Double = 0.0) {
+final case class LogisticPerformanceSplit[B](key: B, correct: Int = 0, incorrect: Int = 0, avgLogLikelihood: Double = 0.0) {
   require(correct >= 0 && incorrect >= 0)
 
   def n: Int = correct + incorrect

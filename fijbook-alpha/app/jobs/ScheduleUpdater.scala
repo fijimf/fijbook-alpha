@@ -20,7 +20,7 @@ class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
 
 object ScheduleUpdater {
 
-  case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
+  final case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
 
   def forAll = Update()
 

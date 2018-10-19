@@ -17,7 +17,7 @@ import akka.pattern.ask
 import scala.util.{Failure, Success}
 
 
-case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)extends SSTask[Int] {
+final case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)extends SSTask[Int] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

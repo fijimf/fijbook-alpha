@@ -4,6 +4,7 @@ import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.nstats.SnapshotDbBundle
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -68,24 +69,56 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.date>=from && sv.date<=to).to[List].result)
   }
 
-  override def saveXStats(xstats: List[XStat]): Future[List[XStat]] = {
+  override def listXStats: Future[List[XStat]] = db.run(repo.xstats.to[List].result)
+
+  override def saveXStats(xstats: List[XStat]): Future[List[Int]] = {
     db.run(DBIO.sequence(xstats.map(upsertByCompoundKey)).transactionally)
   }
 
-  override def saveXStat(xstat: XStat): Future[XStat] = {
+  override def saveXStat(xstat: XStat): Future[Int] = {
     db.run(upsertByCompoundKey(xstat).transactionally)
   }
 
-  def upsertByCompoundKey(xstat: XStat): DBIO[XStat] = {
+  override def saveXStatSnapshot(d: LocalDate, k: String, xstats: List[XStat]): Future[Int] = {
+    db.run(for {
+      _ <- repo.xstats.filter(x => x.date === d && x.key === k).delete
+      m <- repo.xstats ++= xstats
+    } yield {
+      m.getOrElse(-1)
+    })
+  }
+
+  override def saveBatchedSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]] = {
+    log.info(s"'saveBatchedSnapshots' received request to save ${snaps.size} bundles.")
+    val deletes = DBIO.sequence(snaps.map(s => (s.d, s.k)).groupBy(_._1).mapValues(_.map(_._2)).map {
+      case (date, keys) =>
+        repo.xstats.filter(x => x.date === date && x.key.inSet(keys.toSet)).delete
+    })
+    val inserts = repo.xstats ++= snaps.flatMap(_.xs)
+    val returnValue = db.run((for {
+      _ <- deletes
+      i <- inserts
+    } yield {
+      i
+    }).withPinnedSession)
+    returnValue.onComplete{
+      case Success(_)=> log.info(s"'saveBatchedSnapshots' completed successfully")
+      case Failure(thr)=> log.error(s"'saveBatchedSnapshots' failed!", thr)
+    }
+    returnValue
+  }
+
+  def upsertByCompoundKey(xstat: XStat): DBIO[Int] = {
     for {
-      rowsAffected <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).update(xstat)
-      _ <- rowsAffected match {
-        case 0 => repo.xstats += xstat
-        case 1 => DBIO.successful(1)
-        case n => DBIO.failed(new RuntimeException(
-          s"Expected 0 or 1 change, not $n for ${xstat.date}, ${xstat.key}, ${xstat.teamId}"))
+      row <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.headOption
+      m <- row match {
+        case None =>
+          repo.xstats += xstat
+        case Some(x) =>
+          repo.xstats.filter(y => y.id === x.id).update(xstat.copy(id = x.id))
+          DBIO.successful(1)
       }
-      result <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.head
-    } yield result
+      // result <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.head
+    } yield m
   }
 }

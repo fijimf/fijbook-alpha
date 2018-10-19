@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils
   * @param email Maybe the email of the authenticated provider.
   * @param avatarURL Maybe the avatar URL of the authenticated provider.
   */
-case class User(
+final case class User(
                  userID: UUID,
                  loginInfo: LoginInfo,
                  firstName: Option[String],

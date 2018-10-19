@@ -21,12 +21,12 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List[_]] {
+final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List[_]] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  
-  case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long])
+
+  final case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long])
   val logger = Logger(this.getClass)
   def name: String = "Scrape games"
   def run(messageListener:Option[ActorRef]):Future[List[_]] = {
@@ -69,7 +69,7 @@ case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List
             updateResults
           }
           results.onComplete {
-            case Success(x)=> 
+            case Success(x)=>
               dateCounter.send(tup=>(tup._1+1,tup._2))
               val (num, den) = dateCounter.get
               val pctComplete = num.toDouble/den.toDouble

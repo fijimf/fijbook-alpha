@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 import play.api.libs.json._
 
-case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], probability:Option[Double], error: Option[Double],logLikelihood: Option[Double]) {
+final case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], probability:Option[Double], error: Option[Double],logLikelihood: Option[Double]) {
   def toJson = {
     val hs: Int = homeScore.getOrElse(-1)
     val as: Int = awayScore.getOrElse(-1)
@@ -31,7 +31,7 @@ case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: O
   }
 }
 
-case class GprCohort(gprls: List[GprLine], pctPredicted: Option[Double], pctRight: Option[Double], pctWrong: Option[Double], accuracy: Option[Double], avgSpreadErr: Option[Double], avgAbsSpreadErr: Option[Double], logLikelihood: Option[Double]) {
+final case class GprCohort(gprls: List[GprLine], pctPredicted: Option[Double], pctRight: Option[Double], pctWrong: Option[Double], accuracy: Option[Double], avgSpreadErr: Option[Double], avgAbsSpreadErr: Option[Double], logLikelihood: Option[Double]) {
   def toJson = JsArray(gprls.map(_.toJson))
 
 

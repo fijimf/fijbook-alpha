@@ -11,6 +11,6 @@ object BulkEditQuoteForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(quotes: String)
+  final case class Data(quotes: String)
 
 }

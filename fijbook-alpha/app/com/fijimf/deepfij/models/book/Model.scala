@@ -7,7 +7,7 @@ import java.time.{Duration, LocalDateTime}
 import scala.util.{Failure, Success, Try}
 
 
-case class Bettor
+final case class Bettor
 (
   name: String,
   balance: Int
@@ -21,7 +21,7 @@ case class Bettor
   }
 }
 
-case class Bet
+final case class Bet
 (
   id: Long,
   offerId: Long,
@@ -31,7 +31,7 @@ case class Bet
   amount: Int
 )
 
-case class Offer
+final case class Offer
 (
   id: Long,
   bettorId: Long,
@@ -41,7 +41,7 @@ case class Offer
 )
 
 
-case class Game
+final case class Game
 (
   homeTeam: String,
   awayTeam: String,
@@ -54,7 +54,7 @@ case class Game
   def isSameGame(g: Game): Boolean = g.date.truncatedTo(ChronoUnit.DAYS) == date.truncatedTo(ChronoUnit.DAYS) && Set(g.homeTeam, g.awayTeam) == Set(homeTeam, awayTeam)
 }
 
-case class Result
+final case class Result
 (
   homeScore: Int,
   awayScore: Int

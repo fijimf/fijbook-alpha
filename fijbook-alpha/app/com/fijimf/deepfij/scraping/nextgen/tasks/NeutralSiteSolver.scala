@@ -7,7 +7,7 @@ import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future
 
-case class NeutralSiteSolver(dao: ScheduleDAO) extends SSTask[List[Game]] {
+final case class NeutralSiteSolver(dao: ScheduleDAO) extends SSTask[List[Game]] {
 
   def run(messageListener: Option[ActorRef]): Future[List[Game]] = {
     import scala.concurrent.ExecutionContext.Implicits.global

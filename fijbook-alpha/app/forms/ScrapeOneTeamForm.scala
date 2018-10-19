@@ -13,7 +13,7 @@ object ScrapeOneTeamForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String, shortName: String)
+  final case class Data(key: String, shortName: String)
 
 }
 

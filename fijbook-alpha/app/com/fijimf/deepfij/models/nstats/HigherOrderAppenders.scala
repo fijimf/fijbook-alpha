@@ -5,7 +5,7 @@ import com.fijimf.deepfij.models.{Game, Result}
 
 object HigherOrderAppenders {
 
-  case class ShorthandRecord(wins: List[Long] = List.empty, losses: List[Long] = List.empty) {
+  final case class ShorthandRecord(wins: List[Long] = List.empty, losses: List[Long] = List.empty) {
     def addWin(k: Long): ShorthandRecord = copy(wins = k :: wins)
 
     def addLoss(k: Long): ShorthandRecord = copy(losses = k :: losses)

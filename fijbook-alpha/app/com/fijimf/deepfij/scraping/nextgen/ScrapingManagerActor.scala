@@ -28,7 +28,7 @@ object ScrapingManagerActor {
            ) = Props(new ScrapingManagerActor(out, superScraper, ws, repo, dao, schedSvc))
 }
 
-case class ScrapingManagerActor(
+final case class ScrapingManagerActor(
                                  out: ActorRef,
                                  superScraper: ActorRef,
                                  ws: WSClient,
@@ -40,7 +40,7 @@ case class ScrapingManagerActor(
   val teamThrottler: ActorRef = throttledScrapingClient(Rate(3,1.second))
   val confThrottler: ActorRef = throttledScrapingClient(Rate(4,1.second))
   val gameThrottler: ActorRef = throttledScrapingClient(Rate(5,1.second))
-  
+
   val log = Logger(this.getClass)
 
   override def receive: Receive = {
@@ -73,16 +73,16 @@ case class ScrapingManagerActor(
     case (r: ReadyData) =>
       log.info("Received ~READY~")
       out ! Json.toJson(r).toString()
-    case (p: ProcessingData) => 
+    case (p: ProcessingData) =>
       log.info("Received ~PROCESSING-DATA~")
       out ! Json.toJson(p).toString()
-    case (taskId: String, elapsedTime:JDuration,pctComplete:Double, progress: String) => 
+    case (taskId: String, elapsedTime:JDuration,pctComplete:Double, progress: String) =>
       log.info("Recieved ~PROGRESS~")
       out ! Json.toJson(Map(
-        "type" -> "progress", 
+        "type" -> "progress",
         "taskId" -> taskId,
         "elapsedTime"->FormatDuration(elapsedTime),
-        "progress" -> progress, 
+        "progress" -> progress,
         "percentComplete"->(new DecimalFormat("#.00").format(100*pctComplete)+"%"))).toString()
     case _ =>
       log.error("Received an unexpected message")
@@ -98,7 +98,7 @@ case class ScrapingManagerActor(
 
 
 object ScrapeManagingActor {
-  
+
   object ScrapeThrottler {
     def props(r: Rate) = Props(classOf[TimerBasedThrottler], r)
   }

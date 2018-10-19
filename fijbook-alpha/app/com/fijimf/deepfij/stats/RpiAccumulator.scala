@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.stats
 
-case class RpiAccumulator(wins: Int = 0, losses: Int = 0, oppWins: Int = 0, oppLosses: Int = 0, oppOppWins: Int = 0, oppOppLosses: Int = 0) {
+final case class RpiAccumulator(wins: Int = 0, losses: Int = 0, oppWins: Int = 0, oppLosses: Int = 0, oppOppWins: Int = 0, oppOppLosses: Int = 0) {
   def addWin(): RpiAccumulator = copy(wins = wins + 1)
 
   def addLoss(): RpiAccumulator = copy(losses = losses + 1)

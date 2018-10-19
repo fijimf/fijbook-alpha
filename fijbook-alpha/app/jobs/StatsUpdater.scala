@@ -10,14 +10,15 @@ class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case StatsUpdater.Update(whichDays) => svc.update(whichDays) //<-Rerun the last week
+    case year:String =>
+      logger.info(s"Received request to update $year")
+      svc.update(year.toInt)
+    case s:Any=>logger.warn(s"Unknown message recieved by StatsUpdater: $s")
   }
 }
 
 object StatsUpdater {
-
-  case class Update(whichDays: Option[Int])
+  final case class Update(yyyy:String)
   val name = "stats-updater"
-
 }
 

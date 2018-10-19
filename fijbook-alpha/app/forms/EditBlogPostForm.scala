@@ -23,7 +23,7 @@ object EditBlogPostForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String,
+  final case class Data(key: String,
                   date: LocalDate,
                   author: String,
                   title: String,

@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import scala.util.Try
 
-case class TeamPredictionView(t:Team, ps:List[PredictionView]){
+final case class TeamPredictionView(t:Team, ps:List[PredictionView]){
   def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined)
   def numCorrect:Int = ps.count(pv=>pv.isResultCorrect.isDefined && pv.isResultCorrect.get)
   def pctCorrect:Double = if (numPredicted>0){
@@ -51,7 +51,7 @@ val wl = recordDistribution.maxBy(_._2)._1
   }
 }
 
-case class PredictionView(s: Schedule, pred: GamePrediction) {
+final case class PredictionView(s: Schedule, pred: GamePrediction) {
   require(s.gameMap.contains(pred.gameId), s"Predicted game ${pred.gameId} unknown in schedule ${s.season.year}")
   val game: Game = s.gameMap(pred.gameId)
   require(s.teamsMap.contains(game.homeTeamId), s"Home team ${game.homeTeamId} unknown in schedule ${s.season.year}")

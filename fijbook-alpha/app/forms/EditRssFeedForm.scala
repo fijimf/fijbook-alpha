@@ -13,6 +13,6 @@ object EditRssFeedForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long, name: String, url: String)
+  final case class Data(id: Long, name: String, url: String)
 
 }

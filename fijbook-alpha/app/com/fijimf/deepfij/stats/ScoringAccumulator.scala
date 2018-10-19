@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.stats
 
-case class ScoringAccumulator
+final case class ScoringAccumulator
 (
   pointsFor: List[Int] = List.empty[Int],
   pointsAgainst: List[Int] = List.empty[Int],

@@ -68,7 +68,7 @@ object StatValueGameFeatureMapper {
   }
 }
 
-case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDate, Map[Long, Double]]]) extends FeatureMapper[(Game, Option[Result])] {
+final case class StatValueGameFeatureMapper(keys: List[String], vals: List[Map[LocalDate, Map[Long, Double]]]) extends FeatureMapper[(Game, Option[Result])] {
 
   val logger = Logger(this.getClass)
   require(keys.lengthCompare(vals.size) == 0, "Value map and key list have different dimension")

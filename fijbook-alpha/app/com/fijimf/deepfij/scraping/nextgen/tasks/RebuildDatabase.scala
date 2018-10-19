@@ -8,7 +8,7 @@ import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future
 
-case class RebuildDatabase(repo: ScheduleRepository) extends SSTask[Unit] {
+final case class RebuildDatabase(repo: ScheduleRepository) extends SSTask[Unit] {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val name: String = "RebuildDatabase"

@@ -20,7 +20,7 @@ println(s"*********** ${authTokenCleaner.path.toStringWithoutAddress}")
   authTokenCleaner ! AuthTokenCleaner.Clean
   QuartzSchedulerExtension(system).schedule("DailyScheduleUpdater", scheduleUpdater, ScheduleUpdater.forDailyUpdate)
   QuartzSchedulerExtension(system).schedule("IntradayScheduleUpdater", scheduleUpdater, ScheduleUpdater.forNow)
-  QuartzSchedulerExtension(system).schedule("DailyStatsUpdater", statsUpdater, StatsUpdater.Update(Some(7)))
+  //QuartzSchedulerExtension(system).schedule("DailyStatsUpdater", statsUpdater, StatsUpdater.Update(Some(7)))
   QuartzSchedulerExtension(system).schedule("DailyPredictionsUpdater", predictionsUpdater, PredictionsUpdater.Update)
   QuartzSchedulerExtension(system).schedule("RssFeedUpdateSchedule", rssFeedUpdater, RssUpdater.Update)
   QuartzSchedulerExtension.get(system).schedules.foreach{case (name,sch)=>{

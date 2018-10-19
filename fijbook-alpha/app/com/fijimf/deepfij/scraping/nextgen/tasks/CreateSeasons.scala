@@ -7,7 +7,7 @@ import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future
 
-case class CreateSeasons(start: Int, end: Int, dao: ScheduleDAO) extends SSTask[Int]{
+final case class CreateSeasons(start: Int, end: Int, dao: ScheduleDAO) extends SSTask[Int]{
   import scala.concurrent.ExecutionContext.Implicits.global
   def run(messageListener: Option[ActorRef]): Future[Int] = {
     dao.saveSeasons(start.to(end).map(y => Season(0L, y)).toList).map(_.size)

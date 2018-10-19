@@ -16,6 +16,6 @@ object EditSeasonForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long, year: Int, lock:String, lockBefore:Option[LocalDate])
+  final case class Data(id: Long, year: Int, lock:String, lockBefore:Option[LocalDate])
 
 }

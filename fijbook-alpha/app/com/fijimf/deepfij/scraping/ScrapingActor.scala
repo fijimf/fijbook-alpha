@@ -15,7 +15,7 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
-case class ScrapingResponse[T](url: String, latencyMs: Long, status: Int, length: Int, result: Try[T])
+final case class ScrapingResponse[T](url: String, latencyMs: Long, status: Int, length: Int, result: Try[T])
 
 object ScrapingActor {
   def props(ws: WSClient) = Props(new ScrapingActor(ws))

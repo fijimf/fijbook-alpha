@@ -19,7 +19,7 @@ object PredictionModelForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data
+  final case class Data
   (
     seasonsIncluded: List[String],
     excludeMonths: List[String],

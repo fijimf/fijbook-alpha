@@ -8,7 +8,7 @@ import play.api.libs.json.JsValue
 
 import scala.util.{Failure, Success}
 
-case class ScoreboardByDateReq(date: LocalDate) extends JsonScrapeRequest[List[GameData]] {
+final case class ScoreboardByDateReq(date: LocalDate) extends JsonScrapeRequest[List[GameData]] {
   val logger = Logger(this.getClass)
   override def url = NcaaComGameScraper.requestPath.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
   override def preProcessBody(s: String) = NcaaComGameScraper.stripCallbackWrapper(s)
@@ -24,7 +24,7 @@ case class ScoreboardByDateReq(date: LocalDate) extends JsonScrapeRequest[List[G
 }
 
 
-case class CasablancaScoreboardByDateReq(date: LocalDate) extends CasablancaJsonScrapeRequest[List[GameData]] {
+final case class CasablancaScoreboardByDateReq(date: LocalDate) extends CasablancaJsonScrapeRequest[List[GameData]] {
   val logger = Logger(this.getClass)
   override def url = CasablancaGameScraper.requestPath.format( date.getYear, date.getMonthValue ,date.getDayOfMonth )
   override def preProcessBody(s: String) = s

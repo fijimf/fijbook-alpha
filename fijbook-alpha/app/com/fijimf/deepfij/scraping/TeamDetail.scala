@@ -6,7 +6,7 @@ import com.fijimf.deepfij.models.Team
 
 import scala.xml.Node
 
-case class TeamDetail(key: String, shortName: String, user: String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
+final case class TeamDetail(key: String, shortName: String, user: String) extends HtmlScrapeRequest[Team] with NcaaComTeamScraper {
   override def url = "http://www.ncaa.com/schools/" + key + "/"
 
   override def scrape(n: Node) = {

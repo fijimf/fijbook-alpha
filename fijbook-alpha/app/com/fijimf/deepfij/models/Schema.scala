@@ -16,7 +16,7 @@ import slick.lifted._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Season(id: Long, year: Int) {
+final case class Season(id: Long, year: Int) {
   val startDate: LocalDate = Season.startDate(year)
   val endDate: LocalDate = Season.endDate(year)
   val dates: List[LocalDate] = Season.dates(year)
@@ -35,7 +35,7 @@ case object Season {
   }.takeWhile(_.isBefore(endDate(y))).toList
 }
 
-case class Conference(id: Long, key: String, name: String, level:String = "Unknown", logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) {
+final case class Conference(id: Long, key: String, name: String, level:String = "Unknown", logoLgUrl: Option[String], logoSmUrl: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) {
   private val strengthMap = Map("High Major" -> 3, "Mid Major" -> 2, "Low Major" -> 1, "Unknown" -> 0)
   require(strengthMap.contains(level))
   val strength: Int =strengthMap(level)
@@ -51,9 +51,9 @@ case class Conference(id: Long, key: String, name: String, level:String = "Unkno
 
 }
 
-case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
+final case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
 
-case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
+final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
 
   def signature: GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
@@ -68,7 +68,7 @@ case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, da
 
 }
 
-case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
+final case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
   override def compare(x: Team, y: Team): Int = x.name.compare(y.name)
 
 
@@ -89,9 +89,9 @@ case class Team(id: Long, key: String, name: String, longName: String, nickname:
 
 }
 
-case class Alias(id: Long, alias: String, key: String)
+final case class Alias(id: Long, alias: String, key: String)
 
-case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, updatedAt: LocalDateTime, updatedBy: String) {
+final case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, updatedAt: LocalDateTime, updatedBy: String) {
 
   def sameData(r: Result): Boolean = (r.gameId == gameId
     && r.homeScore == homeScore
@@ -116,34 +116,34 @@ case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, period
   }
 }
 
-case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key: Option[String])
+final case class Quote(id: Long, quote: String, source: Option[String], url: Option[String], key: Option[String])
 
-case class QuoteVote(id: Long, quoteId: Long, user: String, createdAt: LocalDateTime)
+final case class QuoteVote(id: Long, quoteId: Long, user: String, createdAt: LocalDateTime)
 
-case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, updatedAt: LocalDateTime, updatedBy: String)
+final case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, updatedAt: LocalDateTime, updatedBy: String)
 
-case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double) {
+final case class StatValue(id: Long, modelKey: String, statKey: String, teamID: Long, date: LocalDate, value: Double) {
   require(!modelKey.contains(":") && !modelKey.contains(" "), "Model key cannot contain ':' or ' '")
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rank: Option[Int], percentile: Option[Double],mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
+final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rank: Option[Int], percentile: Option[Double],mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
 
-case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
+final case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
 
-case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
+final case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
   def odds: Option[Double] = probability.map(x => x / (1 - x))
 }
 
-case class UserProfileData(id: Long, userID: String, key: String, value: String)
+final case class UserProfileData(id: Long, userID: String, key: String, value: String)
 
-case class FavoriteLink(id: Long, userID: String, displayAs: String, link: String, order: Int, createdAt: LocalDateTime)
+final case class FavoriteLink(id: Long, userID: String, displayAs: String, link: String, order: Int, createdAt: LocalDateTime)
 
-case class RssFeed(id: Long, name: String, url: String)
+final case class RssFeed(id: Long, name: String, url: String)
 
-case class RssItem(id: Long, rssFeedId: Long, title: String, url: String, image: Option[String], publishTime: LocalDateTime, recordedAt: LocalDateTime)
+final case class RssItem(id: Long, rssFeedId: Long, title: String, url: String, image: Option[String], publishTime: LocalDateTime, recordedAt: LocalDateTime)
 
-case class Job(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message: String, timeout: FiniteDuration, isEnabled: Boolean, updatedAt: LocalDateTime) {
+final case class Job(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message: String, timeout: FiniteDuration, isEnabled: Boolean, updatedAt: LocalDateTime) {
   val actorPath:String = s"/user/$name"
 
   val quartzTriggerKey:TriggerKey =new TriggerKey(s"qz-trigger-$id",s"$name")
@@ -153,7 +153,7 @@ case class Job(id: Long, name: String, description: String, cronSchedule: String
   def actorSelection(context: ActorContext): ActorSelection = context.actorSelection(actorPath)
 }
 
-case class JobRun(id: Long, jobId: Long, startTime: LocalDateTime, endTime: Option[LocalDateTime], status: String, message: String) {
+final case class JobRun(id: Long, jobId: Long, startTime: LocalDateTime, endTime: Option[LocalDateTime], status: String, message: String) {
   require(Set("Running", "Failure", "Success").contains(status))
 }
 
@@ -451,18 +451,18 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  //case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
+  //final case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
  class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
     def seasonId: Rep[Long] = column[Long]("season_id")
 
-    def date: Rep[LocalDate] = column[LocalDate]("date")
+    def date: Rep[LocalDate] = column[LocalDate]("date", O.Length(32))
 
-    def key: Rep[String] = column[String]("key", O.Length(32))
+    def key: Rep[String] = column[String]("key", O.Length(48))
 
-    def teamId: Rep[Long] = column[Long]("team_id", O.Length(32))
+    def teamId: Rep[Long] = column[Long]("team_id")
 
 
     def value: Rep[Option[Double]] = column[Option[Double]]("value")

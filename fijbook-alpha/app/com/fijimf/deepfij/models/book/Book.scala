@@ -4,7 +4,7 @@ import java.time.{Duration, LocalDateTime}
 
 import scala.util.{Failure, Success, Try}
 
-case class Book
+final case class Book
 (
   state: BookState,
   game: Game,
@@ -41,7 +41,7 @@ case class Book
   def openOrClose(app:App):Try[Book] = {
     openOrClose(app.time, app.openWindow, app.closeWindow)
   }
-  
+
   def open: Either[IllegalStateException, Book] = {
     if (state == Open) {
       Left(new IllegalStateException("Book is already open"))

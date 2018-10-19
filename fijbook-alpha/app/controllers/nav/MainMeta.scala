@@ -5,7 +5,7 @@ import java.time.LocalDate
 import com.fijimf.deepfij.models.User
 
 
-case class MainMeta
+final case class MainMeta
 (
   title: String,
   pageHead: String,

@@ -6,7 +6,7 @@ import com.fijimf.deepfij.models.{Game, Result}
 import play.api.data.Form
 import play.api.data.Forms._
 
-//case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
+//final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
 
 object EditGameForm {
 
@@ -27,7 +27,7 @@ object EditGameForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(
+  final case class Data(
                    id: Long,
                    seasonId: Long,
                    homeTeamId: Long,

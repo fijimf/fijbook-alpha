@@ -10,7 +10,7 @@ import slick.lifted.ProvenShape.proveShapeOf
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class DBUser(
+final case class DBUser(
                    userID: String,
                    firstName: Option[String],
                    lastName: Option[String],
@@ -20,32 +20,32 @@ case class DBUser(
                    activated:Boolean
                  )
 
-case class DBLoginInfo(
+final case class DBLoginInfo(
                         id: Option[Long],
                         providerID: String,
                         providerKey: String
                       )
 
-case class DBUserLoginInfo(
+final case class DBUserLoginInfo(
                             userID: String,
                             loginInfoId: Long
                           )
 
-case class DBPasswordInfo(
+final case class DBPasswordInfo(
                            hasher: String,
                            password: String,
                            salt: Option[String],
                            loginInfoId: Long
                          )
 
-case class DBOAuth1Info(
+final case class DBOAuth1Info(
                          id: Option[Long],
                          token: String,
                          secret: String,
                          loginInfoId: Long
                        )
 
-case class DBOAuth2Info(
+final case class DBOAuth2Info(
                          id: Option[Long],
                          accessToken: String,
                          tokenType: Option[String],
@@ -54,12 +54,12 @@ case class DBOAuth2Info(
                          loginInfoId: Long
                        )
 
-case class DBOpenIDInfo(
+final case class DBOpenIDInfo(
                          id: String,
                          loginInfoId: Long
                        )
 
-case class DBOpenIDAttribute(
+final case class DBOpenIDAttribute(
                               id: String,
                               key: String,
                               value: String

@@ -1,3 +1,3 @@
 package com.fijimf.deepfij.models
 
-case class ConferenceStandings(records: List[(WonLostRecord, WonLostRecord, Team)])
+final case class ConferenceStandings(records: List[(WonLostRecord, WonLostRecord, Team)])

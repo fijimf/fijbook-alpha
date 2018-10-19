@@ -12,10 +12,10 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
-case class ExecuteScheduled(jobName: String, message: String)
-case class ExecuteScheduledJob(job: Job)
+final case class ExecuteScheduled(jobName: String, message: String)
+final case class ExecuteScheduledJob(job: Job)
 
-case class CreateWrappedJob(job: Job)
+final case class CreateWrappedJob(job: Job)
 
 class JobWrapperActor(dao: ScheduleDAO) extends Actor {
   val logger = play.api.Logger(this.getClass)

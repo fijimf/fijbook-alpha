@@ -23,7 +23,7 @@ import scala.language.postfixOps
 import scala.util.matching.Regex
 import scala.util.{Failure, Success}
 
-case class UpdateControlString(str: String) {
+final case class UpdateControlString(str: String) {
   val wholeSeason: Regex = """(\d{4})\.(?i)(all)""".r
   val seasonBeforeAndAfterNow: Regex = """(\d{4})\.(\d+)\.(d+)""".r
   val seasonDate: Regex = """(\d{4})\.(\d{8})""".r
@@ -292,4 +292,4 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   }
 }
 
-case class ResultsVerification(unmappedKeys: List[String] = List.empty, notFound: List[String] = List.empty, matchedResults: List[Team] = List.empty, unmatchedResults: List[(Team, WonLostRecord, WonLostRecord)] = List.empty)
+final case class ResultsVerification(unmappedKeys: List[String] = List.empty, notFound: List[String] = List.empty, matchedResults: List[Team] = List.empty, unmatchedResults: List[(Team, WonLostRecord, WonLostRecord)] = List.empty)

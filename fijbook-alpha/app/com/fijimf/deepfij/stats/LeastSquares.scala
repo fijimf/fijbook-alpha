@@ -9,7 +9,7 @@ import com.fijimf.deepfij.models.{Game, Result, Schedule, Team}
 import com.fijimf.deepfij.stats.WonLost.canCreateDates
 import play.api.Logger
 
-case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSAccumulator] {
+final case class LeastSquares(s: Schedule, dates:List[LocalDate]) extends Analyzer[LSAccumulator] {
   val log = Logger(LeastSquares.getClass)
   val model:Model[LSAccumulator] = LeastSquares
   private val completedGames: List[(Game, Result)] = s.games.flatMap(g => s.resultMap.get(g.id).map(r => g -> r))

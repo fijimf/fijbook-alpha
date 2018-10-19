@@ -28,96 +28,34 @@ class StatsController @Inject()(
   import play.api.libs.json._
 
   def updateAll() = silhouette.SecuredAction.async { implicit rs =>
-    statWriterService.update()
+//    statWriterService.update()
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
   }
 
   def updateAllSeasons() = silhouette.SecuredAction.async { implicit rs =>
-    statWriterService.updateAllSchedules(None)
+//    statWriterService.updateAllSchedules(None)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
   }
 
   def updateAllSeasonsModel(k:String) = silhouette.SecuredAction.async { implicit rs =>
-    statWriterService.updateAllSchedules(Some(k))
+//    statWriterService.updateAllSchedules(Some(k))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule"))
   }
 
-
-  def viewStat(modelKey: String, statKey: String) = silhouette.UserAwareAction.async { implicit request =>
-    statWriterService.lookupModel(modelKey).flatMap(m => statWriterService.lookupStat(modelKey, statKey).map((m, _))) match {
-      case Some((model, stat)) => {
-        teamDao.loadSchedules().flatMap(ss => {
-          val sortedSchedules = ss.sortBy(s => -s.season.year)
-          sortedSchedules.headOption match {
-            case Some(sch) => {
-              teamDao.loadStatValues(statKey, modelKey).flatMap(stats => {
-                val byDate = stats.groupBy(s => s.date)
-                val statContext = StatContext(model, stat, byDate, sch.teamsMap)
-                Future.successful(Ok(views.html.data.stat(request.identity, statContext)))
-              })
-            }
-            case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> "No current schedule loaded"))
-          }
-        })
-      }
-      case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> ("Could not identify statmodel:stat '" + modelKey + ":" + statKey + "'")))
-    }
-  }
-
-  def viewStatApi(modelKey: String, statKey: String) = silhouette.UserAwareAction.async { implicit request =>
-    statWriterService.lookupModel(modelKey).flatMap(m => statWriterService.lookupStat(modelKey, statKey).map((m, _))) match {
-      case Some((model, stat)) => {
-        teamDao.loadSchedules().flatMap(ss => {
-          val sortedSchedules = ss.sortBy(s => -s.season.year)
-          sortedSchedules.headOption match {
-            case Some(sch) => {
-              teamDao.loadStatValues(statKey, modelKey).map(stats => {
-                val byDate = stats.groupBy(s => s.date)
-                val statContext = StatContext(model, stat, byDate, sch.teamsMap)
-                Ok(Json.toJson(statContext.asMap))
-              })
-            }
-            case None => Future.successful(Ok(Json.toJson(Map.empty[String, String])))
-          }
-        })
-      }
-      case None => Future.successful(Ok(Json.toJson(Map.empty[String, String])))
-    }
-  }
-
-  def viewModel(modelKey: String) = silhouette.UserAwareAction.async { implicit request =>
-    statWriterService.lookupModel(modelKey) match {
-      case Some(model) => {
-        teamDao.loadLatestSchedule().flatMap {
-          case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> "No seasons loaded"))
-          case Some(sch) => {
-            for {
-              stats <- teamDao.loadStatValues(modelKey, sch.season.startDate, sch.season.endDate)
-            } yield {
-              val byDate = stats.groupBy(s => s.date).mapValues(_.groupBy(_.statKey))
-              val statContext = ModelContext(model, model.stats, byDate, sch.teamsMap)
-              Ok(views.html.data.statmodel(request.identity, statContext))
-            }
-          }
-        }
-      }
-      case None => Future.successful(Redirect(routes.ReactMainController.index).flashing("info" -> ("Could not identify model '" + modelKey + "'")))
-    }
-
-  }
+def todo = TODO
+def todo1(m:String) = TODO
+def todo2(M:String, k:String) = TODO
 
 
-  def viewModels() = silhouette.UserAwareAction.async { implicit request =>
-    Future.successful(Ok(views.html.data.statmodels(request.identity, ModelsContext(statWriterService.models))))
-  }
-}
-
-
-case class ModelsContext(models: List[Model[_]]) {
 
 }
 
-case class ModelContext(model: Model[_], stats: List[Stat[_]], xs: Map[LocalDate, Map[String, List[StatValue]]], teamMap: Map[Long, Team]) {
+
+final case class ModelsContext(models: List[Model[_]]) {
+
+}
+
+final case class ModelContext(model: Model[_], stats: List[Stat[_]], xs: Map[LocalDate, Map[String, List[StatValue]]], teamMap: Map[Long, Team]) {
   def modelName = model.name
 
   def modelKey = model.key
@@ -134,7 +72,7 @@ case class ModelContext(model: Model[_], stats: List[Stat[_]], xs: Map[LocalDate
   def desc(stat: Stat[_]) = new DescriptiveStatistics(latestValues(stat).map(_._2.value).toArray)
 }
 
-case class StatContext(model: Model[_], stat: Stat[_], xs: Map[LocalDate, List[StatValue]], teamMap: Map[Long, Team]) {
+final case class StatContext(model: Model[_], stat: Stat[_], xs: Map[LocalDate, List[StatValue]], teamMap: Map[Long, Team]) {
 
   def asMap2 = JsObject(Seq(
     "model" -> JsObject(Seq(

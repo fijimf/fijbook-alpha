@@ -13,6 +13,6 @@ object EditAliasForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long,  alias: String, key: String)
+  final case class Data(id: Long,  alias: String, key: String)
 
 }

@@ -12,11 +12,11 @@ import play.api.Logger
 import scala.concurrent.Future
 import scala.io.Source
 
-case class TourneyUpdater(filename: String, dao: ScheduleDAO) extends SSTask[Int] {
+final case class TourneyUpdater(filename: String, dao: ScheduleDAO) extends SSTask[Int] {
   val logger = Logger(this.getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
-  
+
   def run(messageListener: Option[ActorRef]): Future[Int] = {
     updateNcaaTournamentGames(filename).map(_.size)
   }

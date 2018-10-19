@@ -1,5 +1,5 @@
 package com.fijimf.deepfij.models
-case class WonLostRecord(won: Int = 0, lost: Int = 0) extends Ordering[WonLostRecord] {
+final case class WonLostRecord(won: Int = 0, lost: Int = 0) extends Ordering[WonLostRecord] {
   require(won >= 0 && lost >= 0)
 
   override def compare(x: WonLostRecord, y: WonLostRecord): Int = {

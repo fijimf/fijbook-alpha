@@ -13,7 +13,7 @@ import org.joda.time.LocalDate
 
 import scala.collection.JavaConversions._
 
-case class S3BlogMetaData
+final case class S3BlogMetaData
 (
   key: String,
   date: String,
@@ -26,7 +26,7 @@ case class S3BlogMetaData
   lastModified: LocalDateTime
 )
 
-case class S3BlogPost(
+final case class S3BlogPost(
                        meta: S3BlogMetaData,
                        content: Array[Byte]
                      )

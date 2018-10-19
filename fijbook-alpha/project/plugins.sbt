@@ -7,7 +7,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.6")
 
 addSbtPlugin("com.jamesward" %% "play-auto-refresh" % "0.0.14")
 
-addSbtPlugin("org.wartremover" % "sbt-wartremover" % "1.2.1")
+addSbtPlugin("org.wartremover" % "sbt-wartremover" % "2.3.7")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
 

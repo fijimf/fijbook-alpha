@@ -70,6 +70,6 @@ object EditJobForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message:String, timeout: FiniteDuration, isEnabled: Boolean)
+  final case class Data(id: Long, name: String, description: String, cronSchedule: String, timezone: String, actorClass: Option[String], message:String, timeout: FiniteDuration, isEnabled: Boolean)
 
 }

@@ -2,8 +2,8 @@ package com.fijimf.deepfij.scraping.nextgen
 import java.time.LocalDateTime
 
 
-case class SSTaskListMetadata(id: String, tasks: List[SSTaskMetaData]) {
-  
+final case class SSTaskListMetadata(id: String, tasks: List[SSTaskMetaData]) {
+
   val (status:String, time:LocalDateTime) = {
     tasks.headOption match {
       case Some(s:SSRunningTaskMetadata[_])=>("Running", s.startedAt)

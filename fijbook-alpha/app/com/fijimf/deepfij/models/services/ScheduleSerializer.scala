@@ -27,15 +27,15 @@ object ScheduleSerializer {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class ConfMap(key: String, teams: List[String])
+  final case class ConfMap(key: String, teams: List[String])
 
-  case class Scoreboard(date: String, games: List[MappedGame])
+  final case class Scoreboard(date: String, games: List[MappedGame])
 
-  case class MappedGame(homeTeamKey: String, awayTeamKey: String, date: LocalDate, datetime: LocalDateTime, location: String, isNeutralSite: Boolean, tourneyKey: String, homeTeamSeed: Int, awayTeamSeed: Int, sourceKey: String, result: Map[String, Int])
+  final case class MappedGame(homeTeamKey: String, awayTeamKey: String, date: LocalDate, datetime: LocalDateTime, location: String, isNeutralSite: Boolean, tourneyKey: String, homeTeamSeed: Int, awayTeamSeed: Int, sourceKey: String, result: Map[String, Int])
 
-  case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
+  final case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
 
-  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
+  final case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
 
   import  com.fijimf.deepfij.models._
   implicit val formatsConfMap: Format[ConfMap] = Json.format[ConfMap]

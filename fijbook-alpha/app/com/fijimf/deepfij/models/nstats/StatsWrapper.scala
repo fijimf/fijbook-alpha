@@ -2,19 +2,18 @@ package com.fijimf.deepfij.models.nstats
 
 import java.time.LocalDate
 
+import akka.actor.{ActorSystem, PoisonPill, Props}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Schedule, XStat}
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import play.api.Logger
 
-import scala.util.{Failure, Success}
 
-
-case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
+final case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
   val n = obs.size
   val (mean, stdDev, min, max) = if (obs.nonEmpty) {
     val s = new DescriptiveStatistics(obs.values.toArray)
-    //case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rankAsc: Option[Int], rankDesc: Option[Int], percentileAsc: Option[Double], percentileDesc: Option[Double], mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
+    //final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rankAsc: Option[Int], rankDesc: Option[Int], percentileAsc: Option[Double], percentileDesc: Option[Double], mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
     (Some(s.getMean), Some(s.getStandardDeviation), Some(s.getMin), Some(s.getMax))
   } else {
     (None, None, None, None)
@@ -42,43 +41,45 @@ case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
 
 }
 
-class StatsWrapper(dao:ScheduleDAO) {
-  val log = Logger(this.getClass)
+final case class SnapshotDbBundle(d: LocalDate, k: String, xs: List[XStat])
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
+  val logger = Logger(this.getClass)
+
   def writeSnapshot(a:Analysis[_], s:Schedule, snapshot: Snapshot): Unit = {
-    val xstats = s.teams.map(t => {
-      val id = t.id
-      XStat(
-        id = 0L,
-        seasonId = s.season.id,
-        date = snapshot.date,
-        key = a.key,
-        teamId = id,
-        value = snapshot.value(id),
-        rank = snapshot.rank(id),
-        percentile = snapshot.percentile(id),
-        mean = snapshot.mean,
-        stdDev = snapshot.stdDev,
-        min = snapshot.min,
-        max = snapshot.max,
-        n = snapshot.n
-      )
-    })
-    val start = System.currentTimeMillis()
-    dao.saveXStats(xstats).onComplete {
-      case Success(lst) =>
-        val elapsed = System.currentTimeMillis() - start
-        log.info(s"Wrote ${lst.size} stats in $elapsed ms.")
-      case Failure(thr) =>
-        log.error("Failed saving stats", thr)
+    if (snapshot.n > 0) {
+      val xstats = s.teams.map(t => {
+        val id = t.id
+        XStat(
+          id = 0L,
+          seasonId = s.season.id,
+          date = snapshot.date,
+          key = a.key,
+          teamId = id,
+          value = snapshot.value(id),
+          rank = snapshot.rank(id),
+          percentile = snapshot.percentile(id),
+          mean = snapshot.mean,
+          stdDev = snapshot.stdDev,
+          min = snapshot.min,
+          max = snapshot.max,
+          n = snapshot.n
+        )
+      })
+
+      actorSystem.actorSelection("/user/snapshot-buffer") ! SnapshotDbBundle(snapshot.date, a.key, xstats)
     }
   }
 
   def updateStats(s: Schedule, models: List[Analysis[_]]): Unit = {
+
+    val writer = actorSystem.actorOf(Props(classOf[SnapshotDAOWriter], dao))
+    val buffer = actorSystem.actorOf(Props(classOf[SnapshotBuffer], writer), "snapshot-buffer")
+
     models.foreach(m => {
       Analysis.analyzeSchedule(s, m, writeSnapshot(m, s, _))
     })
+
   }
 
 

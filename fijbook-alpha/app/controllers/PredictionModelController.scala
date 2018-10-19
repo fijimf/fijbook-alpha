@@ -173,7 +173,7 @@ object LogisticPerformanceSummary {
   def empty = LogisticPerformanceSummary(List.empty[LogisticResultLine], Map.empty[Long, Season], Map.empty[Long, Team])
 }
 
-case class LogisticPerformanceSummary(ls: List[LogisticResultLine], seasonMap: Map[Long, Season], teamMap: Map[Long, Team]) {
+final case class LogisticPerformanceSummary(ls: List[LogisticResultLine], seasonMap: Map[Long, Season], teamMap: Map[Long, Team]) {
   private val result2SeasMonth = (l: LogisticResultLine) => (seasonMap(l.game.seasonId), l.game.date.withDayOfMonth(1))
   private val result2SeasAway = (l: LogisticResultLine) => (seasonMap(l.game.seasonId), teamMap(l.game.awayTeamId))
   private val result2SeasHome = (l: LogisticResultLine) => (seasonMap(l.game.seasonId), teamMap(l.game.homeTeamId))

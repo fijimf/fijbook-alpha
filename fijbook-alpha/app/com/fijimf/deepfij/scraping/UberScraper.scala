@@ -17,12 +17,12 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
+final case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class Tracking(stamp: LocalDateTime, step: String)
+  final case class Tracking(stamp: LocalDateTime, step: String)
 
   implicit val timeout: Timeout = Timeout(600.seconds)
 
@@ -195,7 +195,8 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
 
   def updateStatistics(): Future[List[Tracking]] = {
     logger.info("Updating statistics")
-    statSvc.updateAllSchedules(None).map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
+ //   statSvc.updateAllSchedules(None).map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
+    Future(List.empty[Tracking])
   }
 
   def neutralSiteSolver(tag: String): Future[List[Tracking]] = {
