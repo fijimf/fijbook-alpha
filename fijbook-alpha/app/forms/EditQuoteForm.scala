@@ -5,7 +5,7 @@ import play.api.data.Forms._
 
 object EditQuoteForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "quote" -> nonEmptyText,

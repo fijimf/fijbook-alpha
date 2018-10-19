@@ -9,7 +9,7 @@ import play.api.data.Forms._
   */
 object EditTeamForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "key" -> nonEmptyText,
@@ -42,7 +42,7 @@ object EditTeamForm {
                    officialTwitter: Option[String],
                    officialFacebook: Option[String]
                  )
-  def team2Data(t:Team) = {
+  def team2Data(t:Team): Data = {
     Data(
       t.id,
       t.key,

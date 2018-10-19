@@ -6,7 +6,7 @@ import play.api.data.Forms._
 
 object EditConferenceForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "key" -> nonEmptyText,

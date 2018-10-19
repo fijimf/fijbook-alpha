@@ -5,7 +5,7 @@ import play.api.data.Forms._
 
 object EditRssFeedForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> default(longNumber, 0L),
       "name" -> nonEmptyText,

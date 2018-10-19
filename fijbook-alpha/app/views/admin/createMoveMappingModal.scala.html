@@ -12,7 +12,7 @@
             </div>
             <div class="modal-body">
                 <p>Move <strong>@t.name</strong> from <strong>@c.name</strong> to
-                    <select id="@{"select-"+s.id+"-"+c.id+"-"+t.id}" onchange='moveConferenceMap("@routes.DataController.moveConferenceMapping(s.id, 0, t.id)", @s.id, @c.id, @t.id)' >
+                    <select id="@{s"select-${s.id}-${c.id}-${t.id}"}" onchange='moveConferenceMap("@routes.DataController.moveConferenceMapping(s.id, 0, t.id)", @s.id, @c.id, @t.id)' >
                     @for(cc<-cs){
                         @if(cc.id==c.id) {
                             <option value="@cc.id" selected>@cc.name</option>
@@ -24,7 +24,7 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <a  class="btn btn-danger" id="@{"move-"+s.id+"-"+c.id+"-"+t.id}" href="@routes.DataController.moveConferenceMapping(s.id, c.id, t.id)">Move</a>
+                <a  class="btn btn-danger" id="@{s"move-${s.id}-${c.id}-${t.id}"}" href="@routes.DataController.moveConferenceMapping(s.id, c.id, t.id)">Move</a>
                 <button  data-dismiss="modal" class="btn">Cancel</button>
             </div>
         </div>

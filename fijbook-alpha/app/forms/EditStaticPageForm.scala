@@ -5,7 +5,7 @@ import play.api.data.Forms._
 
 object EditStaticPageForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "key" -> nonEmptyText,
       "content" -> nonEmptyText

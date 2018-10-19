@@ -10,7 +10,7 @@ import play.api.data.Forms._
 
 object EditGameForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "seasonId" -> longNumber,
@@ -53,7 +53,7 @@ object EditGameForm {
     }
   }
 
-  def team2Data(g: Game, r: Option[Result]) = {
+  def team2Data(g: Game, r: Option[Result]): Data = {
     Data(
       g.id,
       g.seasonId,

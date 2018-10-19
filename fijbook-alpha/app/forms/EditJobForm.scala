@@ -3,7 +3,7 @@ package forms
 import java.util.TimeZone
 
 import org.quartz.CronExpression
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
@@ -46,7 +46,7 @@ object EditJobForm {
   implicit object FiniteDurationFormatter extends Formatter[FiniteDuration] {
     override val format = Some(("format.finiteDuration", Nil))
 
-    override def bind(key: String, data: Map[String, String]) = parsing({
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], FiniteDuration] = parsing({
       Duration.create(_) match {
         case f: FiniteDuration => f
         case _ => throw new IllegalArgumentException
@@ -56,7 +56,7 @@ object EditJobForm {
     override def unbind(key: String, value: FiniteDuration) = Map(key -> value.toString)
   }
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> default(longNumber, 0L),
       "name" -> nonEmptyText,

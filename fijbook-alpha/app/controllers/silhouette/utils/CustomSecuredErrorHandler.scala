@@ -14,7 +14,7 @@ import scala.concurrent.Future
   *
   * @param messagesApi The Play messages API.
   */
-class CustomSecuredErrorHandler @Inject() (val messagesApi: MessagesApi) extends SecuredErrorHandler with I18nSupport {
+final class CustomSecuredErrorHandler @Inject() (val messagesApi: MessagesApi) extends SecuredErrorHandler with I18nSupport {
 
   /**
     * Called when a user is not authenticated.
