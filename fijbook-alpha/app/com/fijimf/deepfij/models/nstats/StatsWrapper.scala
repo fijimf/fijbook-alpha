@@ -3,10 +3,14 @@ package com.fijimf.deepfij.models.nstats
 import java.time.LocalDate
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
+import akka.pattern._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Schedule, XStat}
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import play.api.Logger
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 
 final case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
@@ -71,14 +75,15 @@ class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
     }
   }
 
-  def updateStats(s: Schedule, models: List[Analysis[_]]): Unit = {
+  def updateStats(s: Schedule, models: List[Analysis[_]], timeout:FiniteDuration): Future[Any]= {
 
-    val writer = actorSystem.actorOf(Props(classOf[SnapshotDAOWriter], dao))
-    val buffer = actorSystem.actorOf(Props(classOf[SnapshotBuffer], writer), "snapshot-buffer")
+    val buffer = actorSystem.actorOf(Props(classOf[SnapshotBuffer], dao), "snapshot-buffer")
 
     models.foreach(m => {
       Analysis.analyzeSchedule(s, m, writeSnapshot(m, s, _))
     })
+
+    buffer.ask(CalculationComplete)(timeout)
 
   }
 

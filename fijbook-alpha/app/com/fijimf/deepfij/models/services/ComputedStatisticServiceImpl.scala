@@ -6,6 +6,8 @@ import com.fijimf.deepfij.models.nstats._
 import javax.inject.Inject
 import play.api.Logger
 
+import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
 import scala.language.postfixOps
 
 class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO, actorSystem: ActorSystem) extends ComputedStatisticService {
@@ -59,11 +61,14 @@ class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO, actorSystem: Acto
     Regression.ols
   )
 
-  override def update(year: Int): Unit = {
+  override def update(year: Int, timeout: FiniteDuration): Future[String] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    dao.loadSchedule(year).map(_.foreach(s => {
-      wrapper.updateStats(s, models)
-    }))
+    dao.loadSchedule(year).flatMap {
+      case Some(s) =>
+        wrapper.updateStats(s, models, timeout).map(_.toString)
+      case None =>
+        Future("Schedule not found")
+    }
   }
 }
 

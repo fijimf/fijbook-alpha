@@ -90,9 +90,9 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
 
   override def saveBatchedSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]] = {
     log.info(s"'saveBatchedSnapshots' received request to save ${snaps.size} bundles.")
-    val deletes = DBIO.sequence(snaps.map(s => (s.d, s.k)).groupBy(_._1).mapValues(_.map(_._2)).map {
-      case (date, keys) =>
-        repo.xstats.filter(x => x.date === date && x.key.inSet(keys.toSet)).delete
+    val deletes = DBIO.sequence(snaps.map(s => (s.k, s.d)).groupBy(_._1).mapValues(_.map(_._2)).map {
+      case (key, dates) =>
+        repo.xstats.filter(x => x.key === key && x.date.inSet(dates.toSet)).delete
     })
     val inserts = repo.xstats ++= snaps.flatMap(_.xs)
     val returnValue = db.run((for {
