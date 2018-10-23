@@ -49,7 +49,7 @@ class JobWrapperActor(dao: ScheduleDAO) extends Actor {
     logger.info(s"Found job $job in DB")
     dao.saveJobRun(JobRun(0L, job.id, LocalDateTime.now(), None, "Running", "")).flatMap(run => {
       if (job.isEnabled) {
-        val response = context.actorSelection(job.actorPath).ask(message)(job.timeout)
+        val response: Future[Any] = context.actorSelection(job.actorPath).ask(message)(job.timeout)
         response.onComplete {
           case Success(a: Any) =>
             logger.info("Job succeeded")

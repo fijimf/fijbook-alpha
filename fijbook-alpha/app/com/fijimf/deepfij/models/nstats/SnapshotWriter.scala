@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import play.api.Logger
 
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
 object FeedMe
@@ -15,13 +16,13 @@ object CalculationComplete
 class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
 val log = Logger(this.getClass)
   val batchSize = 100
-  val startTime = System.currentTimeMillis()
+  val startTime = System.nanoTime()
 
   val writer = context.actorOf(Props(classOf[SnapshotDAOWriter], dao))
 
-  override def receive = buffer(List.empty[SnapshotDbBundle], writerReady = true, readyToDie = false)
+  override def receive = buffer(List.empty[SnapshotDbBundle], writerReady = true, readyToDie = None)
 
-  def buffer(snaps: List[SnapshotDbBundle], writerReady: Boolean, readyToDie: Boolean): Receive = {
+  def buffer(snaps: List[SnapshotDbBundle], writerReady: Boolean, readyToDie: Option[ActorRef]): Receive = {
     case snap: SnapshotDbBundle =>
       if (snaps.size % 100 == 99) log.info(s"Buffer with data received snap bundle.  New size is ${snaps.size + 1}")
       if (writerReady) {
@@ -34,11 +35,13 @@ val log = Logger(this.getClass)
     case FeedMe =>
       val (front, back) = snaps.splitAt(batchSize)
       if (front.isEmpty) {
-        if (readyToDie) {
+        readyToDie match {
+          case Some(tgt) =>
           log.info("No snaps.  Done Writing.  Ready to die.  I'm literally dying")
-          sender() ! s"Completed in ${startTime - System.currentTimeMillis()} ms"
+            val d = Duration.fromNanos(System.nanoTime() - startTime)
+            tgt ! s"Completed in ${d.toString()} "
           context stop self
-        } else {
+          case None =>
           context become buffer(List.empty[SnapshotDbBundle], writerReady = true, readyToDie)
         }
       } else {
@@ -49,7 +52,7 @@ val log = Logger(this.getClass)
       }
     case CalculationComplete =>
       log.info("Received a CalculationComplete.  I AM READY TO DIE")
-      context become buffer(snaps, writerReady, readyToDie = true)
+      context become buffer(snaps, writerReady, readyToDie = Some(sender()))
     case dk: Any => log.warn(s"[hasData] DON'T KNOW: $dk")
   }
 }
