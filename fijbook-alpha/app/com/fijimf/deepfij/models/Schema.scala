@@ -1,6 +1,5 @@
 package com.fijimf.deepfij.models
 
-import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
@@ -13,6 +12,8 @@ import slick.basic.DatabaseConfig
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 import slick.lifted._
 
+import com.fijimf.deepfij.util.ModelUtils
+import cats.implicits._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,51 +40,52 @@ final case class Conference(id: Long, key: String, name: String, level:String = 
   private val strengthMap = Map("High Major" -> 3, "Mid Major" -> 2, "Low Major" -> 1, "Unknown" -> 0)
   require(strengthMap.contains(level))
   val strength: Int =strengthMap(level)
-  def sameData(c: Conference): Boolean = (key == c.key
-    && name == c.name
-    && level == c.level
-    && logoLgUrl == c.logoLgUrl
-    && logoSmUrl == c.logoSmUrl
-    && officialUrl == c.officialUrl
-    && officialTwitter == c.officialTwitter
-    && officialFacebook == c.officialFacebook
+  def sameData(c: Conference): Boolean = (key === c.key
+    && name === c.name
+    && level === c.level
+    && logoLgUrl === c.logoLgUrl
+    && logoSmUrl === c.logoSmUrl
+    && officialUrl === c.officialUrl
+    && officialTwitter === c.officialTwitter
+    && officialFacebook === c.officialFacebook
     )
 
 }
 
 final case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
 
-final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) {
+final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) extends ModelUtils {
 
   def signature: GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
-  def sameData(g: Game): Boolean = (g.seasonId == seasonId
-    && g.homeTeamId == homeTeamId
-    && g.awayTeamId == awayTeamId
-    && g.date == date
-    && g.datetime == datetime
-    && g.location == location
-    && g.isNeutralSite == isNeutralSite
+  def sameData(g: Game): Boolean = (g.seasonId === seasonId
+    && g.homeTeamId === homeTeamId
+    && g.awayTeamId === awayTeamId
+    && g.date === date
+    && g.datetime === datetime
+    && g.location === location
+    && g.isNeutralSite === isNeutralSite
     )
 
 }
 
 final case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
+
   override def compare(x: Team, y: Team): Int = x.name.compare(y.name)
 
 
-  def sameData(t: Team): Boolean = (key == t.key
-    && name == t.name
-    && longName == t.longName
-    && nickname == t.nickname
-    && optConference == t.optConference
-    && logoLgUrl == t.logoLgUrl
-    && logoSmUrl == t.logoSmUrl
-    && primaryColor == t.primaryColor
-    && secondaryColor == t.secondaryColor
-    && officialUrl == t.officialUrl
-    && officialTwitter == t.officialTwitter
-    && officialFacebook == t.officialFacebook
+  def sameData(t: Team): Boolean = (key === t.key
+    && name === t.name
+    && longName === t.longName
+    && nickname === t.nickname
+    && optConference === t.optConference
+    && logoLgUrl === t.logoLgUrl
+    && logoSmUrl === t.logoSmUrl
+    && primaryColor === t.primaryColor
+    && secondaryColor === t.secondaryColor
+    && officialUrl === t.officialUrl
+    && officialTwitter === t.officialTwitter
+    && officialFacebook === t.officialFacebook
     )
 
 
@@ -93,10 +95,10 @@ final case class Alias(id: Long, alias: String, key: String)
 
 final case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, updatedAt: LocalDateTime, updatedBy: String) {
 
-  def sameData(r: Result): Boolean = (r.gameId == gameId
-    && r.homeScore == homeScore
-    && r.awayScore == awayScore
-    && r.periods == periods
+  def sameData(r: Result): Boolean = (r.gameId === gameId
+    && r.homeScore === homeScore
+    && r.awayScore === awayScore
+    && r.periods === periods
     )
 
   def margin: Int = Math.abs(homeScore - awayScore)

@@ -9,7 +9,7 @@ import scala.util.Try
 
 final case class TeamPredictionView(t:Team, ps:List[PredictionView]){
   def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined)
-  def numCorrect:Int = ps.count(pv=>pv.isResultCorrect.isDefined && pv.isResultCorrect.get)
+  def numCorrect:Int = ps.count(pv=>pv.isResultCorrect.getOrElse(false))
   def pctCorrect:Double = if (numPredicted>0){
     numCorrect.doubleValue()/numPredicted.doubleValue()
   } else {
@@ -59,7 +59,7 @@ final case class PredictionView(s: Schedule, pred: GamePrediction) {
   require(s.teamsMap.contains(game.homeTeamId), s"Home team ${game.homeTeamId} unknown in schedule ${s.season.year}")
   require(s.teamsMap.contains(game.awayTeamId), s"Away team ${game.awayTeamId} unknown in schedule ${s.season.year}")
   if (pred.favoriteId.isDefined) {
-    require(game.homeTeamId === pred.favoriteId.get || game.awayTeamId === pred.favoriteId.get, s"Favorite team ${pred.favoriteId.get} unknown in game ${pred.gameId}")
+    require(game.homeTeamId === pred.favoriteId.getOrElse(-1) || game.awayTeamId === pred.favoriteId.getOrElse(-1), s"Favorite team ${pred.favoriteId.getOrElse(-1)} unknown in game ${pred.gameId}")
   }
 
   def result: Option[Result] = s.resultMap.get(game.id)

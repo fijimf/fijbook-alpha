@@ -129,3 +129,6 @@ javaOptions in Test += "-Dconfig.resource=application-test.conf"
 
 
 wartremoverWarnings ++= Warts.all
+import play.twirl.sbt.Import.TwirlKeys
+wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+wartremoverExcluded ++= routes.in(Compile).value

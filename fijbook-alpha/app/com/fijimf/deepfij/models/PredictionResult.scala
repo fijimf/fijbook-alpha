@@ -2,6 +2,8 @@ package com.fijimf.deepfij.models
 
 import java.time.LocalDate
 
+import cats.implicits._
+import com.fijimf.deepfij.util.ModelUtils
 import play.api.libs.json._
 
 final case class GprLine(date: String, homeTeam: String, homeKey: String, homeScore: Option[Int], awayTeam: String, awayKey: String, awayScore: Option[Int], favorite: Option[String], isFavoriteCorrect: Option[Boolean], spread: Option[Double], probability:Option[Double], error: Option[Double],logLikelihood: Option[Double]) {
@@ -58,7 +60,7 @@ object GprLine {
       h <- homeScore
       a <- awayScore
       f <- fav
-    } yield (h > a && f == homeTeam) || (h < a && f == awayTeam)
+    } yield (h > a && f === homeTeam) || (h < a && f === awayTeam)
 
     val spread: Option[Double] = for {
       w <- sch.predictionMap.get(g.id)
@@ -79,7 +81,7 @@ object GprLine {
       f <- fav
       s <- spread
     } yield {
-      if (f == homeTeam) {
+      if (f === homeTeam) {
         (a - h) - s
       } else {
         (h - a) - s
@@ -97,10 +99,10 @@ object GprLine {
   }
 }
 
-object GprCohort {
+object GprCohort extends ModelUtils {
   def apply(sch: Schedule, modelKey:String): GprCohort = cohort(sch, sch.games, modelKey)
 
-  def apply(sch: Schedule, d: LocalDate, modelKey:String): GprCohort = cohort(sch, sch.games.filter(_.date == d), modelKey)
+  def apply(sch: Schedule, d: LocalDate, modelKey:String): GprCohort = cohort(sch, sch.games.filter(g=>g.date === d), modelKey)
 
   def cohort(sch: Schedule, gs: List[Game], modelKey:String): GprCohort = {
     val gprls = gs.map(GprLine(_, sch, modelKey))
