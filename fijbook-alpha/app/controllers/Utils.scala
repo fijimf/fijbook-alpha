@@ -13,9 +13,9 @@ object Utils {
   def yyyymmdd(s:String): LocalDate =LocalDate.parse(s, DateTimeFormatter.ofPattern("yyyyMMdd"))
 
   implicit class LocalDateTimeWrapper(dt: LocalDateTime) {
-    lazy val toMillis: Long = toMillis(ZoneId.systemDefault())
+    lazy val toMillis: Long = toMillisZoned(ZoneId.systemDefault())
 
-    def toMillis(z: ZoneId): Long = dt.atZone(z).toInstant.toEpochMilli
+    def toMillisZoned(z: ZoneId): Long = dt.atZone(z).toInstant.toEpochMilli
 
     def isBetween(start: LocalDateTime, end: LocalDateTime, inclusive: Boolean = false): Boolean = {
       if (inclusive) {
@@ -26,17 +26,17 @@ object Utils {
     }
 
     def fmt(pattern: String): String = dt.format(DateTimeFormatter.ofPattern(pattern))
-    def fmt(pattern: String, zoneId: ZoneId): String = {
+    def fmtz(pattern: String, zoneId: ZoneId): String = {
       ZonedDateTime.of(dt, zoneId).format(DateTimeFormatter.ofPattern(pattern))
     }
 
-    def fmtzny(pattern:String) = fmt(pattern, ZoneId.of("America/New_York"))
+    def fmtzny(pattern:String) = fmtz(pattern, ZoneId.of("America/New_York"))
   }
 
   implicit class LocalDateWrapper(dt: LocalDate) {
     def fmt(pattern: String): String = dt.format(DateTimeFormatter.ofPattern(pattern))
 
-    def isBetween(start: LocalDate, end: LocalDate, inclusive: Boolean = false): Boolean = {
+    def isBetween(start: LocalDate, end: LocalDate, inclusive:Boolean): Boolean = {
       if (inclusive) {
         (dt.isEqual(start) || dt.isAfter(start)) && (dt.isEqual(end) || dt.isBefore(end))
       } else {

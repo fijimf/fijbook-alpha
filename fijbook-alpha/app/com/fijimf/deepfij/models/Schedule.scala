@@ -14,11 +14,29 @@ final case class Schedule
   predictions: List[(Game, Option[GamePrediction])]
 ) {
 
+  implicit class CompletedGame(tup: (Game, Result)) {
+    val game: Game = tup._1
+    val result: Result = tup._2
+
+    def hasTeam(id: Long): Boolean = game.homeTeamId === id || game.awayTeamId === id
+
+    def isConferenceGame: Boolean = teamConference.contains(game.homeTeamId) && teamConference.get(game.homeTeamId) === teamConference.get(game.awayTeamId)
+
+    def isWinner(t: Team): Boolean = isWinner(t.id)
+    def isLoser(t: Team): Boolean = isLoser(t.id)
+
+    def isWinner(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore > result.awayScore) || (game.awayTeamId === tid && result.awayScore > result.homeScore)
+    def isLoser(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore < result.awayScore) || (game.awayTeamId === tid && result.awayScore < result.homeScore)
+  }
+
+  lazy val conferenceStandings: Map[Long, (Conference, ConferenceStandings)] =ConferenceStandings(this).map(t=>t._1.id->t).toMap
+
   val conferenceKeyMap: Map[String, Conference] = conferences.map(t => t.key -> t).toMap
   val games: List[Game] = gameResults.map(_._1).sortBy(_.date.toEpochDay)
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
   val results: List[Result] = gameResults.filter(_._2.isDefined).sortBy(_._1.date.toEpochDay).map(_._2.get)
   val resultMap: Map[Long, Result] = results.map(r => r.gameId -> r).toMap
+
   val predictionMap: Map[Long, Map[String, GamePrediction]] =
     predictions.filter(_._2.isDefined)
       .groupBy(r => r._2.get.gameId)

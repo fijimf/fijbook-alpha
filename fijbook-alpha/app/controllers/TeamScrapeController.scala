@@ -18,6 +18,7 @@ import forms.ScrapeOneTeamForm
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import cats.implicits._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -37,7 +38,7 @@ class TeamScrapeController @Inject()(
   implicit val timeout: Timeout = Timeout(600.seconds)
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
-  def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeTeams(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name + "]"
     val aliasFuture = loadAliasMap()
     val shortNameFuture = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
@@ -73,7 +74,7 @@ class TeamScrapeController @Inject()(
           .mapTo[Either[Throwable, Team]]
           .map(_.fold(thr => None, t => Some(t)))
     }
-    Await.result(Future.sequence(futureTeams), 600.seconds).flatten
+    Await.result(Future.sequence(futureTeams), 600.seconds).toList.flatten //TODO
   }
 
   def masterShortName(pagination: List[Int], stat: Int): Future[Map[String, String]] = {
@@ -81,7 +82,7 @@ class TeamScrapeController @Inject()(
       for (
         t0 <- data;
         t1 <- (throttler ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable, Seq[(String, String)]]].map(_.fold(
-          thr => Seq.empty,
+          thr => Seq.empty[(String, String)],
           seq => seq
         ))
       ) yield t0 ++ t1
@@ -112,7 +113,7 @@ class TeamScrapeController @Inject()(
           logger.info("Trying " + k)
           val u = TestUrl("http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + k + ".70.png")
           (throttler ? u).mapTo[Option[Int]].map(oi => k -> oi)
-        })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
+        })).map(_.find(_._2 === Some(200)).map(_._1))
 
       val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
       val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
@@ -122,7 +123,7 @@ class TeamScrapeController @Inject()(
     dao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
   }
 
-  def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
+  def seedConferenceMaps(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name + "]"
 
     (for {
@@ -141,7 +142,7 @@ class TeamScrapeController @Inject()(
     List.empty[Game]
   }
 
-  def neutralSiteSolver() = silhouette.SecuredAction.async { implicit rs =>
+  def neutralSiteSolver(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name + "]"
     dao.loadSchedules()
       .map(schedules =>
@@ -185,7 +186,7 @@ class TeamScrapeController @Inject()(
     }
   }
 
-  def scrapeOne() = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeOne(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val userTag: String = "Scraper[" + rs.identity.name + "]"
     ScrapeOneTeamForm.form.bindFromRequest.fold(
       form => {
@@ -210,7 +211,7 @@ class TeamScrapeController @Inject()(
     )
   }
 
-  def scrapeOneForm() = silhouette.SecuredAction.async { implicit rs =>
+  def scrapeOneForm(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {du <- loadDisplayUser(rs)
          qw <- getQuoteWrapper(du)
     } yield {
