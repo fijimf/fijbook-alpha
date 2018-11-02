@@ -71,7 +71,7 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
       Future.sequence(sampleData.map(lm=>dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_)=> {
           val result = Await.result(dao.listLogisticModelParameters, testDbTimeout)
-          assert(result.size==17)
+          assert(result.size===17)
         }
       })
     }
@@ -80,25 +80,25 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
           val result = Await.result(dao.listLogisticModelParameters, testDbTimeout)
-          assert(result.size == 17)
+          assert(result.size === 17)
         }
       }), 30.seconds)
 
       Await.result(dao.findLogisticModel("My Model").andThen({
         case Success(m) =>
-          assert(m.size == 5)
-          assert(m.values.forall(_.size==1))
+          assert(m.size === 5)
+          assert(m.values.forall(_.size===1))
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLogisticModel("My Other Model").andThen({
         case Success(m) =>
-          assert(m.size == 6)
-          assert(m.values.forall(_.size==2))
+          assert(m.size === 6)
+          assert(m.values.forall(_.size===2))
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLogisticModel("My Nonexistant Model").andThen({
         case Success(m) =>
-          assert(m.size == 0)
+          assert(m.size === 0)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
@@ -107,30 +107,30 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
           val result = Await.result(dao.listLogisticModelParameters, testDbTimeout)
-          assert(result.size == 17)
+          assert(result.size === 17)
         }
       }), 30.seconds)
 
       Await.result(dao.findLogisticModelDate("My Model", LocalDate.parse("2017-02-05")).andThen({
         case Success(m) =>
-          assert(m.size == 1)
-          assert(m(0).coefficient==0.1234567)
+          assert(m.size === 1)
+          assert(m(0).coefficient===0.1234567)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLogisticModelDate("My Other Model", LocalDate.parse("2017-02-05")).andThen({
         case Success(m) =>
-          assert(m.size == 2)
-          assert(m(0).coefficient==0.1234567 || m(1).coefficient==0.1234567)
+          assert(m.size === 2)
+          assert(m(0).coefficient===0.1234567 || m(1).coefficient===0.1234567)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLogisticModelDate("My Nonexistant Model", LocalDate.parse("2017-02-05")).andThen({
         case Success(m) =>
-          assert(m.size == 0)
+          assert(m.size === 0)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
       Await.result(dao.findLogisticModelDate("My Model", LocalDate.parse("2017-01-31")).andThen({
         case Success(m) =>
-          assert(m.size == 0)
+          assert(m.size === 0)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
@@ -139,27 +139,27 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
           val result = Await.result(dao.listLogisticModelParameters, testDbTimeout)
-          assert(result.size == 17)
+          assert(result.size === 17)
         }
       }), 30.seconds)
 
       Await.result(dao.findLatestLogisticModel("My Model").andThen({
         case Success(m) =>
-          assert(m.size == 1)
-          assert(m(0).coefficient==0.9999999)
-          assert(m(0).fittedAsOf==LocalDate.parse("2017-02-08"))
+          assert(m.size === 1)
+          assert(m(0).coefficient===0.9999999)
+          assert(m(0).fittedAsOf===LocalDate.parse("2017-02-08"))
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLatestLogisticModel("My Other Model").andThen({
         case Success(m) =>
-          assert(m.size == 2)
-          assert(m(0).coefficient==0.9999999 || m(1).coefficient==0.9999999)
-          assert(m(0).fittedAsOf==LocalDate.parse("2017-02-09"))
+          assert(m.size === 2)
+          assert(m(0).coefficient===0.9999999 || m(1).coefficient===0.9999999)
+          assert(m(0).fittedAsOf===LocalDate.parse("2017-02-09"))
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
      Await.result(dao.findLatestLogisticModel("My Nonexistant Model").andThen({
         case Success(m) =>
-          assert(m.size == 0)
+          assert(m.size === 0)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
@@ -169,14 +169,14 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
-          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size == 17)
+          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size === 17)
         }
       }), 30.seconds)
 
       Await.result(dao.deleteLogisticModel("My Other Model").andThen({
         case Success(m) =>
-          assert(m == 12)
-          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size == 5)
+          assert(m === 12)
+          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size === 5)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }
@@ -184,14 +184,14 @@ class RepoLogisticModelSpec extends PlaySpec with OneAppPerTest with BeforeAndAf
 
       Await.result(Future.sequence(sampleData.map(lm => dao.saveLogisticModelParameter(lm))).andThen({
         case Success(_) => {
-          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size == 17)
+          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size === 17)
         }
       }), 30.seconds)
 
       Await.result(dao.deleteLogisticModelDate("My Other Model",LocalDate.parse("2017-02-09")).andThen({
         case Success(m) =>
-          assert(m == 2)
-          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size == 15)
+          assert(m === 2)
+          assert(Await.result(dao.listLogisticModelParameters, testDbTimeout).size === 15)
         case Failure(_) => fail("Unexpected exception")
       }), 30.seconds)
     }

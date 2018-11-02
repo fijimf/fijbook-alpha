@@ -96,11 +96,11 @@ class ScheduleUtilSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEa
       val ss = Await.result(dao.saveSeason(s), testDbTimeout)
       val ts = Await.result(dao.saveTeams(teams), testDbTimeout)
       val cs = Await.result(dao.saveConferences(confs), testDbTimeout)
-      assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
+      assert(Await.result(dao.listSeasons, testDbTimeout).size === 1)
       private val maps: List[ConferenceMap] = Await.result(ScheduleUtil.createConferenceMapSeeds(dao, "test"), testDbTimeout)
-      assert(maps.forall(_.seasonId==ss.id))
+      assert(maps.forall(_.seasonId===ss.id))
       assert(maps.forall(_.conferenceId>0L))
-      assert(maps.size== ts.size)
+      assert(maps.size=== ts.size)
       ts.foreach(t=>{
         val teamIds: List[Long] = maps.map(_.teamId)
         assert(teamIds.contains(t.id)) //Every team mapped

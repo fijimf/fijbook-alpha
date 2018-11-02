@@ -34,7 +34,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       private val predictions = List(GamePrediction(0L, 123L, "My Model", Some(123L), Some(0.75), None, None))
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
-          assert(lst.size == 1)
+          assert(lst.size === 1)
           assert(lst(0).id > 0)
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
@@ -59,7 +59,7 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       )
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
-          assert(lst.size == 12)
+          assert(lst.size === 12)
           assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
@@ -92,19 +92,19 @@ class RepoGamePredictionSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       val g9 = Game(999L, 1L, 9L, 99L, LocalDate.now(), LocalDateTime.now(), None, false, None, None, None, "xx", LocalDateTime.now(), "me")
       Await.result(dao.saveGamePredictions(predictions).andThen {
         case Success(lst) =>
-          assert(lst.size == 12)
+          assert(lst.size === 12)
           assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
       Await.result(dao.loadGamePredictions(List(g3, g4, g5), "My Model").andThen {
         case Success(lst) =>
-          assert(lst.size == 3)
+          assert(lst.size === 3)
           assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)
       Await.result(dao.loadGamePredictions(List(g6, g7, g8), "My Other Model").andThen {
         case Success(lst) =>
-          assert(lst.size == 3)
+          assert(lst.size === 3)
           assert(lst.forall(_.id > 0))
         case Failure(ex) => fail("Unexpected exception", ex)
       }, 30.seconds)

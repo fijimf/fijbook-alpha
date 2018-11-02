@@ -50,7 +50,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStat(x)
         lx <- dao.listXStats
       } yield {
-        assert(lx.size == 1)
+        assert(lx.size === 1)
         val x1 = lx.head
         assert(x1.id > 0L)
         assert(x1.seasonId === x.seasonId)
@@ -89,7 +89,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStat(x)
         lx <- dao.listXStats
       } yield {
-        assert(lx.size == 1)
+        assert(lx.size === 1)
         val x1 = lx.head
         assert(x1.id > 0L)
         assert(x1.seasonId === x.seasonId)
@@ -130,7 +130,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStat(lx.head.copy(value = Some(9999.0), percentile = Some(0.001)))
         ly <- dao.listXStats
       } yield {
-        assert(ly.size == 1)
+        assert(ly.size === 1)
         val y1 = ly.head
         assert(y1.id > 0L)
         assert(y1.seasonId === x.seasonId)
@@ -171,7 +171,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStat(lx.head.copy(value = Some(9999.0), percentile = Some(0.001)))
         ly <- dao.listXStats
       } yield {
-        assert(ly.size == 1)
+        assert(ly.size === 1)
         val y1 = ly.head
         assert(y1.id > 0L)
         assert(y1.seasonId === x.seasonId)
@@ -213,7 +213,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStat(lx.head.copy(value = None, percentile = None))
         ly <- dao.listXStats
       } yield {
-        assert(ly.size == 1)
+        assert(ly.size === 1)
         val y1 = ly.head
         assert(y1.id > 0L)
         assert(y1.seasonId === x.seasonId)
@@ -293,14 +293,14 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStats(stats)
         lx <- dao.listXStats
         _ <- dao.saveXStats(lx.map(x => {
-          if (x.teamId % 2 == 0) x.copy(value = Some(99.99)) else x
+          if (x.teamId % 2 === 0) x.copy(value = Some(99.99)) else x
         }))
         ly <- dao.listXStats
       } yield {
         assert(ly.size === stats.size)
         ly.foreach(y => {
           assert(y.id > 0L)
-          if (y.teamId % 2 == 0)
+          if (y.teamId % 2 === 0)
             assert(y.value === Some(99.99))
           else
             assert(y.value === Some(1.0))
@@ -335,14 +335,14 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
         _ <- dao.saveXStats(stats)
         lx <- dao.listXStats
         _ <- dao.saveXStats(lx.map(x => {
-          if (x.teamId % 2 == 0) x.copy(id = 0L, value = Some(99.99)) else x.copy(id = 0L)
+          if (x.teamId % 2 === 0) x.copy(id = 0L, value = Some(99.99)) else x.copy(id = 0L)
         }))
         ly <- dao.listXStats
       } yield {
         assert(ly.size === stats.size)
         ly.foreach(y => {
           assert(y.id > 0L)
-          if (y.teamId % 2 == 0)
+          if (y.teamId % 2 === 0)
             assert(y.value === Some(99.99))
           else
             assert(y.value === Some(1.0))
@@ -358,7 +358,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
           List("Stat1", "Stat2").map(st =>
             XStat(0L, 1L, d, st, t.toLong, Some(1.0), Some(1), Some(.99), Some(100), Some(1.2), Some(0.0), Some(1.0), 2)))).toList
       Await.result(dao.saveXStats(statValues), testDbTimeout)
-      assert(Await.result(dao.listXStats, testDbTimeout).size == 30 * 200 * 2)
+      assert(Await.result(dao.listXStats, testDbTimeout).size === 30 * 200 * 2)
     }
 
     "be able to save then update statValues" in new WithApplication() {
@@ -369,7 +369,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
             XStat(0L, 1L, d, st, t.toLong, Some(1.0), Some(1), Some(.99), Some(100), Some(1.2), Some(0.0), Some(1.0), 2)))).toList
       Await.result(dao.saveXStats(statValues), testDbTimeout)
       Await.result(dao.saveXStats(statValues), testDbTimeout)
-      assert(Await.result(dao.listXStats, testDbTimeout).size == 30 * 200 * 2)
+      assert(Await.result(dao.listXStats, testDbTimeout).size === 30 * 200 * 2)
     }
 
     "be able to save large batched statValues sequentially" in new WithApplication() {
@@ -386,7 +386,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       })
       }
       Await.result(zz, testDbTimeout)
-      assert(Await.result(dao.listXStats, testDbTimeout).size == 30 * 200 * 2)
+      assert(Await.result(dao.listXStats, testDbTimeout).size === 30 * 200 * 2)
     }
 
     "be able to save large batched statValues concurrently" in new WithApplication() {
@@ -400,7 +400,7 @@ class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
       val zz = Future.sequence(statValues.map(stats=> dao.saveXStats(stats)))
       Await.result(zz, testDbTimeout)
-      assert(Await.result(dao.listXStats, testDbTimeout).size == 30 * 200 * 2)
+      assert(Await.result(dao.listXStats, testDbTimeout).size === 30 * 200 * 2)
     }
   }
 

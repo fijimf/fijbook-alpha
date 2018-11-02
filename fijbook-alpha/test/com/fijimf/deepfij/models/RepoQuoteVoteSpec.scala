@@ -28,7 +28,7 @@ class RepoQuoteVoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
 
       assert(r.id > 0)
       assert(r.quoteId === 1L)
-      assert(Await.result(dao.listQuotesVotes, testDbTimeout).size == 1)
+      assert(Await.result(dao.listQuotesVotes, testDbTimeout).size === 1)
     }
 
     "be able to be retrieved " in new WithApplication() {
@@ -43,7 +43,7 @@ class RepoQuoteVoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       )
       val quoteVotes: List[QuoteVote] = Await.result(Future.sequence(qvs.map(dao.saveQuoteVote)),testDbTimeout)
 
-      assert(quoteVotes.size ==3)
+      assert(quoteVotes.size ===3)
       assert(quoteVotes.forall(_.id>0L))
 
       val fijimfAllTimeVotes: List[QuoteVote] = Await.result(dao.findQuoteVoteByUser("fijimf"), testDbTimeout)
@@ -66,7 +66,7 @@ class RepoQuoteVoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterE
       )
       val quoteVotes: List[QuoteVote] = Await.result(Future.sequence(qvs.map(dao.saveQuoteVote)),testDbTimeout)
 
-      assert(quoteVotes.size ==3)
+      assert(quoteVotes.size ===3)
       assert(quoteVotes.forall(_.id>0L))
 
       Await.ready(dao.deleteAllQuoteVotes(), testDbTimeout)

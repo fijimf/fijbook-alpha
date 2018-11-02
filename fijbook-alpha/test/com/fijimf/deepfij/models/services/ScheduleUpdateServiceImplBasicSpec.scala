@@ -31,17 +31,17 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
   }
 
   private def assertTableSizes(numSeasons: Int, numTeams: Int, numGames: Int, numResults: Int, tag: String) = {
-    assert(Await.result(dao.listTeams, testDbTimeout).size == numTeams, s"Team table size incorrect $tag")
-    assert(Await.result(dao.listGames, testDbTimeout).size == numGames, s"Game table size incorrect $tag")
-    assert(Await.result(dao.listResults, testDbTimeout).size == numResults, s"Result table size incorrect $tag")
-    assert(Await.result(dao.listSeasons, testDbTimeout).size == numSeasons, s"Season table size incorrect $tag")
+    assert(Await.result(dao.listTeams, testDbTimeout).size === numTeams, s"Team table size incorrect $tag")
+    assert(Await.result(dao.listGames, testDbTimeout).size === numGames, s"Game table size incorrect $tag")
+    assert(Await.result(dao.listResults, testDbTimeout).size === numResults, s"Result table size incorrect $tag")
+    assert(Await.result(dao.listSeasons, testDbTimeout).size === numSeasons, s"Season table size incorrect $tag")
   }
 
   private def createNewSeason = {
     val season = Await.result(dao.saveSeason(Season(0L, 2017)), testDbTimeout)
     val seasons = Await.result(dao.listSeasons, testDbTimeout)
-    assert(seasons.size == 1)
-    assert(season == seasons.head)
+    assert(seasons.size === 1)
+    assert(season === seasons.head)
     season
   }
 
@@ -52,8 +52,8 @@ class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest wit
     }).toList
     val result: List[Team] = Await.result(Future.sequence(teams), testDbTimeout)
     val list = Await.result(dao.listTeams, testDbTimeout)
-    assert(result.size == list.size)
-    assert(result.sortBy(_.key) == list.sortBy(_.key))
+    assert(result.size === list.size)
+    assert(result.sortBy(_.key) === list.sortBy(_.key))
     list
   }
 

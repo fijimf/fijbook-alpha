@@ -47,9 +47,9 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     assertConferencesSize(1)
     compareConferences(u, v)
     val w = Await.result(dao.listConferences, testDbTimeout).head
-    assert(w.id == u.id)
-    assert(w.id == v.id)
-    assert(w.name == "Big East")
+    assert(w.id === u.id)
+    assert(w.id === v.id)
+    assert(w.name === "Big East")
   }
 
   "not be inserted with the same key as an existing conference" in new WithApplication() {
@@ -169,13 +169,13 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
     assertConferencesSize(3)
 
     val numRows1 = Await.result(dao.deleteConference(cs.head.id), testDbTimeout)
-    assert(numRows1 == 1)
+    assert(numRows1 === 1)
     assertConferencesSize(2)
     val rr = Await.result(dao.findConferenceByKey(cs.head.key), testDbTimeout)
     assert(rr.isEmpty)
 
     val numRows2 = Await.result(dao.deleteConference(-99), testDbTimeout)
-    assert(numRows2 == 0)
+    assert(numRows2 === 0)
     assertConferencesSize(2)
 
   }
@@ -189,7 +189,7 @@ def mkQuickConf(id: Long, key: String, name: String): Conference = {
 
 
   def assertConferencesSize(size: Int) = {
-  assert(Await.result(dao.listConferences, testDbTimeout).size == size)
+  assert(Await.result(dao.listConferences, testDbTimeout).size === size)
 }
 
   def assertConferencesIsEmpty() = {

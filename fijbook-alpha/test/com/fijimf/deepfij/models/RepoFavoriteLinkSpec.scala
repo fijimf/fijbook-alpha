@@ -26,7 +26,7 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       val f = FavoriteLink(0L, "fijimf@gmail.com", "Georgetown", "/team/georgetown", 1, LocalDateTime.now())
       val g = Await.result(dao.saveFavoriteLink(f), testDbTimeout)
       assert(g.id > 0)
-      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size == 1)
+      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size === 1)
     }
     "be able to be inserted in bulk" in new WithApplication() {
       val fs = List(
@@ -37,7 +37,7 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       )
       private val links: List[FavoriteLink] = Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
       links.foreach(fl => assert(fl.id > 0))
-      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size == 4)
+      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size === 4)
     }
 
     "be able to be updated individually " in new WithApplication() {
@@ -49,17 +49,17 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       )
       private val links: List[FavoriteLink] = Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
       links.foreach(fl => assert(fl.id > 0))
-      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size == 4)
+      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size === 4)
 
       val first: FavoriteLink = links.head
       val f: FavoriteLink = Await.result(dao.saveFavoriteLink(first.copy(order = 99)), testDbTimeout)
       assert(f.id === first.id)
       assert(f.order != first.order)
-      assert(f.order == 99)
+      assert(f.order === 99)
 
       private val ww: List[FavoriteLink] = Await.result(dao.listFavoriteLinks, testDbTimeout)
       assert(ww.size === 4)
-      assert(ww.count(_.order == 99) === 1)
+      assert(ww.count(_.order === 99) === 1)
 
     }
 
@@ -72,7 +72,7 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       )
       val links: List[FavoriteLink] = Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
       links.foreach(fl => assert(fl.id > 0))
-      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size == 4)
+      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size === 4)
 
       val moddedLinks: List[FavoriteLink] = links.map(lk => lk.copy(order = lk.order + 99))
       val gs: List[FavoriteLink] = Await.result(dao.saveFavoriteLinks(moddedLinks), testDbTimeout)
@@ -88,7 +88,7 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       )
       val links: List[FavoriteLink] = Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
       links.foreach(fl => assert(fl.id > 0))
-      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size == 4)
+      assert(Await.result(dao.listFavoriteLinks, testDbTimeout).size === 4)
 
       val moddedLinks: List[FavoriteLink] = links.map(lk => lk.copy(order = lk.order + 99))
 
@@ -114,10 +114,10 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
 
       val fijimf: List[FavoriteLink] = Await.result(dao.findFavoriteLinksByUser("fijimf@gmail.com"), testDbTimeout)
-      assert(fijimf.length == 3)
+      assert(fijimf.length === 3)
       assert(fijimf.map(_.displayAs).toSet === Set("Georgetown", "Gonzaga", "Regression"))
       val zeke: List[FavoriteLink] = Await.result(dao.findFavoriteLinksByUser("rickey55@yahoo.com"), testDbTimeout)
-      assert(zeke.length == 1)
+      assert(zeke.length === 1)
       assert(zeke.map(_.displayAs).toSet === Set("Georgetown"))
 
     }
@@ -132,10 +132,10 @@ class RepoFavoriteLinkSpec extends PlaySpec with OneAppPerTest with BeforeAndAft
       Await.result(dao.saveFavoriteLinks(fs), testDbTimeout)
 
       val hoyas: List[FavoriteLink] = Await.result(dao.findFavoriteLinksByPage("/team/georgetown"), testDbTimeout)
-      assert(hoyas.length == 2)
+      assert(hoyas.length === 2)
       assert(hoyas.map(_.displayAs).toSet === Set("Georgetown"))
       val zags: List[FavoriteLink] = Await.result(dao.findFavoriteLinksByPage("/team/gonzaga"), testDbTimeout)
-      assert(zags.length == 1)
+      assert(zags.length === 1)
       assert(zags.map(_.displayAs).toSet === Set("Gonzaga"))
 
 

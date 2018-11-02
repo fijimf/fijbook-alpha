@@ -25,15 +25,15 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       private val id = Await.result(dao.saveAlias(toBeSaved), testDbTimeout).id
       assert(id>0)
       private val aliases = Await.result(dao.listAliases, testDbTimeout)
-      assert(aliases.size==1)
-      assert(aliases.head==toBeSaved.copy(id=id))
+      assert(aliases.size===1)
+      assert(aliases.head===toBeSaved.copy(id=id))
     }
 
     "allow an alias to be deleted" in new WithApplication() {
       private val idToDelete = Await.result(dao.saveAlias(Alias(0L, "W. Virginia", "West Virginia")), testDbTimeout).id
       assert(idToDelete>0)
       private val before = Await.result(dao.listAliases, testDbTimeout)
-      assert(before.size==1)
+      assert(before.size===1)
       Await.ready(dao.deleteAlias(idToDelete), testDbTimeout)
       private val after = Await.result(dao.listAliases, testDbTimeout)
       assert(after.isEmpty)
@@ -45,9 +45,9 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       val armyId=Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout).id
       Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)
       private val before = Await.result(dao.listAliases, testDbTimeout)
-      assert(before.size==3)
+      assert(before.size===3)
       Await.result(dao.findAliasById(armyId), testDbTimeout).map(_.id) match {
-        case Some(al)=>assert(al==armyId)
+        case Some(al)=>assert(al===armyId)
         case None=> fail()
       }
 
@@ -59,7 +59,7 @@ class RepoAliasSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
      Await.result(dao.saveAlias(Alias(0L, "Army", "West Point")), testDbTimeout)
      Await.result(dao.saveAlias(Alias(0L, "UVA", "Virginia")), testDbTimeout)
       private val before = Await.result(dao.listAliases, testDbTimeout)
-      assert(before.size==3)
+      assert(before.size===3)
       Await.ready(dao.deleteAliases(), testDbTimeout)
       private val after = Await.result(dao.listAliases, testDbTimeout)
       assert(after.isEmpty)

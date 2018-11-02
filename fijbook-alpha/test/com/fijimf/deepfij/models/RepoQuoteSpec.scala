@@ -25,8 +25,8 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       val r = Await.result(dao.saveQuote(q), testDbTimeout)
 
       assert(r.id>0)
-      assert(r.quote=="The quote")
-      assert(Await.result(dao.listQuotes, testDbTimeout).size == 1)
+      assert(r.quote==="The quote")
+      assert(Await.result(dao.listQuotes, testDbTimeout).size === 1)
     }
 
     "be able to be updated" in new WithApplication() {
@@ -34,14 +34,14 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
       val r = Await.result(dao.saveQuote(q), testDbTimeout)
 
       assert(r.id>0)
-      assert(r.quote=="The quote")
-      assert(Await.result(dao.listQuotes, testDbTimeout).size == 1)
+      assert(r.quote==="The quote")
+      assert(Await.result(dao.listQuotes, testDbTimeout).size === 1)
 
       val s = Await.result(dao.saveQuote(r.copy(quote = "The new quote")), testDbTimeout)
 
-      assert(s.id==r.id)
-      assert(s.quote=="The new quote")
-      assert(Await.result(dao.listQuotes, testDbTimeout).size == 1)
+      assert(s.id===r.id)
+      assert(s.quote==="The new quote")
+      assert(Await.result(dao.listQuotes, testDbTimeout).size === 1)
     }
 
     "be able to be retrieved by id" in new WithApplication() {
@@ -54,7 +54,7 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
       val s = Await.result(dao.findQuoteById(r.id), testDbTimeout)
       assert(s.isDefined)
-      assert(s.get.quote=="The quote #4")
+      assert(s.get.quote==="The quote #4")
 
       val t = Await.result(dao.findQuoteById(-99), testDbTimeout)
       assert(t.isEmpty)
@@ -69,11 +69,11 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
 
       val s = Await.result(dao.findQuoteByKey(Some("A")), testDbTimeout)
-      assert(s.size==3)
+      assert(s.size===3)
       val t = Await.result(dao.findQuoteByKey(Some("K")), testDbTimeout)
       assert(t.isEmpty)
       val u = Await.result(dao.findQuoteByKey(None), testDbTimeout)
-      assert(u.size==1)
+      assert(u.size===1)
 
     }
 
@@ -86,10 +86,10 @@ class RepoQuoteSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach 
 
 
       val s = Await.result(dao.deleteQuote(r.id), testDbTimeout)
-      assert(s==1)
+      assert(s===1)
       val t = Await.result(dao.deleteQuote(-99), testDbTimeout)
-      assert(t==0)
-      assert(Await.result(dao.listQuotes, testDbTimeout).size == 4)
+      assert(t===0)
+      assert(Await.result(dao.listQuotes, testDbTimeout).size === 4)
     }
   }
 

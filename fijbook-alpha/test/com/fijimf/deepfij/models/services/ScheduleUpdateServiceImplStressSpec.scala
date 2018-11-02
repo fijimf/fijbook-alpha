@@ -31,17 +31,17 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
   }
 
   private def assertTableSizes(numSeasons: Int, numTeams: Int, numGames: Int, numResults: Int, tag: String): Unit = {
-    assert(Await.result(dao.listTeams, testDbTimeout).size == numTeams, s"Team table size incorrect $tag")
-    assert(Await.result(dao.listGames, testDbTimeout).size == numGames, s"Game table size incorrect $tag")
-    assert(Await.result(dao.listResults, testDbTimeout).size == numResults, s"Result table size incorrect $tag")
-    assert(Await.result(dao.listSeasons, testDbTimeout).size == numSeasons, s"Season table size incorrect $tag")
+    assert(Await.result(dao.listTeams, testDbTimeout).size === numTeams, s"Team table size incorrect $tag")
+    assert(Await.result(dao.listGames, testDbTimeout).size === numGames, s"Game table size incorrect $tag")
+    assert(Await.result(dao.listResults, testDbTimeout).size === numResults, s"Result table size incorrect $tag")
+    assert(Await.result(dao.listSeasons, testDbTimeout).size === numSeasons, s"Season table size incorrect $tag")
   }
 
   private def createNewSeason: Season = {
     val season = Await.result(dao.saveSeason(Season(0L, 2017)), testDbTimeout)
     val seasons = Await.result(dao.listSeasons, testDbTimeout)
-    assert(seasons.size == 1)
-    assert(season == seasons.head)
+    assert(seasons.size === 1)
+    assert(season === seasons.head)
     season
   }
 
@@ -51,8 +51,8 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       testDbTimeout
     )
     val list = Await.result(dao.listTeams, testDbTimeout)
-    assert(result.size == list.size)
-    assert(result.sortBy(_.key) == list.sortBy(_.key))
+    assert(result.size === list.size)
+    assert(result.sortBy(_.key) === list.sortBy(_.key))
     list
   }
 
@@ -281,10 +281,10 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.ready(svc.updateDb(0.to(3).toList.map(today.plusDays(_).toLocalDate.toString), gameMapping), testDbTimeout).onComplete {
         case Success(_) =>
-          assert(Await.result(dao.listTeams, testDbTimeout).size == 10)
-          assert(Await.result(dao.listGames, testDbTimeout).size == 16)
+          assert(Await.result(dao.listTeams, testDbTimeout).size === 10)
+          assert(Await.result(dao.listGames, testDbTimeout).size === 16)
           assert(Await.result(dao.listResults, testDbTimeout).nonEmpty)
-          assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
+          assert(Await.result(dao.listSeasons, testDbTimeout).size === 1)
         case Failure(ex) =>
           fail("svc.updateDb threw an unexpected exception", ex)
       }
@@ -293,10 +293,10 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       Await.ready(dao.loadLatestSchedule(), testDbTimeout)
       Await.result(svc.updateDb(keys, gameMapping.drop(8)), testDbTimeout)
 
-      assert(Await.result(dao.listTeams, testDbTimeout).size == 10)
-      assert(Await.result(dao.listGames, testDbTimeout).size == 8)
+      assert(Await.result(dao.listTeams, testDbTimeout).size === 10)
+      assert(Await.result(dao.listGames, testDbTimeout).size === 8)
       assert(Await.result(dao.listResults, testDbTimeout).nonEmpty)
-      assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
+      assert(Await.result(dao.listSeasons, testDbTimeout).size === 1)
     }
 
 
@@ -323,10 +323,10 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
       //TODO rework this
       Await.result(svc.updateDb(keys, gameMapping).andThen {
         case Success(_) =>
-          assert(Await.result(dao.listTeams, testDbTimeout).size == 350)
-          assert(Await.result(dao.listGames, testDbTimeout).size == gameMapping.size)
+          assert(Await.result(dao.listTeams, testDbTimeout).size === 350)
+          assert(Await.result(dao.listGames, testDbTimeout).size === gameMapping.size)
           assert(Await.result(dao.listResults, testDbTimeout).nonEmpty)
-          assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
+          assert(Await.result(dao.listSeasons, testDbTimeout).size === 1)
         case Failure(ex) =>
           fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)
@@ -340,11 +340,11 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
       Await.result(svc.updateDb(keys, gameMapping2).andThen {
         case Success(_) =>
-          assert(Await.result(dao.listTeams, testDbTimeout).size == 350)
-          assert(Await.result(dao.listGames, testDbTimeout).size == gameMapping.size)
+          assert(Await.result(dao.listTeams, testDbTimeout).size === 350)
+          assert(Await.result(dao.listGames, testDbTimeout).size === gameMapping.size)
           val result = Await.result(dao.listResults, testDbTimeout)
           assert(result.isEmpty)
-          assert(Await.result(dao.listSeasons, testDbTimeout).size == 1)
+          assert(Await.result(dao.listSeasons, testDbTimeout).size === 1)
         case Failure(ex) =>
           fail("svc.updateDb threw an unexpected exception", ex)
       }, testDbTimeout)

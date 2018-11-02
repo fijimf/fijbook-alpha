@@ -1,9 +1,9 @@
 package controllers
 
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime}
-import javax.inject.Inject
 
+import cats.implicits._
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
@@ -12,12 +12,11 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{S3BlogMetaData, S3BlogPost, S3StaticAsset}
 import com.mohiva.play.silhouette.api.Silhouette
-import forms.{EditBlogPostForm, EditStaticPageForm}
-import play.api.i18n.I18nSupport
-import play.api.mvc.{BaseController, ControllerComponents}
 import controllers.silhouette.utils.DefaultEnv
-
-import scala.concurrent.Future
+import forms.{EditBlogPostForm, EditStaticPageForm}
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 class S3AdminController @Inject()(
                                    val controllerComponents: ControllerComponents,
@@ -33,17 +32,17 @@ class S3AdminController @Inject()(
     .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
     .build()
 
-  def listStaticPages = silhouette.SecuredAction.async { implicit rs =>
-    val infos: List[S3StaticAsset] = S3StaticAsset.list(s, S3StaticAsset.bucket, S3StaticAsset.staticPageFolder)
+  def listStaticPages: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val l: List[S3StaticAsset] = S3StaticAsset.list(s, S3StaticAsset.bucket, S3StaticAsset.staticPageFolder)
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
-      Ok(views.html.admin.listStaticPages(du, qw, infos))
+      Ok(views.html.admin.listStaticPages(du, qw, l))
     }
   }
 
-  def createStaticPage = silhouette.SecuredAction.async { implicit rs =>
+  def createStaticPage: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -52,7 +51,7 @@ class S3AdminController @Inject()(
     }
   }
 
-  def editStaticPage(key: String) = silhouette.SecuredAction.async { implicit rs =>
+  def editStaticPage(key: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val obj = s.getObject(S3StaticAsset.bucket, s"${S3StaticAsset.staticPageFolder}$key")
     val content = new String(IOUtils.toByteArray(obj.getObjectContent))
     for {
@@ -63,7 +62,7 @@ class S3AdminController @Inject()(
     }
   }
 
-  def deleteStaticPage(key: String) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteStaticPage(key: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val obj = s.getObject(S3StaticAsset.bucket, s"${S3StaticAsset.staticPageFolder}$key")
     val content = new String(IOUtils.toByteArray(obj.getObjectContent))
     for {
@@ -74,7 +73,7 @@ class S3AdminController @Inject()(
     }
   }
 
-  def saveStaticPage = silhouette.SecuredAction.async { implicit rs =>
+  def saveStaticPage: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -100,7 +99,7 @@ class S3AdminController @Inject()(
     }
   }
 
-  def listBlogPosts = silhouette.SecuredAction.async { implicit rs =>
+  def listBlogPosts: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
     for {
       du <- loadDisplayUser(rs)
@@ -110,9 +109,9 @@ class S3AdminController @Inject()(
     }
   }
 
-  def createBlogPost = silhouette.SecuredAction.async { implicit rs =>
+  def createBlogPost: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val author: Option[String] = rs.identity.firstName.flatMap(f => rs.identity.lastName.map(l => s"$f $l"))
-    val data: EditBlogPostForm.Data = EditBlogPostForm.empty.copy(author = author.getOrElse(("")))
+    val data: EditBlogPostForm.Data = EditBlogPostForm.empty.copy(author = author.getOrElse(""))
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -121,13 +120,13 @@ class S3AdminController @Inject()(
     }
   }
 
-  def editBlogPost(key: String) = silhouette.SecuredAction.async { implicit rs =>
+  def editBlogPost(key: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
       val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
-      metas.find(_.key == key) match {
+      metas.find(_.key === key) match {
         case Some(b) =>
           val data: EditBlogPostForm.Data = EditBlogPostForm.fromS3BlogPost(S3BlogPost.load(s, b))
           Ok(views.html.admin.createBlogPost(du, qw, EditBlogPostForm.form.fill(data)))
@@ -136,9 +135,9 @@ class S3AdminController @Inject()(
     }
   }
 
-  def deleteBlogPost(key: String) = TODO
+  def deleteBlogPost(key: String): Action[AnyContent] = TODO
 
-  def saveBlogPost = silhouette.SecuredAction.async { implicit rs =>
+  def saveBlogPost: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)

@@ -2,6 +2,7 @@ package controllers
 
 import java.time.{LocalDateTime, ZoneId, ZoneOffset}
 
+import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.RssFeedUpdateService
@@ -13,11 +14,11 @@ import forms._
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.mvc
 
 import scala.concurrent.Future
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
-
+import scala.util.{Failure, Success}
 class DataController @Inject()(
                                 val controllerComponents: ControllerComponents,
                                 val dao: ScheduleDAO,
@@ -63,7 +64,7 @@ class DataController @Inject()(
             data.officialUrl,
             LocalDateTime.now(),
             request.identity.userID.toString)
-          dao.saveTeam(t).map(i => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
+          dao.saveTeam(t).map(_ => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Saved " + data.name)))
         }
       )
     }
@@ -107,7 +108,7 @@ class DataController @Inject()(
 
   }
 
-  def saveSeason() = silhouette.SecuredAction.async { implicit rs =>
+  def saveSeason(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -126,13 +127,13 @@ class DataController @Inject()(
             case Success(ss) => logger.info("Saved season: " + ss)
             case Failure(thr) => logger.error("Failed to save season: " + s, thr)
           }
-          future.map(i => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
+          future.map(_ => Redirect(routes.AdminController.index()).flashing("info" -> ("Created empty season for " + data.year)))
         }
       )
     }
   }
 
-  def browseQuotes() = silhouette.SecuredAction.async { implicit rs =>
+  def browseQuotes(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -141,7 +142,7 @@ class DataController @Inject()(
     }).flatMap { case (d, q) => dao.listQuotes.map(qs => Ok(views.html.admin.browseQuotes(d, q, qs))) }
   }
 
-  def createQuote() = silhouette.SecuredAction.async { implicit rs =>
+  def createQuote(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -151,17 +152,17 @@ class DataController @Inject()(
     }
   }
 
-  def deleteQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteQuote(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.deleteQuote(id).map(n => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Quote " + id + " deleted")))
+    }).flatMap { case (_, _) => dao.deleteQuote(id).map(_ => Redirect(routes.DataController.browseQuotes()).flashing("info" -> ("Quote " + id + " deleted")))
     }
   }
 
-  def editQuote(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editQuote(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -174,7 +175,7 @@ class DataController @Inject()(
     }
   }
 
-  def saveQuote() = silhouette.SecuredAction.async { implicit rs =>
+  def saveQuote(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -189,17 +190,17 @@ class DataController @Inject()(
         val q = Quote(data.id, data.quote, data.source, data.url, data.key)
         val future: Future[Quote] = dao.saveQuote(q)
         future.onComplete {
-          case Success(q) => logger.info(s"Saved quote: '${q.quote}' (${q.id})")
+          case Success(qqq) => logger.info(s"Saved quote: '${qqq.quote}' (${qqq.id})")
           case Failure(thr) => logger.error(s"Failed saving quote $q", thr)
         }
-        val flashMsg = if (q.id == 0) "Created quote " + q.id else "Updated quote" + q.id
-        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
+        val flashMsg = if (q.id === 0) "Created quote " + q.id else "Updated quote" + q.id
+        future.map(_ => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
     }
   }
 
-  def bulkCreateQuote() = silhouette.SecuredAction.async { implicit rs =>
+  def bulkCreateQuote(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -209,7 +210,7 @@ class DataController @Inject()(
     }
   }
 
-  def bulkSaveQuote() = silhouette.SecuredAction.async { implicit rs =>
+  def bulkSaveQuote(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -222,24 +223,24 @@ class DataController @Inject()(
       },
       data => {
         val qs = data.quotes.split("\n").map(_.trim.split("\t").toList).flatMap {
-          case q :: s :: Nil => Some(Quote(0l, q, Some(s), None, None))
-          case q :: s :: u :: Nil => Some(Quote(0l, q, Some(s), Some(u), None))
-          case q :: s :: u :: k :: Nil => Some(Quote(0l, q, Some(s), Some(u), Some(k)))
+          case qqq :: s :: Nil => Some(Quote(0l, qqq, Some(s), None, None))
+          case qqq :: s :: u :: Nil => Some(Quote(0l, qqq, Some(s), Some(u), None))
+          case qqq :: s :: u :: k :: Nil => Some(Quote(0l, qqq, Some(s), Some(u), Some(k)))
           case _ => None
         }.toList
         val future: Future[List[Quote]] = dao.saveQuotes(qs)
         future.onComplete {
-          case Success(q) => logger.info(s"Saved ${q.size} quotes.")
+          case Success(qqq) => logger.info(s"Saved ${qqq.size} quotes.")
           case Failure(thr) => logger.error(s"Failed bulk saving quotes", thr)
         }
         val flashMsg = s"Bulk saved quotes."
-        future.map(i => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
+        future.map(_ => Redirect(routes.DataController.browseQuotes()).flashing("info" -> flashMsg))
       }
     )
     }
   }
 
-  def createAlias() = silhouette.SecuredAction.async { implicit rs =>
+  def createAlias(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -249,7 +250,7 @@ class DataController @Inject()(
     }
   }
 
-  def browseAliases() = silhouette.SecuredAction.async { implicit rs =>
+   def browseAliases(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -259,7 +260,7 @@ class DataController @Inject()(
     }
   }
 
-  def saveAlias() = silhouette.SecuredAction.async { implicit rs =>
+  def saveAlias(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -273,13 +274,13 @@ class DataController @Inject()(
       data => {
         val q = Alias(data.id, data.alias, data.key)
         val future: Future[Alias] = dao.saveAlias(q)
-        future.map(i => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias + " to " + data.key)))
+        future.map(_ => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Aliased  " + data.alias + " to " + data.key)))
       }
     )
     }
   }
 
-  def editAlias(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editAlias(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -292,17 +293,17 @@ class DataController @Inject()(
     }
   }
 
-  def deleteAlias(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteAlias(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.deleteAlias(id).map(n => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Alias " + id + " deleted")))
+    }).flatMap { case (_, _) => dao.deleteAlias(id).map(_ => Redirect(routes.DataController.browseAliases()).flashing("info" -> ("Alias " + id + " deleted")))
     }
   }
 
-  def browseConferences() = silhouette.SecuredAction.async { implicit rs =>
+  def browseConferences(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     logger.info("Loading preliminary team keys.")
     (for {
       du <- loadDisplayUser(rs)
@@ -314,17 +315,17 @@ class DataController @Inject()(
     }
   }
 
-  def deleteConference(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteConference(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.deleteConference(id).map(n => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Conference " + id + " deleted")))
+    }).flatMap { case (_, _) => dao.deleteConference(id).map(_ => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Conference " + id + " deleted")))
     }
   }
 
-  def editConference(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editConference(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -337,7 +338,7 @@ class DataController @Inject()(
     }
   }
 
-  def saveConference() = silhouette.SecuredAction.async { implicit rs =>
+  def saveConference(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -360,18 +361,18 @@ class DataController @Inject()(
           case Success(conference) => logger.info(s"Saved conference '${conference.name}")
           case Failure(thr) => logger.error(s"Failed saving $q with error ${thr.getMessage}", thr)
         }
-        future.map(i => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Saved " + data.name)))
+        future.map(_ => Redirect(routes.DataController.browseConferences()).flashing("info" -> ("Saved " + data.name)))
       }
     )
     }
   }
 
 
-  def initializeAliases() = silhouette.SecuredAction.async { implicit request =>
+  def initializeAliases(): Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
     val lines: List[String] = Source.fromInputStream(getClass.getResourceAsStream("/aliases.txt")).getLines.toList.map(_.trim).filterNot(_.startsWith("#")).filter(_.length > 0)
     val aliases = lines.flatMap(l => {
       val parts = l.trim.split("\\s+")
-      if (parts.size == 2) {
+      if (parts.size === 2) {
         Some(Alias(0L, parts(0), parts(1)))
       } else {
         None
@@ -383,7 +384,7 @@ class DataController @Inject()(
   }
 
 
-  def deleteTeam(id: Long) = play.mvc.Results.TODO
+  def deleteTeam(id: Long): mvc.Result = play.mvc.Results.TODO
 
   def getUnmappedTeams(cms: List[ConferenceMap], ss: List[Season], ts: List[Team]) : Map[Season,List[Team]]={
     val seasons: Map[Long, Set[Long]] = cms.groupBy(_.seasonId).mapValues(_.map(_.teamId).toSet)
@@ -393,7 +394,7 @@ class DataController @Inject()(
     }).toMap
   }
 
-  def browseConferenceMap(seasonId: Long) =silhouette.SecuredAction.async { implicit rs =>
+  def browseConferenceMap(seasonId: Long): Action[AnyContent] =silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -404,7 +405,7 @@ class DataController @Inject()(
         dao.listTeams.flatMap(ts => {
           dao.listConferences.flatMap(cs => {
             dao.listConferenceMaps.map(cms => {
-              ss.find(_.id == seasonId) match {
+              ss.find(_.id === seasonId) match {
                 case Some(season)=>
                   val map = hydrateConferenceMaps(cms, ss, ts, cs).getOrElse(season, Map.empty[Conference, List[Team]])
                   val unmappedTeams = getUnmappedTeams(cms,ss,ts)
@@ -419,7 +420,7 @@ class DataController @Inject()(
     }
   }
 
-  def browseConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
+  def browseConferenceMaps(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -456,13 +457,13 @@ class DataController @Inject()(
   }
 
 
-  def deleteConferenceMapping(seasonId:Long, conferenceId:Long,teamId:Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteConferenceMapping(seasonId:Long, conferenceId:Long,teamId:Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
 
       dao.deleteConferenceMap(seasonId, conferenceId, teamId).map(_ => Redirect(routes.DataController.browseConferenceMap(seasonId)))
 
   }
 
-  def moveConferenceMapping(seasonId: Long, conferenceId: Long, teamId: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def moveConferenceMapping(seasonId: Long, conferenceId: Long, teamId: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     dao.findConferenceMap(seasonId, teamId).flatMap {
       case Some(cm) =>
         dao.saveConferenceMap(cm.copy(conferenceId = conferenceId, updatedAt = LocalDateTime.now())).map(_ => Redirect(routes.DataController.browseConferenceMap(seasonId)))
@@ -473,22 +474,22 @@ class DataController @Inject()(
 
   }
 
-  def resetSeasonConfMapping(from:Long, to:Long) = silhouette.SecuredAction.async { implicit rs =>
-    dao.listConferenceMaps.map(_.filter(_.seasonId==from)).map(_.map(_.copy(id=0L, seasonId = to))).flatMap(cms=>{
+  def resetSeasonConfMapping(from:Long, to:Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    dao.listConferenceMaps.map(_.filter(_.seasonId===from)).map(_.map(_.copy(id=0L, seasonId = to))).flatMap(cms=>{
       dao.saveConferenceMaps(cms).map(_=>Redirect(routes.DataController.browseConferenceMaps()))
     })
   }
 
-  def browseGames(id: Long, query: Option[String]) = silhouette.SecuredAction.async { implicit rs =>
+  def browseGames(id: Long, query: Option[String]): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.loadSchedules().map(_.find(_.season.id == id) match {
+    }).flatMap { case (d, q) => dao.loadSchedules().map(_.find(_.season.id === id) match {
       case Some(sch) =>
         val infos = sch.gameResults.map {
-          case (g: Game, or: Option[Result]) => {
+          case (g: Game, or: Option[Result]) =>
             GameInfo(
               g.seasonId,
               g.id,
@@ -507,7 +508,6 @@ class DataController @Inject()(
               g.sourceKey,
               g.updatedAt
             )
-          }
         }.sortBy(g => (g.source, g.datetime.toEpochSecond(ZoneOffset.of("Z")), g.id))
 
         query match {
@@ -520,11 +520,11 @@ class DataController @Inject()(
     }
   }
 
-  def lockSeason(id: Long) = play.mvc.Results.TODO
+  def lockSeason(id: Long): mvc.Result = play.mvc.Results.TODO
 
-  def deleteSeason(id: Long) = play.mvc.Results.TODO
+  def deleteSeason(id: Long): mvc.Result = play.mvc.Results.TODO
 
-  def editGame(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editGame(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -545,7 +545,7 @@ class DataController @Inject()(
   }
 
 
-  def saveGame = silhouette.SecuredAction.async { implicit rs =>
+  def saveGame: Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -567,22 +567,22 @@ class DataController @Inject()(
           val gr: (Game, Option[Result]) = data.toGameResult(rs.identity.userID.toString)
           val future: Future[Option[Game]] = dao.saveGameResult(gr._1, gr._2)
           future.onComplete {
-            case Success(conference) => logger.info(s"Saved game '${gr._1.id}")
+            case Success(_) => logger.info(s"Saved game '${gr._1.id}")
             case Failure(thr) => logger.error(s"Failed saving ${gr._1.id} with error ${thr.getMessage}", thr)
           }
-          future.map(i => Redirect(routes.DataController.browseGames(data.seasonId, None)).flashing("info" -> ("Saved " + data.id)))
+          future.map(_ => Redirect(routes.DataController.browseGames(data.seasonId, None)).flashing("info" -> ("Saved " + data.id)))
         }
       )
     })
     }
   }
 
-  def deleteGame(id: Long) = silhouette.SecuredAction.async {
+  def deleteGame(id: Long): Action[AnyContent] = silhouette.SecuredAction.async {
     implicit rs =>
-      dao.deleteGames(List(id)).map(n => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
+      dao.deleteGames(List(id)).map(_ => Redirect(routes.AdminController.index()).flashing("info" -> ("Conference " + id + " deleted")))
   }
 
-  def browseRssFeeds() = silhouette.SecuredAction.async { implicit rs =>
+  def browseRssFeeds(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -596,8 +596,8 @@ class DataController @Inject()(
         feedItems match {
           case Nil => RSSFeedStatus(f, None, None, 0, 0)
           case _ => RSSFeedStatus(f,
-            Some(feedItems.maxBy(_.publishTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).publishTime),
-            Some(feedItems.maxBy(_.recordedAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).recordedAt),
+            Some(feedItems.maxBy(_.publishTime.atZone(ZoneId.systemDefault()).toInstant.toEpochMilli()).publishTime),
+            Some(feedItems.maxBy(_.recordedAt.atZone(ZoneId.systemDefault()).toInstant.toEpochMilli()).recordedAt),
             feedItems.size,
             feedItems.count(_.publishTime.isAfter(LocalDateTime.now.minusWeeks(1)))
           )
@@ -608,7 +608,7 @@ class DataController @Inject()(
     }
   }
 
-  def createRssFeed() = silhouette.SecuredAction.async { implicit rs =>
+  def createRssFeed(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -617,7 +617,7 @@ class DataController @Inject()(
     }
   }
 
-  def saveRssFeed() = silhouette.SecuredAction.async { implicit rs =>
+  def saveRssFeed(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     EditRssFeedForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
@@ -625,7 +625,7 @@ class DataController @Inject()(
           du <- loadDisplayUser(rs)
           qw <- getQuoteWrapper(du)
         } yield {
-          (BadRequest(views.html.admin.createRssFeed(du, qw, form)))
+          BadRequest(views.html.admin.createRssFeed(du, qw, form))
         }
       },
       data => {
@@ -637,7 +637,7 @@ class DataController @Inject()(
       })
   }
 
-  def editRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editRssFeed(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -651,22 +651,22 @@ class DataController @Inject()(
     }
   }
 
-  def deleteRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteRssFeed(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       n <- dao.deleteRssItemsByFeedId(id)
       _ <- dao.deleteRssFeed(id)
     } yield {
-      Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Deleted RSS feed $id and $n items"))
+      Redirect(routes.DataController.browseRssFeeds()).flashing(FlashUtil.info(s"Deleted RSS feed $id and $n items"))
     }
   }
 
-  def pollRssFeed(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def pollRssFeed(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
+      _ <- getQuoteWrapper(du)
       items <- rssUpdater.updateFeed(id)
     } yield {
-      Redirect(routes.DataController.browseRssFeeds).flashing(FlashUtil.info(s"Updated RSS feed $id and got ${items.size} items"))
+      Redirect(routes.DataController.browseRssFeeds()).flashing(FlashUtil.info(s"Updated RSS feed $id and got ${items.size} items"))
     }
 
 

@@ -12,7 +12,8 @@ import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
 import play.api.libs.json.{Format, Json}
 import play.api.mvc
-import play.api.mvc.{AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import cats.implicits._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +34,7 @@ class QuoteController @Inject()(
 
   val missingQuote = QuoteWrapper(Quote(-1L, "Fridge rules.", None, None, None), isLiked = false, canVote = false)
 
-  def random = silhouette.UserAwareAction.async { implicit req =>
+  def random: Action[AnyContent] = silhouette.UserAwareAction.async { implicit req =>
     dao.listQuotes.flatMap(qs => {
       val rs = qs.filter(_.key.isEmpty)
       if (rs.isEmpty) {
@@ -45,7 +46,7 @@ class QuoteController @Inject()(
   }
 
 
-  def keyed(key: String) = silhouette.UserAwareAction.async { implicit req =>
+  def keyed(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit req =>
     dao.listQuotes.flatMap(allQuotes => {
       val matchedQuotes = allQuotes.filter(_.key.contains(key))
       val unkeyedQuotes = allQuotes.filter(_.key.isEmpty)
@@ -63,7 +64,7 @@ class QuoteController @Inject()(
   }
 
   //TODO there could be a race condition below, but not a very important one.  Same user, same quote on two tabs.  Could vote twice.
-  def likeQuote(id: Long) = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
+  def likeQuote(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
     dao.saveQuoteVote(QuoteVote(0L, id, rs.identity.userID.toString, LocalDateTime.now())).flatMap(_ => {
       dao.findQuoteById(id).flatMap {
         case Some(quote) => quoteUserResponse(rs, quote)
@@ -80,7 +81,7 @@ class QuoteController @Inject()(
     req.identity match {
       case Some(u) =>
         dao.findQuoteVoteByUser(u.userID.toString, 7.days)
-          .map(!_.exists(_.quoteId == quote.id))
+          .map(!_.exists(_.quoteId === quote.id))
           .map(canVote => Ok(Json.toJson(QuoteWrapper(quote, isLiked = !canVote, canVote = canVote))))
       case None =>
         Future.successful(Ok(Json.toJson(QuoteWrapper(quote, isLiked = false, canVote = false))))
@@ -89,7 +90,7 @@ class QuoteController @Inject()(
 
   private def quoteUserResponse(req: SecuredRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
     dao.findQuoteVoteByUser(req.identity.userID.toString, 7.days)
-      .map(!_.exists(_.quoteId == quote.id))
+      .map(!_.exists(_.quoteId === quote.id))
       .map(canVote => Ok(Json.toJson(QuoteWrapper(quote, isLiked = !canVote, canVote = canVote))))
   }
 

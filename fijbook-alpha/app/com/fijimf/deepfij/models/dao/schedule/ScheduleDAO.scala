@@ -26,7 +26,6 @@ trait ScheduleDAO
     with JobRunDAO
 {
 
-
   def saveGameResult(g:Game,r:Option[Result]):Future[Option[Game]]
 
   def updateScoreboard(updateData: List[GameMapping], sourceTag: String):Future[(Seq[Long], Seq[Long])]
