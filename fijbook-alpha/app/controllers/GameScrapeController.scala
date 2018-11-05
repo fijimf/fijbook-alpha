@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.scraping.nextgen.tasks.TourneyUpdater
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
@@ -55,4 +56,13 @@ class GameScrapeController @Inject()(
   }
 
 
+  def updateTourneys() = silhouette.SecuredAction.async { implicit rs => {
+    val updates = for {
+      tg <- TourneyUpdater.updateNcaaTournamentGames("/ncaa-tourn.txt", dao)
+      cg <- TourneyUpdater.updateConferenceTournamentGames("/conf-tourney-dates.txt", dao)
+    } yield {
+      tg.size + cg.size
+    }
+    updates.map(n => Redirect(routes.AdminController.index()).flashing("info" -> s"Updated $n games"))
+  }}
 }
