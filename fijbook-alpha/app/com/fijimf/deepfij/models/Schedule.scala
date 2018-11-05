@@ -22,11 +22,31 @@ final case class Schedule
 
     def isConferenceGame: Boolean = teamConference.contains(game.homeTeamId) && teamConference.get(game.homeTeamId) === teamConference.get(game.awayTeamId)
 
+    def isConferenceGame(confKey: String): Boolean = (for {
+      conference <- conferenceKeyMap.get(confKey)
+      homeConfId <- teamConference.get(game.homeTeamId)
+      awayConfId <- teamConference.get(game.awayTeamId)
+    } yield {
+      conference.id === homeConfId && conference.id === awayConfId
+    }).getOrElse(false)
+
     def isWinner(t: Team): Boolean = isWinner(t.id)
     def isLoser(t: Team): Boolean = isLoser(t.id)
 
     def isWinner(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore > result.awayScore) || (game.awayTeamId === tid && result.awayScore > result.homeScore)
     def isLoser(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore < result.awayScore) || (game.awayTeamId === tid && result.awayScore < result.homeScore)
+  }
+
+  implicit class ScheduledGame(game:Game) {
+    def isConferenceGame: Boolean = teamConference.contains(game.homeTeamId) && teamConference.get(game.homeTeamId) === teamConference.get(game.awayTeamId)
+
+    def isConferenceGame(confKey: String): Boolean = (for {
+      conference <- conferenceKeyMap.get(confKey)
+      homeConfId <- teamConference.get(game.homeTeamId)
+      awayConfId <- teamConference.get(game.awayTeamId)
+    } yield {
+      conference.id === homeConfId && conference.id === awayConfId
+    }).getOrElse(false)
   }
 
   lazy val conferenceStandings: Map[Long, (Conference, ConferenceStandings)] =ConferenceStandings(this).map(t=>t._1.id->t).toMap

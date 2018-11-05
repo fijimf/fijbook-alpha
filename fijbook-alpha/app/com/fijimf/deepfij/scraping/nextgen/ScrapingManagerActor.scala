@@ -66,7 +66,7 @@ final case class ScrapingManagerActor(
         CreateSeasons(2014,2018, dao),
         SeedConferenceMaps(dao),
         ScrapeGames(dao, gameThrottler),
-        TourneyUpdater("/ncaa-tourn.txt",dao),
+        TourneyUpdateTask("/ncaa-tourn.txt",dao),
         NeutralSiteSolver(dao)
       ))
       superScraper ! msg
