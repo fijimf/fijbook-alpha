@@ -3,21 +3,23 @@ package controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+import breeze.stats
+import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.silhouette.utils.DefaultEnv
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
-import controllers.silhouette.utils.DefaultEnv
 
 import scala.concurrent.Future
-import cats.implicits._
 
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
@@ -33,24 +35,29 @@ class TeamController @Inject()(
   val logger = Logger(getClass)
 
   def team(key: String, season: Option[Int]): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-    dao.loadSchedules().flatMap(ss => {
-      if (ss.isEmpty) {
-        Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> "No schedules are loaded."))
-      } else {
-        val year = season match {
-          case Some(y) => y
-          case None => ss.map(_.season.year).max
+    (for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+    } yield {(du,qw)}).flatMap(tup=> {
+      dao.loadSchedules().flatMap(ss => {
+        if (ss.isEmpty) {
+          Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> "No schedules are loaded."))
+        } else {
+          val year = season match {
+            case Some(y) => y
+            case None => ss.map(_.season.year).max
+          }
+          ss.find(_.season.year === year) match {
+            case Some(sch) =>
+              val t: Team = sch.keyTeam(key)
+              val stats = loadTeamStats(t, sch)
+              stats.map(lstat => {
+                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat))
+              })
+            case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
+          }
         }
-        ss.find(_.season.year === year) match {
-          case Some(sch) =>
-            val t: Team = sch.keyTeam(key)
-            val stats = loadTeamStats(t, sch)
-            stats.map(lstat => {
-              Ok(views.html.data.team(request.identity, t, sch, lstat))
-            })
-          case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
-        }
-      }
+      })
     })
   }
 
@@ -136,10 +143,9 @@ class TeamController @Inject()(
     for {
       du<- loadDisplayUser(request)
       qw<-getQuoteWrapper(du)
-      ss<- dao.loadSchedules()
+      ss<- dao.loadLatestSchedule()
     } yield {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
+      ss match {
         case Some(sch) =>
           val matches = sch.teams.filter(t => {
             val qryStr = q.trim.toUpperCase
@@ -160,33 +166,36 @@ class TeamController @Inject()(
   }
 
   def conference(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-
-    dao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadLatestSchedule()
+    } yield {
+      ss match {
         case Some(sch) =>
           val c = sch.conferenceKeyMap(key)
-          Ok(views.html.data.conference(request.identity, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
+          Ok(views.html.data.conference(du,qw, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
         case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
 
-    })
+    }
 
   }
 
   def conferences(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-
-    dao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadLatestSchedule()
+    } yield {
+      ss match {
         case Some(sch) =>
           val cmap = sch.conferences.map(c => c -> sch.conferenceStandings(c)).sortBy(_._1.name)
-          Ok(views.html.data.conferences(request.identity, cmap))
+          Ok(views.html.data.conferences(du, qw, cmap))
         case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
 
-    })
-
+    }
   }
 
 

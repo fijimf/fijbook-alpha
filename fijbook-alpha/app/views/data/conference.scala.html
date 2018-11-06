@@ -1,13 +1,12 @@
 @import com.fijimf.deepfij.models.{Conference, Schedule,Game, Team, User,GameLine, WonLostRecord, ConferenceStandings}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
 
-@(user: Option[User], c: Conference, cs:ConferenceStandings,rec:List[(Conference, WonLostRecord)], nonConf:List[Game], conf:List[Game], curr:Schedule)(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@(du: DisplayUser, qw:QuoteWrapper, c: Conference, cs:ConferenceStandings,rec:List[(Conference, WonLostRecord)], nonConf:List[Game], conf:List[Game], curr:Schedule)(implicit request: RequestHeader, flash: Flash)
 
-
-@main("deepfij", c.name, "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list").appendChild(c.name, "fa-eyeball", c.key)), StandardNavBar.active("conferences", user), user, c.logoLgUrl.getOrElse("/assets/images/deepfij.png"), "#999"
-) {
-
-        <div class="row">
+@main3000(du, qw) {
+    <div class="row">
             <div class="col-sm-5">
                 <h5>@{c.name+" Standings"}</h5>
                 <table class="table table-sm table-schedule" >
