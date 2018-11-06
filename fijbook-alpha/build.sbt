@@ -1,8 +1,8 @@
-name := """fijbookAlpha"""
+name := """fijbook-alpha"""
 
 scalaVersion in ThisBuild := "2.11.12"
 
-lazy val fijbookAlpha = (project in file("."))
+lazy val root = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
