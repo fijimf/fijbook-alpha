@@ -21,19 +21,19 @@ import cats.implicits._
 
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
-                                val teamDao: ScheduleDAO,
+                                val dao: ScheduleDAO,
                                 val statWriterService: ComputedStatisticService,
                                 cache: AsyncCacheApi,
                                 silhouette: Silhouette[DefaultEnv]
                               )
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
 
   def team(key: String, season: Option[Int]): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().flatMap(ss => {
+    dao.loadSchedules().flatMap(ss => {
       if (ss.isEmpty) {
         Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> "No schedules are loaded."))
       } else {
@@ -55,7 +55,7 @@ class TeamController @Inject()(
   }
 
   def teamGames(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().map(f => {
+    dao.loadSchedules().map(f => {
       f.flatMap(s => {
         s.teams.find(_.key === key) match {
           case Some(team) => getTeamGames(s, team)
@@ -133,7 +133,11 @@ class TeamController @Inject()(
   }
 
   def teams(q: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().map(ss => {
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadSchedules()
+    } yield {
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) =>
@@ -144,20 +148,20 @@ class TeamController @Inject()(
           matches match {
             case Nil =>
               val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
-              Ok(views.html.data.teams(request.identity, columns)).flashing("info" -> ("No matching teams for query string '" + q + "'"))
+              Ok(views.html.data.teams(du, qw, columns)).flashing("info" -> ("No matching teams for query string '" + q + "'"))
             case t :: Nil => Redirect(routes.TeamController.team(t.key, None))
             case lst =>
               val columns = lst.sortBy(_.name).grouped((lst.size + 3) / 4).toList
-              Ok(views.html.data.teams(request.identity, columns))
+              Ok(views.html.data.teams(du, qw, columns))
           }
         case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
-    })
+    }
   }
 
   def conference(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
 
-    teamDao.loadSchedules().map(ss => {
+    dao.loadSchedules().map(ss => {
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) =>
@@ -172,7 +176,7 @@ class TeamController @Inject()(
 
   def conferences(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
 
-    teamDao.loadSchedules().map(ss => {
+    dao.loadSchedules().map(ss => {
       val sortedSchedules = ss.sortBy(s => -s.season.year)
       sortedSchedules.headOption match {
         case Some(sch) =>
