@@ -27,24 +27,24 @@ object LogisticRegressionXXXX {
 
 }
 
-case class LogisticRegressionX(spark: SparkSession) {
+final case class LogisticRegressionX(spark: SparkSession) {
   val logger = Logger(this.getClass)
 
 
   def createClassifier(fm: FeatureMapper[(Game, Option[Result])], cat: Categorizer[(Game, Option[Result])], observations: List[(Game, Option[Result])]) = {
 
     import spark.implicits._
-    
-    
-    
+
+
+
     val values: List[(Long, String, Long, Long, Option[Long], Option[Int], Option[Int], Option[Int], Option[linalg.Vector], Option[Double])] = for {
       obs <- observations
     } yield {
       (
-        obs._1.id, 
-        obs._1.date.format(DateTimeFormatter.ISO_LOCAL_DATE), 
-        obs._1.homeTeamId, 
-        obs._1.awayTeamId, 
+        obs._1.id,
+        obs._1.date.format(DateTimeFormatter.ISO_LOCAL_DATE),
+        obs._1.homeTeamId,
+        obs._1.awayTeamId,
         obs._2.map(_.id),
         obs._2.map(_.homeScore),
         obs._2.map(_.awayScore),

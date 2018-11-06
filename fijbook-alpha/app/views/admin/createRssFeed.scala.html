@@ -1,0 +1,25 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@import helper._
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, rssFeedForm: Form[forms.EditRssFeedForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+    @main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-8">
+            <h3>RSS Feed</h3>
+            @b3.form(routes.DataController.saveRssFeed()) {
+                @CSRF.formField
+                @b3.hidden( "id", rssFeedForm("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( rssFeedForm("name"), '_label -> "Name" )
+                @b3.text( rssFeedForm("url"), '_label -> "URL" )
+                @b3.submit('class -> "btn btn-outline-primary"){ Submit }
+            }
+        </div>
+    </div>
+}

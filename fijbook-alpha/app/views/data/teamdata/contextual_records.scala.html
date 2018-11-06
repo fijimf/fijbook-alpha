@@ -2,7 +2,7 @@
 @import com.fijimf.deepfij.models.Team
 @(sch:Schedule, t:Team)
 <h5>Contextual Records</h5>
-<table class="table table-condensed table-schedule" >
+<table class="table table-sm table-schedule" >
     @contextual_record("Overall",sch.overallRecord(t))
     @contextual_record("Conference",sch.conferenceRecord(t))
     @contextual_record("Non-conference",sch.nonConferenceRecord(t))

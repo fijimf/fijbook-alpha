@@ -1,21 +1,17 @@
-name := """fijbook-alpha"""
+name := """fijbookAlpha"""
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.12"
 
-lazy val fijbookLibrary = project
-
-lazy val silhouette = (project in file("modules/silhouette")).enablePlugins(PlayScala).dependsOn(fijbookLibrary)
-
-lazy val root = (project in file("."))
+lazy val fijbookAlpha = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
-  .aggregate(fijbookLibrary, silhouette)
-  .dependsOn(fijbookLibrary, silhouette)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "com.fijimf.deepfij"
   )
 
 buildInfoOptions += BuildInfoOption.BuildTime
+
+scalacOptions += "-Ypartial-unification"
 
 
 routesGenerator := InjectedRoutesGenerator
@@ -39,11 +35,12 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
-  "org.webjars" %% "webjars-play" % "2.6.0-M1",
-  "org.webjars" % "bootstrap" % "3.3.7-1",
-  "org.webjars" % "jquery" % "3.1.1",
-  "org.webjars" % "font-awesome" % "4.7.0",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+  "org.webjars" %% "webjars-play" % "2.6.3",
+  "org.webjars" % "bootstrap" % "4.1.2",
+  "org.webjars" % "jquery" % "3.3.1-1",
+  "org.webjars" % "font-awesome" % "5.2.0",
+  "org.webjars.npm" % "feather-icons" % "4.7.3",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test exclude  ("org.slf4j", "slf4j-simple"),
   specs2 % Test
 )
 
@@ -64,8 +61,8 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.1",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.commons" % "commons-text" % "1.1",
-  "org.scalanlp" %% "breeze" % "0.12",
-  "org.scalanlp" %% "breeze-natives" % "0.12",
+  "org.scalanlp" %% "breeze" % "0.13.2",
+  "org.scalanlp" %% "breeze-natives" % "0.13.2",
   "org.apache.mahout" % "mahout-math" % "0.12.2",
   "org.apache.mahout" % "mahout-mr" % "0.12.2",
   "org.apache.hadoop" % "hadoop-client" % "2.7.3",
@@ -73,7 +70,10 @@ libraryDependencies ++= Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.297",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
-  "org.apache.spark" %% "spark-mllib" % "2.2.1" 
+  "org.apache.spark" %% "spark-mllib" % "2.2.1",
+  "org.typelevel" %% "cats-core" % "1.4.0" ,
+  "org.typelevel" %% "cats-free" % "1.4.0",
+  "com.github.haifengl" %% "smile-scala" % "1.5.1"
 )
 
 test in assembly := {}
@@ -86,7 +86,7 @@ assemblyMergeStrategy in assembly := {
   case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.discard
   case PathList(ps @ _*) if ps.last endsWith "messages" => MergeStrategy.concat
   case PathList(ps @ _*) if ps.last endsWith "types" => MergeStrategy.last
-  case x => 
+  case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
@@ -127,3 +127,8 @@ fork in Test := false
 parallelExecution in Test := false
 javaOptions in Test += "-Dconfig.resource=application-test.conf"
 
+
+wartremoverWarnings ++= Warts.all
+import play.twirl.sbt.Import.TwirlKeys
+wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
+wartremoverExcluded ++= routes.in(Compile).value

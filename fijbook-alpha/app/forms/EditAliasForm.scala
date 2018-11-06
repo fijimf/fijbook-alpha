@@ -5,7 +5,7 @@ import play.api.data.Forms._
 
 object EditAliasForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> default(longNumber,0L),
       "alias" -> nonEmptyText,
@@ -13,6 +13,6 @@ object EditAliasForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long,  alias: String, key: String)
+  final case class Data(id: Long,  alias: String, key: String)
 
 }

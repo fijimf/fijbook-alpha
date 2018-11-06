@@ -4,15 +4,15 @@
 @import com.fijimf.deepfij.models.Team
 @import helper._
 
-@(user:User, form: Form[forms.BulkEditQuoteForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, form: Form[forms.BulkEditQuoteForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@mainX( MainMeta.base("Bulk Create Quote", Some(user))
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin.appendLeaf("Bulk Create Quote"))
-) {
-    <div class="row">
+@main3000(displayUser,quoteWrapper) {    <div class="row">
         <div class="col-sm-8">
             @b3.form(routes.DataController.bulkSaveQuote()) {
                 @CSRF.formField
@@ -22,4 +22,4 @@
         </div>
     </div>
 }
-    @*case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])*@
+    @*final case class Quote(id: Long, quote: String, source: Option[String], url: Option[String])*@

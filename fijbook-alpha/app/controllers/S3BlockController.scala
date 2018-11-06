@@ -61,7 +61,7 @@ class S3BlockController @Inject()(
       if (key=="about"){
         Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
       } else {
-        Ok(views.html.frontPage(rs.identity, LocalDate.now(), content))
+        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
       }
     } else {
       NotFound

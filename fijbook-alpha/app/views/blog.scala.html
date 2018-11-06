@@ -2,7 +2,7 @@
 @import controllers.nav.{Breadcrumbs, StandardNavBar,MainMeta}
 @import java.time.LocalDate
 @import com.fijimf.deepfij.models.S3BlogPost
-@(user:Option[User],b:S3BlogPost)(implicit flash: Flash)
+@(user:Option[User],b:S3BlogPost)(implicit request: RequestHeader, flash: Flash)
 @mainX(
     MainMeta.base(b.meta.title, user)
             .withNav("blog")

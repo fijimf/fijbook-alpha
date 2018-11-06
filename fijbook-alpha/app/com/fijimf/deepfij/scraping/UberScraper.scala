@@ -17,12 +17,12 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
+final case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: ScheduleUpdateService, statSvc: ComputedStatisticService, throttler: ActorRef) {
   val logger = Logger(getClass)
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class Tracking(stamp: LocalDateTime, step: String)
+  final case class Tracking(stamp: LocalDateTime, step: String)
 
   implicit val timeout: Timeout = Timeout(600.seconds)
 
@@ -150,7 +150,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
         val key = s.toLowerCase.replace(' ', '-')
         val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
         val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), tag))
+        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), "Unknown",Some(lgLogo), Some(smLogo), None, None, None,  LocalDateTime.now(), tag))
       case None =>
         None
     }
@@ -167,7 +167,7 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
   }
 
   def createSeasons(start: Int, end: Int): Future[List[Tracking]] = {
-    dao.saveSeasons(start.to(end).map(y => Season(0L, y, "", None)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
+    dao.saveSeasons(start.to(end).map(y => Season(0L, y)).toList).map(ss => List(Tracking(LocalDateTime.now(), s"Saved ${ss.size} seasons")))
   }
 
   def seedConferenceMaps(tag: String): Future[List[Tracking]] = {
@@ -195,7 +195,8 @@ case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSvc: Sch
 
   def updateStatistics(): Future[List[Tracking]] = {
     logger.info("Updating statistics")
-    statSvc.updateAllSchedules(None).map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
+ //   statSvc.updateAllSchedules(None).map(_.map(i => Tracking(LocalDateTime.now, s"Saved $i stats for a season")))
+    Future(List.empty[Tracking])
   }
 
   def neutralSiteSolver(tag: String): Future[List[Tracking]] = {

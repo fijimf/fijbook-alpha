@@ -1,0 +1,46 @@
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, title:String="Deep Fij")(content:Html)(implicit request:RequestHeader, flash: Flash){
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/assets/images/favicon.ico">
+
+    <title>@title</title>
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:300,300i" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/lib/bootstrap/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="/assets/lib/font-awesome/css/all.css">
+    <link rel="stylesheet" href="/assets/lib/font-awesome/css/v4-shims.css">
+    <link rel="stylesheet" media="screen" href="/assets/stylesheets/df3000.css" type="text/css">
+
+    <script src="/assets/lib/jquery/jquery.js"></script>
+    <script src="/assets/lib/bootstrap/js/bootstrap.js"></script>
+
+</head>
+
+<body>
+
+    <div id="top_nav">
+       @view3000.menubar(displayUser, quoteWrapper)
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div id="sidebar">
+                @view3000.sidebar(displayUser)
+            </div>
+            <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"  id="mainComponent">
+            @flashPanel(flash)
+                @content
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+
+}

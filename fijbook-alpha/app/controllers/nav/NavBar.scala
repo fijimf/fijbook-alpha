@@ -2,7 +2,7 @@ package controllers.nav
 
 import com.fijimf.deepfij.models.User
 
-case class NavBar(items: List[NavItem]) {
+final case class NavBar(items: List[NavItem]) {
 
 }
 

@@ -1,0 +1,41 @@
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import play.api.libs.json.{Format, Json}
+@import controllers.QuoteController._
+@(qr:QuoteWrapper)
+    <div class="quote-box">
+
+        <a id="quote-vote-a" href="#" title="">
+            <i id="quote-liked-q" class="fa fa-heart ml-0 mr-2 pt-1 vote-button-unliked"> </i>
+        </a>
+
+    <a id="quote-quote"class="quote" title=''></a>
+        <script>
+            var initialData=@Html(Json.stringify(Json.toJson(qr)));
+
+            function handleQuoteJson(data) {
+                $("#quote-quote").attr("title", data.quote.source).replaceWith("<em>"+data.quote.quote+"</em>");
+                if (data.canVote) {
+                    $("#quote-vote-a").attr("title","Like this quote").on("click",function() { voteForQuote(data.quote.id);});
+                } else {
+                    $("#quote-vote-a").off("click");
+                    if (data.isLiked){
+                        $('#quote-vote-a').attr("title","Already liked this quote this week");
+                    } else {
+                        $('#quote-vote-a').attr("title","Sign up or sign in to like this quote");
+                    }
+                }
+                if (data.isLiked){
+                    $('#quote-liked-q').removeClass('vote-button-unliked').addClass('vote-button-liked');
+                } else {
+                    $('#quote-liked-q').removeClass('vote-button-liked').addClass('vote-button-unliked');
+                }
+            }
+            function voteForQuote(id) {
+                $.getJSON( '/api/vote/quote/'+id, function( data ) {
+                   handleQuoteJson(data);
+                });
+            }
+
+            handleQuoteJson(initialData);
+        </script>
+    </div>

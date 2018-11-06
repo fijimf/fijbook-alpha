@@ -7,7 +7,7 @@ import play.api.data.Forms._
 
 object EditSeasonForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> ignored[Long](0),
       "year" -> number(2000, 2100),
@@ -16,6 +16,6 @@ object EditSeasonForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long, year: Int, lock:String, lockBefore:Option[LocalDate])
+  final case class Data(id: Long, year: Int, lock:String, lockBefore:Option[LocalDate])
 
 }

@@ -9,7 +9,7 @@ import play.api.data.Forms._
 
 object EditBlogPostForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "key" -> nonEmptyText,
       "date" -> localDate("yyyy-MM-dd"),
@@ -23,7 +23,7 @@ object EditBlogPostForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String,
+  final case class Data(key: String,
                   date: LocalDate,
                   author: String,
                   title: String,

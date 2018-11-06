@@ -13,4 +13,5 @@ trait UserProfileDAO {
   def saveUserProfile(userId: String, data: Map[String, String]):Future[Map[String, String]]
 
   def listUserProfiles: Future[List[UserProfileData]]
+
 }

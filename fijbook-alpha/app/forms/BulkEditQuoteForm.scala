@@ -5,12 +5,12 @@ import play.api.data.Forms._
 
 object BulkEditQuoteForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "quotes" -> nonEmptyText
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(quotes: String)
+  final case class Data(quotes: String)
 
 }

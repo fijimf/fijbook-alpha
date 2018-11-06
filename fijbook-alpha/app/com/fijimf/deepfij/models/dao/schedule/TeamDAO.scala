@@ -12,6 +12,8 @@ trait TeamDAO {
 
   def findTeamById(id: Long): Future[Option[Team]]
 
+  def findTeamsLike(k:String):Future[List[Team]]
+
   def saveTeam(team: Team): Future[Team]
 
   def saveTeams(teams: List[Team]): Future[List[Team]]

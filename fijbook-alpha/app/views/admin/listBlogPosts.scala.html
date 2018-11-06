@@ -2,20 +2,18 @@
 @import controllers.nav.{Breadcrumbs, MainMeta}
 @import com.fijimf.deepfij.models.S3StaticAsset
 @import com.fijimf.deepfij.models.S3BlogMetaData
-@(user: User, metas: List[S3BlogMetaData])(implicit flash: Flash)
-@mainX(
-    MainMeta.base("Browse Blog Posts", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Static Pages "))
-) {
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,  metas: List[S3BlogMetaData])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-3">
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.S3AdminController.createBlogPost()">Create Post</a></p>
+            <p><a class="btn btn-small btn-block btn-default" href="@routes.S3AdminController.createBlogPost()">Create Post</a></p>
         </div>
         </div>
     <div class="row">
         <div class="col-sm-12">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-sm table-bordered">
                 <thead><tr>
                     <th>Key</th>
                     <th>Title</th>

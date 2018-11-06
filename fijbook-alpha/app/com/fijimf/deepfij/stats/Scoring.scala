@@ -8,7 +8,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[ScoringAccumulator] {
+final case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[ScoringAccumulator] {
   val log = Logger(Scoring.getClass)
   val model: Model[ScoringAccumulator] = Scoring
 
@@ -50,7 +50,7 @@ case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[Scoring
     }
   }
 
-  case class InnerAccumulator
+  final case class InnerAccumulator
   (
     runningTotals:Map[Team, ScoringAccumulator]=Map.empty[Team, ScoringAccumulator],
     byDate:Map[LocalDate, Map[Team, ScoringAccumulator]]=Map.empty[LocalDate,Map[Team,ScoringAccumulator]]

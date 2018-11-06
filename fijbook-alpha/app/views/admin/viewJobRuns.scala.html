@@ -1,0 +1,41 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Conference
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.Job
+@import controllers.Utils._
+@import jobs.DeepFijQuartzSchedulerExtension
+@import com.fijimf.deepfij.models.JobRun
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, job:Job, jobRuns:List[JobRun])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-12">
+            <h5>@job.name [@job.message]</h5>
+        </div>
+        <div class="col-sm-12">
+            <table class="table table-sm table-bordered">
+               <thead><tr>
+                   <th>ID</th>
+                   <th>Status</th>
+                   <th>Start</th>
+                   <th>End</th>
+                   <th>Message</th>
+               </tr></thead>
+                <tbody >
+                    @for(jr<-jobRuns){
+                        <tr>
+                            <td>@jr.id </td>
+                            <td>@jr.status</td>
+                            <td>@jr.startTime.fmt("dd-MM-yy HH:mm:ss.S")</td>
+                            <td>@jr.endTime.map(_.fmt("dd-MM-yy HH:mm:ss.S")).getOrElse("")</td>
+                            <td>@jr.message</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+}

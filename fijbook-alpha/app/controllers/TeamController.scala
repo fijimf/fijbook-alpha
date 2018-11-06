@@ -3,62 +3,68 @@ package controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+import breeze.stats
+import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.silhouette.utils.DefaultEnv
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.{BaseController, ControllerComponents}
-import controllers.silhouette.utils.DefaultEnv
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 class TeamController @Inject()(
                                 val controllerComponents: ControllerComponents,
-                                val teamDao: ScheduleDAO,
+                                val dao: ScheduleDAO,
                                 val statWriterService: ComputedStatisticService,
                                 cache: AsyncCacheApi,
                                 silhouette: Silhouette[DefaultEnv]
                               )
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(getClass)
 
-  def team(key: String, season: Option[Int]) = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().flatMap(ss => {
-      if (ss.isEmpty) {
-        Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> "No schedules are loaded."))
-      } else {
-        val year = season match {
-          case Some(y) => y
-          case None => ss.map(_.season.year).max
-        }
-        ss.find(_.season.year == year) match {
-          case Some(sch) => {
-            val t: Team = sch.keyTeam(key)
-            val stats = loadTeamStats(t, sch)
-            stats.map(lstat => {
-              Ok(views.html.data.team(request.identity, t, sch, lstat))
-            })
+  def team(key: String, season: Option[Int]): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    (for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+    } yield {(du,qw)}).flatMap(tup=> {
+      dao.loadSchedules().flatMap(ss => {
+        if (ss.isEmpty) {
+          Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> "No schedules are loaded."))
+        } else {
+          val year = season match {
+            case Some(y) => y
+            case None => ss.map(_.season.year).max
           }
-          case None => Future.successful(Redirect(routes.IndexController.index()).flashing("info" -> s"No schedule found for year $year"))
+          ss.find(_.season.year === year) match {
+            case Some(sch) =>
+              val t: Team = sch.keyTeam(key)
+              val stats = loadTeamStats(t, sch)
+              stats.map(lstat => {
+                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat))
+              })
+            case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
+          }
         }
-      }
+      })
     })
   }
 
-  def teamGames(key: String) = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().map(f => {
+  def teamGames(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    dao.loadSchedules().map(f => {
       f.flatMap(s => {
-        s.teams.find(_.key == key) match {
+        s.teams.find(_.key === key) match {
           case Some(team) => getTeamGames(s, team)
           case None => List.empty[JsObject]
         }
@@ -70,7 +76,7 @@ class TeamController @Inject()(
   private def getTeamGames(s: Schedule, team: Team): List[JsObject] = {
     val year = s.season.year
     s.gameResults.flatMap {
-      case (g, Some(r)) if g.homeTeamId == team.id =>
+      case (g, Some(r)) if g.homeTeamId === team.id =>
         val date = g.date.format(DateTimeFormatter.ISO_DATE)
         val wonLost = if (r.isHomeWinner) "W" else "L"
         val opponent = s.teamsMap(g.awayTeamId)
@@ -95,7 +101,7 @@ class TeamController @Inject()(
             "homeAwayClass" -> Json.toJson(han)
           )
         )
-      case (g, Some(r)) if g.awayTeamId == team.id =>
+      case (g, Some(r)) if g.awayTeamId === team.id =>
         val date = g.date.format(DateTimeFormatter.ISO_DATE)
         val wonLost = if (r.isAwayWinner) "W" else "L"
         val opponent = s.teamsMap(g.homeTeamId)
@@ -130,27 +136,17 @@ class TeamController @Inject()(
   }
 
   def loadTeamStats(t: Team, modelKey: String, sch: Schedule): Future[Option[ModelTeamContext]] = {
-    statWriterService.lookupModel(modelKey) match {
-      case Some(model) =>
-        cache.get[Map[String, List[StatValue]]]("model." + modelKey).flatMap {
-          case Some(byKey) => Future.successful(Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap)))
-          case None =>
-            teamDao.loadStatValues(modelKey, sch.season.startDate, sch.season.endDate).map(stats => {
-              val byKey = stats.groupBy(_.statKey)
-              cache.set("model." + modelKey, byKey, 15.minutes)
-              Some(ModelTeamContext(t, model, model.stats, byKey, sch.teamsMap))
-            }
-            )
-        }
-      case None => Future.successful(Option.empty[ModelTeamContext])
-    }
+   Future(None)
   }
 
-  def teams(q: String) = silhouette.UserAwareAction.async { implicit request =>
-    teamDao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
-        case Some(sch) => {
+  def teams(q: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadLatestSchedule()
+    } yield {
+      ss match {
+        case Some(sch) =>
           val matches = sch.teams.filter(t => {
             val qryStr = q.trim.toUpperCase
             t.name.toUpperCase.contains(qryStr) || t.longName.toUpperCase.contains(qryStr) || t.nickname.toUpperCase.contains(qryStr)
@@ -158,76 +154,73 @@ class TeamController @Inject()(
           matches match {
             case Nil =>
               val columns = sch.teams.sortBy(_.name).grouped((sch.teams.size + 3) / 4).toList
-              Ok(views.html.data.teams(request.identity, columns)).flashing("info" -> ("No matching teams for query string '" + q + "'"))
+              Ok(views.html.data.teams(du, qw, columns)).flashing("info" -> ("No matching teams for query string '" + q + "'"))
             case t :: Nil => Redirect(routes.TeamController.team(t.key, None))
             case lst =>
               val columns = lst.sortBy(_.name).grouped((lst.size + 3) / 4).toList
-              Ok(views.html.data.teams(request.identity, columns))
+              Ok(views.html.data.teams(du, qw, columns))
           }
-        }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+        case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
-    })
+    }
   }
 
-  def conference(key: String) = silhouette.UserAwareAction.async { implicit request =>
-
-    teamDao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
-        case Some(sch) => {
+  def conference(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadLatestSchedule()
+    } yield {
+      ss match {
+        case Some(sch) =>
           val c = sch.conferenceKeyMap(key)
-          Ok(views.html.data.conference(request.identity, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
-        }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+          Ok(views.html.data.conference(du,qw, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
+        case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
 
-    })
+    }
 
   }
 
-  def conferences() = silhouette.UserAwareAction.async { implicit request =>
-
-    teamDao.loadSchedules().map(ss => {
-      val sortedSchedules = ss.sortBy(s => -s.season.year)
-      sortedSchedules.headOption match {
-        case Some(sch) => {
+  def conferences(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    for {
+      du<- loadDisplayUser(request)
+      qw<-getQuoteWrapper(du)
+      ss<- dao.loadLatestSchedule()
+    } yield {
+      ss match {
+        case Some(sch) =>
           val cmap = sch.conferences.map(c => c -> sch.conferenceStandings(c)).sortBy(_._1.name)
-          Ok(views.html.data.conferences(request.identity, cmap))
-        }
-        case None => Redirect(routes.IndexController.index()).flashing("info" -> "No current schedule loaded")
+          Ok(views.html.data.conferences(du, qw, cmap))
+        case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
 
-    })
-
+    }
   }
 
 
 }
 
 
-case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], xs: Map[String, List[StatValue]], teamMap: Map[Long, Team]) {
-  def modelName = model.name
+final case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], xs: Map[String, List[StatValue]], teamMap: Map[Long, Team]) {
+  def modelName: String = model.name
 
-  def modelKey = model.key
+  def modelKey: String = model.key
 
   def values(stat: Stat[_]): List[(String, Boolean, (LocalDate, Int, StatValue))] = {
     val teamByDate: List[(LocalDate, Int, StatValue)] = xs.get(stat.key) match {
       case Some(lsv) =>
         lsv.groupBy(_.date)
           .mapValues(lsvd => {
-            StatUtil.transformSnapshot(lsvd, (sv: StatValue) => teamMap(sv.teamID), stat.higherIsBetter).find(_._3.id == team.id)
+            StatUtil.transformSnapshot(lsvd, (sv: StatValue) => teamMap(sv.teamID), stat.higherIsBetter).find(_._3.id === team.id)
           }).toList.filter(_._2.isDefined).map { case (date: LocalDate, optTup: Option[(Int, StatValue, Team)]) =>
-          val (rk, sv, t) = optTup.get
+          val (rk, sv, _) = optTup.get
           (date, rk, sv)
         }
       case None => List.empty[(LocalDate, Int, StatValue)]
     }
 
-    val firstDate = teamByDate match {
-      case Nil => None
-      case tbd => Some(tbd.minBy(_._1.toEpochDay))
-    }
+
     val latest: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate match {
       case Nil => None
       case tbd => Some((stat.name, true, tbd.maxBy(_._1.toEpochDay)))
@@ -245,11 +238,11 @@ case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], x
         case tbd => Some(("Week Ago", false, tbd.maxBy(_._1.toEpochDay)))
       }
     })
-    val best: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2) match {
+    val best: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 === teamByDate.minBy(_._2)._2) match {
       case Nil => None
       case tbd => Some(("Best", false, tbd.maxBy(_._1.toEpochDay)))
     }
-    val worst: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 == teamByDate.minBy(_._2)._2) match {
+    val worst: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 === teamByDate.minBy(_._2)._2) match {
       case Nil => None
       case tbd => Some(("Worst", false, tbd.maxBy(_._1.toEpochDay)))
     }

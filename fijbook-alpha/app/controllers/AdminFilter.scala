@@ -14,7 +14,7 @@ class AdminFilter @Inject() (silhouette: Silhouette[DefaultEnv], implicit val ma
     request: RequestHeader): Future[Result] = {
 
     val action = silhouette.UserAwareAction.async { r =>
-      if (request.path.startsWith("/deepfij/admin")) {
+      if (Utils.isAdminRequest(request)) {
         r.identity.flatMap(_.email) match {
           case Some(e) if e == admin =>next(request)
           case _=> Future.successful( Results.Unauthorized)
@@ -26,4 +26,5 @@ class AdminFilter @Inject() (silhouette: Silhouette[DefaultEnv], implicit val ma
 
     action(request).run
   }
+
 }

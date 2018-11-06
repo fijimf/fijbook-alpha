@@ -1,10 +1,10 @@
 @import com.fijimf.deepfij.models.{Schedule, Conference, User,ConferenceStandings}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: Option[User], cmap: List[(Conference,ConferenceStandings)])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(du: DisplayUser, qw:QuoteWrapper, cmap: List[(Conference,ConferenceStandings)])(implicit request: RequestHeader, flash: Flash)
 
-
-@main("deepfij", "Conferences", "", Some(Breadcrumbs.base.appendChild("Conferences", "/conferences", "fa-list")), StandardNavBar.active("teams",user), user, "/assets/images/deepfij.png", "#ddd" ) {
-
+@main3000(du, qw) {
     <div class="row">
         <div class="col-sm-12">
             <table>

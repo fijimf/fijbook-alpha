@@ -2,7 +2,7 @@ package com.fijimf.deepfij.stats.predictor
 
 import com.fijimf.deepfij.models.Game
 
-case class LogisticResultLine(game: Game, homeScore: Int, awayScore: Int, homePct: Double, awayPct: Double) {
+final case class LogisticResultLine(game: Game, homeScore: Int, awayScore: Int, homePct: Double, awayPct: Double) {
   def correct: Boolean = (homePct > awayPct && homeScore > awayScore) || (homePct < awayPct && homeScore < awayScore)
 
   def logLikelihood: Double = if (correct) {

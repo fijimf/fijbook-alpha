@@ -1,8 +1,34 @@
 ########### INDEX
-->          /                                                   silhouette.Routes
 GET         /                                                   controllers.IndexController.redirect
-GET         /deepfij                                            controllers.IndexController.redirect
-GET         /deepfij/index                                      controllers.IndexController.index
+GET         /deepfij                                            controllers.ReactMainController.index()
+GET         /deepfij/index                                      controllers.ReactMainController.index()
+GET         /deepfij/$d<\d{8}>                                  controllers.ReactMainController.dateIndex(d:String)
+
+GET         /deepfij/search                                     controllers.SearchController.search
+GET         /api/vote/quote/:id                                 controllers.QuoteController.likeQuote(id:Long)
+
+->          /webjars                                            webjars.Routes
+
+GET         /deepfij/signOut                                    controllers.SignOutController.signOut
+
+GET         /deepfij/signUp                                     controllers.SignUpController.view
+POST        /deepfij/signUp                                     controllers.SignUpController.submit
+
+GET         /deepfij/signIn                                     controllers.SignInController.view
+POST        /deepfij/signIn                                     controllers.SignInController.submit
+
+GET         /deepfij/password/forgot                            controllers.ForgotPasswordController.view
+POST        /deepfij/password/forgot                            controllers.ForgotPasswordController.submit
+GET         /deepfij/password/reset/:token                      controllers.ResetPasswordController.view(token: java.util.UUID)
+POST        /deepfij/password/reset/:token                      controllers.ResetPasswordController.submit(token: java.util.UUID)
+GET         /deepfij/password/change                            controllers.ChangePasswordController.view
+POST        /deepfij/password/change                            controllers.ChangePasswordController.submit
+
+GET         /deepfij/account/email/:email                       controllers.ActivateAccountController.send(email: String)
+GET         /deepfij/account/activate/:token                    controllers.ActivateAccountController.activate(token: java.util.UUID)
+
+
+
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])
@@ -12,10 +38,10 @@ GET         /api/games/:yyyymmdd                                controllers.Game
 GET         /api/teamgames/:key                                 controllers.TeamController.teamGames(key:String)
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
-GET         /deepfij/stats                                      controllers.StatsController.viewModels()
-GET         /deepfij/stats/:modelKey                            controllers.StatsController.viewModel(modelKey:String)
-GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.viewStat(modelKey:String, statKey:String)
-GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.viewStatApi(modelKey:String, statKey:String)
+GET         /deepfij/stats                                      controllers.StatsController.todo()
+GET         /deepfij/stats/:modelKey                            controllers.StatsController.todo1(modelKey)
+GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.todo2(modelKey, statKey)
+GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.todo2(modelKey, statKey)
 GET         /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRequest()
 POST        /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRun()
 
@@ -32,8 +58,8 @@ GET         /deepfij/admin                                      controllers.Admi
 GET         /deepfij/admin/userProfile/:id                      controllers.AdminController.userProfile(id:String)
 
 ########### DATABASE
-GET         /deepfij/admin/schema                               controllers.SchemaController.dumpSchema
-GET         /deepfij/admin/schema-user                          controllers.SchemaController.dumpUserSchema
+GET         /deepfij/admin/schema                               controllers.SchemaController.showSchema
+GET         /deepfij/admin/schema-user                          controllers.SchemaController.showUserSchema
 GET         /deepfij/admin/dropCreateSchema                     controllers.SchemaController.dropCreateSchema
 GET         /deepfij/admin/dropCreateSchema-user                controllers.SchemaController.dropCreateUserSchema
 
@@ -45,9 +71,9 @@ GET         /deepfij/admin/scrapeGamesToday                     controllers.Game
 GET         /deepfij/admin/scrapeGamesFor/:yyyymmdd             controllers.GameScrapeController.scrapeForDay(yyyymmdd)
 GET         /deepfij/admin/updateNeutralSites                   controllers.TeamScrapeController.neutralSiteSolver
 GET         /deepfij/admin/verifyResults/:y                     controllers.GameScrapeController.verifyResults(y:Int)
+GET         /deepfij/admin/updateTourney                        controllers.GameScrapeController.updateTourneys
 ########### DATA
 GET         /deepfij/admin/scrapeManager                        controllers.ScrapingManagerController.page()
-GET         /deepfij/admin/statManager                        controllers.SparkStatsManagerController.page()
 GET         /deepfij/admin/uber-scrape                          controllers.UberScrapeController.uberScrape()
 GET         /deepfij/admin/uber-ncaa/:filename                  controllers.UberScrapeController.markNcaaGames(filename:String)
 ##### TEAMS
@@ -67,6 +93,15 @@ GET         /deepfij/admin/browseConferences                    controllers.Data
 GET         /deepfij/admin/editConference/:id                   controllers.DataController.editConference(id:Long)
 POST        /deepfij/admin/saveConference                       controllers.DataController.saveConference
 
+##### JOB
+GET         /deepfij/admin/browseJobs                           controllers.JobControlController.browseJobs
+GET         /deepfij/admin/createJob                            controllers.JobControlController.createJob()
+GET         /deepfij/admin/editJob/:id                          controllers.JobControlController.editJob(id:Long)
+POST        /deepfij/admin/saveJob                              controllers.JobControlController.saveJob
+GET         /deepfij/admin/deleteJob/:id                        controllers.JobControlController.deleteJob(id:Long)
+GET         /deepfij/admin/runJobNow/:id                        controllers.JobControlController.runJobNow(id:Long)
+GET         /deepfij/admin/view/:id                             controllers.JobControlController.viewJob(id:Long)
+
 ##### SEASONS
 GET         /deepfij/admin/createSeason                         controllers.DataController.createSeason
 POST        /deepfij/admin/saveSeason                           controllers.DataController.saveSeason
@@ -75,7 +110,11 @@ GET         /deepfij/admin/lockSeason/:id                       controllers.Data
 
 ##### CONFERENCEMAP
 GET         /deepfij/admin/seedConferenceMap                    controllers.TeamScrapeController.seedConferenceMaps()
+GET         /deepfij/admin/browseConferenceMaps                 controllers.DataController.browseConferenceMaps
 GET         /deepfij/admin/browseConferenceMap/:seasonId        controllers.DataController.browseConferenceMap(seasonId:Long)
+GET         /deepfij/admin/deleteConferenceMap/:s/:c/:t         controllers.DataController.deleteConferenceMapping(s:Long, c:Long, t:Long)
+GET         /deepfij/admin/moveConferenceMap/:s/:t/:c           controllers.DataController.moveConferenceMapping(s:Long, c:Long, t:Long)
+GET         /deepfij/admin/resetConfMap/:from/:to               controllers.DataController.resetSeasonConfMapping(from:Long, to:Long)
 
 ##### GAMES
 GET         /deepfij/admin/browseGames/:seasonId                controllers.DataController.browseGames(seasonId:Long, query:Option[String])
@@ -109,9 +148,15 @@ GET         /deepfij/admin/createAlias                          controllers.Data
 POST        /deepfij/admin/saveAlias                            controllers.DataController.saveAlias
 GET         /deepfij/admin/editAlias/:id                        controllers.DataController.editAlias(id:Long)
 GET         /deepfij/admin/deleteAlias/:id                      controllers.DataController.deleteAlias(id:Long)
+##### RSSFEED
+GET         /deepfij/admin/browseRssFeeds                       controllers.DataController.browseRssFeeds
+GET         /deepfij/admin/createRssFeed                        controllers.DataController.createRssFeed
+POST        /deepfij/admin/saveRssFeed                          controllers.DataController.saveRssFeed
+GET         /deepfij/admin/editRssFeed/:id                      controllers.DataController.editRssFeed(id:Long)
+GET         /deepfij/admin/deleteRssFeed/:id                    controllers.DataController.deleteRssFeed(id:Long)
+GET         /deepfij/admin/pollRssFeed/:id                      controllers.DataController.pollRssFeed(id:Long)
 
 GET         /deepfij/admin/scraper/ws                           controllers.ScrapingManagerController.socket
-GET         /deepfij/admin/sparkstat/ws                         controllers.SparkStatsManagerController.socket
 
 GET         /deepfij/admin/writeSnapshot                        controllers.AdminController.writeSnapshot
 GET         /deepfij/admin/readSnapshot:key                     controllers.AdminController.readSnapshot(key:String)

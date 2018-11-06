@@ -7,7 +7,7 @@ import play.api.data.Forms._
 
 object PredictionModelForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "seasons" -> list(text),
       "excludeMonths"->list(text),
@@ -19,7 +19,7 @@ object PredictionModelForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data
+  final case class Data
   (
     seasonsIncluded: List[String],
     excludeMonths: List[String],

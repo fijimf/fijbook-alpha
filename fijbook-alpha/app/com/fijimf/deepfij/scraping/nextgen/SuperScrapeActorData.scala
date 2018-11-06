@@ -4,9 +4,9 @@ import akka.actor.ActorRef
 
 sealed trait SuperScrapeActorData
 
-case class ReadyData(last: Option[SSTaskListMetadata]) extends SuperScrapeActorData
+final case class ReadyData(last: Option[SSTaskListMetadata]) extends SuperScrapeActorData
 
-case class ProcessingData
+final case class ProcessingData
 (
   runningTask: SSRunningTaskMetadata[_],
   completedTasks: List[SSTaskMetaData],

@@ -1,0 +1,57 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Conference
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.Job
+@import controllers.Utils._
+@import jobs.DeepFijQuartzSchedulerExtension
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, jobs:List[Job], fq:DeepFijQuartzSchedulerExtension)(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-12">
+            <p>@fq.schedulerName </p>
+        </div>
+            <div class="col-sm-3">
+                <p><a class="btn btn-small btn-block btn-default" href="@routes.JobControlController.createJob()">Create Job</a></p>
+            </div>
+        <div class="col-sm-12">
+            <table class="table table-sm table-bordered">
+               <thead><tr>
+                   <th>Name</th>
+                   <th>Description</th>
+                   <th>Cron Entry</th>
+                   <th>Time Zone</th>
+                   <th>Actor Class</th>
+                   <th>Message</th>
+                   <th>Enabled</th>
+                   <th>Last Updated</th>
+                   <th>Next Run</th>
+                   <th/>
+                   <th/>
+                   <th/>
+               </tr></thead>
+                <tbody >
+                    @for(j<-jobs){
+                        <tr>
+                            <td><a href="@routes.JobControlController.viewJob(j.id)">@j.name</a></td>
+                            <td>@j.description</td>
+                            <td>@j.cronSchedule</td>
+                            <td>@j.timezone</td>
+                            <td>@j.actorClass</td>
+                            <td>@j.message</td>
+                            <td>@j.isEnabled</td>
+                            <td>@j.updatedAt.fmt("yyyyMMdd HH:mm:ss")</td>
+                            <td>@fq.nextTrigger(j)</td>
+                            <td class="text-center"><a href="@routes.JobControlController.editJob(j.id)"><i class="fa fa-edit text-success"> </i></a></td>
+                            <td class="text-center"><a href="@routes.JobControlController.deleteJob(j.id)"><i class="fa fa-times text-danger"> </i></a></td>
+                            <td class="text-center"><a href="@routes.JobControlController.runJobNow(j.id)"><i class="fa fa-bolt text-primary"> </i></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+}

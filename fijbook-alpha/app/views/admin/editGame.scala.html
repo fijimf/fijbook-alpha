@@ -1,19 +1,15 @@
 @import com.fijimf.deepfij.models.{Game, User}
 @import controllers.nav.{Breadcrumbs, MainMeta}
 @import helper._
-
-@(user: User, game: Game, gameForm: Form[forms.EditGameForm.Data], teamData: List[(String, String)])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,  game: Game, gameForm: Form[forms.EditGameForm.Data], teamData: List[(String, String)])(implicit request: RequestHeader, flash: Flash, messages: Messages)
 
 @implicitFieldConstructor = @{
     b3.inline.fieldConstructor
 }
 
-@mainX(MainMeta.base(s"Editing Game ${game.id}", Some(user))
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin
-        .appendChild("Games", s"/browseGames/${game.seasonId}", "fa-eyeball")
-        .appendLeaf(s"Game ${game.id}"))
-) {
+    @main3000(displayUser,quoteWrapper) {
 
         <div class="col-sm-12">
         @b3.form(routes.DataController.saveGame()) {

@@ -12,7 +12,7 @@ import scala.concurrent.Future
   * @param provider The provider ID the user must authenticated with.
   * @tparam A The type of the authenticator.
   */
-case class WithProvider[A <: Authenticator](provider: String) extends Authorization[User, A] {
+final case class WithProvider[A <: Authenticator](provider: String) extends Authorization[User, A] {
 
   /**
     * Indicates if a user is authorized to access an action.

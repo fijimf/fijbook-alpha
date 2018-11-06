@@ -1,21 +1,11 @@
 @import com.fijimf.deepfij.models.{Schedule, Team, User}
 @import controllers.nav.{Breadcrumbs, StandardNavBar}
-@(user: Option[User], t: Team, curr: Schedule, stats:List[ModelTeamContext])(implicit request: RequestHeader, flash: Flash, messages: Messages)
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext])(implicit request: RequestHeader, flash: Flash)
+@main3000(du, qw) {
 
 
-@main(
-    title = "deepfij",
-    pageHead = t.name + " " + t.nickname,
-    pageSubHead = curr.overallRecord(t).won + "-" + curr.overallRecord(t).lost + ", " + curr.conferenceRecord(t).won + "-" + curr.conferenceRecord(t).lost + " " + curr.conference(t).name,
-    breadcrumbs = Some(Breadcrumbs.base.appendChild("Teams", "/teams", "fa-users").appendChild(t.name, "fa-eyeball", t.key)),
-    navBar = StandardNavBar.active("admin", user),
-    user = user,
-    icon = t.logoSmUrl.getOrElse("/assets/images/deepfij.png"),
-    lineColor = t.primaryColor.getOrElse("#ddd"),
-    quoteKey = Some(t.key),
-    extraCss = List("gameDots.css"),
-    extraJs = List("gameDots.js")
-) {
     <div class="row">
         <div class="col-sm-12" id="gameDotsDiv">
             <h3 style="margin-top:0px; margin-bottom:0px;">Last 5 seasons</h3>

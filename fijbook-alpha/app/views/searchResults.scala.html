@@ -1,0 +1,55 @@
+@import com.fijimf.deepfij.models.{Conference, Quote, RssFeed, RssItem, Team}
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@import controllers.Utils._
+@(du: DisplayUser, qw: QuoteWrapper, ts: List[Team], cs: List[Conference], qs: List[Quote], ns: List[(RssItem, RssFeed)])(implicit request: RequestHeader, flash: Flash)
+@main3000(du, qw) {
+    <div class="row"><h4>
+        SearchResults
+    </h4></div>
+
+    @if(ts.nonEmpty) {
+        <h5 class="col-12'">Teams</h5>
+        <div class="d-flex flex-row flex-wrap bd-highlight mb-3">
+            @for(t<-ts){
+                <div class="w-25 p-2"><img src="@t.logoLgUrl.getOrElse("#")"/><a href=@routes.TeamController.team(t.key, None)>@t.name @t.nickname</a></div>
+            }
+        </div>
+    }
+
+    @if(cs.nonEmpty) {
+        <h5 class="col-12">Conferences</h5>
+        <div class="d-flex flex-row flex-wrap bd-highlight mb-3">
+            @for(c<-cs){
+                <div class="w-25 p-2"><a href="@routes.TeamController.conference(c.key)"><img src="@c.logoLgUrl.getOrElse("#")"/>@c.name</a></div>
+            }
+        </div>
+    }
+
+    @if(qs.nonEmpty) {
+        <h5>Quotes</h5>
+        <div class="d-flex flex-row flex-wrap bd-highlight mb-3">
+
+        @for(q<-qs){
+            <div class="w-100">@q.quote &nbsp;&nbsp;<em>@q.source.getOrElse("")</em></div>
+        }
+        </div>
+    }
+
+    @if(ns.nonEmpty) {
+        <h5>News Items</h5>
+        <div class="d-flex flex-row flex-wrap bd-highlight mb-3">
+            @for(n<-ns){
+                <div class="w-100"><a href="@n._1.url">@n._1.title</a> &nbsp;&nbsp;<em>(@n._1.publishTime.fmt("M/d/yyyy hh:mm a")  @n._2.name)</em></div>
+            }
+        </div>
+
+    }
+
+    @if(ts.isEmpty && cs.isEmpty && qs.isEmpty && ns.isEmpty) {
+    <div class="row">
+        <p><em>No results.</em></p>
+        </div>
+
+    }
+
+}

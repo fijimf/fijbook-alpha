@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
   * When in the PROCESSING/AWAITING_RESPONSE state the SuperScrapeActor can respond to the following messages:
   * Status - will respond with the status This will include the current taskList metadata, the current task metadata
   * AttachListener - this will add an Actor to listen to status updates as the task process continues
-  * CancelTask - this will cancel the current task.  This may result in the taskList being abandoned,depending on 
+  * CancelTask - this will cancel the current task.  This may result in the taskList being abandoned,depending on
   * how it is set up
   * CancelTaskList - this will cancel the current task and any subsequent tasks
   * Response - this is the response from the downstream actor that the task has been completed
@@ -30,19 +30,19 @@ import scala.util.{Failure, Success}
 // SuperScrapeActorMessages
 case object SSStatus
 
-case class SSAttachListener(ref: ActorRef)
+final case class SSAttachListener(ref: ActorRef)
 
 case object SSCancelTask
 
 case object SSCancelTaskList
 
-case class SSSuccessResponse[T](id: String, t: T)
+final case class SSSuccessResponse[T](id: String, t: T)
 
-case class SSFailureResponse(id: String, thr: Throwable)
+final case class SSFailureResponse(id: String, thr: Throwable)
 
-case class SSProcessTasks(tasks: List[SSTask[_]])
+final case class SSProcessTasks(tasks: List[SSTask[_]])
 
-case class SSTaskProgress(progress:Option[Double],message:Option[String])
+final case class SSTaskProgress(progress:Option[Double],message:Option[String])
 
 sealed trait SuperScrapeActorState
 
@@ -103,7 +103,7 @@ class SuperScrapeActor() extends FSM[SuperScrapeActorState, SuperScrapeActorData
       }
 
     case Event(SSTaskProgress(x,msg), p:ProcessingData) =>
-      p.listeners.foreach(_ ! (p.runningTask.id,p.runningTask.elapsedTime(),x.getOrElse(-1.0),msg.getOrElse("")))      
+      p.listeners.foreach(_ ! (p.runningTask.id,p.runningTask.elapsedTime(),x.getOrElse(-1.0),msg.getOrElse("")))
       stay()
   }
 

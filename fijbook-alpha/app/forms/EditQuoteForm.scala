@@ -5,7 +5,7 @@ import play.api.data.Forms._
 
 object EditQuoteForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "quote" -> nonEmptyText,
@@ -15,6 +15,6 @@ object EditQuoteForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(id: Long,  quote: String, source: Option[String], url: Option[String], key: Option[String])
+  final case class Data(id: Long,  quote: String, source: Option[String], url: Option[String], key: Option[String])
 
 }

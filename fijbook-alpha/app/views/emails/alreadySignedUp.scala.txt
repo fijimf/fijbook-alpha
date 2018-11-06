@@ -1,0 +1,4 @@
+@(user: com.fijimf.deepfij.models.User, url: String)(implicit messages: Messages)
+@messages("email.already.signed.up.hello", user.name)
+
+@messages("email.already.signed.up.txt.text", url)

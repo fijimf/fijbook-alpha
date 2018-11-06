@@ -1,29 +1,33 @@
 package jobs
 
 import java.time.LocalDate
-import javax.inject.Inject
 
+import javax.inject.Inject
 import akka.actor.Actor
 import com.fijimf.deepfij.models.services.ScheduleUpdateService
 import jobs.ScheduleUpdater.Update
+import play.api.Logger
 
 class ScheduleUpdater @Inject()(svc: ScheduleUpdateService) extends Actor  {
-
-  val logger = play.api.Logger(this.getClass)
+  import scala.concurrent.ExecutionContext.Implicits.global
+  val logger: Logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case Update(od, sendEmail)=> svc.updateSeason(od, sendEmail)
+    case str:String=>
+      val mysender=sender()
+      svc.update(str).onComplete(mysender ! _)
   }
 }
 
 object ScheduleUpdater {
-  case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
 
-  def forAll = Update()
+  final case class Update(dates: Option[List[LocalDate]] = None, sendEmail:Boolean=false)
 
-  def forNow = Update(Some((-1).to(1).toList.map(LocalDate.now().plusDays(_))))
+  def forAll: Update = Update()
 
-  def forDailyUpdate = Update(Some((-7).to(7).toList.map(LocalDate.now().plusDays(_))))
+  def forNow: Update = Update(Some((-1).to(1).toList.map(LocalDate.now().plusDays(_))))
 
+  def forDailyUpdate: Update = Update(Some((-7).to(7).toList.map(LocalDate.now().plusDays(_))))
+val name = "schedule-updater"
 }
 

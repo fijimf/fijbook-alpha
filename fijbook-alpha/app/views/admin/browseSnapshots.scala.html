@@ -5,12 +5,10 @@
 @import java.time.LocalDateTime
 @import java.time.format.DateTimeFormatter
 @import org.apache.commons.lang3.StringUtils
-@(user:User,ss:List[(String, Long, LocalDateTime)])(implicit flash: Flash)
-@mainX(
-    MainMeta.base("Data snapshots", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Data snapshots"))
-){
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, ss:List[(String, Long, LocalDateTime)])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-md-2">
             <a href="@routes.AdminController.writeSnapshot()" class="btn btn-small btn-block btn-success">Create a snapshot</a>
@@ -19,7 +17,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            
+
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -42,7 +40,7 @@
                     }
                 </tbody>
             </table>
-            
+
         </div>
     </div>
 }

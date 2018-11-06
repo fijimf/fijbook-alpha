@@ -2,20 +2,17 @@ package com.fijimf.deepfij.models.dao.schedule
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-import javax.inject.Inject
 
-import akka.actor.{ActorSystem, Scheduler}
-import akka.pattern.after
+import akka.actor.ActorSystem
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
+import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Random, Success}
+import scala.util.{Failure, Success}
 
 
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
@@ -31,7 +28,13 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with StatValueDAOImpl
     with GamePredictionDAOImpl
     with LogisticModelDAOImpl
-    with UserProfileDAOImpl {
+    with UserProfileDAOImpl
+    with QuoteVoteDAOImpl
+    with FavoriteLinkDAOImpl
+    with RssFeedDAOImpl
+    with RssItemDAOImpl
+    with JobDAOImpl
+    with JobRunDAOImpl {
 
   import dbConfig.profile.api._
 
@@ -144,16 +147,21 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def loadSchedule(y: Int): Future[Option[Schedule]] = {
-    val s = System.currentTimeMillis()
-    val future = db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
-      case Some(s) => loadSchedule(s).map(Some(_))
-      case None => Future.successful(None)
+    if (y<0) {
+      loadLatestSchedule()
     }
-    future.onComplete{
-      case Failure(thr)=>log.error(s"loadSchedule for $y failed in ${System.currentTimeMillis()-s} ms. Error was ${thr.getMessage}", thr)
-      case _=>log.info(s"loadSchedule for $y completed in ${System.currentTimeMillis()-s} ms.")
+    else {
+      val s = System.currentTimeMillis()
+      val future = db.run(repo.seasons.filter(_.year === y).result.headOption).flatMap {
+        case Some(s) => loadSchedule(s).map(Some(_))
+        case None => Future.successful(None)
+      }
+      future.onComplete {
+        case Failure(thr) => log.error(s"loadSchedule for $y failed in ${System.currentTimeMillis() - s} ms. Error was ${thr.getMessage}", thr)
+        case _ => log.info(s"loadSchedule for $y completed in ${System.currentTimeMillis() - s} ms.")
+      }
+      future
     }
-    future
   }
 
   override def loadLatestSchedule(): Future[Option[Schedule]] = {

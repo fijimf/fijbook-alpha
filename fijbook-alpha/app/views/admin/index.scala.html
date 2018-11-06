@@ -1,101 +1,72 @@
-@import com.fijimf.deepfij.models.User
-@import com.fijimf.deepfij.models.Schedule
-@import controllers.nav.{Breadcrumbs, MainMeta}
-@import helper._
-@import java.time.format.DateTimeFormatter
-@(user: Option[User], userList: List[User], schedules:List[Schedule])(implicit flash: Flash)
-@mainX( MainMeta.base("Admin", user)
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.base.appendLeaf("Admin"))
-) {
+@import com.fijimf.deepfij.models.{Schedule, User}
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@(displayUser:DisplayUser, quoteWrapper: QuoteWrapper, userList: List[User], schedules:List[Schedule])(implicit  request: RequestHeader,flash: Flash)
+@main3000(displayUser,quoteWrapper) {
 
     <div class="row">
         <div class="col-sm-3">
             <div class="page-header-condensed">
                 <h4>Database Operations</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.SchemaController.dumpSchema()">
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.SchemaController.showSchema()">
                 Show Schedule Schema</a></p>
-            <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-schedule-drop-create">
+            <p><button  class="btn btn-small btn-block btn-outline-danger" data-toggle="modal" data-target="#confirm-schedule-drop-create">
                 Drop/Create Schedule DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"> </i></button></p>
-
-            <div id="confirm-schedule-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3 class="modal-title">Confirm</h3>
-                        </div>
-                        <div class="modal-body">
-                            <p>This will drop and recreate the schedule database.  This cannot be undone.</p>
-                            <p>Are you sure?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <a type="button" class="btn btn-danger" id="delete" href="@routes.SchemaController.dropCreateSchema()">
-                                Drop/Create</a>
-                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.SchemaController.dumpUserSchema()">
+            @createModal("confirm-schedule-drop-create", "Confirm", "Drop/Create", routes.SchemaController.dropCreateSchema()) {
+                <p>This will drop and recreate the schedule database.  This cannot be undone.</p>
+                <p>Are you sure?</p>
+            }
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.SchemaController.showUserSchema()">
                 Show User Schema</a></p>
-            <p><button type="button" class="btn btn-small btn-block btn-default" data-toggle="modal" data-target="#confirm-user-drop-create">
+            <p><button  class="btn btn-small btn-block btn-outline-danger" data-toggle="modal" data-target="#confirm-user-drop-create">
                 Drop/Create User DB&nbsp;&nbsp;<i class="fa text-danger fa-exclamation-circle"></i></button></p>
-
-            <div id="confirm-user-drop-create" class="modal fade" id="myModal" tabindex="-1" role="dialog" >
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3 class="modal-title">Confirm</h3>
-                        </div>
-                        <div class="modal-body">
-                            <p>This will drop and recreate the user database.  This cannot be undone.</p>
-                            <p>Are you sure?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <a type="button" class="btn btn-danger" id="delete" href="@routes.SchemaController.dropCreateUserSchema()">
-                                Drop/Create</a>
-                            <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            @createModal("confirm-user-drop-create", "Confirm", "Drop/Create", routes.SchemaController.dropCreateUserSchema()) {
+                <p>This will drop and recreate the user database.  This cannot be undone.</p>
+                <p>Are you sure?</p>
+            }
         </div>
+
         <div class="col-sm-3 col-sm-offset-1">
             <div class="page-header-condensed">
                 <h4>Data Browsing</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseTeams()">
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseTeams()">
                 Browse Teams</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseAliases()">
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseAliases()">
                 Browse Aliases</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseConferences()">
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseRssFeeds()">
+                Browse RSS Feeds</a></p>
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseConferences()">
                 Browse Conferences</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseQuotes()">
+            <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseQuotes()">
                 Browse Quotes</a></p>
+            <p><a class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseConferenceMaps()">
+                Browse Conference Maps
+            </a></p>
             @for(s<-schedules) {
-                <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.DataController.browseGames(s.season.id, None)">
-                        Browse Games (@s.season.year)</a>
+                <p><a  class="btn btn-small btn-block btn-outline-secondary" href="@routes.DataController.browseGames(s.season.id, None)">
+                    Browse Games <strong>(@s.season.year)</strong></a>
                 </p>
             }
         </div>
         <div class="col-sm-3 col-sm-offset-1">
             <div class="page-header-condensed">
-                <h4>Update/Restore Actions</h4>
+                <h4>Manage/Update/Restore Actions</h4>
             </div>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.ScrapingManagerController.page()">
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.JobControlController.browseJobs()">
+                Manage Scheduled Jobs</a></p>
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.ScrapingManagerController.page()">
                 Manage Web Scraping</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.AdminController.listSnapshots()">
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.AdminController.listSnapshots()">
                 Manage Snapshots</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.StatsController.updateAll()">
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.StatsController.updateAll()">
                 Update Stats</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.StatsController.updateAllSeasons()">
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.StatsController.updateAllSeasons()">
                 Update All Seasons Stats</a></p>
-            <p><a type="button" class="btn btn-small btn-block btn-default" href="@routes.PredictionController.update()">
+            <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.PredictionController.update()">
                 Update Predictions</a></p>
+ <p><a  class="btn btn-small btn-block btn-outline-primary" href="@routes.GameScrapeController.updateTourneys()">
+                Tag Tournament Games</a></p>
 
         </div>
 
@@ -105,7 +76,7 @@
             <div class="page-header-condensed">
                 <h4>Users</h4>
             </div>
-            <table class="table table-condensed table-bordered table-striped">
+            <table class="table table-sm table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>Last</th>

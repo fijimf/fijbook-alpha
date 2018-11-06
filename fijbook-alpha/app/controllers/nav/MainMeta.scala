@@ -5,7 +5,7 @@ import java.time.LocalDate
 import com.fijimf.deepfij.models.User
 
 
-case class MainMeta
+final case class MainMeta
 (
   title: String,
   pageHead: String,
@@ -18,11 +18,11 @@ case class MainMeta
   quoteKey: Option[String] = None,
   date: Option[LocalDate] = None
 ) {
-  def withNav(key: String) = {
+  def withNav(key: String): MainMeta = {
     copy(navBar = StandardNavBar.active(key, user))
   }
 
-  def withCrumbs(bc: Breadcrumbs) = {
+  def withCrumbs(bc: Breadcrumbs): MainMeta = {
     copy(breadcrumbs = Some(bc))
   }
 }

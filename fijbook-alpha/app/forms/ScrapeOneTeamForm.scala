@@ -5,15 +5,14 @@ import play.api.data.Forms._
 
 object ScrapeOneTeamForm {
 
-
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "key" -> nonEmptyText,
       "shortName" -> nonEmptyText
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String, shortName: String)
+  final case class Data(key: String, shortName: String)
 
 }
 

@@ -1,6 +1,6 @@
 package controllers.nav
 
-case class Breadcrumbs(trail:List[Breadcrumb]) {
+final case class Breadcrumbs(trail:List[Breadcrumb]) {
   def appendChild(display:String, suffix:String): Breadcrumbs = {
     trail.headOption match {
       case Some(b)=>Breadcrumbs(Breadcrumb(display,b.link+suffix)::trail)
@@ -31,4 +31,4 @@ object Breadcrumbs {
   def admin=base.appendChild("Admin","/admin","fa-wrench")
 }
 
-case class Breadcrumb(display:String, link:String, icon:Option[String]=None)
+final case class Breadcrumb(display:String, link:String, icon:Option[String]=None)

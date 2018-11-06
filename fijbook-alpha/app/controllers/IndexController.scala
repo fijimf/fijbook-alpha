@@ -24,7 +24,7 @@ class IndexController @Inject()(
 
   def redirect = silhouette.UserAwareAction.async { implicit rs =>
     Future {
-      Redirect(routes.IndexController.index())
+      Redirect(routes.ReactMainController.index())
     }
   }
 

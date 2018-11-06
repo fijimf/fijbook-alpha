@@ -2,7 +2,9 @@ package com.fijimf.deepfij.models
 
 import java.time.{LocalDate, Month}
 
-case class Schedule
+import cats.implicits._
+
+final case class Schedule
 (
   season: Season,
   teams: List[Team],
@@ -11,11 +13,50 @@ case class Schedule
   gameResults: List[(Game, Option[Result])],
   predictions: List[(Game, Option[GamePrediction])]
 ) {
+
+  implicit class CompletedGame(tup: (Game, Result)) {
+    val game: Game = tup._1
+    val result: Result = tup._2
+
+    def hasTeam(id: Long): Boolean = game.homeTeamId === id || game.awayTeamId === id
+
+    def isConferenceGame: Boolean = teamConference.contains(game.homeTeamId) && teamConference.get(game.homeTeamId) === teamConference.get(game.awayTeamId)
+
+    def isConferenceGame(confKey: String): Boolean = (for {
+      conference <- conferenceKeyMap.get(confKey)
+      homeConfId <- teamConference.get(game.homeTeamId)
+      awayConfId <- teamConference.get(game.awayTeamId)
+    } yield {
+      conference.id === homeConfId && conference.id === awayConfId
+    }).getOrElse(false)
+
+    def isWinner(t: Team): Boolean = isWinner(t.id)
+    def isLoser(t: Team): Boolean = isLoser(t.id)
+
+    def isWinner(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore > result.awayScore) || (game.awayTeamId === tid && result.awayScore > result.homeScore)
+    def isLoser(tid: Long): Boolean = (game.homeTeamId === tid && result.homeScore < result.awayScore) || (game.awayTeamId === tid && result.awayScore < result.homeScore)
+  }
+
+  implicit class ScheduledGame(game:Game) {
+    def isConferenceGame: Boolean = teamConference.contains(game.homeTeamId) && teamConference.get(game.homeTeamId) === teamConference.get(game.awayTeamId)
+
+    def isConferenceGame(confKey: String): Boolean = (for {
+      conference <- conferenceKeyMap.get(confKey)
+      homeConfId <- teamConference.get(game.homeTeamId)
+      awayConfId <- teamConference.get(game.awayTeamId)
+    } yield {
+      conference.id === homeConfId && conference.id === awayConfId
+    }).getOrElse(false)
+  }
+
+  lazy val conferenceStandings: Map[Long, (Conference, ConferenceStandings)] =ConferenceStandings(this).map(t=>t._1.id->t).toMap
+
   val conferenceKeyMap: Map[String, Conference] = conferences.map(t => t.key -> t).toMap
   val games: List[Game] = gameResults.map(_._1).sortBy(_.date.toEpochDay)
   val gameMap: Map[Long, Game] = games.map(g => g.id -> g).toMap
   val results: List[Result] = gameResults.filter(_._2.isDefined).sortBy(_._1.date.toEpochDay).map(_._2.get)
   val resultMap: Map[Long, Result] = results.map(r => r.gameId -> r).toMap
+
   val predictionMap: Map[Long, Map[String, GamePrediction]] =
     predictions.filter(_._2.isDefined)
       .groupBy(r => r._2.get.gameId)
@@ -26,6 +67,8 @@ case class Schedule
   val teamConference: Map[Long, Long] = conferenceMap.map(c => c.teamId -> c.conferenceId).toMap
   val conferenceTeams: Map[Long, List[Long]] = conferenceMap.groupBy(_.conferenceId).map(c => c._1 -> c._2.map(_.teamId)).toMap
   val keyTeam: Map[String, Team] = teams.map(t => t.key -> t).toMap
+
+  val completeGames: List[(Game, Result)] =gameResults.flatMap(gr => gr._2.map(r => (gr._1, r)))
 
   def firstGame: Option[LocalDate] = games.headOption.map(_.date)
 
@@ -46,13 +89,13 @@ case class Schedule
   def conference(team: Team): Conference = conferenceIdMap(teamConference(team.id))
 
   def isWinner(t: Team, g: Game, r: Result): Boolean = {
-    require(t.id == g.homeTeamId || t.id == g.awayTeamId)
-    require(r.gameId == g.id)
-    (t.id == g.homeTeamId && r.homeScore > r.awayScore) || (t.id == g.awayTeamId && r.awayScore > r.homeScore)
+    require(t.id === g.homeTeamId || t.id === g.awayTeamId)
+    require(r.gameId === g.id)
+    (t.id === g.homeTeamId && r.homeScore > r.awayScore) || (t.id === g.awayTeamId && r.awayScore > r.homeScore)
   }
 
   def isWinner(t: Team, g: Game): Boolean = {
-    require(t.id == g.homeTeamId || t.id == g.awayTeamId)
+    require(t.id === g.homeTeamId || t.id === g.awayTeamId)
     resultMap.get(g.id) match {
       case Some(r) => isWinner(t, g, r)
       case None => false
@@ -60,13 +103,13 @@ case class Schedule
   }
 
   def isLoser(t: Team, g: Game, r: Result): Boolean = {
-    require(t.id == g.homeTeamId || t.id == g.awayTeamId)
-    require(r.gameId == g.id)
-    (t.id == g.homeTeamId && r.homeScore < r.awayScore) || (t.id == g.awayTeamId && r.awayScore < r.homeScore)
+    require(t.id === g.homeTeamId || t.id === g.awayTeamId)
+    require(r.gameId === g.id)
+    (t.id === g.homeTeamId && r.homeScore < r.awayScore) || (t.id === g.awayTeamId && r.awayScore < r.homeScore)
   }
 
   def isLoser(t: Team, g: Game): Boolean = {
-    require(t.id == g.homeTeamId || t.id == g.awayTeamId)
+    require(t.id === g.homeTeamId || t.id === g.awayTeamId)
     resultMap.get(g.id) match {
       case Some(r) => isLoser(t, g, r)
       case None => false
@@ -88,18 +131,18 @@ case class Schedule
   }
 
   def isConferenceGame(g: Game): Boolean = {
-    val conferences = conferenceMap.filter(m => m.teamId == g.homeTeamId || m.teamId == g.awayTeamId).map(_.conferenceId)
-    conferences.size == 2 && (conferences(0) == conferences(1))
+    val conferences = conferenceMap.filter(m => m.teamId === g.homeTeamId || m.teamId === g.awayTeamId).map(_.conferenceId)
+    conferences.size === 2 && (conferences(0) === conferences(1))
   }
 
   def games(t: Team): List[(Game, Option[Result])] = {
-    games.filter(g => t.id == g.homeTeamId || t.id == g.awayTeamId).sortBy(_.date.toEpochDay).map(g => g -> resultMap.get(g.id))
+    games.filter(g => t.id === g.homeTeamId || t.id === g.awayTeamId).sortBy(_.date.toEpochDay).map(g => g -> resultMap.get(g.id))
   }
 
 
   def gameLine(t: Team, g: Game, or: Option[Result]): GameLine = {
     val date = g.date
-    val (vsAt, opp) = if (t.id == g.homeTeamId) ("vs.", teamsMap(g.awayTeamId)) else ("@", teamsMap(g.homeTeamId))
+    val (vsAt, opp) = if (t.id === g.homeTeamId) ("vs.", teamsMap(g.awayTeamId)) else ("@", teamsMap(g.homeTeamId))
     val (wl, literalScore) = or match {
       case Some(r) => {
         (if (isWinner(t, g, r)) "W" else if (isLoser(t, g, r)) "L" else "", s"${r.homeScore} - ${r.awayScore}")
@@ -110,7 +153,7 @@ case class Schedule
   }
 
   def record(team: Team, predicate: Game => Boolean = _ => true, lastN: Int = 0): WonLostRecord = {
-    val g1 = games.filter(g => team.id == g.homeTeamId || team.id == g.awayTeamId).filter(g => resultMap.contains(g.id) && predicate(g))
+    val g1 = games.filter(g => team.id === g.homeTeamId || team.id === g.awayTeamId).filter(g => resultMap.contains(g.id) && predicate(g))
     val (w, l) = (lastN match {
       case 0 => g1
       case n => g1.takeRight(n)
@@ -119,11 +162,11 @@ case class Schedule
   }
 
   def interConfRecord(conf: Conference): List[(Conference, WonLostRecord)] = {
-    val confGames: Map[Long, List[Game]] = nonConferenceSchedule(conf).groupBy(g => if (teamConference(g.awayTeamId) == conf.id) teamConference(g.homeTeamId) else teamConference(g.awayTeamId))
+    val confGames: Map[Long, List[Game]] = nonConferenceSchedule(conf).groupBy(g => if (teamConference(g.awayTeamId) === conf.id) teamConference(g.homeTeamId) else teamConference(g.awayTeamId))
     confGames.mapValues(gl =>
       gl.foldLeft(0, 0)((wl: (Int, Int), game: Game) => {
         winner(game) match {
-          case Some(w) => if (teamConference(w.id) == conf.id) (wl._1 + 1, wl._2) else (wl._1, wl._2 + 1)
+          case Some(w) => if (teamConference(w.id) === conf.id) (wl._1 + 1, wl._2) else (wl._1, wl._2 + 1)
           case _ => wl
         }
       })
@@ -137,9 +180,9 @@ case class Schedule
 
   def nonConferenceRecord(team: Team): WonLostRecord = record(team, g => !isConferenceGame(g))
 
-  def homeRecord(team: Team): WonLostRecord = record(team, g => g.homeTeamId == team.id)
+  def homeRecord(team: Team): WonLostRecord = record(team, g => g.homeTeamId === team.id)
 
-  def awayRecord(team: Team): WonLostRecord = record(team, g => g.awayTeamId == team.id)
+  def awayRecord(team: Team): WonLostRecord = record(team, g => g.awayTeamId === team.id)
 
   def neutralRecord(team: Team): WonLostRecord = record(team, g => g.isNeutralSite)
 
@@ -147,15 +190,15 @@ case class Schedule
 
   def last10Record(team: Team): WonLostRecord = record(team, g => true, 10)
 
-  def novRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.NOVEMBER)
+  def novRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth.getValue === Month.NOVEMBER.getValue)
 
-  def decRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.DECEMBER)
+  def decRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth.getValue === Month.DECEMBER.getValue)
 
-  def janRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.JANUARY)
+  def janRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth.getValue === Month.JANUARY.getValue)
 
-  def febRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.FEBRUARY)
+  def febRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth.getValue === Month.FEBRUARY.getValue)
 
-  def marRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth == Month.MARCH)
+  def marRecord(team: Team): WonLostRecord = record(team, g => g.date.getMonth.getValue === Month.MARCH.getValue)
 
   def conferenceStandings(conference: Conference): ConferenceStandings = {
     val list = conferenceTeams.get(conference.id) match {

@@ -13,11 +13,12 @@ import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TeamDetail, Te
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.silhouette.utils.DefaultEnv
 import forms.ScrapeOneTeamForm
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import controllers.silhouette.utils.DefaultEnv
+import cats.implicits._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -27,9 +28,9 @@ class TeamScrapeController @Inject()(
                                       val controllerComponents: ControllerComponents,
                                       @Named("data-load-actor") teamLoad: ActorRef,
                                       @Named("throttler") throttler: ActorRef,
-                                      val teamDao: ScheduleDAO,
+                                      val dao: ScheduleDAO,
                                       silhouette: Silhouette[DefaultEnv])
-  extends BaseController with I18nSupport {
+  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,8 +38,8 @@ class TeamScrapeController @Inject()(
   implicit val timeout: Timeout = Timeout(600.seconds)
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
-  def scrapeTeams() = silhouette.SecuredAction.async { implicit rs =>
-    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+  def scrapeTeams(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name + "]"
     val aliasFuture = loadAliasMap()
     val shortNameFuture = masterShortName(List(1, 2, 3, 4, 5, 6, 7), 145)
     val teamMaster: Future[List[Team]] = for {
@@ -53,7 +54,7 @@ class TeamScrapeController @Inject()(
       case Success(lst)=>
         val (good, bad) = lst.partition(t => t.name.trim.nonEmpty && t.nickname.trim.nonEmpty)
         logger.info(s"Saving ${good.size} teams")
-        teamDao.saveTeams(good)
+        dao.saveTeams(good)
       case Failure(ex)=>
         logger.error("Failed loading teams")
     }
@@ -63,7 +64,7 @@ class TeamScrapeController @Inject()(
 
   private def loadAliasMap(): Future[Map[String, String]] = {
     logger.info("Loading aliases from database")
-    teamDao.listAliases.map(_.map(alias => alias.alias -> alias.key).toMap)
+    dao.listAliases.map(_.map(alias => alias.alias -> alias.key).toMap)
   }
 
   def scrapeKeyList(is: Iterable[(String, String)], userTag: String, aliasMap: Map[String, String]): Iterable[Team] = {
@@ -73,7 +74,7 @@ class TeamScrapeController @Inject()(
           .mapTo[Either[Throwable, Team]]
           .map(_.fold(thr => None, t => Some(t)))
     }
-    Await.result(Future.sequence(futureTeams), 600.seconds).flatten
+    Await.result(Future.sequence(futureTeams), 600.seconds).toList.flatten //TODO
   }
 
   def masterShortName(pagination: List[Int], stat: Int): Future[Map[String, String]] = {
@@ -81,7 +82,7 @@ class TeamScrapeController @Inject()(
       for (
         t0 <- data;
         t1 <- (throttler ? ShortNameAndKeyByStatAndPage(stat, p)).mapTo[Either[Throwable, Seq[(String, String)]]].map(_.fold(
-          thr => Seq.empty,
+          thr => Seq.empty[(String, String)],
           seq => seq
         ))
       ) yield t0 ++ t1
@@ -89,7 +90,7 @@ class TeamScrapeController @Inject()(
   }
 
   def scrapeConferences(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
-    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+    val userTag: String = "Scraper[" + rs.identity.name + "]"
 
     val basicKey: String => String = _.toLowerCase.replace(' ', '-')
     val dropThe: String => String = basicKey.andThen(_.replaceFirst("^the\\-", ""))
@@ -103,32 +104,32 @@ class TeamScrapeController @Inject()(
 
     val transforms = List(basicKey, dropThe, dropConference, dropThe.andThen(dropConference), dropLeague, dropThe.andThen(dropLeague), initials, dropThe.andThen(initials), dropEllipsis, tryConf, dropAthletic, tryAthletic)
     logger.info("Loading preliminary team keys.")
-    val teamList = Await.result(teamDao.listTeams, 600.seconds)
+    val teamList = Await.result(dao.listTeams, 600.seconds)
 
     val names = teamList.map(_.optConference.replaceFirst("Athletic Association$", "Athletic...")).toSet
-    val conferences: List[Conference] = Conference(0L, "independents", "Independents", None, None, None, None, None, lockRecord = false, LocalDateTime.now(), userTag) :: names.map(n => {
+    val conferences: List[Conference] = Conference(0L, "independents", "Independents", "Unknown", None, None, None, None, None, LocalDateTime.now(), userTag) :: names.map(n => {
       val candidate: Future[Option[String]] = Future.sequence(
         transforms.map(f => f(n)).toSet.map((k: String) => {
           logger.info("Trying " + k)
           val u = TestUrl("http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + k + ".70.png")
           (throttler ? u).mapTo[Option[Int]].map(oi => k -> oi)
-        })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
+        })).map(_.find(_._2 === Some(200)).map(_._1))
 
       val key = Await.result(candidate, Duration.Inf).getOrElse(n.toLowerCase.replace(' ', '-'))
       val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
       val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), userTag)
+      Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), "Low Major", Some(lgLogo), Some(smLogo), None, None, None, LocalDateTime.now(), userTag)
     }).toList
-    teamDao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
+    dao.saveConferences(conferences).map(_ => Redirect(routes.AdminController.index()))
   }
 
-  def seedConferenceMaps() = silhouette.SecuredAction.async { implicit rs =>
-    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+  def seedConferenceMaps(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name + "]"
 
     (for {
-      _ <- teamDao.deleteAllConferenceMaps()
-      lcm <- ScheduleUtil.createConferenceMapSeeds(teamDao, userTag)
-      _ <- teamDao.saveConferenceMaps(lcm)
+      _ <- dao.deleteAllConferenceMaps()
+      lcm <- ScheduleUtil.createConferenceMapSeeds(dao, userTag)
+      _ <- dao.saveConferenceMaps(lcm)
     } yield {
       Redirect(routes.AdminController.index())
     }).recover {
@@ -141,14 +142,14 @@ class TeamScrapeController @Inject()(
     List.empty[Game]
   }
 
-  def neutralSiteSolver() = silhouette.SecuredAction.async { implicit rs =>
-    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
-    teamDao.loadSchedules()
+  def neutralSiteSolver(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name + "]"
+    dao.loadSchedules()
       .map(schedules =>
         schedules.flatMap(neutralUpdatesForSchedule)
       )
       .flatMap(gl =>
-        teamDao.updateGames(gl)
+        dao.updateGames(gl)
       ).map(gs =>
       Redirect(routes.AdminController.index()).flashing("info" -> s"Updated ${gs.size} at a neutral site")
     )
@@ -185,12 +186,16 @@ class TeamScrapeController @Inject()(
     }
   }
 
-  def scrapeOne() = silhouette.SecuredAction.async { implicit rs =>
-    val userTag: String = "Scraper[" + rs.identity.name.getOrElse("???") + "]"
+  def scrapeOne(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val userTag: String = "Scraper[" + rs.identity.name + "]"
     ScrapeOneTeamForm.form.bindFromRequest.fold(
       form => {
         logger.error(form.errors.mkString("\n"))
-        Future.successful(BadRequest(views.html.admin.scrapeOneTeam(rs.identity, form)))
+        for {du <- loadDisplayUser(rs)
+             qw <- getQuoteWrapper(du)
+        } yield {
+          BadRequest(views.html.admin.scrapeOneTeam(du,qw, form))
+        }
       },
       data => {
         val fot: Future[Option[Team]] = (teamLoad ? TeamDetail(data.key, data.shortName, userTag))
@@ -198,7 +203,7 @@ class TeamScrapeController @Inject()(
           .map(_.fold(thr => None, t => Some(t)))
         fot.flatMap {
           case Some(t) =>
-            teamDao.saveTeam(t).map(i => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Scrapeed " + data.shortName)))
+            dao.saveTeam(t).map(i => Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Scrapeed " + data.shortName)))
           case None =>
             Future.successful(Redirect(routes.DataController.browseTeams()).flashing("info" -> ("Failed to scrape " + data.shortName)))
         }
@@ -206,8 +211,12 @@ class TeamScrapeController @Inject()(
     )
   }
 
-  def scrapeOneForm() = silhouette.SecuredAction.async { implicit rs =>
-    Future.successful(Ok(views.html.admin.scrapeOneTeam(rs.identity, ScrapeOneTeamForm.form)))
+  def scrapeOneForm(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    for {du <- loadDisplayUser(rs)
+         qw <- getQuoteWrapper(du)
+    } yield {
+      Ok(views.html.admin.scrapeOneTeam(du, qw, ScrapeOneTeamForm.form))
+    }
   }
 
 

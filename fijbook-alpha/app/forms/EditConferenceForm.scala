@@ -1,19 +1,17 @@
 package forms
 
-import com.fijimf.deepfij.models.Team
+import com.fijimf.deepfij.models.Conference
 import play.api.data.Form
 import play.api.data.Forms._
 
-/**
-  * The form which handles the sign up process.
-  */
 object EditConferenceForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "id" -> longNumber,
       "key" -> nonEmptyText,
       "name" -> nonEmptyText,
+      "level" -> nonEmptyText,
       "logoLgUrl" -> optional(text),
       "logoSmUrl" -> optional(text),
       "officialUrl" -> optional(text),
@@ -22,26 +20,29 @@ object EditConferenceForm {
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(
+  final case class Data(
                    id: Long,
                    key: String,
                    name: String,
+                   level: String,
                    logoLgUrl: Option[String],
                    logoSmUrl: Option[String],
                    officialUrl: Option[String],
                    officialTwitter: Option[String],
                    officialFacebook: Option[String]
                  )
-  def team2Data(t:Team) = {
+
+  def conf2Data(c: Conference): Data = {
     Data(
-      t.id,
-      t.key,
-      t.name,
-      t.logoLgUrl,
-      t.logoSmUrl,
-      t.officialUrl,
-      t.officialTwitter,
-      t.officialFacebook
+      c.id,
+      c.key,
+      c.name,
+      c.level,
+      c.logoLgUrl,
+      c.logoSmUrl,
+      c.officialUrl,
+      c.officialTwitter,
+      c.officialFacebook
     )
   }
 }

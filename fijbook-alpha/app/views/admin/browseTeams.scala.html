@@ -2,26 +2,23 @@
 @import controllers.nav.MainMeta
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
-@(user:User,teams:List[Team])(implicit flash: Flash)
-@mainX(
-    MainMeta.base("Browse Teams", Some(user))
-            .withNav("admin")
-            .withCrumbs(Breadcrumbs.admin.appendLeaf("Browse Teams"))
-){
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, teams:List[Team])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-12">
-            <table class="table table-condensed table-bordered">
+            <table class="table table-sm table-bordered">
                <thead><tr>
                    <th style="width:40px;"></th>
                    <th>Name</th>
                    <th>Key</th>
                    <th>Long Name</th>
                    <th>Nickame</th>
-                   <th><i class="fa fa-eyedropper"></i></th>
-                   <th><i class="fa fa-link"></i></th>
-                   <th><i class="fa fa-twitter"></i></th>
-                   <th><i class="fa fa-facebook"></i></th>
-                   <th><i class="fa fa-edit"></i></th>
+                   <th><i class="fa fa-eyedropper"/></th>
+                   <th><i class="fa fa-link"/></th>
+                   <th><i class="fa fa-twitter"/></th>
+                   <th><i class="fa fa-facebook"/></th>
                </tr></thead>
                 <tbody >
                     @for(t<-teams){

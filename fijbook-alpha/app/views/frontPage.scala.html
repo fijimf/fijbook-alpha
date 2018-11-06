@@ -1,7 +1,40 @@
-@import com.fijimf.deepfij.models.{Schedule,User,Game}
-@import controllers.nav.{Breadcrumbs, StandardNavBar}
-@import java.time.LocalDate
-@(user: Option[User], today:LocalDate, content:String)(implicit flash: Flash)
-@main("deepfij", "Deep Fij", today.toString, Some(Breadcrumbs.base), StandardNavBar.active("no-active",user), user) {
-   @Html(content)
+@import com.fijimf.deepfij.models.FrontPageData
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@import controllers.Utils._
+@(du: DisplayUser, qw:QuoteWrapper, fp:FrontPageData)(implicit request: RequestHeader, flash: Flash)
+@main3000(du, qw) {
+   <div class="row"><h4>@{
+      fp.today.fmt("EEEE MMMM d, yyyy")
+   }</h4></div>
+   @qotw(fp.qotw, fp.qotwVotes, fp.qotwLastVote)
+    <div class="row">
+       <div class="card w-50 my-1">
+           <div class="card-header">
+         <h6>@fp.todayStr</h6>
+           </div>
+           @resultList(fp.todaysGames, fp.oSchedule )
+      </div>
+       <div class="card w-50 my-1">
+           <div class="card-header">
+               <h6>@fp.prevStr</h6>
+           </div>
+           @resultList(fp.previousGames, fp.oSchedule )
+      </div>
+    </div>
+    <div class="row">
+    <div class="card w-100">
+        <div class="card-header">
+            <h5>Latest News</h5>
+        </div>
+      <div class="card-body">
+          <ul>
+         @for(i<-fp.newsItems){
+             <li><a href="@i._1.url">@i._1.title</a> <em class="text-muted">( @{i._2.name} @{i._1.publishTime.fmt("M/d/yyyy hh:mm a") })</em></li>
+         }
+          </ul>
+      </div>
+        <div class="card-footer text-muted text-sm-center"><a href=""#">See all.</a></div>
+   </div>
+    </div>
+
 }

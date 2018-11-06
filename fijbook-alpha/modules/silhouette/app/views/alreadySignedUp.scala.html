@@ -1,8 +1,0 @@
-@(user: com.fijimf.deepfij.models.User, url: String)(implicit messages: Messages)
-
-<html>
-    <body>
-        <p>@messages("email.already.signed.up.hello", user.name.getOrElse("user"))</p>
-        <p>@Html(messages("email.already.signed.up.html.text", url))</p>
-    </body>
-</html>

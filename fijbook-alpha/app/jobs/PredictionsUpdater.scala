@@ -4,7 +4,7 @@ package jobs
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.{GamePredictorService, ScheduleUpdateService, ComputedStatisticService}
+import com.fijimf.deepfij.models.services.{GamePredictorService, RssFeedUpdateServiceImpl, ComputedStatisticService}
 
 class PredictionsUpdater @Inject()(svc:GamePredictorService) extends Actor {
 
@@ -19,7 +19,7 @@ class PredictionsUpdater @Inject()(svc:GamePredictorService) extends Actor {
 
     case object Update
 
-
+val name ="predictions-updater"
 
 
 }

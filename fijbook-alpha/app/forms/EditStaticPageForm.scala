@@ -5,13 +5,13 @@ import play.api.data.Forms._
 
 object EditStaticPageForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "key" -> nonEmptyText,
       "content" -> nonEmptyText
      )(Data.apply)(Data.unapply)
   )
 
-  case class Data(key: String, content: String)
+  final case class Data(key: String, content: String)
 
 }

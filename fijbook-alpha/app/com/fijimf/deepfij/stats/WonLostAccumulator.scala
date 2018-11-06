@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.stats
 
-case class WonLostAccumulator(wins: Int = 0, losses: Int = 0, winStreak: Int = 0, lossStreak: Int = 0) {
+final case class WonLostAccumulator(wins: Int = 0, losses: Int = 0, winStreak: Int = 0, lossStreak: Int = 0) {
   def addWin() = WonLostAccumulator(wins + 1, losses, winStreak + 1, 0)
 
   def addLoss() = WonLostAccumulator(wins, losses + 1, 0, lossStreak + 1)

@@ -8,7 +8,7 @@ import play.api.Logger
 
 import scala.util.{Failure, Success, Try}
 
-case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulator] {
+final case class Rpi(s: Schedule, dates:List[LocalDate]) extends Analyzer[RpiAccumulator] {
   val log = Logger(Rpi.getClass)
   val model:Model[RpiAccumulator] = Rpi
   val data: Map[LocalDate, Map[Team, RpiAccumulator]] = {

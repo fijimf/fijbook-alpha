@@ -10,4 +10,4 @@ object SeasonScrapeResult {
   }
 }
 
-case class SeasonScrapeResult(gameCounts: Map[LocalDate, Int], unmappedTeamCount: Map[String, Int])
+final case class SeasonScrapeResult(gameCounts: Map[LocalDate, Int], unmappedTeamCount: Map[String, Int])

@@ -8,7 +8,11 @@ trait ConferenceMapDAO {
 
   def listConferenceMaps: Future[List[ConferenceMap]]
 
+  def findConferenceMap(seasonId: Long, teamId:Long):Future[Option[ConferenceMap]]
+
   def deleteConferenceMap(id: Long): Future[Int]
+
+  def deleteConferenceMap(seasonId:Long, conferenceId:Long,teamId:Long): Future[Int]
 
   def deleteAllConferenceMaps(): Future[Int]
 

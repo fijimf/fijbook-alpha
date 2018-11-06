@@ -3,7 +3,7 @@
 @(name: String, modelKey: String, statKey: String, ss: List[(String,Boolean,(LocalDate, Int, StatValue))])
 @for(st <-ss) {
     @if(st._2) {
-        @stat_row(st._1,  st._3._1, st._3._2, st._3._3, Some(routes.StatsController.viewStat(modelKey, statKey).url))
+        @stat_row(st._1,  st._3._1, st._3._2, st._3._3, None)
     } else {
         @stat_row(st._1,  st._3._1, st._3._2, st._3._3,None)
     }

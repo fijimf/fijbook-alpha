@@ -43,9 +43,9 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       assertTeamsSize(1)
       compareTeams(u, v)
       val w = Await.result(dao.listTeams, testDbTimeout).head
-      assert(w.id == u.id)
-      assert(w.id == v.id)
-      assert(w.optConference == "American")
+      assert(w.id === u.id)
+      assert(w.id === v.id)
+      assert(w.optConference === "American")
     }
 
     "not be inserted with the same key as an existing team" in new WithApplication() {
@@ -145,7 +145,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       Await.result(dao.saveTeam(t3), testDbTimeout)
 
       val rr = Await.result(dao.findTeamByKey("villanova"), testDbTimeout)
-      assert(rr.get == nova)
+      assert(rr.get === nova)
     }
 
     "delete by an id" in new WithApplication() {
@@ -158,14 +158,14 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       Await.result(dao.saveTeam(t3), testDbTimeout)
 
       val numRows1 = Await.result(dao.deleteTeam(nova.id), testDbTimeout)
-      assert(numRows1 == 1)
-      assert(Await.result(dao.listTeams, testDbTimeout).size == 2)
+      assert(numRows1 === 1)
+      assert(Await.result(dao.listTeams, testDbTimeout).size === 2)
       val rr = Await.result(dao.findTeamByKey("villanova"), testDbTimeout)
-      assert(rr == None)
+      assert(rr === None)
 
       val numRows2 = Await.result(dao.deleteTeam(-99), testDbTimeout)
-      assert(numRows2 == 0)
-      assert(Await.result(dao.listTeams, testDbTimeout).size == 2)
+      assert(numRows2 === 0)
+      assert(Await.result(dao.listTeams, testDbTimeout).size === 2)
 
     }
 
@@ -184,9 +184,9 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       val teams = 0.until(500).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")).toList
       val teams1 = Await.result(dao.saveTeams(teams), testDbTimeout)
       assertTeamsSize(500)
-      assert(teams1.size == 500)
+      assert(teams1.size === 500)
       val teams2 = Await.result(dao.listTeams, testDbTimeout)
-      assert(teams1.map(_.key).toSet == teams2.map(_.key).toSet)
+      assert(teams1.map(_.key).toSet === teams2.map(_.key).toSet)
     }
 
     "handle multiple concurrent inserts" in new WithApplication() {
@@ -200,9 +200,9 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
         dao.saveTeam(t)
       }).toList
       val savedTeams = Await.result(Future.sequence(teams1 ++ teams0), testDbTimeout)
-      assert(savedTeams.size == 400)
-      assert(savedTeams.map(_.key).toSet == 0.until(400).map("team-" + _.toString).toSet)
-      assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
+      assert(savedTeams.size === 400)
+      assert(savedTeams.map(_.key).toSet === 0.until(400).map("team-" + _.toString).toSet)
+      assert(savedTeams.map(_.name).toSet === 0.until(400).map("Team-" + _.toString).toSet)
     }
 
     "handle multiple concurrent bulk inserts" in new WithApplication() {
@@ -215,9 +215,9 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       )
       val t3: Future[List[Team]] = teams0.flatMap(ss => teams1.map(_ ++ ss))
       val savedTeams = Await.result(t3, testDbTimeout)
-      assert(savedTeams.size == 400)
-      assert(savedTeams.map(_.key).toSet == 0.until(400).map("team-" + _.toString).toSet)
-      assert(savedTeams.map(_.name).toSet == 0.until(400).map("Team-" + _.toString).toSet)
+      assert(savedTeams.size === 400)
+      assert(savedTeams.map(_.key).toSet === 0.until(400).map("team-" + _.toString).toSet)
+      assert(savedTeams.map(_.name).toSet === 0.until(400).map("Team-" + _.toString).toSet)
     }
 
     "handle multiple inserts and updates" in new WithApplication() {
@@ -225,7 +225,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       val teams = 0.until(300).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "a1s", "c1")).toList
       val modTeams = dao.saveTeams(teams).flatMap(fts => dao.saveTeams(fts.map(_.copy(nickname = "New Nickname"))))
       val result = Await.result(modTeams, testDbTimeout)
-      assert(result.size == 300)
+      assert(result.size === 300)
       assertTeamsSize(300)
     }
 
@@ -239,7 +239,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
       val teams1 = dao.saveTeams(500.until(800).map(n => mkQuickTeam(0L, "team-" + n.toString, "Team-" + n.toString, "A", "zzzzzzzzz", "c1")).toList)
 
       val teams2 = 0.until(800).map {
-        case x if x % 2 == 0 => dao.findTeamById(x)
+        case x if x % 2 === 0 => dao.findTeamById(x)
         case y => dao.findTeamByKey("team-" + y.toString)
       }.toList
 
@@ -257,7 +257,7 @@ class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach w
 
 
   def assertTeamsSize(size: Int) = {
-    assert(Await.result(dao.listTeams, testDbTimeout).size == size)
+    assert(Await.result(dao.listTeams, testDbTimeout).size === size)
   }
 
   def assertTeamsIsEmpty() = {

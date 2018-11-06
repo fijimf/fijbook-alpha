@@ -7,12 +7,12 @@ import play.api.data.Forms._
 
 object OneDateForm {
 
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "date" -> localDate("yyyy-MM-dd")
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(date:LocalDate)
+  final case class Data(date:LocalDate)
 
 }

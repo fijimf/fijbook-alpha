@@ -1,0 +1,12 @@
+@(flash: Flash)
+
+@if(FlashUtil.isDefined(flash)) {
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="@FlashUtil.divClass(flash)">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <i class="@FlashUtil.buttonClass(flash)"> </i>@FlashUtil.message(flash)
+            </div>
+        </div>
+    </div>
+}

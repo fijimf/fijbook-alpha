@@ -23,9 +23,9 @@
             </div>
             <script src="/assets/javascripts/statHistogram.js"></script>
             <script>
-                    showHistogram("@routes.StatsController.viewStatApi(t.model.key,t.stat.key)","@t.stat.name","histogram");
+                    @*showHistogram("@routes.StatsController.viewStatApi(t.model.key,t.stat.key)","@t.stat.name","histogram");*@
             </script>
-            <table class="table table-condensed table-bordered stat-summary-table">
+            <table class="table table-sm table-bordered stat-summary-table">
                 <tr>
                     <td colspan="2" style="font-weight: bold;
                         font-size: 110%">@t.statName</td>
@@ -73,7 +73,7 @@
             </table>
         </div>
         <div class="col-sm-4 col-sm-offset-1">
-                <table class="table table-condensed table-schedule table-bordered" >
+                <table class="table table-sm table-schedule table-bordered" >
                     <tr>
                         <th>Rk</th>
                         <th>Team</th>
@@ -89,7 +89,7 @@
                 </table>
             </div>
             <div class="col-sm-4">
-                <table class="table table-condensed table-schedule table-bordered" >
+                <table class="table table-sm table-schedule table-bordered" >
                     <tr>
                         <th>Team (alpha)</th>
                         <th>Rk</th>

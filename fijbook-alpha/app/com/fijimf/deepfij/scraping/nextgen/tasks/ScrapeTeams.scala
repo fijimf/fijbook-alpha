@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-case class ScrapeTeams(dao: ScheduleDAO, throttler: ActorRef) extends SSTask[Int] {
+final case class ScrapeTeams(dao: ScheduleDAO, throttler: ActorRef) extends SSTask[Int] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

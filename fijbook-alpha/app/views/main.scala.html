@@ -5,19 +5,19 @@
 @import java.time.LocalDate
 @import java.time.format._
 @(
-        title: String, 
-        pageHead:String, 
+        title: String,
+        pageHead:String,
         pageSubHead:String="",
-        breadcrumbs:Option[Breadcrumbs]=None, 
-        navBar: NavBar=StandardNavBar.active(), 
-        user:Option[User]=None, 
-        icon:String="/assets/images/deepfij.png", 
-        lineColor:String="#ddd", 
-        quoteKey:Option[String]=None, 
+        breadcrumbs:Option[Breadcrumbs]=None,
+        navBar: NavBar=StandardNavBar.active(),
+        user:Option[User]=None,
+        icon:String="/assets/images/deepfij.png",
+        lineColor:String="#ddd",
+        quoteKey:Option[String]=None,
         datebook:Option[LocalDate]=None,
         extraJs:List[String]=List.empty[String],
         extraCss:List[String]=List.empty[String]
-)(content: Html)(implicit flash: Flash)
+)(content: Html)(implicit request: RequestHeader, flash: Flash)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -66,7 +66,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="@routes.IndexController.index()">Deep Fij</a>
+                    <a class="navbar-brand" href="@routes.ReactMainController.index">Deep Fij</a>
 
                 </div>
                 <a id="quote-a" href="#"><em id="quote-em" class="pull-left quote hidden-xs"></em></a>

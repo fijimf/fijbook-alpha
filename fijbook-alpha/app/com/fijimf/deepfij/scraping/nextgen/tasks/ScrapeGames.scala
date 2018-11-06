@@ -21,12 +21,12 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List[_]] {
+final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List[_]] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  
-  case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long])
+
+  final case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long])
   val logger = Logger(this.getClass)
   def name: String = "Scrape games"
   def run(messageListener:Option[ActorRef]):Future[List[_]] = {
@@ -58,7 +58,7 @@ case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List
 
 
   def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], tag: String,messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[UpdateDbResult]] = {
-    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.status.canUpdate(d))
+    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.flatMap(teamDictionary => {
         Future.sequence(dateList.map(d => {
@@ -69,7 +69,7 @@ case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTask[List
             updateResults
           }
           results.onComplete {
-            case Success(x)=> 
+            case Success(x)=>
               dateCounter.send(tup=>(tup._1+1,tup._2))
               val (num, den) = dateCounter.get
               val pctComplete = num.toDouble/den.toDouble

@@ -22,20 +22,27 @@ trait ConferenceDAOImpl extends ConferenceDAO with DAOSlick {
 
   override def findConferenceByKey(key: String): Future[Option[Conference]] = db.run(repo.conferences.filter(_.key === key).result.headOption)
 
+  override def findConferencesLike(str:String): Future[List[Conference]]= {
+    val k = s"%${str.trim}%"
+    db.run(
+      repo.conferences.filter(conf => conf.name.like(k) || conf.key.like(k)).to[List].result
+    )
+  }
+
   override def deleteConference(id: Long): Future[Int] = db.run(repo.conferences.filter(_.id === id).delete)
 
-  override def saveConference(c: Conference): Future[Conference] = saveConferences(List(c)).map(_.head)
+  override def saveConference(c: Conference): Future[Conference] = db.run(upsert(c))
 
   override def saveConferences(confs: List[Conference]): Future[List[Conference]] = {
-    val ops = confs.map(c1 => repo.conferences.filter(c => c.key === c1.key).result.flatMap(cs =>
-      cs.headOption match {
-        case Some(c) =>
-          (repo.conferences returning repo.conferences.map(_.id)).insertOrUpdate(c1.copy(id = c.id))
-        case None =>
-          (repo.conferences returning repo.conferences.map(_.id)).insertOrUpdate(c1)
-      }
-    ).flatMap(_ => repo.conferences.filter(t => t.key === c1.key).result.head))
-    db.run(DBIO.sequence(ops).transactionally)
+    db.run(DBIO.sequence(confs.map(upsert)).transactionally)
+  }
+
+
+  private def upsert(x: Conference) = {
+    (repo.conferences returning repo.conferences.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.conferences.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
   }
 
 }

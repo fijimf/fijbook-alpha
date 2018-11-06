@@ -8,7 +8,7 @@ import com.fijimf.deepfij.scraping.ScoreboardByDateReq
 import scala.util.control.Exception._
 
 
-case class GameInfo
+final case class GameInfo
 (
   seasonId: Long,
   id: Long,

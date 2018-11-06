@@ -44,13 +44,13 @@ object ScheduleUtil {
     }
     confNameMap.get(nameKey) match {
       case Some(c) => c
-        ConferenceMap(0L, s.id, c.id, t.id, lockRecord = false, LocalDateTime.now(), userTag)
+        ConferenceMap(0L, s.id, c.id, t.id, LocalDateTime.now(), userTag)
       case None =>
         logger.warn(s"For team ${t.key}, conference suggested was ${t.optConference}, mangled to $nameKey was not found in keys.  Taking a real guess")
         val k = confNameMap.keys.minBy(LevenshteinDistance.getDefaultInstance.apply(_,nameKey))
         val conference = confNameMap(k)
         logger.info(s"Result of guessing is ${conference.name}.")
-        ConferenceMap(0L, s.id, conference.id, t.id, lockRecord = false, LocalDateTime.now(), userTag)
+        ConferenceMap(0L, s.id, conference.id, t.id,  LocalDateTime.now(), userTag)
     }
   }
 }

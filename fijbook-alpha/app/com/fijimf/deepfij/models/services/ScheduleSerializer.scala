@@ -27,20 +27,17 @@ object ScheduleSerializer {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class ConfMap(key: String, teams: List[String])
+  final case class ConfMap(key: String, teams: List[String])
 
-  case class Scoreboard(date: String, games: List[MappedGame])
+  final case class Scoreboard(date: String, games: List[MappedGame])
 
-  case class MappedGame(homeTeamKey: String, awayTeamKey: String, date: LocalDate, datetime: LocalDateTime, location: String, isNeutralSite: Boolean, tourneyKey: String, homeTeamSeed: Int, awayTeamSeed: Int, sourceKey: String, result: Map[String, Int])
+  final case class MappedGame(homeTeamKey: String, awayTeamKey: String, date: LocalDate, datetime: LocalDateTime, location: String, isNeutralSite: Boolean, tourneyKey: String, homeTeamSeed: Int, awayTeamSeed: Int, sourceKey: String, result: Map[String, Int])
 
-  case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
+  final case class MappedSeason(year: Int, confMap: List[ConfMap], scoreboards: List[Scoreboard])
 
-  case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
+  final case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
 
-  implicit val formatsTeam: Format[Team] = Json.format[Team]
-  implicit val formatsAlias: Format[Alias] = Json.format[Alias]
-  implicit val formatsConference: Format[Conference] = Json.format[Conference]
-  implicit val formatsQuotes: Format[Quote] = Json.format[Quote]
+  import  com.fijimf.deepfij.models._
   implicit val formatsConfMap: Format[ConfMap] = Json.format[ConfMap]
   implicit val formatsMappedGame: Format[MappedGame] = Json.format[MappedGame]
   implicit val formatsScoreboard: Format[Scoreboard] = Json.format[Scoreboard]
@@ -172,7 +169,7 @@ object ScheduleSerializer {
   def saveSeasons(uni: MappedUniverse, dao: ScheduleDAO, teamMap: Map[String, Team], confMap: Map[String, Conference]): Future[List[Long]] = {
     uni.seasons.foldLeft(Future.successful(List.empty[List[Long]])) { case (fll: Future[List[List[Long]]], ms: MappedSeason) =>
       fll.flatMap(ll => {
-        val seas = Season(0L, ms.year, "", None)
+        val seas = Season(0L, ms.year)
         dao.saveSeason(seas).flatMap(season => {
           log.info(s"Saving season ${seas.year}.")
           saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap).map(gs => {
@@ -190,7 +187,7 @@ object ScheduleSerializer {
           t <- teamMap.get(tk)
           c <- confMap.get(cm.key)
         } yield {
-          ConferenceMap(0L, id, c.id, t.id, lockRecord = false, ts, "")
+          ConferenceMap(0L, id, c.id, t.id,  ts, "")
         }
       })
 
@@ -240,7 +237,8 @@ object ScheduleSerializer {
   def readSchedulesFromS3(key: String, dao: ScheduleDAO, repo: ScheduleRepository): Future[(Int, Int, Int)] = {
     val s3: AmazonS3 = createClient()
     val obj = s3.getObject(bucket, key)
-    Json.parse(IOUtils.toByteArray(obj.getObjectContent)).asOpt[MappedUniverse] match {
+    val bytes = IOUtils.toByteArray(obj.getObjectContent)
+    Json.parse(bytes).asOpt[MappedUniverse] match {
       case Some(uni) => saveToDb(uni, dao, repo, clobberDB = true)
       case None => Future.failed(new RuntimeException(s"Failed to parse s3 object for bucket $bucket object $key"))
     }
@@ -274,7 +272,7 @@ object ScheduleSerializer {
     val list: List[String] = s3.listObjects(bucket, prefix).getObjectSummaries.map(_.getKey()).toList
     if (list.nonEmpty)
       Some(s3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(list: _*)))
-    else 
+    else
       None
   }
 

@@ -1,0 +1,14 @@
+@import com.fijimf.deepfij.models.react.DisplayUser
+@(displayUser:DisplayUser)
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="https://example.com" id="dropdown03"
+            data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">@displayUser.user.map(_.name).getOrElse("")</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown03">
+                <a class="dropdown-item" href="#">View Profile</a>
+                <a class="dropdown-item" href="@routes.ChangePasswordController.view">Change Password</a>
+                <a class="dropdown-item" href="@routes.SignOutController.signOut">Sign Out</a>
+            </div>
+        </li>
+    </ul>

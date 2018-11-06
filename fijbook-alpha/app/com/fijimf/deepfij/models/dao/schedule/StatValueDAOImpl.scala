@@ -4,6 +4,7 @@ import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.nstats.SnapshotDbBundle
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -68,4 +69,56 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     db.run(repo.statValues.filter(sv => sv.modelKey === modelKey && sv.date>=from && sv.date<=to).to[List].result)
   }
 
+  override def listXStats: Future[List[XStat]] = db.run(repo.xstats.to[List].result)
+
+  override def saveXStats(xstats: List[XStat]): Future[List[Int]] = {
+    db.run(DBIO.sequence(xstats.map(upsertByCompoundKey)).transactionally)
+  }
+
+  override def saveXStat(xstat: XStat): Future[Int] = {
+    db.run(upsertByCompoundKey(xstat).transactionally)
+  }
+
+  override def saveXStatSnapshot(d: LocalDate, k: String, xstats: List[XStat]): Future[Int] = {
+    db.run(for {
+      _ <- repo.xstats.filter(x => x.date === d && x.key === k).delete
+      m <- repo.xstats ++= xstats
+    } yield {
+      m.getOrElse(-1)
+    })
+  }
+
+  override def saveBatchedSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]] = {
+    log.info(s"'saveBatchedSnapshots' received request to save ${snaps.size} bundles.")
+    val deletes = DBIO.sequence(snaps.map(s => (s.k, s.d)).groupBy(_._1).mapValues(_.map(_._2)).map {
+      case (key, dates) =>
+        repo.xstats.filter(x => x.key === key && x.date.inSet(dates.toSet)).delete
+    })
+    val inserts = repo.xstats ++= snaps.flatMap(_.xs)
+    val returnValue = db.run((for {
+      _ <- deletes
+      i <- inserts
+    } yield {
+      i
+    }).withPinnedSession)
+    returnValue.onComplete{
+      case Success(_)=> log.info(s"'saveBatchedSnapshots' completed successfully")
+      case Failure(thr)=> log.error(s"'saveBatchedSnapshots' failed!", thr)
+    }
+    returnValue
+  }
+
+  def upsertByCompoundKey(xstat: XStat): DBIO[Int] = {
+    for {
+      row <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.headOption
+      m <- row match {
+        case None =>
+          repo.xstats += xstat
+        case Some(x) =>
+          repo.xstats.filter(y => y.id === x.id).update(xstat.copy(id = x.id))
+          DBIO.successful(1)
+      }
+      // result <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.head
+    } yield m
+  }
 }

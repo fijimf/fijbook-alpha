@@ -1,0 +1,52 @@
+@import com.fijimf.deepfij.models.{Alias, User}
+@import controllers.nav.{Breadcrumbs, MainMeta}
+@import controllers.ViewUtils._
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.RssFeed
+@import com.fijimf.deepfij.models.RSSFeedStatus
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,feeds: List[RSSFeedStatus])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+
+    <div class=""row">
+    <h3>RSS Feeds</h3>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <p><a class="btn btn-block btn-outline-primary" href="@routes.DataController.createRssFeed()">Create New RSS Feed</a></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-responsive-sm table-bordered">
+                <thead><tr>
+
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th>Last Retrieved</th>
+                    <th>Last Updated</th>
+                    <th>Items</th>
+                    <th>Recent</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr></thead>
+                <tbody >
+                @for(feed <- feeds) {
+                    <tr>
+                        <td>@feed.feed.name </td>
+                        <td>@feed.feed.url</td>
+                        <td class="text-right">@{fmt(feed.lastSuccessfulUpdate, "d-MMM-yy HH:mm:ss")}</td>
+                        <td class="text-right">@{fmt(feed.lastPublishDate, "d-MMM-yy HH:mm:ss")}</td>
+                        <td class="text-right">@feed.itemCount </td>
+                        <td class="text-right">@feed.itemCountLastWeek </td>
+                        <td class="text-center"><a href="@routes.DataController.pollRssFeed(feed.feed.id)"><i class="fa fa-sync-alt text-success"> </i></a></td>
+                        <td class="text-center"><a href="@routes.DataController.editRssFeed(feed.feed.id)"><i class="fa fa-edit text-success"> </i></a></td>
+                        <td class="text-center"><a href="@routes.DataController.deleteRssFeed(feed.feed.id)"><i class="fa fa-times text-danger"> </i></a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

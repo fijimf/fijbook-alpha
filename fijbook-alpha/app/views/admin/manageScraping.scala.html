@@ -3,14 +3,12 @@
 @import com.fijimf.deepfij.models.User
 @import com.fijimf.deepfij.models.Team
 @import helper._
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,  host:String)(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
-@(user:User, host:String)(implicit request:RequestHeader, flash: Flash, messages: Messages)
 
-
-@mainX(MainMeta.base("Data Scraping", Some(user))
-        .withNav("admin")
-        .withCrumbs(Breadcrumbs.admin.appendLeaf("Manage scraping"))
-) {
+    @main3000(displayUser,quoteWrapper) {
     <div class="row">
         <div class="col-sm-2">
             <button class="btn btn-block btn-default" id="btnRequestStatus"s>
@@ -33,7 +31,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><h4>Status <span id="status-badge" class="badge">Unknown</span></h4></div>
                 <div class="panel-body">
-                    <table class="table table-bordered table-condensed faci"><thead>
+                    <table class="table table-bordered table-sm faci"><thead>
                         <tr>
                             <th style="width:3%" ></th>
                             <th style="width:15%">Name</th>
@@ -44,7 +42,7 @@
                         </tr>
                     </thead>
                     <tbody id="task-data">
-                        
+
                     </tbody></table>
                 </div>
             </div>

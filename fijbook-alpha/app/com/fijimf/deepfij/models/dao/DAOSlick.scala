@@ -17,6 +17,7 @@ import scala.util.Random
   * Trait that contains generic slick db handling code to be mixed in with DAOs
   */
 trait DAOSlick extends HasDatabaseConfigProvider[JdbcProfile] {
+
   def log: Logger
 
   def actorSystem: ActorSystem

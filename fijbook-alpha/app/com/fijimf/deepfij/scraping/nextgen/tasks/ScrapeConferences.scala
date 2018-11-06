@@ -17,7 +17,7 @@ import akka.pattern.ask
 import scala.util.{Failure, Success}
 
 
-case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)extends SSTask[Int] {
+final case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)extends SSTask[Int] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -41,7 +41,7 @@ case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)
       val conferences: Future[List[Conference]] = Future.sequence(names.map(n => {
         val f = createConference(tag, transforms, n)
         f.onComplete{
-          case Success(conf)=> 
+          case Success(conf)=>
             counter.send(_+1)
             messageListener.foreach(_ ! SSTaskProgress(Some(.95*counter.get/names.size), conf.map(_.key)))
           case Failure(thr)=>
@@ -65,7 +65,7 @@ case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: ActorRef)
         val key = s.toLowerCase.replace(' ', '-')
         val smLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".40.png"
         val lgLogo = "http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + key + ".70.png"
-        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""), Some(lgLogo), Some(smLogo), None, None, None, lockRecord = false, LocalDateTime.now(), tag))
+        Some(Conference(0L, key, n.replaceFirst("\\.\\.\\.$", ""),"Unknown", Some(lgLogo), Some(smLogo), None, None, None, LocalDateTime.now(), tag))
       case None =>
         None
     }

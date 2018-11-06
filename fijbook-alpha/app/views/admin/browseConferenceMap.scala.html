@@ -1,0 +1,97 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.ConferenceMap
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.Job
+@import controllers.Utils._
+@import jobs.DeepFijQuartzSchedulerExtension
+@import com.fijimf.deepfij.models.Team
+@import com.fijimf.deepfij.models.Conference
+@import com.fijimf.deepfij.models.Season
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, season:Season, map:Map[Conference,List[Team]], cs:List[Conference], ts:List[Team], unmappedTeams:List[Team])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Conference Map @season.year</h4>
+        </div>
+    </div>
+    @if(unmappedTeams.nonEmpty) {
+        <div class="row">
+            <h5 class="col-9">Unmapped Teams</h5>
+            <div class="col-9">
+            @for(ut <- unmappedTeams) {
+                <p>Move <strong>@ut.name</strong> to
+                    <select id="@{
+                        "select-" + season.id + "-0-" + ut.id
+                    }"
+                    onchange='moveConferenceMap("@routes.DataController.moveConferenceMapping(season.id, cs.head.id, ut.id)", @season.id, 0, @ut.id)' >
+                    <option value="@cs.head.id" selected>@cs.head.name</option>
+                    @for(cc <- cs.tail) {
+                        <option value="@cc.id">@cc.name</option>
+                    }
+                    </select>
+                    <a class="btn btn-danger" id="@{
+                        "move-" + season.id + "-0-" + ut.id
+                    }" href="@routes.DataController.moveConferenceMapping(season.id, cs.head.id, ut.id)">Move</a>
+            </p>
+            }
+            </div>
+        </div>
+    }
+    <script type="text/javascript">
+       function moveConferenceMap(baseUrl, sId, cId, tId ) {
+           let id = $("#select-"+sId+"-"+cId+"-"+tId).val();
+           $("#move-"+sId+"-"+cId+"-"+tId).attr("href",baseUrl.replace(/\d+$/,id));
+          }
+    </script>
+    <div class="row">
+        <h5 class="col-9">Teams Mapped to Conferences</h5>
+        @for(ct<-cs.splitAt(cs.size/2).productIterator.toList.map(_.asInstanceOf[List[Conference]])) {
+        <div class="col-6">
+            <div class="accordion" id="conferenceComntainer">
+
+                @for(c <- ct) {
+                    <div class="card">
+                        <div class="card-header" id="heading-@c.id">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-conf-@c.id" aria-expanded="true" aria-controls="collapse-conf-@c.id">
+                                    <img src="@c.logoLgUrl.getOrElse("")" />
+                                    @c.name
+                                </button>
+                            </h5>
+                        </div>
+
+
+                        <div id="collapse-conf-@c.id" class="collapse show" aria-labelledby="heading-@c.id" data-parent="#conferenceComntainer">
+                            <div class="card-body">
+                                <table class="table table-sm table-bordered">
+                                    <thead></thead>
+                                    <tbody>
+                                    @for(tl <- map(c).sortBy(_.name).grouped(2)) {
+                                        <tr>
+                                        @for(t <- tl) {
+                                            <td><img src="@t.logoLgUrl.getOrElse("")" /></td>
+                                            <td style="vertical-align: middle">@t.name</td>
+                                            <td style="vertical-align: middle"><a href="#" data-toggle="modal" data-target="#move-@{season.id}-@{t.id}-@{c.id}"> <span class="fa fa-edit text-primary"> </span></a></td>
+                                            @createMoveMappingModal(season, c, t, cs)
+                                            <td style="vertical-align: middle"><a href="#" data-toggle="modal" data-target="#confirm-drop-@{season.id}-@{t.id}-@{c.id}" > <span class="fa fa-times text-danger"> </span></a></td>
+                                            @createDropMappingModal("confirm-drop-"+season.id+"-"+t.id+"-"+c.id, routes.DataController.deleteConferenceMapping(season.id, c.id, t.id)) {
+                                                <p>Really drop mapping for <strong>@t.name</strong> to <strong>@c.name</strong> in the <strong>@season.year</strong> season?</p>
+                                            }
+                                        }
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        }
+
+    </div>
+}

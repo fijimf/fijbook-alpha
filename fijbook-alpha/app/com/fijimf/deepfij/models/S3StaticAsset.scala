@@ -10,7 +10,7 @@ import com.amazonaws.util.IOUtils
 
 import scala.collection.JavaConversions._
 
-case class S3StaticAsset(key: String, relativeKey:String, lastModified: LocalDateTime, tags: Map[String, String])
+final case class S3StaticAsset(key: String, relativeKey:String, lastModified: LocalDateTime, tags: Map[String, String])
 
 object S3StaticAsset {
 

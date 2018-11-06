@@ -8,7 +8,7 @@ import com.fijimf.deepfij.scraping.nextgen.SSTask
 import scala.concurrent.Future
 import scala.io.Source
 
-case class LoadAliases(dao: ScheduleDAO) extends SSTask[Int] {
+final case class LoadAliases(dao: ScheduleDAO) extends SSTask[Int] {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

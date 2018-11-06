@@ -1,0 +1,31 @@
+@import controllers.nav.Breadcrumbs
+@import controllers.nav.MainMeta
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Team
+@import helper._
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, jobForm: Form[forms.EditJobForm.Data])(implicit request:RequestHeader, flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+    @main3000(displayUser,quoteWrapper) {
+    <div class="row">
+        <div class="col-sm-8">
+            <h3>Job</h3>
+            @b3.form(routes.JobControlController.saveJob()) {
+                @CSRF.formField
+                @b3.hidden( "id", jobForm("id").value.getOrElse(""), '_label -> "ID" )
+                @b3.text( jobForm("name"), '_label -> "Name" )
+                @b3.text( jobForm("description"), '_label -> "Description" )
+                @b3.text( jobForm("cron_schedule"), '_label -> "Cron Entry" )
+                @b3.text( jobForm("timezone"), '_label -> "Time Zone" )
+                @b3.text( jobForm("actorClass"), '_label -> "Actor Class" )
+                @b3.text( jobForm("message"), '_label -> "Message" )
+                @b3.text( jobForm("timeout"), '_label -> "Job Timeout" )
+                @b3.checkbox( jobForm("enabled"), '_label -> "Enabled" )
+                @b3.submit('class -> "btn btn-outline-primary"){ Submit }
+            }
+        </div>
+    </div>
+}

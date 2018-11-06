@@ -24,24 +24,24 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
     "can save user profile data" in new WithApplication() {
       val userId = "user-123"
       val data = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
-      assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size == 3)
+      assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size === 3)
       private val userProfileList = Await.result(dao.listUserProfiles, testDbTimeout)
-      assert(userProfileList.size == 3)
-      assert(userProfileList.map(u => u.key -> u.value).toMap == data)
+      assert(userProfileList.size === 3)
+      assert(userProfileList.map(u => u.key -> u.value).toMap === data)
     }
 
     "can update user profile data" in new WithApplication() {
       val userId = "user-123"
       val data = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
-      assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size == 3)
+      assert(Await.result(dao.saveUserProfile(userId, data), testDbTimeout).size === 3)
       private val userProfileList = Await.result(dao.listUserProfiles, testDbTimeout)
-      assert(userProfileList.size == 3)
-      assert(userProfileList.map(u => u.key -> u.value).toMap == data)
+      assert(userProfileList.size === 3)
+      assert(userProfileList.map(u => u.key -> u.value).toMap === data)
       val data2 = Map("k1" -> "value", "k3" -> "changed", "m2" -> "new one")
-      assert(Await.result(dao.saveUserProfile(userId, data2), testDbTimeout).size == 3)
+      assert(Await.result(dao.saveUserProfile(userId, data2), testDbTimeout).size === 3)
       private val userProfileList2 = Await.result(dao.listUserProfiles, testDbTimeout)
-      assert(userProfileList2.size == 3)
-      assert(userProfileList2.map(u => u.key -> u.value).toMap == data2)
+      assert(userProfileList2.size === 3)
+      assert(userProfileList2.map(u => u.key -> u.value).toMap === data2)
     }
 
     "can load profile data for a user" in new WithApplication() {
@@ -49,12 +49,12 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
       val userId2 = "user-456"
       val data1 = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
       val data2 = Map("m1" -> "value", "m2" -> "value", "m3" -> "other value")
-      assert(Await.result(dao.saveUserProfile(userId1, data1), testDbTimeout).size == 3)
-      assert(Await.result(dao.saveUserProfile(userId2, data2), testDbTimeout).size == 3)
-      assert(Await.result(dao.listUserProfiles, testDbTimeout).size == 6)
+      assert(Await.result(dao.saveUserProfile(userId1, data1), testDbTimeout).size === 3)
+      assert(Await.result(dao.saveUserProfile(userId2, data2), testDbTimeout).size === 3)
+      assert(Await.result(dao.listUserProfiles, testDbTimeout).size === 6)
 
       assert(Await.result(dao.findUserProfile("XXXXX"), testDbTimeout).isEmpty)
-      assert(Await.result(dao.findUserProfile("user-456"), testDbTimeout) == data2)
+      assert(Await.result(dao.findUserProfile("user-456"), testDbTimeout) === data2)
     }
 
     "can delete profile data for a user" in new WithApplication() {
@@ -62,16 +62,16 @@ class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfte
       val userId2 = "user-456"
       val data1 = Map("k1" -> "value", "k2" -> "value", "k3" -> "other value")
       val data2 = Map("m1" -> "value", "m2" -> "value", "m3" -> "other value")
-      assert(Await.result(dao.saveUserProfile(userId1, data1), testDbTimeout).size == 3)
-      assert(Await.result(dao.saveUserProfile(userId2, data2), testDbTimeout).size == 3)
-      assert(Await.result(dao.listUserProfiles, testDbTimeout).size == 6)
+      assert(Await.result(dao.saveUserProfile(userId1, data1), testDbTimeout).size === 3)
+      assert(Await.result(dao.saveUserProfile(userId2, data2), testDbTimeout).size === 3)
+      assert(Await.result(dao.listUserProfiles, testDbTimeout).size === 6)
 
-      assert(Await.result(dao.deleteUserProfile("user-123"), testDbTimeout) == 3)
-      assert(Await.result(dao.listUserProfiles, testDbTimeout).size == 3)
-      assert(Await.result(dao.deleteUserProfile("user-xxx"), testDbTimeout) == 0)
-      assert(Await.result(dao.listUserProfiles, testDbTimeout).size == 3)
-      assert(Await.result(dao.deleteUserProfile("user-456"), testDbTimeout) == 3)
-      assert(Await.result(dao.listUserProfiles, testDbTimeout).size == 0)
+      assert(Await.result(dao.deleteUserProfile("user-123"), testDbTimeout) === 3)
+      assert(Await.result(dao.listUserProfiles, testDbTimeout).size === 3)
+      assert(Await.result(dao.deleteUserProfile("user-xxx"), testDbTimeout) === 0)
+      assert(Await.result(dao.listUserProfiles, testDbTimeout).size === 3)
+      assert(Await.result(dao.deleteUserProfile("user-456"), testDbTimeout) === 3)
+      assert(Await.result(dao.listUserProfiles, testDbTimeout).size === 0)
     }
   }
 }

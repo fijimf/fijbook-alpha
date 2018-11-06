@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Alias, Quote, RebuildDatabaseMixin, Team}
-import com.fijimf.deepfij.scraping.NcaaComGameScraperSpec
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
