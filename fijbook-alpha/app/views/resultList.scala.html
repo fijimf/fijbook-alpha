@@ -15,11 +15,11 @@
                     @if(m._2.isDefined){
 
                         @defining(os.get.teamsMap(m._1.homeTeamId)) { homeTeam =>
-                            <td class="col-3"><a href="@homeTeam.officialUrl.getOrElse("#")">@homeTeam.name</a></td>
+                            <td class="col-3"><a href="@routes.TeamController.team(homeTeam.key,None)">@homeTeam.name</a></td>
                         }
                         <td class="col-1">@m._2.get.homeScore</td>
                         @defining(os.get.teamsMap(m._1.awayTeamId)) { awayTeam =>
-                            <td class="col-3"><a href="@awayTeam.officialUrl.getOrElse("#")">@awayTeam.name</a></td>
+                            <td class="col-3"><a href="@routes.TeamController.team(awayTeam.key,None)">@awayTeam.name</a></td>
                         }
                         <td class="col-1">@m._2.get.awayScore</td>
                         <td class="col-2">@m._2.get.showPeriods</td>
@@ -27,15 +27,15 @@
                     }else{
 
                         @defining(os.get.teamsMap(m._1.homeTeamId)) { homeTeam =>
-                            <td><a href="@homeTeam.officialUrl.getOrElse("#")">@homeTeam.name</a></td>
+                            <td class="col-3"><a href="@routes.TeamController.team(homeTeam.key,None)">@homeTeam.name</a></td>
                         }
-                        <td></td>
+                        <td class="col-1"></td>
                         @defining(os.get.teamsMap(m._1.awayTeamId)) { awayTeam =>
-                            <td><a href="@awayTeam.officialUrl.getOrElse("#")">@awayTeam.name</a></td>
+                            <td class="col-3"><a href="@routes.TeamController.team(awayTeam.key,None)">@awayTeam.name</a></td>
                         }
-                        <td></td>
-                        <td></td>
-                        <td>@m._1.datetime.fmtzny("h:mm a zzz")</td>
+                        <td class="col-2"></td>
+                        <td class="col-1"></td>
+                        <td class="col-2">@m._1.datetime.fmtzny("h:mm a zzz")</td>
                     }
 
                 </tr>
