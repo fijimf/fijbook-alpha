@@ -44,6 +44,7 @@ trait ConferenceMapDAOImpl extends ConferenceMapDAO with DAOSlick {
 
   override def saveConferenceMaps(cms: List[ConferenceMap]): Future[List[ConferenceMap]] = {
     logger.info(s"Saving a list of ${cms.size} conference mappings")
+    cms.foreach(cm=>logger.info(cm.toString))
     val ops = cms.map(c1 => repo.conferenceMaps.
       filter(cm =>
         cm.conferenceId === c1.conferenceId && cm.seasonId === c1.seasonId && cm.teamId === c1.teamId
@@ -59,7 +60,9 @@ trait ConferenceMapDAOImpl extends ConferenceMapDAO with DAOSlick {
         t.conferenceId === c1.conferenceId && t.seasonId === c1.seasonId && t.teamId === c1.teamId).result.head))
     val f = db.run(DBIO.sequence(ops).transactionally)
     f.onComplete {
-      case Success(lcm)=> logger.info(s"Saved ${lcm.size} conference mappings")
+      case Success(lcm)=>
+        logger.info(s"Saved ${lcm.size} conference mappings")
+        lcm.foreach(cm=>logger.info(cm.toString))
       case Failure(ex) =>logger.error(s"Failed saving conference maps",ex)
     }
     f
