@@ -2,7 +2,7 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 @import controllers.Utils._
 @(du: DisplayUser, qw:QuoteWrapper, fp:FrontPageData)(implicit request: RequestHeader, flash: Flash)
-@main3000(du, qw) {
+@main3000(displayUser = du, quoteWrapper = qw, highlightTag = "frontPage") {
    <div class="row"><h4>@{
       fp.today.fmt("EEEE MMMM d, yyyy")
    }</h4></div>

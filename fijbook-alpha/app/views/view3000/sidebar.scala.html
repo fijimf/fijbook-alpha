@@ -1,52 +1,52 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
-@(displayUser:DisplayUser)
+@(displayUser:DisplayUser, highlightTag:String="")
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
         <div class="sidebar-sticky">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link active" href="@routes.ReactMainController.index()">
+                    <a class="nav-link @if(highlightTag=="frontPage") {active}" href="@routes.ReactMainController.index()">
                         <span class="fa fa-newspaper">&nbsp;&nbsp;</span>
-                        Front Page <span class="sr-only">(current)</span>
+                        Front Page
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@routes.TeamController.teams()">
+                    <a class="nav-link @if(highlightTag=="teams") {active}" href="@routes.TeamController.teams()">
                         <span class="fa fa-basketball-ball">&nbsp;&nbsp;</span>
                         Teams
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@routes.TeamController.conferences()">
+                    <a class="nav-link @if(highlightTag=="conferences") {active}" href="@routes.TeamController.conferences()">
                         <span class="fa fa-table">&nbsp;&nbsp;</span>
                         Conferences
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@routes.GamesController.games(None)">
+                    <a class="nav-link @if(highlightTag=="games") {active}" href="@routes.GamesController.games(None)">
                         <span class="fa fa-calendar">&nbsp;&nbsp;</span>
                         Games
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @if(highlightTag=="stats") {active}" href="#">
                         <span class="fa fa-bar-chart-o">&nbsp;&nbsp;</span>
                         Statistics
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @if(highlightTag=="blog") {active} " href="#">
                         <span class="fa fa-grip-horizontal">&nbsp;&nbsp;</span>
                         Blog
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @if(highlightTag=="about") {active }" href="#">
                         <span class="fa fa-question-circle">&nbsp;&nbsp;</span>
                         About
                     </a>
                 </li>
                 @if(displayUser.isAdmin){
-                    <li class="nav-item">
+                    <li class="nav-item @if(highlightTag=="admin"){active} ">
                         <a class="nav-link" href="@routes.AdminController.index">
                             <span class="fa fa-angry">&nbsp;&nbsp;</span>
                             Admin

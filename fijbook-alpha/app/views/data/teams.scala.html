@@ -4,7 +4,7 @@
 @import com.fijimf.deepfij.models.react.QuoteWrapper
 @(du: DisplayUser, qw:QuoteWrapper, columns: List[List[Team]])(implicit request: RequestHeader, flash: Flash)
 
-@main3000(du, qw) {
+@main3000(displayUser = du, quoteWrapper = qw, highlightTag = "teams") {
     <div class="row">
         <div class="col-md-12">
             <form class="navbar-form" role="search">
