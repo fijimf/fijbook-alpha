@@ -75,6 +75,8 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient: WSClient)(i
   }
 
   private def channelNodeToItems(id: Long, channel: Node): List[RssItem] = {
+    import java.nio.charset.Charset
+    val charset = Charset.forName("UTF-8")
     (channel \\ "item").map(item => {
       for {
         title <- (item \ "title").headOption
@@ -83,7 +85,10 @@ class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient: WSClient)(i
         pubDate <- (item \ "pubDate").headOption
         date <- parseDate(pubDate.text)
       } yield {
-        RssItem(0L, id, title.text.trim, link.text.trim, None, date.toLocalDateTime, LocalDateTime.now())
+        logger.info(title.text.trim)
+        val item = RssItem(0L, id, charset.decode(charset.encode(title.text.trim)).toString, link.text.trim, None, date.toLocalDateTime, LocalDateTime.now())
+        logger.info(item.toString)
+        item
       }
     }).toList.flatten
   }
