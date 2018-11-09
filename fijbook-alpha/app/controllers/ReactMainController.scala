@@ -56,7 +56,7 @@ class ReactMainController @Inject()(
           val topVotes = list.filter(_._2 == list.maxBy(_._2)._2)
           topVotes.maxBy(_._3.toMillis)
       }
-      val f = FrontPageData(today, osched, todaysGames, yesterdaysGames, q,n,d, items.sortBy(- _._1.publishTime.toMillis).take(12))
+      val f = FrontPageData(today, osched, todaysGames, yesterdaysGames, q,n,d, items.sortBy(-_._1.publishTime.toMillis).take(12))
 
 
       Ok(views.html.frontPage(du, qw, f))
@@ -68,7 +68,7 @@ class ReactMainController @Inject()(
   }
 
   private def loadSchedules: Future[List[Schedule]] = {
-    cache.getOrElseUpdate[List[Schedule]]("deepfij.schedules") {
+    cache.getOrElseUpdate[List[Schedule]]("deepfij.schedules", hotCacheDuration) {
       dao.loadSchedules()
     }
   }

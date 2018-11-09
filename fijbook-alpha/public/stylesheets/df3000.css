@@ -148,3 +148,10 @@ body {
 .admin-highlight {
     border-bottom: 4px solid crimson;
 }
+
+.team-name {
+    font-family: 'Roboto', serif;
+    font-weight: bold;
+    font-size: 60px;
+    color: #444;
+}

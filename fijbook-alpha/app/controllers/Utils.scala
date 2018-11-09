@@ -6,7 +6,11 @@ import java.util.{Locale, TimeZone}
 
 import play.api.mvc.RequestHeader
 
+import scala.concurrent.duration._
+
 object Utils {
+
+  def hotCacheDuration:Duration=1.minute
   def isAdminRequest(request: RequestHeader) = {
     request.path.startsWith("/deepfij/admin")
   }
