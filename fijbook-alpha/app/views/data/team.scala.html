@@ -1,21 +1,48 @@
-@import com.fijimf.deepfij.models.{Schedule, Team, User}
-@import controllers.nav.{Breadcrumbs, StandardNavBar}
-@import com.fijimf.deepfij.models.react.DisplayUser
-@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@import com.fijimf.deepfij.models.{Schedule, Team}
 @(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext])(implicit request: RequestHeader, flash: Flash)
 @main3000(du, qw) {
 
 
-    <div class="row">
+    <div class="row" style="border-bottom: @t.primaryColor.getOrElse("#444") 12px solid; margin-bottom:15px;">
         <div class="col-sm-1">
-           <img src="@t.logoSmUrl.getOrElse("#")" />
+
+
+           <img style="width:80%; height:auto;" src="@t.logoSmUrl.getOrElse("#")" />
         </div>
-        <div class="col-sm-11" >
+        <div class="col-sm-10" >
             <h1 class="team-name">
                 @t.name @t.nickname
             </h1>
         </div>
+        <div class="col-1">
+            <div class="d-flex" style="flex-direction: column; align-items: center;">
+                <div style="font-weight: 300; font-size:24px;">@curr.season.year</div>
+                <div >
+                    <div class="dropdown">
+                        <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Change
+                        </a>
 
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="#">2019</a>
+                            <a class="dropdown-item" href="#">2018</a>
+                            <a class="dropdown-item" href="#">2017</a>
+                            <a class="dropdown-item" href="#">2016</a>
+                            <a class="dropdown-item" href="#">2015</a>
+                            <a class="dropdown-item" href="#">2014</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-11 offset-1">
+            <h4 style="font-weight: 300;">
+                @curr.overallRecord(t).won - @curr.overallRecord(t).lost, @curr.conferenceRecord(t).won - @curr.conferenceRecord(t).lost @curr.conference(t).name</h4>
+        </div>
     </div>
     <div class="row">
         <div class="col-sm-4">

@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.models.GameLine
 @(ganeLine: GameLine)
 <tr>
-    <td>@ganeLine.date</td>
+    <td><a href=@ganeLine.dateLink >@ganeLine.longDate</a></td>
     <td>@ganeLine.vsAt</td>
     <td><a href="@routes.TeamController.team(ganeLine.opp.key, None)">@ganeLine.opp.name</a></td>
     @if(ganeLine.wl=="W"){

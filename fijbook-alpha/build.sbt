@@ -40,6 +40,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery" % "3.3.1-1",
   "org.webjars" % "font-awesome" % "5.2.0",
   "org.webjars.npm" % "feather-icons" % "4.7.3",
+  "org.webjars" % "popper.js" % "1.14.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test exclude  ("org.slf4j", "slf4j-simple"),
   specs2 % Test
 )
