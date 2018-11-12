@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 @import com.fijimf.deepfij.models.{Schedule, Team}
 @import com.fijimf.deepfij.models.react.DisplayLink
-@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext], fav:DisplayLink)(implicit request: RequestHeader, flash: Flash)
+@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext], seasonKeys:List[Int], fav:DisplayLink)(implicit request: RequestHeader, flash: Flash)
 @main3000(du, qw, Some(fav)) {
 
 
@@ -26,12 +26,11 @@
                         </a>
 
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" href="#">2019</a>
-                            <a class="dropdown-item" href="#">2018</a>
-                            <a class="dropdown-item" href="#">2017</a>
-                            <a class="dropdown-item" href="#">2016</a>
-                            <a class="dropdown-item" href="#">2015</a>
-                            <a class="dropdown-item" href="#">2014</a>
+
+                            <a class="dropdown-item" href="@routes.TeamController.team(t.key,None)">@seasonKeys.head</a>
+                            @for(sk<-seasonKeys.tail){
+                                <a class="dropdown-item" href="@routes.TeamController.team(t.key, Some(sk))">@sk</a>
+                            }
                         </div>
                     </div>
                 </div>
