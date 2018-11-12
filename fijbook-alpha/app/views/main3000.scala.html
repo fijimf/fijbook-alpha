@@ -1,6 +1,7 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
-@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, title:String="Deep Fij", highlightTag:String="")(content:Html)(implicit request:RequestHeader, flash: Flash){
+@import com.fijimf.deepfij.models.react.DisplayLink
+@(displayUser:DisplayUser, quoteWrapper:QuoteWrapper, fav:Option[DisplayLink]=None, title:String="Deep Fij", highlightTag:String="")(content:Html)(implicit request:RequestHeader, flash: Flash){
 <!doctype html>
 <html lang="en">
 <head>
@@ -34,7 +35,7 @@
     <div class="container-fluid">
         <div class="row">
             <div id="sidebar">
-                @view3000.sidebar(displayUser,highlightTag)
+                @view3000.sidebar(displayUser,highlightTag, fav)
             </div>
             <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"  id="mainComponent" style="font-family: 'Roboto', serif;  font-weight: 500; color: #444;" >@flashPanel(flash)
                 @content

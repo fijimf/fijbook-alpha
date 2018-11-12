@@ -40,4 +40,7 @@ trait FavoriteLinkDAOImpl extends FavoriteLinkDAO with DAOSlick {
   override def deleteAllFavoriteLinks(): Future[Int] = db.run(repo.favoriteLinks.delete)
 
   override def deleteUsersFavoriteLinks(userId: String): Future[Int] = db.run(repo.favoriteLinks.filter(_.userId === userId).delete)
+
+  override def deleteFavoriteLinkForUser(userId: String, url:String): Future[Int] =
+    db.run(repo.favoriteLinks.filter(f=>f.userId === userId && f.link===url).delete)
 }

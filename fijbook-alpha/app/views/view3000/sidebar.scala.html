@@ -1,5 +1,6 @@
 @import com.fijimf.deepfij.models.react.DisplayUser
-@(displayUser:DisplayUser, highlightTag:String="")
+@import com.fijimf.deepfij.models.react.DisplayLink
+@(displayUser:DisplayUser, highlightTag:String="", favLink:Option[DisplayLink])
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
         <div class="sidebar-sticky">
             <ul class="nav flex-column">
@@ -54,31 +55,33 @@
                     </li>
                 }
             </ul>
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                <span>Favorites</span>
-                <a class="d-flex align-items-center text-muted" href="#">
-                    <span class="fa a-star-o">&nbsp;&nbsp;</span>
-                </a>
-            </h6>
+            @if(favLink.isDefined && displayUser.isLoggedIn ) {
+                @if(displayUser.favorites.map(_.link).contains(favLink.get.link)) {
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Favorites</span>
+                        <span ><a class="text-danger" title="Remove from favorites" href="@routes.UserController.deleteFavoriteLink(favLink.get.link )"><span class="fa fa-minus-circle">  </span></a></span>
+                    </h6>
+
+                } else {
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Favorites</span>
+                        <span ><a class="text-success" title="Add to favorites" href="@routes.UserController.saveFavoriteLink(favLink.get.display,favLink.get.link )"><span class="fa fa-plus-circle">  </span></a></span>
+                    </h6>
+                }
+            } else {
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Favorites</span>
+                </h6>
+            }
             <ul class="nav flex-column mb-2">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span class="fa fa-star-o">&nbsp;&nbsp;</span>
-                        Georgetown
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span class="fa fa-star-o">&nbsp;&nbsp;</span>
-                        Gonzaga
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <span class="fa fa-star-o">&nbsp;&nbsp;</span>
-                        RPI
-                    </a>
-                </li>
+                @for(dl<-displayUser.favorites) {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@dl.link">
+                            <span class="fa fa-star-o">&nbsp;&nbsp;</span>
+                            @dl.display
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
     </nav>

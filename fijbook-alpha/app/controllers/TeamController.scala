@@ -7,7 +7,7 @@ import breeze.stats
 import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser, QuoteWrapper}
 import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
@@ -52,7 +52,7 @@ class TeamController @Inject()(
               val t: Team = sch.keyTeam(key)
               val stats = loadTeamStats(t, sch)
               stats.map(lstat => {
-                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat))
+                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat, DisplayLink(t.name, routes.TeamController.team(t.key, None).url, "#")))
               })
             case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
           }

@@ -19,4 +19,6 @@ trait FavoriteLinkDAO {
   def deleteAllFavoriteLinks(): Future[Int]
 
   def deleteUsersFavoriteLinks(userId: String): Future[Int]
+
+  def deleteFavoriteLinkForUser(userId:String, url:String):Future[Int]
 }

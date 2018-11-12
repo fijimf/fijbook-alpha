@@ -1,7 +1,8 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 @import com.fijimf.deepfij.models.{Schedule, Team}
-@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext])(implicit request: RequestHeader, flash: Flash)
-@main3000(du, qw) {
+@import com.fijimf.deepfij.models.react.DisplayLink
+@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext], fav:DisplayLink)(implicit request: RequestHeader, flash: Flash)
+@main3000(du, qw, Some(fav)) {
 
 
     <div class="row" style="border-bottom: @t.primaryColor.getOrElse("#444") 12px solid; margin-bottom:15px;">
