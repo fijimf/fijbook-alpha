@@ -2,8 +2,8 @@ package controllers
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
+import javax.inject.Inject
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
@@ -14,7 +14,7 @@ import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.EditBlogPostForm
 import play.api.Logger
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.twirl.api.Html
 import controllers.silhouette.utils.DefaultEnv
 
@@ -34,7 +34,7 @@ class S3BlockController @Inject()(
     .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
     .build()
 
-  def blog(key: String) = silhouette.UserAwareAction.async { implicit rs =>
+  def blog(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     Future.successful{
       val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
       metas.find(_.key == key) match {
@@ -45,7 +45,7 @@ class S3BlockController @Inject()(
     }
   }
 
-  def blogIndexPage() = silhouette.UserAwareAction.async { implicit rs =>
+  def blogIndexPage(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     Future.successful{
       val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
       metas.filter(bm => !bm.isDeleted && bm.isPublic).sortBy(bm=>LocalDate.parse(bm.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).toEpochDay)

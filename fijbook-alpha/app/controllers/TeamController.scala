@@ -1,15 +1,13 @@
 package controllers
 
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import breeze.stats
 import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser, QuoteWrapper}
+import com.fijimf.deepfij.models.nstats.Analysis
+import com.fijimf.deepfij.models.react.DisplayLink
 import com.fijimf.deepfij.models.services.ComputedStatisticService
-import com.fijimf.deepfij.stats.{Model, Stat}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
@@ -132,12 +130,13 @@ class TeamController @Inject()(
   }
 
   def loadTeamStats(t: Team, sch: Schedule): Future[List[ModelTeamContext]] = {
-    val futures = List("won-lost", "scoring", "rpi", "least-squares").map(loadTeamStats(t, _, sch))
-    Future.sequence(futures).map(_.flatten)
-  }
-
-  def loadTeamStats(t: Team, modelKey: String, sch: Schedule): Future[Option[ModelTeamContext]] = {
-   Future(None)
+    Future.sequence(Analysis.models.map { case (display, ananlysis) => {
+      dao.findXStatsLatest(sch.season.id, t.id, ananlysis.key).map(_.map(xs => (display, ananlysis, xs)))
+    }
+    }).map(_.flatten.toList.map {
+      case (d, a, x) =>
+        ModelTeamContext(d, a.key, x.value, x.rank, x.mean, x.stdDev, a.fmtString)
+    })
   }
 
   def teams(q: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
@@ -203,51 +202,22 @@ class TeamController @Inject()(
 }
 
 
-final case class ModelTeamContext(team: Team, model: Model[_], stats: List[Stat[_]], xs: Map[String, List[StatValue]], teamMap: Map[Long, Team]) {
-  def modelName: String = model.name
+case class ModelTeamContext(display: String, key: String, value: Option[Double], rank: Option[Int], mean: Option[Double], stdDev: Option[Double], valueFmt: String) {
+  val str: String = value match {
+    case Some(v) if v.isNaN || v.isInfinite => "-"
+    case Some(v) => valueFmt.format(v)
+    case _ => "-"
+  }
 
-  def modelKey: String = model.key
+  val rkStr: String = rank.map(_.toString).getOrElse("-")
 
-  def values(stat: Stat[_]): List[(String, Boolean, (LocalDate, Int, StatValue))] = {
-    val teamByDate: List[(LocalDate, Int, StatValue)] = xs.get(stat.key) match {
-      case Some(lsv) =>
-        lsv.groupBy(_.date)
-          .mapValues(lsvd => {
-            StatUtil.transformSnapshot(lsvd, (sv: StatValue) => teamMap(sv.teamID), stat.higherIsBetter).find(_._3.id === team.id)
-          }).toList.filter(_._2.isDefined).map { case (date: LocalDate, optTup: Option[(Int, StatValue, Team)]) =>
-          val (rk, sv, _) = optTup.get
-          (date, rk, sv)
-        }
-      case None => List.empty[(LocalDate, Int, StatValue)]
-    }
-
-
-    val latest: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate match {
-      case Nil => None
-      case tbd => Some((stat.name, true, tbd.maxBy(_._1.toEpochDay)))
-    }
-
-    val prev: Option[(String, Boolean, (LocalDate, Int, StatValue))] = latest.flatMap(lt => {
-      teamByDate.filter(_._1.isBefore(lt._3._1)) match {
-        case Nil => None
-        case tbd => Some(("Prev", false, tbd.maxBy(_._1.toEpochDay)))
-      }
-    })
-    val weekAgo: Option[(String, Boolean, (LocalDate, Int, StatValue))] = latest.flatMap(lt => {
-      teamByDate.filter(_._1.isBefore(lt._3._1.plusDays(-6))) match {
-        case Nil => None
-        case tbd => Some(("Week Ago", false, tbd.maxBy(_._1.toEpochDay)))
-      }
-    })
-    val best: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 === teamByDate.minBy(_._2)._2) match {
-      case Nil => None
-      case tbd => Some(("Best", false, tbd.maxBy(_._1.toEpochDay)))
-    }
-    val worst: Option[(String, Boolean, (LocalDate, Int, StatValue))] = teamByDate.filter(_._2 === teamByDate.minBy(_._2)._2) match {
-      case Nil => None
-      case tbd => Some(("Worst", false, tbd.maxBy(_._1.toEpochDay)))
-    }
-    List(latest, prev, weekAgo, best, worst).flatten
-
+  val zStr:String = {
+    (for {
+      x <- value
+      m <- mean
+      s <- stdDev
+    } yield {
+      (x - m) / s
+    }).map(d=>"%5.2f".format(d)).getOrElse("-")
   }
 }

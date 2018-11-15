@@ -1,29 +1,27 @@
 @(stats:List[ModelTeamContext])
 
 <h5>Modeled Statistics</h5>
-    @for(tms <-stats) {
-        <div class="panel-group" id="accordion" style="padding-bottom:0; margin-bottom:0;  border-top:1px solid #ddd;">
-            <div class="panel">
-                <div class="panel-heading" style="padding:0; ">
-                    <h5 style="padding:0;">
-                        <a class="expando" data-toggle="collapse" data-parent="#accordion" href="#collapse-@tms.modelKey"> @tms.model.name</a>
-                    </h5>
-                </div>
-                <div id="collapse-@tms.modelKey" class="panel-collapse collapse">
-                    <div class="panel-body" style="padding:0; border-top:0;">
-                        <table class="table table-sm table-schedule" >
-                            <tr>
-                                <th></th>
-                                <th>Date</th>
-                                <th >Rank</th>
-                                <th >Value</th>
-                            </tr>
-                            @for(sms<-tms.stats) {
-                                @stat_table(sms.name, tms.modelKey, sms.key, tms.values(sms))
-                            }
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="panel">
+    <table class="table table-sm table-schedule" >
+        <thead><tr>
+            <th>Stat</th>
+            <th>Value</th>
+            <th>Rank</th>
+            <th>Z-Score</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead><tbody>
+        @for(tm <- stats) {
+            <tr>
+                <td>@tm.display </td>
+                <td>@tm.str </td>
+                <td>@tm.rkStr </td>
+                <td>@tm.zStr </td>
+                <td><a href="popup-histogram-graph"><span class="fa fa-chart-bar"></a></span></td>
+                <td><a href="popup-timeseries-graph"><span class="fa fa-chart-line"></a></span></td>
+            </tr>
     }
+    </tbody>
+    </table>
+</div>

@@ -37,7 +37,7 @@ class PredictionModelController @Inject()(
   })
   val normalizations = List(StatValueGameFeatureMapper.NO_NORMALIZATION -> "None",StatValueGameFeatureMapper.MIN_MAX -> "Min-Max", StatValueGameFeatureMapper.Z_SCORE -> "Z-Score")
 
-  def logisticRequest() = silhouette.UserAwareAction.async { implicit rs =>
+  def logisticRequest(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     for {
       ls <- dao.listSeasons
       ts <- dao.listTeams
@@ -68,7 +68,7 @@ class PredictionModelController @Inject()(
     }
   }
 
-  def logisticRun() = silhouette.UserAwareAction.async { implicit rs =>
+  def logisticRun(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     PredictionModelForm.form.bindFromRequest.fold(
       form => {
         handleFormErrors( form)

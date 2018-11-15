@@ -11,7 +11,7 @@ import controllers.silhouette.utils.{DefaultEnv, WithProvider}
 import forms.silhouette.ChangePasswordForm
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -43,7 +43,7 @@ class ChangePasswordController @Inject() (
     *
     * @return The result to display.
     */
-  def view = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
+  def view: Action[AnyContent] = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
     for {
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
@@ -57,7 +57,7 @@ class ChangePasswordController @Inject() (
     *
     * @return The result to display.
     */
-  def submit = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
     ChangePasswordForm.form.bindFromRequest.fold(
       form => for {
         du <- loadDisplayUser(request)

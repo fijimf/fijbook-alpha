@@ -15,7 +15,7 @@ import forms.silhouette.SignUpForm
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,7 +31,7 @@ class SignUpController @Inject() (
                                    mailerClient: MailerClient)(implicit ec: ExecutionContext)
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with  I18nSupport {
 
-  def view = silhouette.UnsecuredAction.async { implicit request =>
+  def view: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     for {
       du<- loadDisplayUser(request)
       qw<-getQuoteWrapper(du)
@@ -40,7 +40,7 @@ class SignUpController @Inject() (
     }
   }
 
-  def submit = silhouette.UnsecuredAction.async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     SignUpForm.form.bindFromRequest.fold(
       form => for {
         du<- loadDisplayUser(request)

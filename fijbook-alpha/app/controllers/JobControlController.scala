@@ -12,7 +12,7 @@ import forms.EditJobForm
 import javax.inject.Inject
 import jobs.{DeepFijQuartzSchedulerExtension, ExecuteScheduledJob}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -27,7 +27,7 @@ class JobControlController @Inject()(
 
   val fq = DeepFijQuartzSchedulerExtension(system)
 
-  def createJob() = silhouette.SecuredAction.async { implicit rs =>
+  def createJob(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -37,7 +37,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def browseJobs() = silhouette.SecuredAction.async { implicit rs =>
+  def browseJobs(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val fq = DeepFijQuartzSchedulerExtension(system)
     (for {
       du <- loadDisplayUser(rs)
@@ -48,7 +48,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def saveJob() = silhouette.SecuredAction.async { implicit rs =>
+  def saveJob(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -71,7 +71,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def editJob(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def editJob(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -84,7 +84,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def deleteJob(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def deleteJob(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -94,7 +94,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def runJobNow(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def runJobNow(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -110,7 +110,7 @@ class JobControlController @Inject()(
     }
   }
 
-  def viewJob(id: Long) = silhouette.SecuredAction.async { implicit rs =>
+  def viewJob(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     import controllers.Utils._
     (for {
       du <- loadDisplayUser(rs)

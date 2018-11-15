@@ -15,51 +15,6 @@ class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO, actorSystem: Acto
   val logger = Logger(this.getClass)
 
   private val wrapper = new StatsWrapper(dao, actorSystem)
-  override val models: List[Analysis[_]] = List(
-    Counters.games,
-    Counters.wins,
-    Counters.losses
-//    Counters.homeWins,
-//    Counters.homeLosses,
-//    Counters.awayWins,
-//    Counters.awayLosses,
-//    Counters.otGames,
-//    Counters.otWins,
-//    Counters.otLosses,
-//    Counters.winStreak,
-//    Counters.lossStreak,
-//    Appenders.meanMargin,
-//    Appenders.varianceMargin,
-//    Appenders.maxMargin,
-//    Appenders.minMargin,
-//    Appenders.medianMargin,
-//    Appenders.meanCombined,
-//    Appenders.varianceCombined,
-//    Appenders.maxCombined,
-//    Appenders.minCombined,
-//    Appenders.medianCombined,
-//    Appenders.meanPointsFor,
-//    Appenders.variancePointsFor,
-//    Appenders.maxPointsFor,
-//    Appenders.minPointsFor,
-//    Appenders.medianPointsFor,
-//    Appenders.meanPointsAgainst,
-//    Appenders.variancePointsAgainst,
-//    Appenders.maxPointsAgainst,
-//    Appenders.minPointsAgainst,
-//    Appenders.medianPointsAgainst,
-//    HigherOrderCounters.wins,
-//    HigherOrderCounters.losses,
-//    HigherOrderCounters.winPct,
-//    HigherOrderCounters.oppWins,
-//    HigherOrderCounters.oppLosses,
-//    HigherOrderCounters.oppWinPct,
-//    HigherOrderCounters.oppOppWins,
-//    HigherOrderCounters.oppOppLosses,
-//    HigherOrderCounters.oppOppWinPct,
-//    HigherOrderCounters.rpi,
-//    Regression.ols
-  )
 
   override def update(year: Int, timeout: FiniteDuration): Future[String] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -70,5 +25,7 @@ class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO, actorSystem: Acto
         Future("Schedule not found")
     }
   }
+
+  override val models: List[Analysis[_]] = Analysis.models.map(_._2)
 }
 

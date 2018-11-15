@@ -20,7 +20,7 @@ class PredictionController @Inject()(
   extends BaseController with I18nSupport {
   val log = Logger(this.getClass)
 
-  def update() = silhouette.SecuredAction.async { implicit rs =>
+  def update(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     gamePredictorService.update()
     Future.successful(
       Redirect(routes.AdminController.index()).flashing("info" -> "Updating models for current schedule")

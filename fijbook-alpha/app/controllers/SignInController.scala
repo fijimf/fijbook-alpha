@@ -15,7 +15,7 @@ import javax.inject.Inject
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,7 @@ class SignInController @Inject()(
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with  I18nSupport {
 
 
-  def view = silhouette.UnsecuredAction.async { implicit request =>
+  def view: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     for {
       du<- loadDisplayUser(request)
       qw<-getQuoteWrapper(du)
@@ -59,7 +59,7 @@ class SignInController @Inject()(
     *
     * @return The result to display.
     */
-  def submit = silhouette.UnsecuredAction.async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     SignInForm.form.bindFromRequest.fold(
       form => for {
         du<- loadDisplayUser(request)

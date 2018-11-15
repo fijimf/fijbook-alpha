@@ -32,7 +32,7 @@ class ForgotPasswordController @Inject()(
                                           mailerClient: MailerClient)(implicit ec: ExecutionContext)
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
-  def view = silhouette.UnsecuredAction.async { implicit request =>
+  def view: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     for {
       du<- loadDisplayUser(request)
       qw<-getQuoteWrapper(du)
@@ -47,7 +47,7 @@ class ForgotPasswordController @Inject()(
     *
     * @return The result to display.
     */
-  def submit = silhouette.UnsecuredAction.async { implicit request =>
+  def submit: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     ForgotPasswordForm.form.bindFromRequest.fold(
       form => for {
         du<- loadDisplayUser(request)

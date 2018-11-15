@@ -32,16 +32,9 @@ GET         /deepfij/account/activate/:token                    controllers.Acti
 GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])
-GET         /deepfij/games                                      controllers.GamesController.games(modelKey:Option[String])
-GET         /deepfij/games/:yyyymmdd                            controllers.GamesController.gamesByDate(yyyymmdd:String, modelKey:Option[String])
-GET         /api/games/:yyyymmdd                                controllers.GamesController.gamesApi(yyyymmdd:String, modelKey:Option[String])
 GET         /api/teamgames/:key                                 controllers.TeamController.teamGames(key:String)
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
-GET         /deepfij/stats                                      controllers.StatsController.todo()
-GET         /deepfij/stats/:modelKey                            controllers.StatsController.todo1(modelKey)
-GET         /deepfij/stats/:modelKey/:statKey                   controllers.StatsController.todo2(modelKey, statKey)
-GET         /api/stats/:modelKey/:statKey                       controllers.StatsController.todo2(modelKey, statKey)
 GET         /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRequest()
 POST        /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRun()
 
@@ -80,9 +73,6 @@ GET         /deepfij/admin/scrapeManager                        controllers.Scra
 GET         /deepfij/admin/uber-scrape                          controllers.UberScrapeController.uberScrape()
 GET         /deepfij/admin/uber-ncaa/:filename                  controllers.UberScrapeController.markNcaaGames(filename:String)
 ##### TEAMS
-GET         /deepfij/admin/updateStats                          controllers.StatsController.updateAll()
-GET         /deepfij/admin/updateAllSeasons                    controllers.StatsController.updateAllSeasons()
-GET         /deepfij/admin/updateAllSeasons/:model              controllers.StatsController.updateAllSeasonsModel(model:String)
 GET         /deepfij/admin/updatePredictions                    controllers.PredictionController.update()
 GET         /deepfij/admin/browseTeams                          controllers.DataController.browseTeams
 GET         /deepfij/admin/scrapeTeam                           controllers.TeamScrapeController.scrapeOneForm
@@ -166,7 +156,6 @@ GET         /deepfij/admin/readSnapshot:key                     controllers.Admi
 GET         /deepfij/admin/deleteSnapshot:key                   controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 
-GET         /deepfij/admin/spark/tests                          controllers.SparkStatController.update()
 
 ############ SILHOUETTE
 

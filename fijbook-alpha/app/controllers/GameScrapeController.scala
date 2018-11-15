@@ -10,7 +10,7 @@ import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import play.api.Logger
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -23,7 +23,7 @@ class GameScrapeController @Inject()(
 
   val logger = Logger(getClass)
 
-  def scrapeGames(seasonId: Long) = silhouette.SecuredAction.async { implicit rs => {
+  def scrapeGames(seasonId: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
     dao.findSeasonById(seasonId).map {
       case Some(seas) => scheduleUpdateService.updateSeason(None, seas)
         Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
@@ -32,20 +32,20 @@ class GameScrapeController @Inject()(
   }
   }
 
-  def scrapeToday() = silhouette.SecuredAction.async { implicit rs => {
+  def scrapeToday(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
     scheduleUpdateService.updateSeason(Some(List(LocalDate.now())))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Scraping today "))
   }
   }
 
-  def scrapeForDay(yyyymmdd: String) = silhouette.SecuredAction.async { implicit rs => {
+  def scrapeForDay(yyyymmdd: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
     val d = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
     scheduleUpdateService.updateSeason(Some(List(d)))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping $yyyymmdd "))
   }
   }
 
-  def verifyResults(y:Int) = silhouette.SecuredAction.async { implicit rs =>
+  def verifyResults(y:Int): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -56,7 +56,7 @@ class GameScrapeController @Inject()(
   }
 
 
-  def updateTourneys() = silhouette.SecuredAction.async { implicit rs => {
+  def updateTourneys(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
     val updates = for {
       tg <- TourneyUpdater.updateNcaaTournamentGames("/ncaa-tourn.txt", dao)
       cg <- TourneyUpdater.updateConferenceTournamentGames("/conf-tourney-dates.txt", dao)

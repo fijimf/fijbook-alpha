@@ -21,6 +21,11 @@ trait StatValueDAO {
 
   def loadStatValues(modelKey: String, from:LocalDate, to:LocalDate): Future[List[StatValue]]
 
+  def findXStatsTimeSeries(seasonId: Long, teamId: Long, modelKey: String): Future[List[XStat]]
+
+  def findXStatsSnapshot(seasonId: Long, date: LocalDate, modelKey: String): Future[List[XStat]]
+
+  def findXStatsLatest(seasonId: Long, teamId:Long, modelKey: String): Future[Option[XStat]]
 
   def listXStats: Future[List[XStat]]
 

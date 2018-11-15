@@ -56,14 +56,14 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     val fConferenceMaps: Future[List[ConferenceMap]] = db.run(repo.conferenceMaps.filter(_.seasonId === s.id).to[List].result)
     val fResults: Future[List[(Game, Option[Result])]] = db.run(repo.gameResults.filter(_._1.seasonId === s.id).to[List].result)
     val fPredictions: Future[List[(Game, Option[GamePrediction])]] = db.run(repo.predictedResults.filter(_._1.seasonId === s.id).to[List].result)
-    for (
-      teams <- fTeams;
-      conferences <- fConferences;
-      conferenceMap <- fConferenceMaps;
-      results <- fResults;
-      predictions <- fPredictions
-    ) yield {
-      Schedule(s, teams, conferences, conferenceMap, results, predictions)
+    for {
+      teams <- fTeams
+      conferences <- fConferences
+      conferenceMap <- fConferenceMaps
+      results <- fResults
+
+    } yield {
+      Schedule(s, teams, conferences, conferenceMap, results)
     }
   }
 

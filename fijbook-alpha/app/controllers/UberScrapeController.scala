@@ -38,7 +38,7 @@ class UberScrapeController @Inject()(
   implicit val timeout: Timeout = Timeout(600.seconds)
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
-  def uberScrape() = silhouette.SecuredAction.async { implicit rs =>
+  def uberScrape(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
 //    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
     val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
@@ -48,7 +48,7 @@ class UberScrapeController @Inject()(
     }
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Performing uber scrape"))
   }
-  def markNcaaGames(filename:String) = silhouette.SecuredAction.async { implicit rs =>
+  def markNcaaGames(filename:String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
 //    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
     val f = us.updateForTournament("/"+filename)

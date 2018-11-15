@@ -20,7 +20,7 @@ class SchemaController @Inject()(
                                   val userRepo: UserRepository)(implicit ec: ExecutionContext)
   extends BaseController with WithDao with UserEnricher with QuoteEnricher {
 
-  def showSchema() = silhouette.UserAwareAction.async { implicit rs =>
+  def showSchema(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     for {
       du<-loadDisplayUser(rs)
       qw<-getQuoteWrapper(du)
@@ -30,7 +30,7 @@ class SchemaController @Inject()(
     }
   }
 
-  def dropCreateSchema() = silhouette.SecuredAction.async { implicit rs =>
+  def dropCreateSchema(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     if (rs.identity.email.forall(_=="fijimf@gmail.com")) {
       for (
         u1 <- repo.dropSchema();
@@ -43,7 +43,7 @@ class SchemaController @Inject()(
     }
   }
 
-  def showUserSchema() = silhouette.UserAwareAction.async { implicit rs =>
+  def showUserSchema(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -54,7 +54,7 @@ class SchemaController @Inject()(
   }
 
 
-    def dropCreateUserSchema() = silhouette.SecuredAction.async { implicit rs =>
+    def dropCreateUserSchema(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     if (rs.identity.email.forall(_=="fijimf@gmail.com")) {
       for (
         u1 <- userRepo.dropSchema();

@@ -7,9 +7,11 @@ trait Analysis[B] {
 
   def key: String
 
+  def fmtString="%7.3f"
+
   def higherIsBetter: Boolean
 
-  def defaultValue: Double = 0.9
+  def defaultValue: Double = 0.0
 
   def zero: B
 
@@ -26,6 +28,53 @@ trait Analysis[B] {
 
 
 object Analysis {
+
+  val models: List[(String, Analysis[_])] = List(
+    "Games" -> Counters.games,
+    "Wins" -> Counters.wins,
+    "Losses" -> Counters.losses,
+    "Home Ws" -> Counters.homeWins,
+    "Home Ls" -> Counters.homeLosses,
+    "Away Ws" -> Counters.awayWins,
+    "Away Ls" -> Counters.awayLosses,
+    "OT Games" -> Counters.otGames,
+    "OT Ws" -> Counters.otWins,
+    "OT Ls" -> Counters.otLosses,
+    "W Strk" -> Counters.winStreak,
+    "L Strk" -> Counters.lossStreak,
+    "Avg Mrg" -> Appenders.meanMargin,
+    "Var Mrg" -> Appenders.varianceMargin,
+    "Max Mrg" -> Appenders.maxMargin,
+    "Min Mrg" -> Appenders.minMargin,
+    "Med Mrg" -> Appenders.medianMargin,
+    "Avg Cmb" -> Appenders.meanCombined,
+    "Var Cmb" -> Appenders.varianceCombined,
+    "Max Cmb" -> Appenders.maxCombined,
+    "Min Cmb" -> Appenders.minCombined,
+    "Med Cmb" -> Appenders.medianCombined,
+    "Avg PF" -> Appenders.meanPointsFor,
+    "Var PF" -> Appenders.variancePointsFor,
+    "Max PF" -> Appenders.maxPointsFor,
+    "Min PF" -> Appenders.minPointsFor,
+    "Med PF" -> Appenders.medianPointsFor,
+    "Avg PA" -> Appenders.meanPointsAgainst,
+    "Var PA" -> Appenders.variancePointsAgainst,
+    "Max PA" -> Appenders.maxPointsAgainst,
+    "Min PA" -> Appenders.minPointsAgainst,
+    "Med PA" -> Appenders.medianPointsAgainst,
+    "Wins" -> HigherOrderCounters.wins,
+    "Losses" -> HigherOrderCounters.losses,
+    "Win Pct" -> HigherOrderCounters.winPct,
+    "Opp Wins" -> HigherOrderCounters.oppWins,
+    "Opp Losses" -> HigherOrderCounters.oppLosses,
+    "Opp WP" -> HigherOrderCounters.oppWinPct,
+    "Opp Opp Wins" -> HigherOrderCounters.oppOppWins,
+    "Opp Opp Losses" -> HigherOrderCounters.oppOppLosses,
+    "Opp Opp WP" -> HigherOrderCounters.oppOppWinPct,
+    "RPI" -> HigherOrderCounters.rpi,
+    "OLS power" -> Regression.ols
+  )
+
 
   def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B], work: Snapshot => Unit): Unit = {
     runAsLoop[(GameCalendar, B), Snapshot](

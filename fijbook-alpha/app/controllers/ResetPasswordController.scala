@@ -12,7 +12,7 @@ import controllers.silhouette.utils.DefaultEnv
 import forms.silhouette.ResetPasswordForm
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,7 +38,7 @@ class ResetPasswordController @Inject()(
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
 
-  def view(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
+  def view(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     for {
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
@@ -51,7 +51,7 @@ class ResetPasswordController @Inject()(
     }
   }
 
-  def submit(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
+  def submit(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) =>
         ResetPasswordForm.form.bindFromRequest.fold(
