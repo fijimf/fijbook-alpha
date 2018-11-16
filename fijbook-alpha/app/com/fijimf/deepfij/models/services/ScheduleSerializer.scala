@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.models.services
 
 import java.io.ByteArrayInputStream
+import java.security.MessageDigest
 import java.sql.Timestamp
 import java.time._
 import java.util.UUID
@@ -17,11 +18,10 @@ import play.api.Logger
 import play.api.libs.json.{Json, _}
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 object ScheduleSerializer {
 
- val log = Logger(this.getClass)
+  val log = Logger(this.getClass)
 
   val bucket = "deepfij-data"
 
@@ -37,7 +37,7 @@ object ScheduleSerializer {
 
   final case class MappedUniverse(timestamp: LocalDateTime, teams: List[Team], aliases: List[Alias], conferences: List[Conference], quotes: List[Quote], seasons: List[MappedSeason])
 
-  import  com.fijimf.deepfij.models._
+  import com.fijimf.deepfij.models._
   implicit val formatsConfMap: Format[ConfMap] = Json.format[ConfMap]
   implicit val formatsMappedGame: Format[MappedGame] = Json.format[MappedGame]
   implicit val formatsScoreboard: Format[Scoreboard] = Json.format[Scoreboard]
@@ -116,6 +116,11 @@ object ScheduleSerializer {
     data.map(Json.toJson(_).toString())
   }
 
+  def scheduleMD5Hash(s:Schedule):String={
+    val digest = MessageDigest.getInstance("MD5")
+    val bytes = digest.digest(Json.toJson(createMappedSeasons(s.teams, s.conferences, List(s.season), s.conferenceMap, s.games, s.results)).toString().getBytes)
+    new String(bytes)
+  }
 
   def isDBEmpty(dao: ScheduleDAO): Future[Boolean] = {
     for {

@@ -1,8 +1,10 @@
 package com.fijimf.deepfij.models
 
+import java.security.MessageDigest
 import java.time.{LocalDate, Month}
 
 import cats.implicits._
+import com.fijimf.deepfij.models.services.ScheduleSerializer
 
 final case class Schedule
 (
@@ -234,4 +236,5 @@ final case class Schedule
     }
     }
   }
+
 }
