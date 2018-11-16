@@ -14,6 +14,7 @@ import com.amazonaws.util.IOUtils
 import com.fijimf.deepfij.BuildInfo
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import org.apache.commons.codec.digest.DigestUtils
 import play.api.Logger
 import play.api.libs.json.{Json, _}
 
@@ -116,10 +117,9 @@ object ScheduleSerializer {
     data.map(Json.toJson(_).toString())
   }
 
-  def scheduleMD5Hash(s:Schedule):String={
-    val digest = MessageDigest.getInstance("MD5")
-    val bytes = digest.digest(Json.toJson(createMappedSeasons(s.teams, s.conferences, List(s.season), s.conferenceMap, s.games, s.results)).toString().getBytes)
-    new String(bytes)
+  def md5Hash(s:Schedule):String={
+    val jsonStr = Json.toJson(createMappedSeasons(s.teams, s.conferences, List(s.season), s.conferenceMap, s.games, s.results)).toString()
+    DigestUtils.md5Hex(jsonStr)
   }
 
   def isDBEmpty(dao: ScheduleDAO): Future[Boolean] = {

@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Alias, Quote, RebuildDatabaseMixin, Team}
+import org.apache.commons.lang3.StringUtils
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
@@ -111,5 +112,41 @@ class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest with BeforeAndA
       }
     }
 
+    "generate a MD5 for a schedule " in {
+      Json.parse(s3Sched).asOpt[MappedUniverse] match {
+        case Some(uni) => {
+          Await.result(saveToDb(uni, dao, repo), testDbTimeout)
+          val ss = Await.result(dao.loadSchedules, testDbTimeout)
+          ss.foreach(s => {
+            val md5 = ScheduleSerializer.md5Hash(s)
+            assert(StringUtils.isNotBlank(md5))
+            log.info(s.season.year + "->" + md5)
+          })
+          val ts = Await.result(dao.loadSchedules, testDbTimeout)
+          ss.zip(ts).foreach{case (s,t)=>
+            assert(ScheduleSerializer.md5Hash(s)===ScheduleSerializer.md5Hash(t))
+          }
+        }
+        case None => fail("Failed to load test data")
+      }
+    }
+
+    "generate MD5 hahses which track changes for a schedule " in {
+      Json.parse(s3Sched).asOpt[MappedUniverse] match {
+        case Some(uni) => {
+          Await.result(saveToDb(uni, dao, repo), testDbTimeout)
+          val ss = Await.result(dao.loadSchedules, testDbTimeout)
+          val s1 = ss.head
+          ss.tail.foreach(s=>{
+            assert(ScheduleSerializer.md5Hash(s1) != ScheduleSerializer.md5Hash(s))
+          })
+
+          val s1Prime = s1.copy(gameResults=s1.gameResults.drop(1))
+          log.info(s1+" "+s1Prime)
+          assert(ScheduleSerializer.md5Hash(s1) != ScheduleSerializer.md5Hash(s1Prime))
+        }
+        case None => fail("Failed to load test data")
+      }
+    }
   }
 }
