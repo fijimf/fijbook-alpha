@@ -159,6 +159,8 @@ final case class JobRun(id: Long, jobId: Long, startTime: LocalDateTime, endTime
   require(Set("Running", "Failure", "Success").contains(status))
 }
 
+final case class CalcStatus(id: Long, seasonId:Long, modelKey:String, hash:String)
+
 class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
   val log = Logger("schedule-repo")
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -638,6 +640,18 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * = (id, jobId, startTime, endTime, status, message) <> (JobRun.tupled, JobRun.unapply)
   }
 
+  class CalcStatusTable(tag:Tag) extends Table[CalcStatus](tag, "calc_status") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def seasonId: Rep[Long] = column[Long]("season_id")
+
+    def modelKey: Rep[String] = column[String]("model_key")
+
+    def schedMD5Hash: Rep[String] = column[String]("sched_md5_hash")
+
+    def * = (id, seasonId, modelKey, schedMD5Hash) <> (CalcStatus.tupled, CalcStatus.unapply)
+  }
+
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
   lazy val games: TableQuery[GamesTable] = TableQuery[GamesTable]
   lazy val results: TableQuery[ResultsTable] = TableQuery[ResultsTable]
@@ -659,6 +673,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val rssItems: TableQuery[RssItemTable] = TableQuery[RssItemTable]
   lazy val jobs: TableQuery[JobTable] = TableQuery[JobTable]
   lazy val jobRuns: TableQuery[JobRunTable] = TableQuery[JobRunTable]
+  lazy val calcStatuses: TableQuery[CalcStatusTable] =TableQuery[CalcStatusTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
 
   lazy val ddl = conferenceMaps.schema ++
@@ -679,5 +694,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     rssFeeds.schema ++
     rssItems.schema ++
     jobs.schema ++
-    jobRuns.schema
+    jobRuns.schema ++
+    calcStatuses.schema
+
 }
