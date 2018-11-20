@@ -621,7 +621,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * = (id, name, description, cronSchedule, timezone, actorClass, message, timeout, isEnabled, updatedAt) <> (Job.tupled, Job.unapply)
 
-    def idx1: Index = index("job_idx1", name, unique = true)
   }
 
   class JobRunTable(tag: Tag) extends Table[JobRun](tag, "job_run") {

@@ -72,7 +72,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
   }
 
   override def findXStatsTimeSeries(seasonId:Long, teamId:Long, modelKey:String):Future[List[XStat]] = {
-    db.run(repo.xstats.filter(x=>x.seasonId===seasonId && x.teamId === teamId && x.key === modelKey ).sortBy(_.date).to[List].result)
+    db.run(repo.xstats.filter(x=>x.seasonId===seasonId && x.teamId === teamId && x.key === modelKey ).sortBy(_.date).to[List].result).map(_.reverse)
   }
 
   override def findXStatsSnapshot(seasonId:Long, date:LocalDate, modelKey:String):Future[List[XStat]] = {

@@ -59,8 +59,8 @@ class JobControlController @Inject()(
         Future.successful(BadRequest(views.html.admin.createJob(d, q, form)))
       },
       data => {
-        val q = Job(data.id, data.name, data.description, data.cronSchedule, data.timezone, data.actorClass, data.message, data.timeout, data.isEnabled, LocalDateTime.now())
-        val future: Future[Job] = dao.saveJob(q)
+        val job = Job(data.id, data.name, data.description, data.cronSchedule, data.timezone, data.actorClass, data.message, data.timeout, data.isEnabled, LocalDateTime.now())
+        val future: Future[Job] = dao.saveJob(job)
         future.map(i => {
 
           fq.scheduleJob(i)

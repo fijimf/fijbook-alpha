@@ -20,9 +20,12 @@ trait JobDAOImpl extends JobDAO with DAOSlick {
 
   def listJobs: Future[List[Job]] = db.run(repo.jobs.to[List].result)
 
-  def saveJob(j: Job): Future[Job] = db.run(upsert(j))
+  def saveJob(j: Job): Future[Job] = {
+    log.info(j.toString)
+    db.run(upsert(j))
+  }
 
-  private def upsert(x: Job) = {
+  private def upsert(x: Job): DBIOAction[Job, NoStream, Effect.Write with Effect.Read] = {
     (repo.jobs returning repo.jobs.map(_.id)).insertOrUpdate(x).flatMap {
       case Some(id) => repo.jobs.filter(_.id === id).result.head
       case None => DBIO.successful(x)
