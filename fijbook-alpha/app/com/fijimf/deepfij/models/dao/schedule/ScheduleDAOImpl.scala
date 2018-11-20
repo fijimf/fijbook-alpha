@@ -34,7 +34,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with RssFeedDAOImpl
     with RssItemDAOImpl
     with JobDAOImpl
-    with JobRunDAOImpl {
+    with JobRunDAOImpl
+    with CalcStatusDAOImpl {
 
   import dbConfig.profile.api._
 
@@ -158,7 +159,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       }
       future.onComplete {
         case Failure(thr) => log.error(s"loadSchedule for $y failed in ${System.currentTimeMillis() - s} ms. Error was ${thr.getMessage}", thr)
-        case _ => log.info(s"loadSchedule for $y completed in ${System.currentTimeMillis() - s} ms.")
+        case _ => log.debug(s"loadSchedule from DB for $y completed in ${System.currentTimeMillis() - s} ms.")
       }
       future
     }

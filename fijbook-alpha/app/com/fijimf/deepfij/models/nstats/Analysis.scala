@@ -85,6 +85,15 @@ object Analysis {
     )
   }
 
+  def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B], work: Snapshot => Unit, terminate:((GameCalendar, B))=>Boolean): Unit = {
+    runAsLoop[(GameCalendar, B), Snapshot](
+      state = analyzer.state,
+      init = (GameCalendar.init(s), analyzer.zero),
+      work = work,
+      terminate = terminate
+    )
+  }
+
   def runAsLoop[S, A](state: State[S, A], init: S, work: A => Unit, terminate: S => Boolean): Unit = {
     loop(init)
 

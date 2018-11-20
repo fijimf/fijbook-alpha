@@ -13,7 +13,7 @@ class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
 
   def receive: Receive = {
     case year:String =>
-      logger.info(s"Received request to update $year")
+      logger.info(s"Received request to update all statistics for season $year")
       val capture = sender()
       svc.update(year.toInt, 1.hour).onComplete{
         case Success(msg)=>

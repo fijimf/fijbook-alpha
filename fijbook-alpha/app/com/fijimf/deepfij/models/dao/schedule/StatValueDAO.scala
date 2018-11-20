@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models.dao.schedule
 import java.time.LocalDate
 
 import com.fijimf.deepfij.models.nstats.SnapshotDbBundle
-import com.fijimf.deepfij.models.{StatValue, XStat}
+import com.fijimf.deepfij.models.{Season, StatValue, XStat}
 
 import scala.concurrent.Future
 
@@ -36,4 +36,8 @@ trait StatValueDAO {
   def saveXStatSnapshot(d: LocalDate, k: String, xstats: List[XStat]): Future[Int]
 
   def saveBatchedSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]]
+
+  def insertSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]]
+
+  def deleteXStatBySeason(season: Season, key: String): Future[Int]
 }

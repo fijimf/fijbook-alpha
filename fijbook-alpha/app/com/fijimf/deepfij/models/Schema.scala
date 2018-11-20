@@ -645,11 +645,14 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def seasonId: Rep[Long] = column[Long]("season_id")
 
-    def modelKey: Rep[String] = column[String]("model_key")
+    def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
 
     def schedMD5Hash: Rep[String] = column[String]("sched_md5_hash")
 
     def * = (id, seasonId, modelKey, schedMD5Hash) <> (CalcStatus.tupled, CalcStatus.unapply)
+
+
+    def idx1: Index = index("cstat_idx1", (seasonId, modelKey), unique = true)
   }
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]

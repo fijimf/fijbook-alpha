@@ -24,6 +24,7 @@ trait ScheduleDAO
     with RssItemDAO
     with JobDAO
     with JobRunDAO
+    with CalcStatusDAO
 {
 
   def saveGameResult(g:Game,r:Option[Result]):Future[Option[Game]]

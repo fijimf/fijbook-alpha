@@ -16,7 +16,7 @@ trait CalcStatusDAOImpl extends CalcStatusDAO with DAOSlick {
   import dbConfig.profile.api._
 
   override def findStatus(seasonId:Long, modelKey:String): Future[Option[CalcStatus]] =
-    db.run(repo.calcStatuses.filter(c=>c.seasonId === seasonId && c.modelKey == modelKey).result.headOption)
+    db.run(repo.calcStatuses.filter(c=>c.seasonId === seasonId && c.modelKey === modelKey).result.headOption)
 
   override def saveStatus(stat: CalcStatus): Future[CalcStatus] = db.run(upsert(stat))
 

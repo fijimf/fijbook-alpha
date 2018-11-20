@@ -33,6 +33,8 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     db.run(statValuesDeleteActions(models,dates))
   }
 
+
+
   override def saveStatValues(dates: List[LocalDate], models: List[String], stats: List[StatValue]): Future[Seq[Long]] = {
     val key = s"[${models.mkString(", ")}] x [${dates.head} .. ${dates.last}] "
     val start = System.currentTimeMillis()
@@ -132,5 +134,14 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
       }
       // result <- repo.xstats.filter(x => x.date === xstat.date && x.key === xstat.key && x.teamId === xstat.teamId).result.head
     } yield m
+  }
+
+  override def insertSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]] = {
+    db.run((repo.xstats ++= snaps.flatMap(_.xs)).withPinnedSession)
+  }
+
+
+  override def deleteXStatBySeason(season: Season, key: String): Future[Int] = {
+    db.run(repo.xstats.filter(x=> x.seasonId===season.id && x.key===key).delete)
   }
 }
