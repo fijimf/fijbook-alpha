@@ -86,7 +86,7 @@ object Appenders {
     override def higherIsBetter: Boolean = true
   }
 
-  object meanCombined extends margin {
+  object meanCombined extends combined {
     override def extract(b: Map[Long, List[Double]]): Map[Long, Double] = b.mapValues(z => mean(z))
 
     override def key: String = "mean-combined"

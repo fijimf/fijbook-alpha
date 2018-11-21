@@ -71,7 +71,7 @@ object Regression {
       if (state.b.size <= state.keyMap.size) {
         Map.empty[Long, Double]
       } else {
-        val ols = smile.regression.ols(state.A, state.b, "qr")
+        val ols = smile.regression.ols(state.A, state.b, "svd")
         val x = ols.coefficients
 
         state.keyMap.mapValues(x(_))
