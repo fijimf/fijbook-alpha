@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter
 
 import cats.implicits._
 import com.cibo.evilplot.geometry.Extent
-import com.cibo.evilplot.numeric.Point
-import com.cibo.evilplot.plot.renderers.BarRenderer
+import com.cibo.evilplot.numeric.{Point, Point2d}
+import com.cibo.evilplot.plot.renderers.{BarRenderer, PathRenderer}
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.Analysis
@@ -207,15 +207,25 @@ class StatController @Inject()(
     }
   }
 
-  def timeSeries(seasonId: Long, key: String, teamId: Long): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+  def timeSeries(seasonId: Long, key: String, teamId: Long,  width:Double=1000.0, height:Double=500.0): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     import com.cibo.evilplot.colors._
     import com.cibo.evilplot.plot._
+    import com.cibo.evilplot.plot.aesthetics.DefaultTheme._
+
     for {
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
       lst <- dao.findXStatsTimeSeries(seasonId, teamId, key)
     } yield {
-      Ok(lst.size.toString)
+      val file = File.createTempFile("dfff",".png")
+      val plot: Plot = LinePlot(lst.flatMap(x=> x.value match {
+        case Some(v)=>Some(Point(x.date.toEpochDay.toDouble, v))
+        case _=> None
+      }))
+      plot
+        .render(Extent(width, height))
+        .write(file)
+      Ok(IOUtils.toByteArray(file.toURI)).as("image/png")
     }
   }
 
