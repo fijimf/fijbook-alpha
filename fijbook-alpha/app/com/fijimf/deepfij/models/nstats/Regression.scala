@@ -81,6 +81,7 @@ object Regression {
     override def key: String = "ols"
 
     override def higherIsBetter: Boolean = true
+
   }
 
 

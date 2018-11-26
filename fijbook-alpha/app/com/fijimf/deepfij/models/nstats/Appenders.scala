@@ -60,6 +60,8 @@ object Appenders {
 
     override def higherIsBetter: Boolean = true
 
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object maxMargin extends margin {
@@ -92,6 +94,8 @@ object Appenders {
     override def key: String = "mean-combined"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object varianceCombined extends combined {
@@ -100,6 +104,8 @@ object Appenders {
     override def key: String = "variance-combined"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object maxCombined extends combined {
@@ -108,6 +114,8 @@ object Appenders {
     override def key: String = "max-combined"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object minCombined extends combined {
@@ -116,6 +124,9 @@ object Appenders {
     override def key: String = "min-combined"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object medianCombined extends combined {
@@ -124,6 +135,9 @@ object Appenders {
     override def key: String = "median-combined"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
 
@@ -133,6 +147,9 @@ object Appenders {
     override def key: String = "mean-points-for"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object variancePointsFor extends pointsFor {
@@ -141,6 +158,8 @@ object Appenders {
     override def key: String = "variance-points-for"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object maxPointsFor extends pointsFor {
@@ -149,6 +168,8 @@ object Appenders {
     override def key: String = "max-points-for"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object minPointsFor extends pointsFor {
@@ -157,6 +178,8 @@ object Appenders {
     override def key: String = "min-points-for"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object medianPointsFor extends pointsFor {
@@ -165,6 +188,7 @@ object Appenders {
     override def key: String = "median-points-for"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object meanPointsAgainst extends margin {
@@ -173,6 +197,7 @@ object Appenders {
     override def key: String = "mean-points-against"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object variancePointsAgainst extends pointsAgainst {
@@ -181,6 +206,7 @@ object Appenders {
     override def key: String = "variance-points-against"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object maxPointsAgainst extends pointsAgainst {
@@ -189,6 +215,7 @@ object Appenders {
     override def key: String = "max-points-against"
 
     override def higherIsBetter: Boolean = false
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object minPointsAgainst extends pointsAgainst {
@@ -197,6 +224,7 @@ object Appenders {
     override def key: String = "min-points-against"
 
     override def higherIsBetter: Boolean = false
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object medianPointsAgainst extends pointsAgainst {
@@ -205,6 +233,7 @@ object Appenders {
     override def key: String = "median-points-against"
 
     override def higherIsBetter: Boolean = false
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
 }

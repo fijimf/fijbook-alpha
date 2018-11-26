@@ -1,17 +1,22 @@
 package controllers
 
+import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import cats.implicits._
+import com.cibo.evilplot.geometry.Extent
+import com.cibo.evilplot.numeric.Point
+import com.cibo.evilplot.plot.renderers.BarRenderer
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.Analysis
 import com.fijimf.deepfij.models.react.DisplayLink
-import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
+import javax.imageio.ImageIO
+import org.apache.commons.io.IOUtils
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
@@ -19,8 +24,9 @@ import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.Future
+import scala.util.Random
 
-class TeamController @Inject()(
+class StatController @Inject()(
                                 val controllerComponents: ControllerComponents,
                                 val dao: ScheduleDAO,
                                 cache: AsyncCacheApi,
@@ -32,11 +38,14 @@ class TeamController @Inject()(
 
   val logger = Logger(getClass)
 
+
   def team(key: String, season: Option[Int]): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     (for {
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
-    } yield {(du,qw)}).flatMap(tup=> {
+    } yield {
+      (du, qw)
+    }).flatMap(tup => {
       dao.loadSchedules().flatMap(ss => {
         if (ss.isEmpty) {
           Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> "No schedules are loaded."))
@@ -51,7 +60,7 @@ class TeamController @Inject()(
               val t: Team = sch.keyTeam(key)
               val stats = loadTeamStats(t, sch)
               stats.map(lstat => {
-                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat, seasonKeys, DisplayLink(t.name, routes.TeamController.team(t.key, None).url, "#")))
+                Ok(views.html.data.team(tup._1, tup._2, t, sch, lstat, seasonKeys, DisplayLink(t.name, routes.TeamController.team(t.key, None).url, "#")))
               })
             case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
           }
@@ -141,9 +150,9 @@ class TeamController @Inject()(
 
   def teams(q: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     for {
-      du<- loadDisplayUser(request)
-      qw<-getQuoteWrapper(du)
-      ss<- dao.loadLatestSchedule()
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      ss <- dao.loadLatestSchedule()
     } yield {
       ss match {
         case Some(sch) =>
@@ -167,14 +176,14 @@ class TeamController @Inject()(
 
   def conference(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     for {
-      du<- loadDisplayUser(request)
-      qw<-getQuoteWrapper(du)
-      ss<- dao.loadLatestSchedule()
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      ss <- dao.loadLatestSchedule()
     } yield {
       ss match {
         case Some(sch) =>
           val c = sch.conferenceKeyMap(key)
-          Ok(views.html.data.conference(du,qw, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
+          Ok(views.html.data.conference(du, qw, c, sch.conferenceStandings(c), sch.interConfRecord(c), sch.nonConferenceSchedule(c), sch.conferenceSchedule(c), sch))
         case None => Redirect(routes.ReactMainController.index()).flashing("info" -> "No current schedule loaded")
       }
 
@@ -184,9 +193,9 @@ class TeamController @Inject()(
 
   def conferences(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
     for {
-      du<- loadDisplayUser(request)
-      qw<-getQuoteWrapper(du)
-      ss<- dao.loadLatestSchedule()
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      ss <- dao.loadLatestSchedule()
     } yield {
       ss match {
         case Some(sch) =>
@@ -198,26 +207,40 @@ class TeamController @Inject()(
     }
   }
 
-
-}
-
-
-case class ModelTeamContext(seasonId:Long, date:LocalDate, display: String, key: String, value: Option[Double], rank: Option[Int], mean: Option[Double], stdDev: Option[Double], valueFmt: String) {
-  val str: String = value match {
-    case Some(v) if v.isNaN || v.isInfinite => "-"
-    case Some(v) => valueFmt.format(v)
-    case _ => "-"
+  def timeSeries(seasonId: Long, key: String, teamId: Long): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    import com.cibo.evilplot.colors._
+    import com.cibo.evilplot.plot._
+    for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      lst <- dao.findXStatsTimeSeries(seasonId, teamId, key)
+    } yield {
+      Ok(lst.size.toString)
+    }
   }
 
-  val rkStr: String = rank.map(_.toString).getOrElse("-")
 
-  val zStr:String = {
-    (for {
-      x <- value
-      m <- mean
-      s <- stdDev
+
+  def histogram(seasonId: Long, key: String, yyyymmdd: Int, width:Double=1000.0, height:Double=500.0): Action[AnyContent] = silhouette.UserAwareAction.async { implicit request =>
+    import com.cibo.evilplot.colors._
+    import com.cibo.evilplot.plot._
+    import com.cibo.evilplot.plot.aesthetics.DefaultTheme._
+    for {
+      du <- loadDisplayUser(request)
+      qw <- getQuoteWrapper(du)
+      lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString,DateTimeFormatter.ofPattern("yyyyMMdd")), key)
     } yield {
-      (x - m) / s
-    }).map(d=>"%5.2f".format(d)).getOrElse("-")
+      val file = File.createTempFile("dfff",".png")
+      val plot: Plot = Histogram(lst.flatMap(_.value))
+      plot
+        .xLabel(Analysis.models.find(_._2.key===key).map(_._1).getOrElse(""))
+        .yLabel("Number of Teams")
+        .yGrid()
+        .xAxis(tickCount=Some(10))
+        .yAxis()
+         .render(Extent(width, height))
+         .write(file)
+      Ok(IOUtils.toByteArray(file.toURI)).as("image/png")
+    }
   }
 }

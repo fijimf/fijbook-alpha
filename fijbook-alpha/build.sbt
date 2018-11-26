@@ -21,6 +21,8 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
 resolvers += "Apache" at "https://repository.apache.org/content/repositories/releases"
+resolvers += Resolver.bintrayRepo("cibotech", "public")
+
 
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.6.5"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
@@ -41,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "font-awesome" % "5.2.0",
   "org.webjars.npm" % "feather-icons" % "4.7.3",
   "org.webjars" % "popper.js" % "1.14.4",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test exclude  ("org.slf4j", "slf4j-simple"),
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % Test exclude  ("org.slf4j", "slf4j-simple"),
   specs2 % Test
 )
 
@@ -74,9 +76,9 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-mllib" % "2.2.1",
   "org.typelevel" %% "cats-core" % "1.4.0" ,
   "org.typelevel" %% "cats-free" % "1.4.0",
-  "com.github.haifengl" %% "smile-scala" % "1.5.1"
+  "com.github.haifengl" %% "smile-scala" % "1.5.1",
+  "com.cibo" %% "evilplot" % "0.6.0"
 )
-
 test in assembly := {}
 mainClass in assembly := Some("play.core.server.ProdServerStart")
 assemblyMergeStrategy in assembly := {

@@ -1,4 +1,6 @@
-@(stats:List[ModelTeamContext])
+@import com.fijimf.deepfij.models.Team
+@import java.time.format.DateTimeFormatter
+@(team:Team, stats:List[ModelTeamContext])
 
 <h5>Modeled Statistics</h5>
 <div class="panel">
@@ -18,8 +20,40 @@
                 <td>@tm.str </td>
                 <td>@tm.rkStr </td>
                 <td>@tm.zStr </td>
-                <td><a href="popup-histogram-graph"><span class="fa fa-chart-bar"></a></span></td>
-                <td><a href="popup-timeseries-graph"><span class="fa fa-chart-line"></a></span></td>
+                <td>
+                    <a href="#"  data-toggle="modal" data-target="#hist-modal-@tm.key">
+                        <span class="fa fa-chart-bar"></span>
+                    </a>
+                    <div class="modal fade" id="hist-modal-@tm.key" tabindex="-1" role="dialog" aria-labelledby="#hist-modal-@tm.key-label" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="#hist-modal-@tm.key-label">@tm.display</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body"><div class="container-fluid" >
+                                    <div class="col-md-3 ml-auto">
+                                    <img
+                                    src="@routes.StatController.histogram(tm.seasonId,  tm.key, DateTimeFormatter.ofPattern("yyyyMMdd").format( tm.date).toInt,450.0,225.0 )"
+                                    />
+                                </div>
+                                </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <a href="popup-timeseries-graph">
+                        <span class="fa fa-chart-line"></span>
+                    </a>
+                </td>
             </tr>
     }
     </tbody>

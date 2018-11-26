@@ -53,10 +53,7 @@
             @teamdata.contextual_records(curr, t)
         </div>
         <div class="col-sm-4">
-            @teamdata.stat_panel(stats)
+            @teamdata.stat_panel(t, stats)
         </div>
     </div>
-    <script >
-            gameDots("@t.key",@{s"[${0.until(5).map(i=>curr.season.year-i).mkString(", ")}]"});
-    </script>
 }

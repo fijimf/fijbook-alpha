@@ -58,6 +58,8 @@ object Counters {
     override def key: String = "n-games"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object wins extends base {
@@ -66,6 +68,9 @@ object Counters {
     override def key: String = "wins"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object losses extends base {
@@ -74,6 +79,9 @@ object Counters {
     override def key: String = "losses"
 
     override def higherIsBetter: Boolean = false
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object homeWins extends base {
@@ -82,6 +90,9 @@ object Counters {
     override def key: String = "home-wins"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object homeLosses extends base {
@@ -90,6 +101,9 @@ object Counters {
     override def key: String = "home-losses"
 
     override def higherIsBetter: Boolean = false
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object awayWins extends base {
@@ -98,6 +112,9 @@ object Counters {
     override def key: String = "away-wins"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object awayLosses extends base {
@@ -106,6 +123,9 @@ object Counters {
     override def key: String = "away-losses"
 
     override def higherIsBetter: Boolean = false
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object otGames extends base {
@@ -114,6 +134,9 @@ object Counters {
     override def key: String = "ot-games"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object otWins extends base {
@@ -122,6 +145,9 @@ object Counters {
     override def key: String = "ot-wins"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object otLosses extends base {
@@ -130,6 +156,9 @@ object Counters {
     override def key: String = "ot-losses"
 
     override def higherIsBetter: Boolean = false
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object winStreak extends withReset {
@@ -140,6 +169,9 @@ object Counters {
     override def key: String = "win-streak"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object lossStreak extends withReset {
@@ -150,6 +182,9 @@ object Counters {
     override def key: String = "loss-streak"
 
     override def higherIsBetter: Boolean = false
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
 }

@@ -11,6 +11,8 @@ trait Analysis[B] {
 
   def higherIsBetter: Boolean
 
+  def bounds:(Double, Double) = (Double.NegativeInfinity, Double.PositiveInfinity)
+
   def defaultValue: Double = 0.0
 
   def zero: B

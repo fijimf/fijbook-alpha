@@ -65,6 +65,9 @@ object HigherOrderCounters {
     override def key: String = "ho-wins"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0,Double.PositiveInfinity)
+
   }
 
   object losses extends base {
@@ -73,6 +76,7 @@ object HigherOrderCounters {
     override def key: String = "ho-losses"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object winPct extends base {
@@ -83,6 +87,9 @@ object HigherOrderCounters {
     override def key: String = "wp"
 
     override def higherIsBetter: Boolean = true
+
+    override def bounds=(0.0,1.0)
+
   }
 
   object oppWins extends base {
@@ -91,6 +98,7 @@ object HigherOrderCounters {
     override def key: String = "opp-wins"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object oppLosses extends base {
@@ -99,6 +107,7 @@ object HigherOrderCounters {
     override def key: String = "opp-losses"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object oppWinPct extends base {
@@ -109,6 +118,7 @@ object HigherOrderCounters {
     override def key: String = "opp-wp"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0.0,1.0)
   }
 
   object oppOppWins extends base {
@@ -117,6 +127,7 @@ object HigherOrderCounters {
     override def key: String = "opp-opp-wins"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object oppOppLosses extends base {
@@ -125,6 +136,7 @@ object HigherOrderCounters {
     override def key: String = "opp-opp-losses"
 
     override def higherIsBetter: Boolean = false
+    override def bounds=(0,Double.PositiveInfinity)
   }
 
   object oppOppWinPct extends base {
@@ -135,6 +147,7 @@ object HigherOrderCounters {
     override def key: String = "opp-opp-wp"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0.0,1.0)
   }
 
 
@@ -146,6 +159,7 @@ object HigherOrderCounters {
     override def key: String = "rpi"
 
     override def higherIsBetter: Boolean = true
+    override def bounds=(0.0,1.0)
   }
 
 
