@@ -39,7 +39,7 @@ object Utils {
 
   implicit class LocalDateWrapper(dt: LocalDate) {
     def fmt(pattern: String): String = dt.format(DateTimeFormatter.ofPattern(pattern))
-
+    def yyyymmdd: String =fmt("yyyyMMdd")
     def isBetween(start: LocalDate, end: LocalDate, inclusive:Boolean): Boolean = {
       if (inclusive) {
         (dt.isEqual(start) || dt.isAfter(start)) && (dt.isEqual(end) || dt.isBefore(end))
