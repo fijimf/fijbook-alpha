@@ -6,10 +6,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import cats.implicits._
-import com.cibo.evilplot.geometry.Extent
+import com.cibo.evilplot.geometry.{Drawable, Extent}
 import com.cibo.evilplot.numeric.Point
 import com.cibo.evilplot.plot.aesthetics.DefaultTheme.DefaultColors
 import com.cibo.evilplot.plot.aesthetics._
+import com.cibo.evilplot.plot.renderers.TickRenderer
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.Analysis
 import com.google.inject.Inject
@@ -20,6 +21,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.api.{Logger, mvc}
+import controllers.Utils._
 
 class StatController @Inject()(
                                 val controllerComponents: ControllerComponents,
@@ -73,6 +75,11 @@ class StatController @Inject()(
         case Some(v) => Some(Point(x.date.toEpochDay.toDouble, v))
         case _ => None
       }))
+        .xGrid()
+        .yGrid()
+        .xAxis(labelFormatter=Some((d:Double)=>LocalDate.ofEpochDay(d.longValue()).fmt("MMM-dd")))
+        .yAxis()
+
       returnBufferedImage(plot.render().asBufferedImage)
     }
   }
@@ -88,7 +95,7 @@ class StatController @Inject()(
       lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString, DateTimeFormatter.ofPattern("yyyyMMdd")), key)
     } yield {
       val plot: Plot = Histogram(lst.flatMap(_.value))
-        .xLabel(Analysis.models.find(_._2.key === key).map(_._1).getOrElse(""), size = Some(4))
+        .xLabel(Analysis.models.find(_._2.key === key).map(_._1).getOrElse(""))
         .yLabel("Number of Teams")
         .yGrid()
         .xAxis(tickCount = Some(10))

@@ -8,7 +8,7 @@ final case class GameCalendar(schedule: Schedule, date: Option[LocalDate]) {
   def next(): GameCalendar = {
     date.map(d => {
       val tomorrow = d.plusDays(1)
-      if (schedule.season.dates.contains(tomorrow)) {
+      if (schedule.season.dates.contains(tomorrow) && schedule.completeGames.exists(_._1.date.isAfter(d))) {
         copy(date = Some(tomorrow))
       } else {
         copy(date = None)
