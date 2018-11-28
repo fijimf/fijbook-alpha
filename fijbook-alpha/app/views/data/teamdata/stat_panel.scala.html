@@ -19,9 +19,9 @@
         @for(tm <- stats) {
             <tr>
                 <td>@tm.display </td>
-                <td>@tm.str </td>
-                <td>@tm.rkStr </td>
-                <td>@tm.zStr </td>
+                <td class="text-right">@tm.str</td>
+                <td class="text-right">@tm.rkStr</td>
+                <td class="text-right">@tm.zStr</td>
                 <td>
                     <a href="#" data-toggle="modal" data-target="#hist-modal-@tm.key">
                         <span class="fa fa-chart-bar"></span>
@@ -38,7 +38,7 @@
                                 <div class="modal-body"><div class="container-fluid" >
                                     <div class="col-md-12 ml-auto">
                                         <img
-                                        src="@routes.StatController.histogram(tm.seasonId, tm.key, tm.date.yyyymmdd.toInt, 200.0,150.0)"
+                                        src="@routes.StatController.histogram(tm.seasonId, tm.key, tm.date.yyyymmdd.toInt, team.id,  200.0,150.0)"
                                             style="width: 100%; height:auto"
                                         />
                                     </div>

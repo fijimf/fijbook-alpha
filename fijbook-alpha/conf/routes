@@ -38,7 +38,7 @@ GET         /deepfij/conferences/:key                           controllers.Team
 GET         /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRequest()
 POST        /deepfij/predict/logistic                           controllers.PredictionModelController.logisticRun()
 GET         /deepfij/stat/series/:season/:key/:team             controllers.StatController.timeSeries(season:Long,key:String,team:Long, width:Double,height:Double)
-GET         /deepfij/stat/hist/:season/:key/:yyyymmdd           controllers.StatController.histogram(season:Long,key:String,yyyymmdd:Int, width:Double,height:Double)
+GET         /deepfij/stat/hist/:season/:key/:yyyymmdd/:teamId   controllers.StatController.histogram(season:Long,key:String,yyyymmdd:Int, teamId:Long, width:Double,height:Double)
 
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
