@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.nstats
 
-import com.fijimf.deepfij.models.{Game, Result}
+import com.fijimf.deepfij.models.{Game, Result, Schedule}
 
 
 //TODO **** Single line per game with no constant coefficient is unstable, so
@@ -57,7 +57,7 @@ object Regression {
   }
 
   object ols extends Analysis[RegState] {
-    override def zero: RegState = RegState()
+    override def zero(s:Schedule): RegState = RegState()
 
     override def update(os: Option[Scoreboard], b: RegState): RegState = {
       os match {

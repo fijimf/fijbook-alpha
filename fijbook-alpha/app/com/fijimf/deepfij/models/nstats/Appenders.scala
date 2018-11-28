@@ -1,13 +1,13 @@
 package com.fijimf.deepfij.models.nstats
 
 import breeze.linalg.{DenseVector, max, min}
-import com.fijimf.deepfij.models.{Game, Result}
+import com.fijimf.deepfij.models.{Game, Result, Schedule}
 
 object Appenders {
 
   trait base extends Analysis[Map[Long, List[Double]]] {
 
-    override def zero: Map[Long, List[Double]] = Map.empty[Long, List[Double]]
+    override def zero(s:Schedule): Map[Long, List[Double]] = Map.empty[Long, List[Double]]
 
     override def update(os: Option[Scoreboard], b: Map[Long, List[Double]]): Map[Long, List[Double]] = os match {
       case Some(sb) =>

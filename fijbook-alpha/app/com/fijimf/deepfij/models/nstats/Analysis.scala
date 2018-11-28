@@ -15,7 +15,7 @@ trait Analysis[B] {
 
   def defaultValue: Double = 0.0
 
-  def zero: B
+  def zero(s:Schedule): B
 
   def update(os: Option[Scoreboard], b: B): B
 
@@ -72,7 +72,7 @@ object Analysis {
   def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B], work: Snapshot => Unit): Unit = {
     runAsLoop[(GameCalendar, B), Snapshot](
       state = analyzer.state,
-      init = (GameCalendar.init(s), analyzer.zero),
+      init = (GameCalendar.init(s), analyzer.zero(s)),
       work = work,
       terminate = _._1.date.isEmpty
     )
@@ -81,7 +81,7 @@ object Analysis {
   def analyzeSchedule[B](s: Schedule, analyzer: Analysis[B], work: Snapshot => Unit, terminate:((GameCalendar, B))=>Boolean): Unit = {
     runAsLoop[(GameCalendar, B), Snapshot](
       state = analyzer.state,
-      init = (GameCalendar.init(s), analyzer.zero),
+      init = (GameCalendar.init(s), analyzer.zero(s)),
       work = work,
       terminate = terminate
     )

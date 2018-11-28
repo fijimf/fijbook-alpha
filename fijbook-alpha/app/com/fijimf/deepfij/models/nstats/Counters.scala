@@ -1,12 +1,12 @@
 package com.fijimf.deepfij.models.nstats
 
-import com.fijimf.deepfij.models.{Game, Result}
+import com.fijimf.deepfij.models.{Game, Result, Schedule}
 
 object Counters {
 
   trait base extends Analysis[Map[Long, Double]] {
 
-    override def zero: Map[Long, Double] = Map.empty[Long, Double]
+    override def zero(s:Schedule): Map[Long, Double] = s.teams.map(_.id->0.0).toMap
 
     override def update(os: Option[Scoreboard], b: Map[Long, Double]): Map[Long, Double] = os match {
       case Some(sb) =>
@@ -27,7 +27,7 @@ object Counters {
 
   trait withReset extends Analysis[Map[Long, Double]] {
 
-    override def zero: Map[Long, Double] = Map.empty[Long, Double]
+    override def zero(s:Schedule): Map[Long, Double] = s.teams.map(_.id->0.0).toMap
 
     override def update(os: Option[Scoreboard], b: Map[Long, Double]): Map[Long, Double] = os match {
       case Some(sb) =>

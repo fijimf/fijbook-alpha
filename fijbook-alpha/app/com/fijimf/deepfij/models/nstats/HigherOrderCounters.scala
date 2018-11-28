@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.models.nstats
 
+import com.fijimf.deepfij.models.Schedule
+
 object HigherOrderCounters {
 
   final case class ShorthandRecord(wins: List[Long] = List.empty, losses: List[Long] = List.empty) {
@@ -38,7 +40,7 @@ object HigherOrderCounters {
 
   trait base extends Analysis[Map[Long, ShorthandRecord]] {
 
-    override def zero: Map[Long, ShorthandRecord] = Map.empty[Long, ShorthandRecord]
+    override def zero(s:Schedule): Map[Long, ShorthandRecord] = Map.empty[Long, ShorthandRecord]
 
     override def update(os: Option[Scoreboard], b: Map[Long, ShorthandRecord]): Map[Long, ShorthandRecord] = os match {
       case Some(sb) =>
