@@ -17,7 +17,6 @@ class JobModule extends ScalaModule with AkkaGuiceSupport {
  //   bindActor[AuthTokenCleaner](AuthTokenCleaner.name)
     bindActor[ScheduleUpdater](ScheduleUpdater.name)
     bindActor[StatsUpdater](StatsUpdater.name)
-    bindActor[PredictionsUpdater](PredictionsUpdater.name)
     bindActor[RssUpdater](RssUpdater.name)
     bind[Scheduler].asEagerSingleton()
   }

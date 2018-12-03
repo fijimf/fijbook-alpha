@@ -1,5 +1,6 @@
 package controllers
 
+import com.fijimf.deepfij.models.{Conference, Quote, RssFeed, RssItem, Team}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
@@ -26,7 +27,7 @@ class SearchController @Inject()(
         du <- loadDisplayUser(rs)
         qw <- getQuoteWrapper(du)
       } yield {
-        Ok(views.html.searchResults(du, qw, List.empty, List.empty, List.empty, List.empty))
+        Ok(views.html.searchResults(du, qw, List.empty[Team], List.empty[Conference], List.empty[Quote], List.empty[(RssItem, RssFeed)]))
       }
       case Some(str) =>
         val k = str.trim()

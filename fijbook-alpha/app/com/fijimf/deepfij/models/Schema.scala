@@ -235,9 +235,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Team] = (id, key, name, longName, nickname, optConference, logoLgUrl, logoSmUrl, primaryColor, secondaryColor, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Team.tupled, Team.unapply)
 
-    def idx1: Index = index("team_idx1", key, unique = true)
+    def idx1: Index = index[Rep[String]]("team_idx1", key, unique = true)
 
-    def idx2: Index = index("team_idx2", name, unique = true)
+    def idx2: Index = index[Rep[String]]("team_idx2", name, unique = true)
   }
 
   class AliasesTable(tag: Tag) extends Table[Alias](tag, "alias") {
@@ -250,7 +250,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Alias] = (id, alias, key) <> (Alias.tupled, Alias.unapply)
 
-    def idx1: Index = index("alias_idx1", alias, unique = true)
+    def idx1: Index = index[Rep[String]]("alias_idx1", alias, unique = true)
 
   }
 
@@ -285,9 +285,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Conference] = (id, key, name, level, logoLgUrl, logoSmUrl, officialUrl, officialTwitter, officialFacebook, updatedAt, updatedBy) <> (Conference.tupled, Conference.unapply)
 
-    def idx1: Index = index("conf_idx1", key, unique = true)
+    def idx1: Index = index[Rep[String]]("conf_idx1", key, unique = true)
 
-    def idx2: Index = index("conf_idx2", name, unique = true)
+    def idx2: Index = index[Rep[String]]("conf_idx2", name, unique = true)
   }
 
 
@@ -351,7 +351,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Result] = (id, gameId, homeScore, awayScore, periods, updatedAt, updatedBy) <> (Result.tupled, Result.unapply)
 
-    def idx1: Index = index("result_idx1", gameId, unique = true)
+    def idx1: Index = index[Rep[Long]]("result_idx1", gameId, unique = true)
 
   }
 
@@ -368,7 +368,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[Season] = (id, year) <> ((Season.apply _).tupled, Season.unapply)
 
-    def idx1: Index = index("season_idx1", year, unique = true)
+    def idx1: Index = index[Rep[Int]]("season_idx1", year, unique = true)
 
   }
 
@@ -396,7 +396,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[ConferenceMap] = (id, seasonId, conferenceId, teamId, updatedAt, updatedBy) <> (ConferenceMap.tupled, ConferenceMap.unapply)
 
-    def idx1: Index = index("confmap_idx1", (seasonId, conferenceId, teamId), unique = true)
+    def idx1: Index = index[(Rep[Long],Rep[Long],Rep[Long])]("confmap_idx1", (seasonId, conferenceId, teamId), unique = true)
 
   }
 
@@ -429,31 +429,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[QuoteVote] = (id, quoteId, user, createdAt) <> (QuoteVote.tupled, QuoteVote.unapply)
   }
 
-  class StatValueTable(tag: Tag) extends Table[StatValue](tag, "stat_value") {
 
-    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-
-    def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
-
-    def statKey: Rep[String] = column[String]("stat_key", O.Length(32))
-
-    def teamId: Rep[Long] = column[Long]("team_id")
-
-    def date: Rep[LocalDate] = column[LocalDate]("date", O.Length(32))
-
-    def value: Rep[Double] = column[Double]("value")
-
-    def * : ProvenShape[StatValue] = (id, modelKey, statKey, teamId, date, value) <> (StatValue.tupled, StatValue.unapply)
-
-    def idx1: Index = index("stat_value_idx1", (date, modelKey, statKey, teamId), unique = true)
-
-    def idx2: Index = index("stat_value_idx2", (date, modelKey), unique = false)
-
-    def idx3: Index = index("stat_value_idx3", (modelKey, statKey), unique = false)
-
-    def idx4: Index = index("stat_value_idx4", modelKey, unique = false)
-
-  }
 
   //final case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
  class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
@@ -488,56 +464,15 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * : ProvenShape[XStat] = (id, seasonId, date ,key, teamId,  value, rank, percentile, mean, stdDev, min, max, n) <> (XStat.tupled, XStat.unapply)
 
-    def idx1: Index = index("statx_value_idx1", (seasonId, date, key, teamId), unique = true)
+    def idx1: Index = index[(Rep[Long],Rep[LocalDate],Rep[String],Rep[Long])]("statx_value_idx1", (seasonId, date, key, teamId), unique = true)
 
-    def idx2: Index = index("statx_value_idx2", (seasonId, date, key), unique = false)
+    def idx2: Index = index[(Rep[Long],Rep[LocalDate],Rep[String])]("statx_value_idx2", (seasonId, date, key), unique = false)
 
-    def idx3: Index = index("statx_value_idx3", (seasonId, key, teamId), unique = false)
+    def idx3: Index = index[(Rep[Long],Rep[String],Rep[Long])]("statx_value_idx3", (seasonId, key, teamId), unique = false)
 
-    def idx4: Index = index("statx_value_idx4", (seasonId, date, teamId), unique = false)
+    def idx4: Index = index[(Rep[Long],Rep[LocalDate],Rep[Long])]("statx_value_idx4", (seasonId, date, teamId), unique = false)
 
   }
-
-  class GamePredictionTable(tag: Tag) extends Table[GamePrediction](tag, "game_prediction") {
-    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-
-    def gameId: Rep[Long] = column[Long]("game_id")
-
-    def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
-
-    def favoriteId: Rep[Option[Long]] = column[Option[Long]]("favorite_id")
-
-    def probability: Rep[Option[Double]] = column[Option[Double]]("probability")
-
-    def spread: Rep[Option[Double]] = column[Option[Double]]("spread")
-
-    def overUnder: Rep[Option[Double]] = column[Option[Double]]("over_under")
-
-    def * : ProvenShape[GamePrediction] = (id, gameId, modelKey, favoriteId, probability, spread, overUnder) <> (GamePrediction.tupled, GamePrediction.unapply)
-
-    def idx1: Index = index("game_pred_idx1", (gameId, modelKey), unique = true)
-  }
-
-  class LogisticModelParameterTable(tag: Tag) extends Table[LogisticModelParameter](tag, "logistic_model_parameter") {
-    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-
-    def modelName: Rep[String] = column[String]("model_name", O.Length(64))
-
-    def parameterName: Rep[String] = column[String]("parameter_name", O.Length(64))
-
-    def normShift: Rep[Double] = column[Double]("norm_shift")
-
-    def normScale: Rep[Double] = column[Double]("norm_scale")
-
-    def coefficient: Rep[Double] = column[Double]("coefficient")
-
-    def fittedAsOf: Rep[LocalDate] = column[LocalDate]("fitted_as_of", O.Length(32))
-
-    def * : ProvenShape[LogisticModelParameter] = (id, modelName, parameterName, normShift, normScale, coefficient, fittedAsOf) <> (LogisticModelParameter.tupled, LogisticModelParameter.unapply)
-
-    def idx1: Index = index("log_param_idx1", (modelName, parameterName, fittedAsOf), unique = true)
-  }
-
 
   class UserProfileDataTable(tag: Tag) extends Table[UserProfileData](tag, "user_profile_data") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -651,7 +586,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * = (id, seasonId, modelKey, schedMD5Hash) <> (CalcStatus.tupled, CalcStatus.unapply)
 
 
-    def idx1: Index = index("cstat_idx1", (seasonId, modelKey), unique = true)
+    def idx1: Index = index[(Rep[Long],Rep[String])]("cstat_idx1", (seasonId, modelKey), unique = true)
   }
 
   lazy val seasons: TableQuery[SeasonsTable] = TableQuery[SeasonsTable]
@@ -663,12 +598,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val conferenceMaps: TableQuery[ConferenceMapsTable] = TableQuery[ConferenceMapsTable]
   lazy val quotes: TableQuery[QuoteTable] = TableQuery[QuoteTable]
   lazy val quoteVotes: TableQuery[QuoteVoteTable] = TableQuery[QuoteVoteTable]
-  lazy val statValues: TableQuery[StatValueTable] = TableQuery[StatValueTable]
-  lazy val gamePredictions: TableQuery[GamePredictionTable] = TableQuery[GamePredictionTable]
   lazy val gameResults: Query[(GamesTable, Rep[Option[ResultsTable]]), (Game, Option[Result]), Seq] = games joinLeft results on (_.id === _.gameId)
   lazy val completedResults: Query[((SeasonsTable, GamesTable), ResultsTable), ((Season, Game), Result), Seq] = (seasons join games on (_.id === _.seasonId)) join results on (_._2.id === _.gameId)
-  lazy val predictedResults: Query[(GamesTable, Rep[Option[GamePredictionTable]]), (Game, Option[GamePrediction]), Seq] = games joinLeft gamePredictions on (_.id === _.gameId)
-  lazy val logisticModels: TableQuery[LogisticModelParameterTable] = TableQuery[LogisticModelParameterTable]
   lazy val userProfiles: TableQuery[UserProfileDataTable] = TableQuery[UserProfileDataTable]
   lazy val favoriteLinks: TableQuery[FavoriteLinkTable] = TableQuery[FavoriteLinkTable]
   lazy val rssFeeds: TableQuery[RssFeedTable] = TableQuery[RssFeedTable]
@@ -686,9 +617,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     seasons.schema ++
     quotes.schema ++
     aliases.schema ++
-    statValues.schema ++
-    gamePredictions.schema ++
-    logisticModels.schema ++
     userProfiles.schema ++
     xstats.schema ++
     quoteVotes.schema ++

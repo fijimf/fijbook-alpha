@@ -40,7 +40,7 @@ class QuoteController @Inject()(
       if (rs.isEmpty) {
         Future.successful(Ok(Json.toJson(missingQuote)))
       } else {
-        quoteUserResponse(req, randomQuote(rs))
+        quoteUserAwareUserResponse(req, randomQuote(rs))
       }
     })
   }
@@ -54,7 +54,7 @@ class QuoteController @Inject()(
         if (unkeyedQuotes.isEmpty) {
           Future.successful(Ok(Json.toJson(missingQuote)))
         } else {
-          quoteUserResponse(req, unkeyedQuotes(Random.nextInt(unkeyedQuotes.size)))
+          quoteUserAwareUserResponse(req, unkeyedQuotes(Random.nextInt(unkeyedQuotes.size)))
         }
       } else {
         Future(Ok(Json.toJson(randomQuote(matchedQuotes))))
@@ -67,7 +67,7 @@ class QuoteController @Inject()(
   def likeQuote(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs: SecuredRequest[DefaultEnv, AnyContent] =>
     dao.saveQuoteVote(QuoteVote(0L, id, rs.identity.userID.toString, LocalDateTime.now())).flatMap(_ => {
       dao.findQuoteById(id).flatMap {
-        case Some(quote) => quoteUserResponse(rs, quote)
+        case Some(quote) => quoteSecuredReqUserResponse(rs, quote)
         case None => Future.successful(Ok(Json.toJson(missingQuote)))
       }
     })
@@ -77,7 +77,7 @@ class QuoteController @Inject()(
     unkeyedQuotes(Random.nextInt(unkeyedQuotes.size))
   }
 
-  private def quoteUserResponse(req: UserAwareRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
+  private def quoteUserAwareUserResponse(req: UserAwareRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
     req.identity match {
       case Some(u) =>
         dao.findQuoteVoteByUser(u.userID.toString, 7.days)
@@ -88,7 +88,7 @@ class QuoteController @Inject()(
     }
   }
 
-  private def quoteUserResponse(req: SecuredRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
+  private def quoteSecuredReqUserResponse(req: SecuredRequest[DefaultEnv, AnyContent], quote: Quote): Future[mvc.Result] = {
     dao.findQuoteVoteByUser(req.identity.userID.toString, 7.days)
       .map(!_.exists(_.quoteId === quote.id))
       .map(canVote => Ok(Json.toJson(QuoteWrapper(quote, isLiked = !canVote, canVote = canVote))))

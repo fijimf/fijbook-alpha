@@ -12,7 +12,7 @@ import play.api.Logger
 
 object LogisticRegressionXXXX {
 
-  val logger = Logger(this.getClass)
+  val logger: Logger = Logger(this.getClass)
 
   def create(): LogisticRegressionX = LogisticRegressionX(
     SparkSession.builder()
@@ -28,10 +28,10 @@ object LogisticRegressionXXXX {
 }
 
 final case class LogisticRegressionX(spark: SparkSession) {
-  val logger = Logger(this.getClass)
+  val logger: Logger = Logger(this.getClass)
 
 
-  def createClassifier(fm: FeatureMapper[(Game, Option[Result])], cat: Categorizer[(Game, Option[Result])], observations: List[(Game, Option[Result])]) = {
+  def createClassifier(fm: FeatureMapper[(Game, Option[Result])], cat: Categorizer[(Game, Option[Result])], observations: List[(Game, Option[Result])]): Unit = {
 
     import spark.implicits._
 

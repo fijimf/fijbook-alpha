@@ -29,7 +29,7 @@ class DataController @Inject()(
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val logger = Logger(getClass)
+  val logger: Logger = Logger(getClass)
 
   def saveTeam: Action[AnyContent] = silhouette.SecuredAction.async { implicit request: SecuredRequest[DefaultEnv, AnyContent] =>
     (for {

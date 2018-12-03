@@ -4,8 +4,10 @@ import play.api.Logger
 
 import scala.xml.Node
 
+import cats.implicits._
+
 trait NcaaComTeamScraper {
-  val logger = Logger.apply(this.getClass)
+  val logger: Logger = Logger.apply(this.getClass)
 
   def extractNamesAndKeys(schoolList: Option[Node]): Iterator[(String, String)] = {
     for (d <- schoolList.iterator;
@@ -67,7 +69,7 @@ trait NcaaComTeamScraper {
 
   def attrMatch(n: Node, attr: String, value: String): Boolean = {
     n.attribute(attr) match {
-      case Some(nodeStr) => nodeStr.exists(_.text == value)
+      case Some(nodeStr) => nodeStr.exists(_.text === value)
       case _ => false
     }
   }

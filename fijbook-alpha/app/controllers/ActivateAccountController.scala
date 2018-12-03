@@ -10,30 +10,20 @@ import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
-/**
-  * The `Activate Account` controller.
-  *
-  * @param silhouette       The Silhouette stack.
-  * @param userService      The user service implementation.
-  * @param authTokenService The auth token service implementation.
-  * @param mailerClient     The mailer client.
-  * @param webJarAssets     The WebJar assets locator.
-  */
 class ActivateAccountController @Inject()(
                                            val controllerComponents: ControllerComponents,
-
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
                                            authTokenService: AuthTokenService,
                                            mailerClient: MailerClient)(implicit ec: ExecutionContext)
   extends BaseController with I18nSupport {
 
-  def send(email: String) = silhouette.UnsecuredAction.async { implicit request =>
+  def send(email: String): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     val decodedEmail = URLDecoder.decode(email, "UTF-8")
     val loginInfo = LoginInfo(CredentialsProvider.ID, decodedEmail)
     val result = Redirect(routes.SignInController.view()).flashing("info" -> Messages("activation.email.sent", decodedEmail))
@@ -56,7 +46,7 @@ class ActivateAccountController @Inject()(
     }
   }
 
-  def activate(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
+  def activate(token: UUID): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) => userService.retrieve(authToken.userID).flatMap {
         case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>

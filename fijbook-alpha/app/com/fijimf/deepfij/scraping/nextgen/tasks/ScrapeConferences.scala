@@ -4,16 +4,16 @@ import java.time.LocalDateTime
 
 import akka.actor.ActorRef
 import akka.agent.Agent
+import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models.Conference
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.scraping.TestUrl
 import com.fijimf.deepfij.scraping.nextgen.{SSTask, SSTaskProgress}
+import cats.implicits._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.pattern.ask
-
 import scala.util.{Failure, Success}
 
 
@@ -57,7 +57,7 @@ final case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: Act
     })
   }
 
-  private def createConference(tag: String, transforms: List[(String) => String], n: String): Future[Option[Conference]] = {
+  private def createConference(tag: String, transforms: List[String => String], n: String): Future[Option[Conference]] = {
 
     val candidate: Future[Option[String]] = findConferenceKey(transforms, n)
     candidate.map {
@@ -71,13 +71,13 @@ final case class ScrapeConferences(tag: String, dao: ScheduleDAO, throttler: Act
     }
   }
 
-  private def findConferenceKey(transforms: List[(String) => String], n: String): Future[Option[String]] = {
-    implicit val timeout = Timeout(5.minutes)
+  private def findConferenceKey(transforms: List[String => String], n: String): Future[Option[String]] = {
+    implicit val timeout: Timeout = Timeout(5.minutes)
     Future.sequence(
       transforms.map(f => f(n)).toSet.map((k: String) => {
         val u = TestUrl("http://i.turner.ncaa.com/dr/ncaa/ncaa7/release/sites/default/files/ncaa/images/logos/conferences/" + k + ".70.png")
         (throttler ? u).mapTo[Option[Int]].map(oi => k -> oi)
-      })).map(_.filter(_._2 == Some(200)).headOption.map(_._1))
+      })).map(_.toList).map(_.find(_._2 === Some(200)).map(_._1))
   }
 
  val safeToRun: Future[Boolean] =Future.successful(true)

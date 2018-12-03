@@ -25,7 +25,7 @@ class JobControlController @Inject()(
                                  val silhouette: Silhouette[DefaultEnv])(implicit ec: ExecutionContext)
   extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
 
-  val fq = DeepFijQuartzSchedulerExtension(system)
+  val fq: DeepFijQuartzSchedulerExtension = DeepFijQuartzSchedulerExtension(system)
 
   def createJob(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {
@@ -90,7 +90,7 @@ class JobControlController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.findJobById(id).map(_.foreach(f => fq.cancelJob(_))).flatMap(_ => dao.deleteJob(id).map(n => Redirect(routes.JobControlController.browseJobs()).flashing("info" -> ("Job " + id + " deleted"))))
+    }).flatMap { case (_, _) => dao.findJobById(id).map(_.foreach(_ => fq.cancelJob(_))).flatMap(_ => dao.deleteJob(id).map(_ => Redirect(routes.JobControlController.browseJobs()).flashing("info" -> ("Job " + id + " deleted"))))
     }
   }
 
@@ -100,7 +100,7 @@ class JobControlController @Inject()(
       qw <- getQuoteWrapper(du)
     } yield {
       (du, qw)
-    }).flatMap { case (d, q) => dao.findJobById(id).map {
+    }).flatMap { case (_, _) => dao.findJobById(id).map {
       case Some(job) =>
         system.actorSelection("/user/wrapper") ! ExecuteScheduledJob(job)
         Redirect(routes.JobControlController.viewJob(id))

@@ -97,8 +97,8 @@ class NSTatsTesterSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEa
 //          Analysis.analyzeSchedule(ss(0), Appenders.meanMargin, println(_))
 //          Analysis.analyzeSchedule(ss(0), Appenders.varianceMargin, println(_))println
 //          Analysis.analyzeSchedule(ss(0), Counters.winStreak, println(_))
-//          Analysis.analyzeSchedule(ss(0), HigherOrderCounters.oppWins, println(_))
-          Analysis.analyzeSchedule(ss(0), Regression.ols, println(_))
+          Analysis.analyzeSchedule(ss(0), HigherOrderCounters.oppWins, println(_))
+//          Analysis.analyzeSchedule(ss(0), Regression.ols, println(_))
 
         case None => fail()
       }

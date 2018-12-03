@@ -9,18 +9,6 @@ import scala.concurrent.Future
 
 trait StatValueDAO {
 
-  def listStatValues: Future[List[StatValue]]
-
-  def deleteStatValues(dates: List[LocalDate], model: List[String]): Future[Int]
-
-  def saveStatValues(dates: List[LocalDate], model: List[String], stats: List[StatValue]):  Future[Seq[Long]]
-
-  def loadStatValues(statKey: String, modelKey: String): Future[List[StatValue]]
-
-  def loadStatValues(modelKey: String): Future[List[StatValue]]
-
-  def loadStatValues(modelKey: String, from:LocalDate, to:LocalDate): Future[List[StatValue]]
-
   def findXStatsTimeSeries(seasonId: Long, teamId: Long, modelKey: String): Future[List[XStat]]
 
   def findXStatsSnapshot(seasonId: Long, date: LocalDate, modelKey: String): Future[List[XStat]]

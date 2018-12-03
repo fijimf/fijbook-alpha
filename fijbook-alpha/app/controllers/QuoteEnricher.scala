@@ -13,10 +13,10 @@ trait QuoteEnricher {
 
   def quoteKey: Option[String] = None
 
-  val missing = Quote(-1L, " ", None, None, None)
+  val missing: Quote = Quote(-1L, " ", None, None, None)
 
   def getQuoteWrapper(du:DisplayUser):Future[QuoteWrapper] = {
-    getQuote().map(q=>{
+    getQuote.map(q=>{
       if(du.isLoggedIn){
         if(du.dailyQuotesLiked.contains(q.id)){
           QuoteWrapper(q,isLiked = true,canVote = false)
@@ -31,7 +31,7 @@ trait QuoteEnricher {
   }
 
 
-  def getQuote(): Future[Quote] =
+  def getQuote: Future[Quote] =
     dao.listQuotes.map(allQuotes => {
       if (allQuotes.isEmpty) {
         missing

@@ -1,16 +1,15 @@
 package com.fijimf.deepfij.scraping
 
-import xml.Node
-import org.xml.sax.InputSource
-import java.io.{InputStream, Reader, StringReader}
+import java.io.{Reader, StringReader}
 
-import scala.util.control.Exception._
+import cats.implicits._
 import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
-
-import xml.parsing.NoBindingFactoryAdapter
-import java.net.URL
+import org.xml.sax.InputSource
 
 import scala.util.Try
+import scala.util.control.Exception._
+import scala.xml.Node
+import scala.xml.parsing.NoBindingFactoryAdapter
 
 
 object HtmlUtil {
@@ -37,7 +36,7 @@ object HtmlUtil {
 
   def attrMatch(n: Node, attr: String, value: String): Boolean = {
     n.attribute(attr) match {
-      case Some(nodeStr) => nodeStr.exists(_.text == value)
+      case Some(nodeStr) => nodeStr.exists(_.text === value)
       case _ => false
     }
   }

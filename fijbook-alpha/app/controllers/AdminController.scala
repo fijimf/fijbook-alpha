@@ -7,7 +7,8 @@ import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
 import play.api.Logger
-import play.api.mvc.{BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.mvc.Result
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,7 +22,7 @@ class AdminController @Inject()
 )(implicit ec: ExecutionContext) extends BaseController with WithDao with UserEnricher with QuoteEnricher {
   val log=Logger(this.getClass)
 
-  def index = silhouette.UserAwareAction.async { implicit rs =>
+  def index: Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     for {
       users <- userService.list.recover { case thr: Throwable => List.empty[User] };
       schedules <- dao.loadSchedules().recover { case thr: Throwable => List.empty[Schedule] }
@@ -32,17 +33,17 @@ class AdminController @Inject()
     }
   }
 
-  def writeSnapshot = silhouette.SecuredAction.async  { implicit rs =>
+  def writeSnapshot: Action[AnyContent] = silhouette.SecuredAction.async  { implicit rs =>
       ScheduleSerializer.writeSchedulesToS3(dao).map(_=>Redirect(routes.AdminController.listSnapshots()))
   }
-  def readSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
+  def readSnapshot(key:String): Action[AnyContent] = silhouette.SecuredAction.async  { implicit rs =>
    ScheduleSerializer.readSchedulesFromS3(key, dao, repo).map{case(ts,cs,gs)=>Redirect(routes.AdminController.index()).flashing("info"->s"Loaded schedule from snapshot: $ts teams, $cs conferences, $gs games")}
   }
-  def deleteSnapshot(key:String) = silhouette.SecuredAction.async  { implicit rs =>
+  def deleteSnapshot(key:String): Action[AnyContent] = silhouette.SecuredAction.async  { implicit rs =>
       ScheduleSerializer.deleteSchedulesFromS3(key).map(_=>Redirect(routes.AdminController.listSnapshots()))
   }
 
-  def listSnapshots = silhouette.SecuredAction.async  { implicit rs =>
+  def listSnapshots: Action[AnyContent] = silhouette.SecuredAction.async  { implicit rs =>
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
@@ -52,5 +53,5 @@ class AdminController @Inject()
     }
   }
 
-  def userProfile(id: String) = play.mvc.Results.TODO
+  def userProfile(id: String): Result = play.mvc.Results.TODO
 }
