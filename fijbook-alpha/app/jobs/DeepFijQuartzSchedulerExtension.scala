@@ -13,6 +13,7 @@ import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz.impl.DirectSchedulerFactory
 import org.quartz.simpl.{RAMJobStore, SimpleThreadPool}
 import org.quartz.spi.{JobStore, ThreadPool}
+import cats.implicits._
 
 import scala.concurrent.Future
 import scala.util.Try
@@ -196,7 +197,8 @@ class DeepFijQuartzSchedulerExtension(system: ExtendedActorSystem) extends Exten
 
   protected val jobStore: JobStore = new RAMJobStore()
   protected val scheduler: quartz.Scheduler = {
-    if (DirectSchedulerFactory.getInstance().getScheduler(schedulerName)==null) {
+    if (Option(DirectSchedulerFactory.getInstance().getScheduler(schedulerName)).isEmpty) {
+
       DirectSchedulerFactory.getInstance.createScheduler(schedulerName, system.name, threadPool, jobStore)
     }
     val scheduler = DirectSchedulerFactory.getInstance().getScheduler(schedulerName)

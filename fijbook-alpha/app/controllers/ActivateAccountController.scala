@@ -3,6 +3,7 @@ package controllers
 import java.net.URLDecoder
 import java.util.UUID
 
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
@@ -19,9 +20,10 @@ class ActivateAccountController @Inject()(
                                            val controllerComponents: ControllerComponents,
                                            silhouette: Silhouette[DefaultEnv],
                                            userService: UserService,
+                                           val dao: ScheduleDAO,
                                            authTokenService: AuthTokenService,
                                            mailerClient: MailerClient)(implicit ec: ExecutionContext)
-  extends BaseController with I18nSupport {
+  extends BaseController  with WithDao with UserEnricher with QuoteEnricher with  I18nSupport {
 
   def send(email: String): Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
     val decodedEmail = URLDecoder.decode(email, "UTF-8")

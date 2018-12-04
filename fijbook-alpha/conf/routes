@@ -29,7 +29,6 @@ GET         /deepfij/account/activate/:token                    controllers.Acti
 
 
 
-GET         /deepfij/about                                      controllers.IndexController.about
 GET         /deepfij/teams                                      controllers.TeamController.teams(q:String ?= "")
 GET         /deepfij/teams/:key                                 controllers.TeamController.team(key:String, season:Option[Int])
 GET         /api/teamgames/:key                                 controllers.TeamController.teamGames(key:String)
@@ -40,8 +39,6 @@ GET         /deepfij/stat/hist/:season/:key/:yyyymmdd/:teamId   controllers.Stat
 
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
-GET         /deepfij/blog/:key                                  controllers.S3BlockController.blog(key:String)
-GET         /deepfij/blog                                       controllers.S3BlockController.blogIndexPage()
 
 GET         /deepfij/favorite/save/                             controllers.UserController.saveFavoriteLink(title:String,url:String)
 GET         /deepfij/favorite/delete/                           controllers.UserController.deleteFavoriteLink(url:String)

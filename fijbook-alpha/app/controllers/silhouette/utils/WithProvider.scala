@@ -3,7 +3,7 @@ package controllers.silhouette.utils
 import com.fijimf.deepfij.models.User
 import com.mohiva.play.silhouette.api.{Authenticator, Authorization}
 import play.api.mvc.Request
-
+import cats.implicits._
 import scala.concurrent.Future
 
 /**
@@ -27,6 +27,6 @@ final case class WithProvider[A <: Authenticator](provider: String) extends Auth
     implicit
     request: Request[B]): Future[Boolean] = {
 
-    Future.successful(user.loginInfo.providerID == provider)
+    Future.successful(user.loginInfo.providerID === provider)
   }
 }

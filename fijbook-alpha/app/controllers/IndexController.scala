@@ -16,18 +16,9 @@ class IndexController @Inject()(
                                  val silhouette: Silhouette[DefaultEnv],
                                  val s3BlockController: S3BlockController)(implicit ec: ExecutionContext)
   extends BaseController {
-
-  def index: Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    s3BlockController.staticBlock("index")(rs)
-  }
-
   def redirect: Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     Future {
       Redirect(routes.ReactMainController.index())
     }
-  }
-
-  def about(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    s3BlockController.staticBlock("about")(rs)
   }
 }

@@ -1,11 +1,10 @@
 package jobs
 
-import javax.inject.Inject
-
 import akka.actor._
 import com.fijimf.deepfij.models.services.AuthTokenService
 import com.mohiva.play.silhouette.api.util.Clock
-import jobs.AuthTokenCleaner.Clean
+import javax.inject.Inject
+import cats.implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -14,7 +13,7 @@ class AuthTokenCleaner @Inject() (service: AuthTokenService, clock: Clock) exten
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case s:String if s=="CleanTokens" =>
+    case s: String if s === "CleanTokens" =>
       val mysender = sender()
       val start = clock.now.getMillis
       service.clean.map { deleted =>

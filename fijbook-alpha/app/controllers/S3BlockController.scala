@@ -34,39 +34,39 @@ class S3BlockController @Inject()(
     .withEndpointConfiguration(new EndpointConfiguration("s3.amazonaws.com", "us-east-1"))
     .build()
 
-  def blog(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    Future.successful{
-      val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
-      metas.find(_.key == key) match {
-        case Some(b) =>
-          Ok(views.html.blog(rs.identity,S3BlogPost.load(s, b)))
-        case None => NotFound
-      }
-    }
-  }
+//  def blog(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+//    Future.successful{
+//      val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
+//      metas.find(_.key == key) match {
+//        case Some(b) =>
+//          Ok(views.html.blog(rs.identity,S3BlogPost.load(s, b)))
+//        case None => NotFound
+//      }
+//    }
+//  }
 
-  def blogIndexPage(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    Future.successful{
-      val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
-      metas.filter(bm => !bm.isDeleted && bm.isPublic).sortBy(bm=>LocalDate.parse(bm.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).toEpochDay)
-      Ok(views.html.blog(rs.identity,S3BlogPost.load(s, metas.head)))
-    }
-  }
+//  def blogIndexPage(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+//    Future.successful{
+//      val metas: List[S3BlogMetaData] = S3BlogPost.list(s, S3BlogPost.bucket, S3BlogPost.blogFolder)
+//      metas.filter(bm => !bm.isDeleted && bm.isPublic).sortBy(bm=>LocalDate.parse(bm.date, DateTimeFormatter.ofPattern("yyyy-MM-dd")).toEpochDay)
+//      Ok(views.html.blog(rs.identity,S3BlogPost.load(s, metas.head)))
+//    }
+//  }
 
-  def staticBlock(key: String) = silhouette.UserAwareAction.async { implicit rs =>
-    val k = s"${S3StaticAsset.staticPageFolder}$key"
-    Future.successful(if (s.doesObjectExist(S3StaticAsset.bucket, k)) {
-      val obj = s.getObject(S3StaticAsset.bucket, k)
-      val content = new String(IOUtils.toByteArray(obj.getObjectContent))
-      if (key=="about"){
-        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
-      } else {
-        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
-      }
-    } else {
-      NotFound
-    })
-  }
+//  def staticBlock(key: String) = silhouette.UserAwareAction.async { implicit rs =>
+//    val k = s"${S3StaticAsset.staticPageFolder}$key"
+//    Future.successful(if (s.doesObjectExist(S3StaticAsset.bucket, k)) {
+//      val obj = s.getObject(S3StaticAsset.bucket, k)
+//      val content = new String(IOUtils.toByteArray(obj.getObjectContent))
+//      if (key=="about"){
+//        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
+//      } else {
+//        Ok(views.html.aboutPage(rs.identity, LocalDate.now(), content))
+//      }
+//    } else {
+//      NotFound
+//    })
+//  }
 
   def staticPage(key: String) = silhouette.UserAwareAction.async { implicit rs =>
     val k = s"${S3StaticAsset.staticPageFolder}$key"
