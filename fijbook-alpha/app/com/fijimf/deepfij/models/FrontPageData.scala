@@ -1,6 +1,9 @@
 package com.fijimf.deepfij.models
 
 import java.time.{LocalDate, LocalDateTime}
+
+import cats.Eq
+import com.fijimf.deepfij.util.ModelUtils
 import controllers.Utils._
 final case class FrontPageData
 (
