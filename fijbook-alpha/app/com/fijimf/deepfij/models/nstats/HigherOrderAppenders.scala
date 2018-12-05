@@ -1,7 +1,6 @@
 package com.fijimf.deepfij.models.nstats
 
-import breeze.linalg.{DenseVector, max, min}
-import com.fijimf.deepfij.models.{Game, Result}
+import cats.implicits._
 
 object HigherOrderAppenders {
 
@@ -30,11 +29,11 @@ object HigherOrderAppenders {
       wins.flatMap(k => srf.get(k).map(_.ol(srf))).sum + losses.flatMap(k => srf.get(k).map(_.ol(srf))).sum
     }
 
-    def wp: Double = if (l() + w() == 0) 0.0 else w() / (w() + l())
+    def wp: Double = if (l() + w() === 0) 0.0 else w() / (w() + l())
 
-    def owp(srf: Map[Long, ShorthandRecord]): Double = if (ol(srf) + ow(srf) == 0) 0.0 else ow(srf) / (ow(srf) + ol(srf))
+    def owp(srf: Map[Long, ShorthandRecord]): Double = if (ol(srf) + ow(srf) === 0) 0.0 else ow(srf) / (ow(srf) + ol(srf))
 
-    def oowp(srf: Map[Long, ShorthandRecord]): Double = if (ool(srf) + oow(srf) == 0) 0.0 else oow(srf) / (oow(srf) + ool(srf))
+    def oowp(srf: Map[Long, ShorthandRecord]): Double = if (ool(srf) + oow(srf) === 0) 0.0 else oow(srf) / (oow(srf) + ool(srf))
 
     def rpi(srf: Map[Long, ShorthandRecord]): Double = (wp + owp(srf) + owp(srf) + oowp(srf)) / 4.0
   }

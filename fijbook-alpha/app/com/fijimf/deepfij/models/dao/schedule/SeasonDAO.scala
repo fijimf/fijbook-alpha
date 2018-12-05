@@ -8,10 +8,6 @@ trait SeasonDAO {
 
   def deleteSeason(id: Long): Future[Int]
 
-  def unlockSeason(seasonId: Long): Future[Int]
-
-  def checkAndSetLock(seasonId: Long): Boolean
-
   def saveSeason(season: Season): Future[Season]
 
   def saveSeasons(seasons: List[Season]): Future[List[Season]]

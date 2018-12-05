@@ -13,7 +13,6 @@ import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named
 import controllers._
 import javax.inject.Inject
-import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 
@@ -57,7 +56,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   def update(optOffsets: Option[List[Int]] = None): Future[String] = {
     val now = LocalDate.now()
     val optDates = optOffsets.map(_.map(i => now.plusDays(i)))
-    dao.listSeasons.map(_.filter(_.dates.contains(now)).headOption).flatMap {
+    dao.listSeasons.map(_.find(_.dates.contains(now))).flatMap {
       case None => Future(s"No schedule found for $now")
       case Some(s) => updateSeason(optDates, s).map(collapseResults(s.year, _))
     }
@@ -112,10 +111,6 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     messagesApi.preferred(Seq(Lang.defaultLang))
   }
 
-  def completeScrape(seasonId: Long): Future[Int] = {
-    dao.unlockSeason(seasonId)
-  }
-
   def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[UpdateDbResult]] = {
     val groups = updateData.groupBy(_.sourceKey)
     val eventualTuples = keys.map(k => {
@@ -154,7 +149,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
 
     response.map(_.result match {
       case Success(lgd) => lgd.map(gameDataToGame(season, d, updatedBy, masterDict, _))
-      case Failure(thr) => List.empty[GameMapping]
+      case Failure(_) => List.empty[GameMapping]
     })
   }
 
@@ -197,8 +192,8 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
       case (None, None) => UnmappedGame(List(htk, atk), sourceKey)
-      case (Some(t), None) => UnmappedGame(List(atk), sourceKey)
-      case (None, Some(t)) => UnmappedGame(List(htk), sourceKey)
+      case (Some(_), None) => UnmappedGame(List(atk), sourceKey)
+      case (None, Some(_)) => UnmappedGame(List(htk), sourceKey)
       case (Some(ht), Some(at)) =>
         val game = populateGame(d, season, updatedBy, gd, ht, at)
         gd.result match {
@@ -244,16 +239,15 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     )
   }
 
-  override def verifyRecords(y: Int) = {
+  override def verifyRecords(y: Int): Future[ResultsVerification] = {
     dao.loadSchedule(y).flatMap {
       case Some(sch) =>
         createMasterDictionary().flatMap(md => {
           loadVerification(y, md, sch)
         })
-      case None => {
+      case None =>
         logger.error("Failed to load ")
         Future.successful(ResultsVerification())
-      }
     }
   }
 

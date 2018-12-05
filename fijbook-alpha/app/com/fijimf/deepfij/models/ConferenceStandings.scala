@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models
 
 import scala.math.Ordering
-
+import cats.implicits._
 
 final case class ConferenceStandings(records: List[(WonLostRecord, WonLostRecord, Team)])
 
@@ -44,9 +44,9 @@ object ConferenceStandings {
           })
           (c, ConferenceStandings(maybeTuples.sortWith { case ((xc, xn, xt), (yc, yn, yt)) =>
             val confCmp = WonLostRecord.compare(xc, yc)
-            if (confCmp == 0) {
+            if (confCmp === 0) {
               val ncCmp = WonLostRecord.compare(xn, yn)
-              if (ncCmp == 0) {
+              if (ncCmp === 0) {
                 xt.name > yt.name
               } else {
                 ncCmp > 0

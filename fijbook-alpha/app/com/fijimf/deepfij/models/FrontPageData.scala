@@ -2,8 +2,6 @@ package com.fijimf.deepfij.models
 
 import java.time.{LocalDate, LocalDateTime}
 
-import cats.Eq
-import com.fijimf.deepfij.util.ModelUtils
 import controllers.Utils._
 final case class FrontPageData
 (
@@ -17,18 +15,18 @@ final case class FrontPageData
   newsItems: List[(RssItem, RssFeed)]
 ) {
 
-  val yesterday = today.minusDays(1)
-  def todayStr = if (today == LocalDate.now()){
+  val yesterday: LocalDate = today.minusDays(1)
+  def todayStr: String = if (today == LocalDate.now()){
     "Today's Games"
   } else {
     today.fmt("MMMM d, yyyy")
   }
-  def prevStr = if (today == LocalDate.now()){
+  def prevStr: String = if (today == LocalDate.now()){
     "Yesterday's Games"
   } else {
     yesterday.fmt("MMMM d, yyyy")
   }
 
-  val prevKey = today.minusDays(1).fmt("yyyyMMdd")
-  val nextKey = today.plusDays(1).fmt("yyyyMMdd")
+  val prevKey: String = today.minusDays(1).fmt("yyyyMMdd")
+  val nextKey: String = today.plusDays(1).fmt("yyyyMMdd")
 }

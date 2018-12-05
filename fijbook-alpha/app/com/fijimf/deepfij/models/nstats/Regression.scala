@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.nstats
 
 import com.fijimf.deepfij.models.{Game, Result, Schedule}
-
+import cats.implicits._
 
 //TODO **** Single line per game with no constant coefficient is unstable, so
 //  we will keep double line per game but also add
@@ -16,8 +16,8 @@ object Regression {
 
   final case class RegState(keyMap: Map[Long, Int] = Map.empty, A: Array[Array[Double]] = Array.empty[Array[Double]], b: Array[Double] = Array.empty[Double]) {
 
-    require(A.forall(_.size == keyMap.size), s"Keymap knows ${keyMap.mkString(", ")} , ${A.zipWithIndex.find(_._1.size != keyMap.size).map(tup => s"${tup._2} --> [${tup._1.mkString(",")}]")}")
-    require(A.size == b.size, s"A & b are different sizes, A rows ${A.size} b rows ${b.size}")
+    require(A.forall(_.length === keyMap.size), s"Keymap knows ${keyMap.mkString(", ")} , ${A.zipWithIndex.find(_._1.length != keyMap.size).map(tup => s"${tup._2} --> [${tup._1.mkString(",")}]")}")
+    require(A.length === b.length, s"A & b are different sizes, A rows ${A.length} b rows ${b.length}")
 
     def addTeam(id: Long): RegState = if (keyMap.contains(id)) {
       this
@@ -26,9 +26,9 @@ object Regression {
     }
 
     def gameRowDiff(homeTeamId: Long, awayTeamId: Long): Array[Double] = Array.tabulate[Double](keyMap.size)(n => {
-      if (n == keyMap.getOrElse(homeTeamId, -1)) {
+      if (n === keyMap.getOrElse(homeTeamId, -1)) {
         1.0
-      } else if (n == keyMap.getOrElse(awayTeamId, -1)) {
+      } else if (n === keyMap.getOrElse(awayTeamId, -1)) {
         -1.0
       } else {
         0.0
@@ -36,9 +36,9 @@ object Regression {
     })
 
     def gameRowSum(homeTeamId: Long, awayTeamId: Long): Array[Double] = Array.tabulate[Double](keyMap.size)(n => {
-      if (n == keyMap.getOrElse(homeTeamId, -1)) {
+      if (n === keyMap.getOrElse(homeTeamId, -1)) {
         1.0
-      } else if (n == keyMap.getOrElse(awayTeamId, -1)) {
+      } else if (n === keyMap.getOrElse(awayTeamId, -1)) {
         1.0
       } else {
         0.0
@@ -62,13 +62,13 @@ object Regression {
     override def update(os: Option[Scoreboard], b: RegState): RegState = {
       os match {
         case Some(s) =>
-          s.gs.foldLeft(b) { case (state, (game, result)) => state.addGame(game, result) }
+          s.gs.foldLeft(b) { case (regState, (game, result)) => regState.addGame(game, result) }
         case None => b
       }
     }
 
     override def extract(state: RegState): Map[Long, Double] = {
-      if (state.b.size <= state.keyMap.size) {
+      if (state.b.length <= state.keyMap.size) {
         Map.empty[Long, Double]
       } else {
         val ols = smile.regression.ols(state.A, state.b, "svd")

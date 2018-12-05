@@ -5,6 +5,7 @@ import com.mohiva.play.silhouette.api.{Authenticator, Authorization}
 import play.api.mvc.Request
 
 import scala.concurrent.Future
+import cats.implicits._
 
 /**
   * Grants only access if a user has authenticated with the given provider.
@@ -27,6 +28,6 @@ final case class WithProvider[A <: Authenticator](provider: String) extends Auth
     implicit
     request: Request[B]): Future[Boolean] = {
 
-    Future.successful(user.loginInfo.providerID == provider)
+    Future.successful(user.loginInfo.providerID === provider)
   }
 }

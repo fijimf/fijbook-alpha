@@ -32,7 +32,7 @@ final case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
       List((key, value, 1, 1))
     } else {
       val x = list.head
-      if (value == x._2) {
+      if (value === x._2) {
         (key, value, x._3, x._4 + 1) :: list
       } else {
         (key, value, x._4 + 1, x._4 + 1) :: list

@@ -10,7 +10,7 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.options.MutableDataSet
 import org.joda.time.LocalDate
-
+import cats.implicits._
 import scala.collection.JavaConversions._
 
 final case class S3BlogMetaData
@@ -66,8 +66,8 @@ object S3BlogPost {
       author = tags.getOrElse(AUTHOR, ""),
       title = tags.getOrElse(TITLE, ""),
       subTitle = tags.getOrElse(SUBTITLE, ""),
-      isPublic = tags.get(IS_PUBLIC).exists(_.toLowerCase == "true"),
-      isDeleted = tags.get(IS_DELETED).exists(_.toLowerCase == "true"),
+      isPublic = tags.get(IS_PUBLIC).exists(_.toLowerCase === "true"),
+      isDeleted = tags.get(IS_DELETED).exists(_.toLowerCase === "true"),
       keywords = tags.get(TAGS).map(_.split(",").map(_.trim).toList).getOrElse(List.empty[String]),
       lastModified = lastModified
     )

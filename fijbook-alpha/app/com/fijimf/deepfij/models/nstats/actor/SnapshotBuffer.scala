@@ -5,6 +5,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.actor.SnapshotBuffer.{NoWorkToDo, WriterReady}
 import com.fijimf.deepfij.models.nstats.{SendingComplete, SnapshotDbBundle}
 import play.api.Logger
+import cats.implicits._
 
 import scala.concurrent.duration.Duration
 
@@ -25,7 +26,6 @@ object SnapshotBuffer {
   *      If writer-ready is false, we add the data to the buffer, and maintain writer-ready as false
   * -- When we receive FeedMe,
   *
-  * @param dao
   */
 class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
   val log = Logger(this.getClass)
@@ -38,7 +38,7 @@ class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
 
   def buffer(snaps: List[SnapshotDbBundle], writerReady: Boolean, notifyTarget: Option[ActorRef]): Receive = {
     case snap: SnapshotDbBundle =>
-      if (snaps.size % 100 == 99) log.info(s"Buffer with data received snap bundle.  New size is ${snaps.size + 1}")
+      if (snaps.size % 100 === 99) log.info(s"Buffer with data received snap bundle.  New size is ${snaps.size + 1}")
       if (writerReady) {
         val (front, back) = snaps.splitAt(batchSize)
         writer ! front

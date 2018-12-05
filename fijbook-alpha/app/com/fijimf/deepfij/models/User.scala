@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models
 
 import java.util.UUID
 
+import cats.implicits._
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import org.apache.commons.lang3.StringUtils
 
@@ -31,7 +32,7 @@ final case class User(
     *
     * @return Maybe a name.
     */
-  def name = fullName.getOrElse {
+  def name: String = fullName.getOrElse {
     firstName -> lastName match {
       case (Some(f), Some(l)) => f + " " + l
       case (Some(f), None) => f
@@ -45,7 +46,7 @@ final case class User(
       x <- Option(System.getProperty("admin.user"))
       y <- email
     } yield {
-      x.trim.toLowerCase == y.trim.toLowerCase
+      x.trim.toLowerCase === y.trim.toLowerCase
     }).getOrElse(false)
   }
 
