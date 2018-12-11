@@ -6,6 +6,8 @@ import java.time.{LocalDate, Month}
 import cats.implicits._
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 
+import scala.collection.immutable
+
 final case class Schedule
 (
   season: Season,
@@ -64,6 +66,7 @@ final case class Schedule
   val keyTeam: Map[String, Team] = teams.map(t => t.key -> t).toMap
 
   val completeGames: List[(Game, Result)] =gameResults.flatMap(gr => gr._2.map(r => (gr._1, r)))
+  val incompleteGames: List[Game] =gameResults.filter(_._2.isEmpty).map(_._1)
 
   def firstGame: Option[LocalDate] = games.headOption.map(_.date)
 
@@ -212,7 +215,7 @@ final case class Schedule
   }
 
 
-  def teamHomeGamesByLocation = games.filter(_.tourneyKey.isEmpty).foldLeft(Map.empty[Long, Map[String, Int]])((locationData: Map[Long, Map[String, Int]], game: Game) => {
+  def teamHomeGamesByLocation: Map[Long, Map[String, Int]] = games.filter(_.tourneyKey.isEmpty).foldLeft(Map.empty[Long, Map[String, Int]])((locationData: Map[Long, Map[String, Int]], game: Game) => {
     game.location match {
       case Some(loc) => {
         locationData.get(game.homeTeamId) match {
@@ -229,7 +232,7 @@ final case class Schedule
     }
   })
 
-  def conferenceGamesByLocationDate = {
+  def conferenceGamesByLocationDate: immutable.Iterable[Map[(LocalDate, Option[String]), List[Game]]] = {
     val conferenceToGames: Map[Conference, List[Game]] = games.filter(isConferenceGame).groupBy(g => conference(teamsMap(g.homeTeamId)))
     conferenceToGames.map { case (conference: Conference, games: List[Game]) => {
       games.groupBy(g => (g.date, g.location))

@@ -15,6 +15,7 @@ trait ScheduleDAO
     with ConferenceDAO
     with ConferenceMapDAO
     with StatValueDAO
+    with PredictionDAO
     with UserProfileDAO
     with QuoteVoteDAO
     with FavoriteLinkDAO

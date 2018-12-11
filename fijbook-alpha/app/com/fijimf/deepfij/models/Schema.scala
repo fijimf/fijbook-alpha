@@ -4,6 +4,8 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import akka.actor.{ActorContext, ActorSelection}
+import cats.implicits._
+import com.fijimf.deepfij.util.ModelUtils
 import javax.inject.Inject
 import org.quartz.{JobKey, TriggerKey}
 import play.api.Logger
@@ -12,8 +14,6 @@ import slick.basic.DatabaseConfig
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 import slick.lifted._
 
-import com.fijimf.deepfij.util.ModelUtils
-import cats.implicits._
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -129,11 +129,29 @@ final case class StatValue(id: Long, modelKey: String, statKey: String, teamID: 
   require(!statKey.contains(":") && !statKey.contains(" "), "Stat key cannot contain ':' or ' '")
 }
 
-final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rank: Option[Int], percentile: Option[Double],mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
+final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rank: Option[Int], percentile: Option[Double],mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int){
+  def zScore: Option[Double] = for{
+    x<-value
+    m<-mean
+    s<-stdDev if s=!=0.0
+  } yield {
+    (x-m)/s
+  }
 
-final case class LogisticModelParameter(id: Long, logisticModelName: String, featureName: String, normShift: Double, normScale: Double, coefficient: Double, fittedAsOf: LocalDate)
+  def uScore: Option[Double] = for {
+    x<-value
+    mx<-max
+    mn<-min if mn<mx
+  } yield {
+    (x-mn)/(mx-mn)
+  }
+}
 
-final case class GamePrediction(id: Long, gameId: Long, modelKey: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
+final case class XPredictionModel(id: Long, key: String, version: Int)
+
+final case class XPredictionModelParameter(id: Long, modelId: Long, paramKey: String, value: Double, note: String)
+
+final case class XPrediction(id: Long, gameId: Long, modelId: Long, asOf: LocalDate, schedMD5Hash: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
   def odds: Option[Double] = probability.map(x => x / (1 - x))
 }
 
@@ -254,7 +272,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-
   class ConferencesTable(tag: Tag) extends Table[Conference](tag, "conference") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -289,7 +306,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def idx2: Index = index[Rep[String]]("conf_idx2", name, unique = true)
   }
-
 
   class GamesTable(tag: Tag) extends Table[Game](tag, "game") {
 
@@ -429,10 +445,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def * : ProvenShape[QuoteVote] = (id, quoteId, user, createdAt) <> (QuoteVote.tupled, QuoteVote.unapply)
   }
 
-
-
-  //final case class XStat(seasonYear: Int, date: Timestamp, statKey: String, teamKey: String, value: Double, rankAsc: Int, rankDesc: Int, percentileAsc: Double, percentileDesc: Double, mean: Double, stdDev: Double, min: Double, max: Double, n: Int)
- class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
+  class XStatTable(tag: Tag) extends Table[XStat](tag, "xstat") {
 
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
@@ -474,6 +487,60 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
+  class XPredictionModelTable(tag: Tag) extends Table[XPredictionModel](tag, "xpredicition_model") {
+    def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+
+    def key: Rep[String] = column[String]("key", O.Length(32))
+
+    def version: Rep[Int] = column[Int]("version")
+
+    def * = (id, key, version) <> (XPredictionModel.tupled, XPredictionModel.unapply)
+
+    def idx1: Index = index[(Rep[String], Rep[Int])]("pred_model_idx1", (key, version), unique = true)
+  }
+
+  class XPredictionModelParameterTable(tag: Tag) extends Table[XPredictionModelParameter](tag, "xprediction_model_parm") {
+    def id: Rep[Long] = column[Long]("id")
+
+    def modelId: Rep[Long] = column[Long]("model_id")
+
+    def paramKey: Rep[String] = column[String]("key")
+
+    def value: Rep[Double] = column[Double]("value")
+
+    def note: Rep[String] = column[String]("note")
+
+    def * = (id, modelId, paramKey, value, note) <> (XPredictionModelParameter.tupled, XPredictionModelParameter.unapply)
+
+    def idx1: Index = index[(Rep[Long], Rep[String])]("pred_model_parm_idx1", (modelId, paramKey), unique = true)
+  }
+
+  class XPredictionTable(tag: Tag) extends Table[XPrediction](tag, "xprediction") {
+
+    def id: Rep[Long] = column[Long]("id")
+
+    def gameId: Rep[Long] = column[Long]("game_id")
+
+    def modelId: Rep[Long] = column[Long]("model_id")
+
+    def asOf: Rep[LocalDate] = column[LocalDate]("as_of")
+
+    def schedMD5Hash: Rep[String] = column[String]("sched_md5_hash")
+
+    def favoriteId: Rep[Option[Long]] = column[Option[Long]]("favorite_id")
+
+    def probability: Rep[Option[Double]] = column[Option[Double]]("probability")
+
+    def spread: Rep[Option[Double]] = column[Option[Double]]("spread")
+
+    def overUnder: Rep[Option[Double]] = column[Option[Double]]("over_under")
+
+    def * = (id, gameId, modelId, asOf, schedMD5Hash, favoriteId, probability, spread, overUnder) <> (XPrediction.tupled, XPrediction.unapply)
+
+    def idx1: Index = index[(Rep[Long], Rep[Long], Rep[LocalDate])]("pred_model_parm_idx1", (gameId, modelId, asOf), unique = true)
+
+  }
+
   class UserProfileDataTable(tag: Tag) extends Table[UserProfileData](tag, "user_profile_data") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
@@ -485,7 +552,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def * = (id, userId, key, value) <> (UserProfileData.tupled, UserProfileData.unapply)
   }
-
 
   class FavoriteLinkTable(tag: Tag) extends Table[FavoriteLink](tag, "favorite_links") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -608,6 +674,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val jobRuns: TableQuery[JobRunTable] = TableQuery[JobRunTable]
   lazy val calcStatuses: TableQuery[CalcStatusTable] =TableQuery[CalcStatusTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
+  lazy val xpredictionModels: TableQuery[XPredictionModelTable] = TableQuery[XPredictionModelTable]
+  lazy val xpredictionModelParms: TableQuery[XPredictionModelParameterTable] = TableQuery[XPredictionModelParameterTable]
+  lazy val xpredictions: TableQuery[XPredictionTable] = TableQuery[XPredictionTable]
 
   lazy val ddl = conferenceMaps.schema ++
     games.schema ++
@@ -625,6 +694,9 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     rssItems.schema ++
     jobs.schema ++
     jobRuns.schema ++
-    calcStatuses.schema
+    calcStatuses.schema ++
+    xpredictionModels.schema ++
+    xpredictionModelParms.schema ++
+    xpredictions.schema
 
 }

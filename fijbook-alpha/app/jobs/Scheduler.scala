@@ -12,8 +12,8 @@ class Scheduler @Inject() (
                             @Named("auth-token-cleaner") authTokenCleaner: ActorRef,
                             @Named("schedule-updater") scheduleUpdater: ActorRef,
                             @Named("stats-updater") statsUpdater: ActorRef,
-                            @Named("rss-updater") rssFeedUpdater: ActorRef,
-                            @Named("predictions-updater") predictionsUpdater: ActorRef) {
+                            @Named("rss-updater") rssFeedUpdater: ActorRef
+                          ) {
 
 println(s"*********** ${authTokenCleaner.path.toStringWithoutAddress}")
   QuartzSchedulerExtension(system).schedule("AuthTokenCleaner", authTokenCleaner, AuthTokenCleaner.Clean)

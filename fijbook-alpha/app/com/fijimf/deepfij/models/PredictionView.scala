@@ -53,7 +53,7 @@ val wl = recordDistribution.maxBy(_._2)._1
   }
 }
 
-final case class PredictionView(s: Schedule, pred: GamePrediction) {
+final case class PredictionView(s: Schedule, pred: XPrediction) {
   require(s.gameMap.contains(pred.gameId), s"Predicted game ${pred.gameId} unknown in schedule ${s.season.year}")
   val game: Game = s.gameMap(pred.gameId)
   require(s.teamsMap.contains(game.homeTeamId), s"Home team ${game.homeTeamId} unknown in schedule ${s.season.year}")
@@ -114,7 +114,7 @@ final case class PredictionView(s: Schedule, pred: GamePrediction) {
 }
 
 object PredictionView {
-  def create(s: Schedule, pred: GamePrediction): Option[PredictionView] = {
+  def create(s: Schedule, pred: XPrediction): Option[PredictionView] = {
     Try {
       PredictionView(s, pred)
     }.toOption
