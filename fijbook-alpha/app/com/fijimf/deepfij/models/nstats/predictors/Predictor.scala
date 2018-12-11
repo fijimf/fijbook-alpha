@@ -1,81 +1,63 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import com.fijimf.deepfij.models.dao.schedule.{ScheduleDAO, StatValueDAO}
-import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction, XPredictionModel, XPredictionModelParameter}
+import java.io.File
+import java.nio.file.Files
 
+import com.fijimf.deepfij.models.XPredictionModel
+import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import org.apache.commons.io.FileUtils
+import smile.classification.LogisticRegression
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+case class Predictor[+M <: java.io.Serializable](xm: XPredictionModel, me: ModelEngine[M]) {
 
-case class Predictor(mr:ModelRecord, me:ModelEngine){
+  def isTrained: Boolean = me.kernel.isDefined
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  def train()(implicit dao:ScheduleDAO): Future[Predictor] ={
-    dao.loadSchedules().flatMap(ss=>{
-      val parameters = me.train(ss, dao)
-      for {
-        newXPM <- dao.saveXPredictionModel(XPredictionModel(0L, mr.key, mr.version + 1))
-        newParms <- dao.saveXPredictionModelParameters(parameters.map(_.copy(modelId = newXPM.id)))
-      } yield {
-        copy(mr=ModelRecord(newXPM.id,newXPM.key, newXPM.version, Some(newParms)))
-      }
-    })
+  def train(dao: ScheduleDAO): Future[Predictor[M]] = if (isTrained) {
+    throw new IllegalStateException("Model is already trained. Call retrain to train a new version")
+  } else {
+    for {
+      ss <- dao.loadSchedules()
+      me2 <- me.train(ss, dao)
+      xp2 <- dao.saveXPredictionModel(xm.copy(id = 0L, version = xm.version + 1))
+    } yield {
+      val pred = Predictor[M](xp2, me2)
+      Predictor.save(pred.xm.key,xm.version, pred.me)
+      pred
+    }
   }
-}
 
-case class ModelRecord(  modelId:Long, key:String, version:Int, parameters:Option[List[XPredictionModelParameter]])
-
-trait ModelEngine {
-  def train(s:List[Schedule], dx:StatValueDAO):List[XPredictionModelParameter]
-  def featureExtractor(s:Schedule, dx:StatValueDAO): Game =>Future[Option[Map[String,Double]]]
-  def categoryExtractor(s:Schedule,dx:StatValueDAO ): (Game, Result) =>Future[Option[Double]]
-  def predictor(s:Schedule, ss:StatValueDAO): (Game,Long) => Future[Option[XPrediction]]
 }
 
 object Predictor {
-  def load(key:String):Option[ModelEngine]={
-    case "naive-least-squares" => NaiveLeastSquaresPredictor
-  }
-}
-
-case class FeatureContext(s:Schedule, dao:ScheduleDAO)
-
-case class PredictorContext(dao: ScheduleDAO) {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  def loadLatest(key: String): Option[Future[Predictor]] = {
-    Predictor.load(key).map(eng => {
-      for {
-        model <- dao.loadLatestPredictionModel(key)
-        predictor <- loadPredictor(key, model, eng)
-      } yield {
-        predictor
-      }
-    })
-  }
-
-  def loadPredictor(key: String, model: Option[XPredictionModel], eng:ModelEngine): Future[Predictor] = {
-    model match {
-      case Some(pm) =>
-        val parms: Future[List[XPredictionModelParameter]] = dao.loadParametersForModel(pm.id)
-        parms.map(ps => Predictor(ModelRecord(pm.id,key, pm.version, Some(ps)),eng))
-      case None =>
-        val pm = ModelRecord(0L, key, 0, Some(List.empty[XPredictionModelParameter]))
-        Predictor(pm, eng).train()(dao)
+  def load(key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
+    key match {
+      case "naive-least-squares" => Some(NaiveLeastSquaresPredictor)
+      case "baseline-logistic-predictor" =>
+        val file = getFileName(key, version)
+        if (Files.isReadable(file.toPath)) {
+          val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
+          Some(BaselineLogisticPredictor(Some(regression)))
+        } else {
+          Some(BaselineLogisticPredictor(None))
+        }
+      case _ => None
     }
   }
+
+  def save(key: String, version: Int, me: ModelEngine[java.io.Serializable]): Unit = {
+    val file = getFileName(key, version)
+    if (Files.isWritable(file.toPath)) {
+      me.kernel.foreach(k => smile.write(k, file.getPath))
+    }
+
+  }
+
+  private def getFileName(key: String, version: Int) = {
+    new File(s"/${FileUtils.getTempDirectoryPath}/$key/$version/model.txt")
+  }
 }
 
-/*
-val op:Option[Predictor] = Predictor.loadLatest("naive-least-squares")
-val op2:Option[Predictor] = Predictor.loadVersion("naive-least-squares", 3)
 
-for {
-  p<-op
-} yield {
-  if (p.isTrained) p else p.train()
-}
-
-
- */

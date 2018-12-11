@@ -149,8 +149,6 @@ final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, tea
 
 final case class XPredictionModel(id: Long, key: String, version: Int)
 
-final case class XPredictionModelParameter(id: Long, modelId: Long, paramKey: String, value: Double, note: String)
-
 final case class XPrediction(id: Long, gameId: Long, modelId: Long, asOf: LocalDate, schedMD5Hash: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
   def odds: Option[Double] = probability.map(x => x / (1 - x))
 }
@@ -499,22 +497,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def idx1: Index = index[(Rep[String], Rep[Int])]("pred_model_idx1", (key, version), unique = true)
   }
 
-  class XPredictionModelParameterTable(tag: Tag) extends Table[XPredictionModelParameter](tag, "xprediction_model_parm") {
-    def id: Rep[Long] = column[Long]("id")
-
-    def modelId: Rep[Long] = column[Long]("model_id")
-
-    def paramKey: Rep[String] = column[String]("key")
-
-    def value: Rep[Double] = column[Double]("value")
-
-    def note: Rep[String] = column[String]("note")
-
-    def * = (id, modelId, paramKey, value, note) <> (XPredictionModelParameter.tupled, XPredictionModelParameter.unapply)
-
-    def idx1: Index = index[(Rep[Long], Rep[String])]("pred_model_parm_idx1", (modelId, paramKey), unique = true)
-  }
-
   class XPredictionTable(tag: Tag) extends Table[XPrediction](tag, "xprediction") {
 
     def id: Rep[Long] = column[Long]("id")
@@ -675,7 +657,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
   lazy val calcStatuses: TableQuery[CalcStatusTable] =TableQuery[CalcStatusTable]
   lazy val xstats: TableQuery[XStatTable] = TableQuery[XStatTable]
   lazy val xpredictionModels: TableQuery[XPredictionModelTable] = TableQuery[XPredictionModelTable]
-  lazy val xpredictionModelParms: TableQuery[XPredictionModelParameterTable] = TableQuery[XPredictionModelParameterTable]
   lazy val xpredictions: TableQuery[XPredictionTable] = TableQuery[XPredictionTable]
 
   lazy val ddl = conferenceMaps.schema ++
@@ -696,7 +677,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     jobRuns.schema ++
     calcStatuses.schema ++
     xpredictionModels.schema ++
-    xpredictionModelParms.schema ++
     xpredictions.schema
 
 }

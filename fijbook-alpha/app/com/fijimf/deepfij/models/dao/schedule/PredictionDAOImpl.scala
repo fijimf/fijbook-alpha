@@ -19,6 +19,8 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
 
   import dbConfig.profile.api._
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime]
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
@@ -27,9 +29,15 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     db.run(repo.xpredictionModels.filter(_.key === key).result.headOption)
   }
 
-  override def loadParametersForModel(modelId: Long): Future[List[XPredictionModelParameter]] = {
-    db.run(repo.xpredictionModelParms.filter(_.modelId === modelId).to[List].result)
+  override def saveXPredictionModel(model: XPredictionModel): Future[XPredictionModel] = db.run(upsert(model))
+
+  private def upsert(model: XPredictionModel) = {
+    (repo.xpredictionModels returning repo.xpredictionModels.map(_.id)).insertOrUpdate(model).flatMap {
+      case Some(id) => repo.xpredictionModels.filter(_.id === id).result.head
+      case None => DBIO.successful(model)
+    }
   }
+
 
 
 }

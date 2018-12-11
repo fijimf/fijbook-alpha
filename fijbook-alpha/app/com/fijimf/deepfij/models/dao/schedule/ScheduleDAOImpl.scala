@@ -26,7 +26,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with ConferenceMapDAOImpl
     with AliasDAOImpl
     with StatValueDAOImpl
-    with PredicitionDAOImpl
+    with PredictionDAOImpl
     with UserProfileDAOImpl
     with QuoteVoteDAOImpl
     with FavoriteLinkDAOImpl

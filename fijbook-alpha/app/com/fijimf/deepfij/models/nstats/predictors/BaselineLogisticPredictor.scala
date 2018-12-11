@@ -4,16 +4,15 @@ import java.time.LocalDate
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
-import com.fijimf.deepfij.models.services.ScheduleSerializer
-import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction, XPredictionModelParameter}
+import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction}
+import smile.classification._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import smile.classification._
-object NaiveLeastSquaresPredictor extends ModelEngine {
 
+case class BaselineLogisticPredictor(kernel: Option[LogisticRegression]) extends ModelEngine[LogisticRegression] {
 
-  override def featureExtractor(s: Schedule, ss:StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
+  def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
     g:Game=> {
       for {
         snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols")
@@ -30,32 +29,31 @@ object NaiveLeastSquaresPredictor extends ModelEngine {
     }
   }
 
-  override def predictor(s:Schedule, ss:StatValueDAO): (Game, Long) => Future[Option[XPrediction]]={
-    val f = featureExtractor(s,ss)
+  override def predict(s: Schedule, ss: StatValueDAO): Game => Future[Option[XPrediction]] = {
+    val f = featureExtractor(s, ss)
     val now = LocalDate.now()
-    val hash = ScheduleSerializer.md5Hash(s)
-
-    (g:Game, id:Long)=> {
-       for {
-         features<-f(g)
-       } yield {
-         features.flatMap(fs=>{
-           for {
-             h <- fs.get("home-raw-ols")
-             a <- fs.get("away-raw-ols")
-           } yield {
-             if (h>a) {
-               XPrediction(0L,g.id, id,now,hash,Some(g.homeTeamId),None,Some(h-a),Some(h+a))
-             } else {
-               XPrediction(0L,g.id, id,now,hash,Some(g.awayTeamId),None,Some(a-h),Some(h+a))
-             }
-           }
-         })
-       }
+    kernel match {
+      case Some(k) =>
+        g: Game => {
+          for {
+            features <- f(g)
+          } yield {
+            features.flatMap(_.get("ols-z-diff")).map(x => {
+              val pp = Array[Double](Double.NaN, Double.NaN)
+              val p = k.predict(Array(x), pp)
+              if (p === 1) {
+                XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(pp(0)), None, None)
+              } else {
+                XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(pp(1)), None, None)
+              }
+            })
+          }
+        }
+      case _ => g: Game => Future.successful(None)
     }
   }
 
-  override def train(ss: List[Schedule], sx: StatValueDAO): List[XPredictionModelParameter] = {
+  override def train(ss: List[Schedule], sx: StatValueDAO): Future[ModelEngine[LogisticRegression]] = {
 
     val futureTuples = Future.sequence(ss.map(s => {
       val f: Game => Future[Option[Map[String, Double]]] = featureExtractor(s, sx)
@@ -78,15 +76,10 @@ object NaiveLeastSquaresPredictor extends ModelEngine {
       val (fs,cs) = fts.unzip
       val xs=fs.map(x=>Array(x)).toArray
       val ys = cs.toArray
-      val logisticRegression = logit(xs,ys)
-      logisticRegression.predict()
-
+      BaselineLogisticPredictor(Some(logit(xs, ys)))
     })
-
-
-
   }
 
-  override def categoryExtractor(s: Schedule, dx: StatValueDAO): (Game, Result) => Future[Option[Double]] =
+  def categoryExtractor(s: Schedule, dx: StatValueDAO): (Game, Result) => Future[Option[Double]] =
     (_,res)=>Future.successful(Some(if (res.homeScore>res.awayScore) 1.0 else 0.0))
 }
