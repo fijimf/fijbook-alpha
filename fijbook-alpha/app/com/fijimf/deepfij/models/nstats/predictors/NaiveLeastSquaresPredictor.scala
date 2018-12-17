@@ -6,12 +6,13 @@ import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
+import play.api.Logger
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object NaiveLeastSquaresPredictor extends ModelEngine[String] {
-
+val logger = Logger(this.getClass)
   override val kernel: Option[String] = Some("-")
 
   def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
@@ -57,6 +58,9 @@ object NaiveLeastSquaresPredictor extends ModelEngine[String] {
     }
   }
 
-  override def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[String]] = Future.successful(this)
+  override def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[String]] = {
+    logger.info("NaiveLeastSquaresPredictor manipulates raw features -- no training necessary")
+    Future.successful(this)
+  }
 
 }

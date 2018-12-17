@@ -26,9 +26,10 @@ class SnapshotDAOWriter(dao: ScheduleDAO) extends Actor {
       sender ! WriterReady
     case snaps: List[SnapshotDbBundle] =>
       context become busy(sender())
+      log.info(s"${snaps.size}")
       dao.insertSnapshots(snaps).onComplete {
         case Success(o) =>
-          log.info(s"saveBatchedSnapshots succeeded with return value of $o")
+          log.info(s"saveBatchedSnapshots succeeded with return value of $o / (${snaps.size})")
           self ! SaveComplete
         case Failure(thr) =>
           log.error("saveBatchedSnapshots failed", thr)

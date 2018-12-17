@@ -38,11 +38,11 @@ class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
 
   def buffer(snaps: List[SnapshotDbBundle], writerReady: Boolean, notifyTarget: Option[ActorRef]): Receive = {
     case snap: SnapshotDbBundle =>
-      if (snaps.size % 100 === 99) log.info(s"Buffer with data received snap bundle.  New size is ${snaps.size + 1}")
+      log.info(s"Buffer with data received snap bundle.  New size is ${snaps.size + 1}")
       if (writerReady) {
         val (front, back) = snaps.splitAt(batchSize)
         writer ! front
-        context become buffer(back, writerReady = false, notifyTarget)
+        context become buffer(snap :: back, writerReady = false, notifyTarget)
       } else {
         context become buffer(snap :: snaps, writerReady = false, notifyTarget)
       }
@@ -64,8 +64,7 @@ class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
         log.info(s"Buffer is size ${back.size}.")
         context become buffer(back, writerReady = false, notifyTarget)
       }
-    case SendingComplete =>
-      log.info("Received a SendingComplete message.  Setting notifyTarget.")
+    case SendingComplete => log.info("Received a SendingComplete message.  Setting notifyTarget.")
       context become buffer(snaps, writerReady, notifyTarget = Some(sender()))
     case NoWorkToDo =>
 

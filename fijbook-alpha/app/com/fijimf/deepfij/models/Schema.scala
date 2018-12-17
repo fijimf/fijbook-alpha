@@ -485,7 +485,7 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   }
 
-  class XPredictionModelTable(tag: Tag) extends Table[XPredictionModel](tag, "xpredicition_model") {
+  class XPredictionModelTable(tag: Tag) extends Table[XPredictionModel](tag, "xprediction_model") {
     def id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
 
     def key: Rep[String] = column[String]("key", O.Length(32))
@@ -499,13 +499,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
   class XPredictionTable(tag: Tag) extends Table[XPrediction](tag, "xprediction") {
 
-    def id: Rep[Long] = column[Long]("id")
+    def id: Rep[Long] = column[Long]("id",  O.AutoInc, O.PrimaryKey)
 
     def gameId: Rep[Long] = column[Long]("game_id")
 
     def modelId: Rep[Long] = column[Long]("model_id")
 
-    def asOf: Rep[LocalDate] = column[LocalDate]("as_of")
+    def asOf: Rep[LocalDate] = column[LocalDate]("as_of", O.Length(12))
 
     def schedMD5Hash: Rep[String] = column[String]("sched_md5_hash")
 

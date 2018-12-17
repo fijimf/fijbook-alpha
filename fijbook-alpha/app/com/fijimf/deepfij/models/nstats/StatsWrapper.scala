@@ -73,6 +73,7 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
           n = snapshot.n
         )
       })
+      logger.info(s"Write snapshot ${snapshot.n} ${snapshot.obs.size} ${xstats.size}")
 
       actorSystem.actorSelection(s"/user/$key") ! SnapshotDbBundle(snapshot.date, a.key, xstats)
     }

@@ -152,6 +152,8 @@ GET         /deepfij/admin/readSnapshot:key                     controllers.Admi
 GET         /deepfij/admin/deleteSnapshot:key                   controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 
+GET         /deepfij/admin/updatePredictions/:key/:yyyy         controllers.PredictionController.updatePredictions(key:String,yyyy:Int)
 
+GET         /deepfij/predictions/:key/:yyyymmdd                 controllers.PredictionController.showLatest(key:String,yyyymmdd:String)
 ############ SILHOUETTE
 

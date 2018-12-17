@@ -93,7 +93,9 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
   }
 
   override def insertSnapshots(snaps: List[SnapshotDbBundle]): Future[Option[Int]] = {
-    db.run((repo.xstats ++= snaps.flatMap(_.xs)).withPinnedSession)
+    val stats = snaps.flatMap(_.xs)
+    log.info(s"Inserting ${stats.size} statistics from ${snaps.size} bundles.")
+    db.run((repo.xstats ++= stats).withPinnedSession)
   }
 
 

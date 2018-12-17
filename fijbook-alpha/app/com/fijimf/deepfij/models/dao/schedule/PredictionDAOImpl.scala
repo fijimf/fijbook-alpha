@@ -31,6 +31,19 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
 
   override def saveXPredictionModel(model: XPredictionModel): Future[XPredictionModel] = db.run(upsert(model))
 
+  override def updateXPredictions(modelId: Long, schedHash: String, xps: List[XPrediction]): Future[List[XPrediction]] = {
+    db.run(
+      (for {
+        _ <- repo.xpredictions.filter(x => x.modelId === modelId && x.schedMD5Hash === schedHash).delete
+        _ <- repo.xpredictions ++= xps
+        ins <- repo.xpredictions.filter(x => x.modelId === modelId && x.schedMD5Hash === schedHash).result
+      } yield {
+        ins
+      }.to[List]).transactionally
+    )
+  }
+
+
   private def upsert(model: XPredictionModel) = {
     (repo.xpredictionModels returning repo.xpredictionModels.map(_.id)).insertOrUpdate(model).flatMap {
       case Some(id) => repo.xpredictionModels.filter(_.id === id).result.head
@@ -38,6 +51,8 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     }
   }
 
-
+  override def findXPredicitions(modelId:Long):Future[List[XPrediction]] ={
+    db.run(repo.xpredictions.filter(_.modelId===modelId).to[List].result)
+  }
 
 }
