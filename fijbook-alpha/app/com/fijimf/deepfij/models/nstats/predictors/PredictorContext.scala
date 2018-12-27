@@ -63,7 +63,7 @@ case class PredictorContext(dao: ScheduleDAO) {
       val pp = predictor.me.predict(s, dao)
       val flist: Future[List[XPrediction]] = Future.sequence(s.incompleteGames.map(pp(_))).map(_.flatten)
       flist.flatMap(lst => {
-        dao.updateXPredictions(modelId, hash, lst.map(_.copy(modelId = modelId, schedMD5Hash = hash)))
+        dao.updatePredictions(modelId, hash, lst.map(_.copy(modelId = modelId, schedMD5Hash = hash)))
       })
     }).getOrElse(Future.successful(List.empty[XPrediction]))
   }

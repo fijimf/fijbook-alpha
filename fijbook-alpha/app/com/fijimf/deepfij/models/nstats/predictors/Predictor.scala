@@ -24,7 +24,7 @@ val logger = Logger(this.getClass)
     for {
       ss <- dao.loadSchedules()
       me2 <- me.train(ss, dao)
-      xp2 <- dao.saveXPredictionModel(xm.copy(id = 0L, version = xm.version + 1))
+      xp2 <- dao.savePredictionModel(xm.copy(id = 0L, version = xm.version + 1))
     } yield {
       val pred = Predictor[M](xp2, me2)
       Predictor.save(pred.xm.key,xm.version, pred.me)
