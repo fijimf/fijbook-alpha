@@ -1,0 +1,22 @@
+@import com.fijimf.deepfij.models.FrontPageData
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@import controllers.Utils._
+@import java.time.LocalDate
+@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.Game
+@import com.fijimf.deepfij.models.Result
+@import com.fijimf.deepfij.models.XPrediction
+@(du: DisplayUser, qw:QuoteWrapper,  today:LocalDate, modelKey:String, sch:Schedule, ps:List[(Game, Option[Result], Option[XPrediction])])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser = du, quoteWrapper = qw) {
+   <div class="row"><h4>@{
+      today.fmt("EEEE MMMM d, yyyy")
+   }</h4></div>
+    <div class="row">
+       <div class="card w-100 my-1">
+           <div class="card-header">
+         <h6>@modelKey</h6>
+           </div>
+           @predictionList(ps, sch )
+      </div>
+    </div>
+}

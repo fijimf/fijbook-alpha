@@ -18,7 +18,7 @@ val logger = Logger(this.getClass)
   def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
     g: Game => {
       for {
-        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols")
+        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols", true)
       } yield {
         for {
           h <- snap.find(_.teamId === g.homeTeamId).flatMap(_.value)

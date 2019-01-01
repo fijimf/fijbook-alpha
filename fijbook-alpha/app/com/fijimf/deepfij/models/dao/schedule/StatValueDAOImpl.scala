@@ -31,8 +31,17 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
     db.run(repo.xstats.filter(x=>x.seasonId===seasonId && x.teamId === teamId && x.key === modelKey ).sortBy(_.date).to[List].result).map(_.reverse)
   }
 
-  override def findXStatsSnapshot(seasonId:Long, date:LocalDate, modelKey:String):Future[List[XStat]] = {
-    db.run(repo.xstats.filter(x=>x.seasonId===seasonId && x.date === date && x.key === modelKey ).to[List].result)
+  override def findXStatsSnapshot(seasonId:Long, date:LocalDate, modelKey:String,fallback:Boolean):Future[List[XStat]] = {
+    if (fallback){
+      for {
+        d <- db.run(repo.xstats.filter(x => x.seasonId === seasonId && x.key === modelKey && x.date <= date).map(_.date).max.result)
+        snap <- db.run(repo.xstats.filter(x => x.seasonId === seasonId && x.date === d.getOrElse(date) && x.key === modelKey).to[List].result)
+      }yield{
+        snap
+      }
+    } else {
+      db.run(repo.xstats.filter(x => x.seasonId === seasonId && x.date === date && x.key === modelKey).to[List].result)
+    }
   }
 
   override def findXStatsLatest(seasonId:Long, teamId:Long, modelKey:String):Future[Option[XStat]] = {

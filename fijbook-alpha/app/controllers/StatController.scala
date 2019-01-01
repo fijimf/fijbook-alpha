@@ -92,7 +92,7 @@ class StatController @Inject()(
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
       team <- dao.findTeamById(teamId)
-      lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString, DateTimeFormatter.ofPattern("yyyyMMdd")), key)
+      lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString, DateTimeFormatter.ofPattern("yyyyMMdd")), key,false)
     } yield {
       val mean = lst.head.mean.getOrElse(Double.NaN)
       val stdDev = lst.head.stdDev.getOrElse(Double.NaN)

@@ -1,0 +1,5 @@
+@import com.fijimf.deepfij.models.Team
+@import com.fijimf.deepfij.models.Schedule
+@(team:Team){
+    <a href="@routes.TeamController.team(team.key, None)">@team.name</a>
+}

@@ -3,11 +3,11 @@ package com.fijimf.deepfij.models.nstats.predictors
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Schedule, XPrediction, XPredictionModel}
-import play.api.Logger
+import play.api.{Configuration, Logger}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-case class PredictorContext(dao: ScheduleDAO) {
+case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
   val logger=Logger(this.getClass)
   /*
   loadLatest will first load the PredictionModel
@@ -21,18 +21,19 @@ case class PredictorContext(dao: ScheduleDAO) {
        * save and reload the model
    */
   def loadLatest(key: String): Future[Option[Predictor[_]]] = {
-    logger.info(s"Loading lastest versio of '$key'")
+    logger.info(s"Loading latest version of '$key'")
     dao.loadLatestPredictionModel(key).flatMap(model => {
       (for {
         m <- model.orElse(Some(XPredictionModel(0L,key,0)))
-        e <- Predictor.load(m.key, m.version)
+        e <- Predictor.load(cfg, m.key, m.version)
       } yield {
         if (e.kernel.isDefined) {
+          logger.info(s"For ${m.key} version ${m.version} loaded trained kernel.")
           Future.successful {
             Predictor(m, e)
           }
         } else {
-          Predictor(m, e).train(dao)
+          Predictor(m, e).train(cfg, dao)
         }
       }) match {
         case Some(f) => f.map(Some(_))

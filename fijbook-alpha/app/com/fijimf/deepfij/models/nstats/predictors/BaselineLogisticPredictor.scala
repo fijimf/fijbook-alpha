@@ -16,7 +16,7 @@ val logger=Logger(this.getClass)
   def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
     g:Game=> {
       for {
-        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols")
+        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols", true)
       } yield {
         if (snap.isEmpty){
           logger.warn(s"For date ${g.date} snapshot for 'ols' was empty ")

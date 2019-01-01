@@ -9,7 +9,7 @@ import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
-import play.api.Logger
+import play.api.{Configuration, Logger}
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -19,6 +19,7 @@ import scala.concurrent.Future
 class PredictionController @Inject()(
                                       val controllerComponents: ControllerComponents,
                                       val dao: ScheduleDAO,
+                                      val cfg:Configuration,
                                       cache: AsyncCacheApi,
                                       silhouette: Silhouette[DefaultEnv]
                                     )
@@ -28,7 +29,7 @@ class PredictionController @Inject()(
 
   val logger = Logger(getClass)
 
-  private val predCtx: PredictorContext = PredictorContext(dao)
+  private val predCtx: PredictorContext = PredictorContext(cfg, dao)
 
   def updatePredictions(key: String, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     logger.info(s"Updating predictions for model '$key' and season $yyyy")
@@ -42,7 +43,7 @@ class PredictionController @Inject()(
   }
 
 
-  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+  def showLatestX(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     val date = controllers.Utils.yyyymmdd(yyyymmdd)
     val value: Future[List[(Game, Option[Result], Option[XPrediction])]] = for {
       du <- loadDisplayUser(rs)
@@ -56,6 +57,24 @@ class PredictionController @Inject()(
 
     value.map(v=> Ok(v.mkString("\n")))
 //    Future.successful)
+
+  }
+  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+    val date = controllers.Utils.yyyymmdd(yyyymmdd)
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      ss <- dao.loadSchedules()
+      pm <- dao.loadLatestPredictionModel(key)
+      ps <- dao.findXPredicitions(pm.map(_.id).getOrElse(-1))
+    } yield {
+
+      ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
+        case Some(sch)=>Ok(views.html.predictionPage(du,qw,date,key,sch,predictResults(ss,ps, date)))
+        case None=> Redirect(routes.ReactMainController.index())
+      }
+    //  Ok(predictResults(ss,ps, date).mkString("\n"))
+    }
 
   }
 
