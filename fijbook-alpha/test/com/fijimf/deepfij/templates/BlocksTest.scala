@@ -1,12 +1,12 @@
 package com.fijimf.deepfij.templates
 
 import java.io.InputStream
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.{RebuildDatabaseMixin, Schedule, Season, Team}
-import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
-import org.scalatest.{BeforeAndAfterEach, FlatSpec}
+import com.fijimf.deepfij.models.services.ScheduleSerializer
+import com.fijimf.deepfij.models.{RebuildDatabaseMixin, Schedule, Team}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
 import play.api.test.WithApplication
@@ -15,14 +15,11 @@ import play.twirl.api.HtmlFormat
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.io.Source
 
 class BlocksTest extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
 
   import ScheduleSerializer._
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
   val isS3Json: InputStream = classOf[BlocksTest].getResourceAsStream("/test-data/s3Sched.json")
@@ -87,6 +84,41 @@ class BlocksTest extends PlaySpec with OneAppPerTest with BeforeAndAfterEach wit
       assert(contentAsString(html).trim().isEmpty)
     }
 
+  }
+
+  "A dateLink" should {
+    "format a date and provide a link" in {
+      val d = LocalDate.of(2019, 1, 2)
+      val html = views.html.data.blocks.date.dateLink(d, "MMMM d, yyyy")
+      assert(html.contentType === "text/html")
+      assert(contentAsString(html).contains("href=\"/deepfij/20190102\""))
+      assert(contentAsString(html).contains("January 2, 2019"))
+    }
+
+    "format a date with no link" in {
+      val d = LocalDate.of(2019, 1, 2)
+      val html = views.html.data.blocks.date.dateLink(d, "dd-MMM-yyyy", link = false)
+      assert(html.contentType === "text/html")
+      assert(!contentAsString(html).contains("href"))
+      assert(contentAsString(html).contains("02-Jan-2019"))
+    }
+  }
+  "A dateTimeLink" should {
+    "format a date and provide a link" in {
+      val d = LocalDateTime.of(2019, 1, 2, 13,30,15)
+      val html = views.html.data.blocks.date.dateTimeLink(d, "MMMM d, yyyy h:mm")
+      assert(html.contentType === "text/html")
+      assert(contentAsString(html).contains("href=\"/deepfij/20190102\""))
+      assert(contentAsString(html).contains("January 2, 2019 1:30"))
+    }
+
+    "format a date with no link" in {
+      val d = LocalDateTime.of(2019, 1, 2, 13,30,15)
+      val html = views.html.data.blocks.date.dateTimeLink(d, "dd-MMM-yyyy HH:mm:ss", link = false)
+      assert(html.contentType === "text/html")
+      assert(!contentAsString(html).contains("href"))
+      assert(contentAsString(html).contains("02-Jan-2019 13:30:15"))
+    }
   }
 
 

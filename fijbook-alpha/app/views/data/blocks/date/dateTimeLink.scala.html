@@ -1,0 +1,9 @@
+@import java.time.LocalDate
+@import java.time.format.DateTimeFormatter
+@import java.time.LocalDateTime
+@(d:LocalDateTime, fmt:String, link:Boolean=true)
+@if(link){
+    <a href="@routes.ReactMainController.dateIndex(DateTimeFormatter.ofPattern("yyyyMMdd").format(d))">@{DateTimeFormatter.ofPattern(fmt).format(d)}</a>
+} else {
+    @{DateTimeFormatter.ofPattern(fmt).format(d)}
+}
