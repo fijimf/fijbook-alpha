@@ -1,9 +1,9 @@
 @import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.Schedule
-@(teamId:Long)(implicit sch:Schedule)
+@(teamId:Long, linkClass:Option[String]=None)(implicit sch:Schedule)
     @{
         sch.teamsMap.get(teamId) match {
-            case Some(t) => views.html.data.blocks.team.nameLink(t)
+            case Some(t) => views.html.data.blocks.team.nameLink(t, linkClass)
             case _ => ""
         }
     }

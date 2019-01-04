@@ -1,0 +1,25 @@
+@import views.html.data.blocks.date._
+@import views.html.data.blocks.team._
+@import com.fijimf.deepfij.models.{Team, Game, Result}
+@import com.fijimf.deepfij.models.Schedule
+@(t:Team,g:Game, or:Option[Result])(implicit sch:Schedule)
+<tr>
+    <td>@dateLink(g.date,"MMM-dd-yyyy")</td>
+    @if(t.id==g.homeTeamId) {
+        <td>vs.</td>
+        <td>@idNameLink(g.awayTeamId)</td>
+    } else {
+        <td>@@</td>
+        <td>@idNameLink(g.homeTeamId)</td>
+    }
+    @{ or match {
+        case Some(result) if sch.isWinner(t,g,result)=>
+            <td>W</td>
+            <td>{result.homeScore} - {result.awayScore}</td>
+        case Some(result) if sch.isLoser(t,g,result)=>
+            <td>L</td>
+            <td>{result.homeScore} - {result.awayScore}</td>
+        case _=> <td/>
+                <td/>
+    }}
+</tr>

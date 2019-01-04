@@ -1,5 +1,4 @@
 @import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.Schedule
-@(team:Team){
-    <a href="@routes.TeamController.team(team.key, None)">@team.name</a>
-}
+@(team:Team, linkClass:Option[String]=None)
+<a href="@routes.TeamController.team(team.key, None)" class="@linkClass.getOrElse("")" >@team.name</a>

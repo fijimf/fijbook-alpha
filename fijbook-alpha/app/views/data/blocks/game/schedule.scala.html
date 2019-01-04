@@ -1,0 +1,10 @@
+@import views.html.data.blocks.team._
+@import com.fijimf.deepfij.models.{Team, Game, Result}
+@import com.fijimf.deepfij.models.Schedule
+@(t:Team)(implicit sch:Schedule)
+<h5>Schedule</h5>
+<table class="table table-sm table-schedule" >
+    @for(g <-sch.games(t)) {
+        @gameLine(t,g._1,g._2)
+    }
+</table>
