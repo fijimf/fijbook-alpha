@@ -14,12 +14,11 @@
     }
     @{ or match {
         case Some(result) if sch.isWinner(t,g,result)=>
-            <td>W</td>
+            <td><strong class="text-success">W</strong></td>
             <td>{result.homeScore} - {result.awayScore}</td>
         case Some(result) if sch.isLoser(t,g,result)=>
-            <td>L</td>
+            <td><strong class="text-danger">L</strong></td>
             <td>{result.homeScore} - {result.awayScore}</td>
-        case _=> <td/>
-                <td/>
+        case _=> <td/><td/>
     }}
 </tr>

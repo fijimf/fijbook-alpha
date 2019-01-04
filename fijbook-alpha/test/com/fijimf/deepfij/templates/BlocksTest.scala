@@ -156,7 +156,7 @@ class BlocksTest extends PlaySpec with OneAppPerTest with BeforeAndAfterEach wit
       implicit val s: Schedule = schedules.head
       s.teams.foreach(t => {
         s.games(t).foreach { case (g, or) =>
-          val html = views.html.data.blocks.game.gameLine(t, g, or)
+          val html = views.html.data.blocks.schedule.gameLine(t, g, or)
           assert(html.contentType === "text/html")
           val opp = if (g.homeTeamId == t.id) {
             s.teamsMap.get(g.awayTeamId)

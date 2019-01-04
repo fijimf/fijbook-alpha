@@ -70,7 +70,9 @@ class PredictionController @Inject()(
     } yield {
 
       ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
-        case Some(sch)=>Ok(views.html.predictionPage(du,qw,date,key,sch,predictResults(ss,ps, date)))
+        case Some(sch)=>
+          implicit val imoplicitSched: Schedule = sch
+          Ok(views.html.predictionPage(du,qw,date,key,predictResults(ss,ps, date)))
         case None=> Redirect(routes.ReactMainController.index())
       }
     //  Ok(predictResults(ss,ps, date).mkString("\n"))
@@ -82,6 +84,7 @@ class PredictionController @Inject()(
     for {
       sch <- so.find(_.season.isInSeason(date))
     } yield {
+      implicit val implicitSchedule: Schedule = sch
       val predMap = predictions.map(p => p.gameId -> p).toMap
       sch.gameResults.filter(_._1.date == date).map(t => (t._1, t._2, predMap.get(t._1.id)))
     }

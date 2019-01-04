@@ -6,7 +6,7 @@
 @import com.fijimf.deepfij.models.Game
 @import com.fijimf.deepfij.models.Result
 @import com.fijimf.deepfij.models.XPrediction
-@(du: DisplayUser, qw:QuoteWrapper,  today:LocalDate, modelKey:String, sch:Schedule, ps:List[(Game, Option[Result], Option[XPrediction])])(implicit request: RequestHeader, flash: Flash)
+@(du: DisplayUser, qw:QuoteWrapper,  today:LocalDate, modelKey:String, ps:List[(Game, Option[Result], Option[XPrediction])])(implicit sch:Schedule, request: RequestHeader, flash: Flash)
 @main3000(displayUser = du, quoteWrapper = qw) {
    <div class="row"><h4>@{
       today.fmt("EEEE MMMM d, yyyy")
@@ -16,7 +16,7 @@
            <div class="card-header">
          <h6>@modelKey</h6>
            </div>
-           @predictionList(ps, sch )
+           @predictionList(ps)
       </div>
     </div>
 }

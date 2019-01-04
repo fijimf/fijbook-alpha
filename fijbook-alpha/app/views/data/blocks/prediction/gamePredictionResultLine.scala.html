@@ -1,0 +1,18 @@
+@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.XPrediction
+@import com.fijimf.deepfij.models.Game
+@import com.fijimf.deepfij.models.Result
+@import views.html.data.blocks.date._
+@import views.html.data.blocks.team._
+@(g:Game,r:Result, p:XPrediction)(implicit sch:Schedule)
+<tr>
+    <td>@idNameLink(g.homeTeamId)</td>
+    <td>@r.homeScore</td>
+    <td>@idNameLink(g.awayTeamId)</td>
+    <td>@r.awayScore</td>
+    <td>@dateLink(p.asOf,"dd-MMM-yyyy")</td>
+    <td>@idNameLink(p.favoriteId.getOrElse(-1))</td>
+    <td>@p.probability.map(x=>"%6.2f".format(x*100)).getOrElse("-")</td>
+    <td>@p.spread.map(x=>"%4.2f".format(x)).getOrElse("-")</td>
+    <td>@p.overUnder.map(x=>"%6.2f".format(x)).getOrElse("-")</td>
+</tr>

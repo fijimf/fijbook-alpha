@@ -1,7 +1,7 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 @import com.fijimf.deepfij.models.{Schedule, Team}
 @import com.fijimf.deepfij.models.react.DisplayLink
-@(du: DisplayUser, qw:QuoteWrapper,  t: Team, curr: Schedule, stats:List[ModelTeamContext], seasonKeys:List[Int], fav:DisplayLink)(implicit request: RequestHeader, flash: Flash)
+@(du: DisplayUser, qw:QuoteWrapper,  t: Team,  stats:List[ModelTeamContext], seasonKeys:List[Int], fav:DisplayLink)(implicit curr: Schedule, request: RequestHeader, flash: Flash)
 @main3000(du, qw, Some(fav)) {
 
 
@@ -46,7 +46,7 @@
     </div>
     <div class="row">
         <div class="col-sm-4">
-            @teamdata.schedule(curr,t)
+            @views.html.data.blocks.schedule.schedule(t)
         </div>
         <div class="col-sm-4">
             @teamdata.conference_standings(curr.conference(t).name, curr.conferenceStandings(curr.conference(t)))

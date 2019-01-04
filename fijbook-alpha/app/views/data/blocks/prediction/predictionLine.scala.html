@@ -1,0 +1,11 @@
+@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.XPrediction
+@import com.fijimf.deepfij.models.Game
+@import com.fijimf.deepfij.models.Result
+@(tup:(Game, Option[Result], Option[XPrediction]))(implicit sch:Schedule)
+@{ tup match {
+    case (g, Some(result), Some(prediction))=> gamePredictionResultLine(g, result, prediction)
+    case (g, None, Some(prediction))=> gamePredictionLine(g, prediction)
+    case (g, Some(result), None)=> gameResultLine(g,result)
+    case (g, None, None)=> gameOnlyLine(g)
+}}

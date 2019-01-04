@@ -48,10 +48,11 @@ class TeamController @Inject()(
           val seasonKeys = ss.map(_.season.year).sorted.reverse
           ss.find(_.season.year === year) match {
             case Some(sch) =>
+              implicit val implicitSchedule: Schedule =sch
               val t: Team = sch.keyTeam(key)
               val stats = loadTeamStats(t, sch)
               stats.map(lstat => {
-                Ok(views.html.data.team(tup._1,tup._2, t, sch, lstat, seasonKeys, DisplayLink(t.name, routes.TeamController.team(t.key, None).url, "#")))
+                Ok(views.html.data.team(tup._1,tup._2, t, lstat, seasonKeys, DisplayLink(t.name, routes.TeamController.team(t.key, None).url, "#")))
               })
             case None => Future.successful(Redirect(routes.ReactMainController.index()).flashing("info" -> s"No schedule found for year $year"))
           }
