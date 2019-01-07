@@ -37,6 +37,7 @@ trait StatValueDAOImpl extends StatValueDAO with DAOSlick {
         d <- db.run(repo.xstats.filter(x => x.seasonId === seasonId && x.key === modelKey && x.date <= date).map(_.date).max.result)
         snap <- db.run(repo.xstats.filter(x => x.seasonId === seasonId && x.date === d.getOrElse(date) && x.key === modelKey).to[List].result)
       }yield{
+        log.info(s"for $seasonId, $date, $modelKey loaded ${snap.size} values.")
         snap
       }
     } else {

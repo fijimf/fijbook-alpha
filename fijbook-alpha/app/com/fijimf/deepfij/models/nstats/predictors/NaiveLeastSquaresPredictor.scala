@@ -15,37 +15,19 @@ object NaiveLeastSquaresPredictor extends ModelEngine[String] {
 val logger = Logger(this.getClass)
   override val kernel: Option[String] = Some("-")
 
-  def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
-    g: Game => {
-      for {
-        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols", true)
-      } yield {
-        for {
-          h <- snap.find(_.teamId === g.homeTeamId).flatMap(_.value)
-          a <- snap.find(_.teamId === g.awayTeamId).flatMap(_.value)
-        } yield {
-          Map(
-            "home-raw-ols" -> h,
-            "away-raw-ols" -> a
-          )
-        }
-      }
-    }
-  }
-
-  override def predict(s: Schedule, ss: StatValueDAO): Game => Future[Option[XPrediction]] = {
-    val f = featureExtractor(s, ss)
+  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[Option[XPrediction]]] = {
+    val f = NaiveLeastSquaresFeatureExtractor(s, ss)
     val now = LocalDate.now()
     val hash = ScheduleSerializer.md5Hash(s)
 
-    g: Game => {
+    gs: List[Game] => {
       for {
-        features <- f(g)
+        features <- f(gs)
       } yield {
-        features.flatMap(fs => {
+        features.zip(gs).map { case (feat, g) =>
           for {
-            h <- fs.get("home-raw-ols")
-            a <- fs.get("away-raw-ols")
+            h <- feat.get("home-raw-ols")
+            a <- feat.get("away-raw-ols")
           } yield {
             if (h > a) {
               XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(h - a), Some(h + a))
@@ -53,7 +35,7 @@ val logger = Logger(this.getClass)
               XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(a - h), Some(h + a))
             }
           }
-        })
+        }
       }
     }
   }

@@ -62,7 +62,7 @@ case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
       val hash = ScheduleSerializer.md5Hash(s)
       val modelId = predictor.xm.id
       val pp = predictor.me.predict(s, dao)
-      val flist: Future[List[XPrediction]] = Future.sequence(s.incompleteGames.map(pp(_))).map(_.flatten)
+      val flist: Future[List[XPrediction]] = pp(s.incompleteGames).map(_.flatten)
       flist.flatMap(lst => {
         dao.updatePredictions(modelId, hash, lst.map(_.copy(modelId = modelId, schedMD5Hash = hash)))
       })

@@ -12,7 +12,7 @@
     <td>@r.awayScore</td>
     <td>@dateLink(p.asOf,"dd-MMM-yyyy")</td>
     <td>@idNameLink(p.favoriteId.getOrElse(-1))</td>
-    <td>@p.probability.map(x=>"%6.2f".format(x*100)).getOrElse("-")</td>
+    <td>@p.probability.map(x=>"%8.4f%%".format(x*100)).getOrElse("-")</td>
     <td>@p.spread.map(x=>"%4.2f".format(x)).getOrElse("-")</td>
     <td>@p.overUnder.map(x=>"%6.2f".format(x)).getOrElse("-")</td>
 </tr>

@@ -13,54 +13,38 @@ import scala.concurrent.Future
 
 case class BaselineLogisticPredictor(kernel: Option[LogisticRegression]) extends ModelEngine[LogisticRegression] {
 val logger=Logger(this.getClass)
-  def featureExtractor(s: Schedule, ss: StatValueDAO): Game => Future[Option[Map[String, Double]]] = {
-    g:Game=> {
-      for {
-        snap <- ss.findXStatsSnapshot(g.seasonId, g.date, "ols", true)
-      } yield {
-        if (snap.isEmpty){
-          logger.warn(s"For date ${g.date} snapshot for 'ols' was empty ")
-        }
-        for {
-          h <- snap.find(_.teamId === g.homeTeamId).flatMap(_.zScore)
-          a <- snap.find(_.teamId === g.awayTeamId).flatMap(_.zScore)
-        } yield {
-          Map(
-            "ols-z-diff" -> (h-a)
-          )
-        }
-      }
-    }
-  }
 
-  override def predict(s: Schedule, ss: StatValueDAO): Game => Future[Option[XPrediction]] = {
-    val f = featureExtractor(s, ss)
+  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[Option[XPrediction]]] = {
+    val f = BaseLogisticFeatureExtractor(s, ss)
     val now = LocalDate.now()
     kernel match {
       case Some(k) =>
-        g: Game => {
+        gs: List[Game] =>
+          logger.info(s"Running predictions for ${gs.size} games.")
+          logger.info(s"Start loading features.")
           for {
-            features <- f(g)
+            features <- f(gs)
           } yield {
-            features.flatMap(_.get("ols-z-diff")).map(x => {
-              val pp = Array[Double](Double.NaN, Double.NaN)
-              val p = k.predict(Array(x), pp)
-              if (p === 1) {
-                XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(pp(1)), None, None)
-              } else {
-                XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(pp(0)), None, None)
-              }
-            })
+            logger.info(s"Done loading features.")
+            features.zip(gs).map { case (feat, g) =>
+              feat.get("ols-z-diff").map(x => {
+                val pp = Array[Double](Double.NaN, Double.NaN)
+                val p = k.predict(Array(x), pp)
+                logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
+                if (p === 1) {
+                  XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(pp(1)), None, None)
+                } else {
+                  XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(pp(0)), None, None)
+                }
+              })
+            }
           }
-        }
-      case _ => g: Game => Future.successful(None)
+      case _ => gs: List[Game] => Future.successful(List.empty[Option[XPrediction]])
     }
   }
 
   override def train(ss: List[Schedule], sx: StatValueDAO): Future[ModelEngine[LogisticRegression]] = {
-
     val futureTuples: Future[List[(Double, Int)]] = Future.sequence(ss.map(s => loadScheduleFeatures(s, sx))).map(_.flatten)
-
 
     futureTuples.map(fts=>{
       logger.info(s"Training set has ${fts.size} a elements")
@@ -73,27 +57,18 @@ val logger=Logger(this.getClass)
 
   private def loadScheduleFeatures(s: Schedule, sx: StatValueDAO): Future[List[(Double, Int)]] = {
 
-    val f: Game => Future[Option[Map[String, Double]]] = featureExtractor(s, sx)
-    val c: (Game, Result) => Future[Option[Double]] = categoryExtractor(s, sx)
+    val f: NaiveLeastSquaresFeatureExtractor = NaiveLeastSquaresFeatureExtractor(s, sx)
+    val c: CategoryExtractor = WinLossCategoryExtractor()
     val games = s.completeGames.filterNot(_._1.date.getMonthValue === 11)
-    logger.info(s"For season ${s.season.year} found ${games.size} completed games (excluding November)")
-    Future.sequence(games.map { case (g, r) =>
-      val ffs = f(g)
-      val cxs = c(g, r)
-      for {
-        fv <- ffs
-        xv <- cxs
-      } yield {
-        (fv.flatMap(_.get("ols-z-diff")), xv.map(_.toInt)) match {
-          case (Some(x), Some(y)) => Some(x, y)
-          case _ => None
-        }
+    for {
+      features <- f(games.map(_._1))
+      categories <- c(games)
+    } yield features.zip(categories).flatMap { case (featureMap: Map[String, Double], cat: Option[Double]) =>
+      (featureMap.get("ols-z-diff"), cat.map(_.toInt)) match {
+        case (Some(x), Some(y)) => Some(x, y)
+        case _ => None
       }
-    }).map(mts => {
-      logger.info(s"Attempted to load features and categories for ${mts.size} results, got ${mts.count(_.isDefined)}. ")
-      mts.flatten
-    })
-
+    }
   }
 
   def categoryExtractor(s: Schedule, dx: StatValueDAO): (Game, Result) => Future[Option[Double]] =

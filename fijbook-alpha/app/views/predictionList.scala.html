@@ -10,6 +10,15 @@
     <div class="card-body">
         <table class="table table-sm">
             <thead/>
+            <tr>
+                <th>Home Team</th><th/>
+                <th>Away Team</th><th/>
+                <th>Date</th>
+                <th>Favorite</th>
+                <th>Probability</th>
+                <th>Spread</th>
+                <th>O/U</th>
+            </tr>
             <tbody>
             @for(t<-ps){
                 @views.html.data.blocks.prediction.predictionLine(t)
