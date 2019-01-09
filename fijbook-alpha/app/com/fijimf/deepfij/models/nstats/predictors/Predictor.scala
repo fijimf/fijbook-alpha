@@ -51,6 +51,16 @@ object Predictor {
           logger.info(s"Could not read model from file ${file.toString}")
           Some(BaselineLogisticPredictor(None))
         }
+      case "nextgen-logistic-predictor" =>
+        logger.info(s"Trying to read trained model from ${file.toString}")
+        if (Files.isReadable(file.toPath)) {
+          val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
+          logger.info(s"Read model from file ${file.toString}")
+          Some(NextGenLogisticPredictor(Some(regression)))
+        } else {
+          logger.info(s"Could not read model from file ${file.toString}")
+          Some(NextGenLogisticPredictor(None))
+        }
       case _ =>
         logger.info(s"Trying to read trained model from ${file.toString}")
         if (Files.isReadable(file.toPath)) {

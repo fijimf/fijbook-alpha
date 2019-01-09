@@ -89,14 +89,15 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
     val schedHash = ScheduleSerializer.md5Hash(s)
 
     logger.info(s"Hash value for ${s.season.year} is $schedHash")
-    Future.sequence(models.map(m => {
+    val analyses: Future[List[Option[Analysis[_]]]] = Future.sequence(models.map(m => {
       dao.findStatus(s.season.id, m.key).map {
         case Some(c) if c.hash === schedHash =>
           logger.info(s"Skipping model ${m.key} for ${s.season.year}.  Stats are up to date")
           Option.empty[Analysis[_]]
         case _ => Some(m)
       }
-    })).map(_.flatten).map {
+    }))
+    analyses.map(_.flatten).map {
       case Nil =>
         logger.info("**** No models to run")
         sendCompletionMessage(timeout, key, buffer)
@@ -126,7 +127,7 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
     }
   }
 
-  private def sendCompletionMessage(timeout: FiniteDuration, key: String, buffer: ActorRef) = {
+  private def sendCompletionMessage(timeout: FiniteDuration, key: String, buffer: ActorRef): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val completionMessage = buffer.ask(SendingComplete)(timeout)
@@ -136,7 +137,6 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
       logger.info(s" Sending kill to write buffer")
       buffer ! PoisonPill
     }
-    completionMessage
   }
 
   private def terminateCallback(timeout: FiniteDuration, key: String, buffer: ActorRef): ((GameCalendar, _)) => Boolean = {

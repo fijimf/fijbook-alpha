@@ -44,7 +44,7 @@ val logger=Logger(this.getClass)
   }
 
   override def train(ss: List[Schedule], sx: StatValueDAO): Future[ModelEngine[LogisticRegression]] = {
-    val futureTuples: Future[List[(Double, Int)]] = Future.sequence(ss.map(s => loadScheduleFeatures(s, sx))).map(_.flatten)
+    val futureTuples: Future[List[(Double, Int)]] = Future.sequence(ss.map(s => loadFeaturesAndCategories(s, sx))).map(_.flatten)
 
     futureTuples.map(fts=>{
       logger.info(s"Training set has ${fts.size} a elements")
@@ -55,19 +55,25 @@ val logger=Logger(this.getClass)
     })
   }
 
-  private def loadScheduleFeatures(s: Schedule, sx: StatValueDAO): Future[List[(Double, Int)]] = {
+  private def loadFeaturesAndCategories(s: Schedule, sx: StatValueDAO): Future[List[(Double, Int)]] = {
 
-    val f: NaiveLeastSquaresFeatureExtractor = NaiveLeastSquaresFeatureExtractor(s, sx)
+    val f: BaseLogisticFeatureExtractor = BaseLogisticFeatureExtractor(s, sx)
     val c: CategoryExtractor = WinLossCategoryExtractor()
     val games = s.completeGames.filterNot(_._1.date.getMonthValue === 11)
+    logger.info(s"For schedule ${s.season.year} found ${games.size} games")
     for {
       features <- f(games.map(_._1))
       categories <- c(games)
-    } yield features.zip(categories).flatMap { case (featureMap: Map[String, Double], cat: Option[Double]) =>
-      (featureMap.get("ols-z-diff"), cat.map(_.toInt)) match {
-        case (Some(x), Some(y)) => Some(x, y)
-        case _ => None
+    } yield {
+      val observations = features.zip(categories).flatMap {
+        case (featureMap: Map[String, Double], cat: Option[Double]) =>
+          (featureMap.get("ols-z-diff"), cat.map(_.toInt)) match {
+            case (Some(x), Some(y)) => Some(x, y)
+            case _ => None
+          }
       }
+      logger.info(s"For schedule ${s.season.year} found ${observations.size} observations")
+      observations
     }
   }
 

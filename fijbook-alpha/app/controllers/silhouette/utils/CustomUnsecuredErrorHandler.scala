@@ -9,7 +9,7 @@ import scala.concurrent.Future
 /**
   * Custom unsecured error handler.
   */
-class CustomUnsecuredErrorHandler extends UnsecuredErrorHandler {
+final class CustomUnsecuredErrorHandler extends UnsecuredErrorHandler {
 
   /**
     * Called when a user is authenticated but not authorized.

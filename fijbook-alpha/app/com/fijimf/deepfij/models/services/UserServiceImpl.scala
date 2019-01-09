@@ -70,6 +70,7 @@ class UserServiceImpl @Inject() (userDAO: UserDAO) extends UserService {
           avatarURL = profile.avatarURL,
           activated = true
         ))
+      case _=> throw new IllegalArgumentException
     }
   }
 
