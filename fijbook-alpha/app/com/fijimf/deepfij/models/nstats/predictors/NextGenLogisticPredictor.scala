@@ -31,7 +31,7 @@ val logger=Logger(this.getClass)
 
     val f: BaseLogisticFeatureExtractor = BaseLogisticFeatureExtractor(s, sx)
     val c: CategoryExtractor = SpreadCategoryExtractor(SpreadTransformers.cap(35))
-    val cPrime: CategoryExtractor = SpreadCategoryExtractor(SpreadTransformers.cappedNoisy(35,0.05))
+    val cPrime: CategoryExtractor = SpreadCategoryExtractor(SpreadTransformers.cappedNoisy(35,0.025))
     val games = s.completeGames.filterNot(_._1.date.getMonthValue === 11)
     logger.info(s"For schedule ${s.season.year} found ${games.size} games")
     for {
@@ -79,13 +79,13 @@ val logger=Logger(this.getClass)
                 val pp = Array.fill[Double](71)(0.0)
                 val p: Int = k.predict(Array(x), pp)
                 val spread=pp.zipWithIndex.map{case (probability: Double, spreadOff: Int) => probability * (spreadOff-35)}.sum
-                val hp1=pp.take(35).sum
-                val ap1=pp.drop(36).sum
+                val hp1=pp.drop(35).sum
+                val ap1=pp.take(36).sum
                 val hp = hp1+(1.0-(hp1+ap1))/2
                 val ap = ap1+(1.0-(hp1+ap1))/2
 
                 logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
-                if (hp> ap ) {
+                if (hp > ap ) {
                   XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(hp), Some(math.min(spread, 0.0)), None)
                 } else {
                   XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(ap), Some(math.min(-spread,0.0)), None)
