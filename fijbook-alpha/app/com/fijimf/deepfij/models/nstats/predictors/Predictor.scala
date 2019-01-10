@@ -36,41 +36,62 @@ val logger = Logger(this.getClass)
 object Predictor {
   val logger = Logger(this.getClass)
 
+  val predictionModels: Map[String, (Configuration, String, Int) => Option[ModelEngine[java.io.Serializable]]] = Map(
+    "naive-least-squares" -> loadNaiveLeastSquaresPredictor,
+    "baseline-logistic-predictor" -> loadBaseLineLogisticPredictor,
+    "nextgen-logistic-predictor" -> loadNextGenLogisticPredictor
+  )
+
   def load(cfg: Configuration, key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
+    predictionModels.get(key) match {
+      case Some(f) => f(cfg, key, version)
+      case _ => loadDummyModel(cfg, key, version)
+    }
+  }
+
+  private def loadNaiveLeastSquaresPredictor(cfg: Configuration, key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
+    Some(NaiveLeastSquaresPredictor)
+  }
+
+  private def loadDummyModel(cfg: Configuration, key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
     val file = getFileName(cfg, key, version)
-    logger.info(s"Attempting to load ${file.getPath}")
-    key match {
-      case "naive-least-squares" => Some(NaiveLeastSquaresPredictor)
-      case "baseline-logistic-predictor" =>
-        logger.info(s"Trying to read trained model from ${file.toString}")
-        if (Files.isReadable(file.toPath)) {
-          val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
-          logger.info(s"Read model from file ${file.toString}")
-          Some(BaselineLogisticPredictor(Some(regression)))
-        } else {
-          logger.info(s"Could not read model from file ${file.toString}")
-          Some(BaselineLogisticPredictor(None))
-        }
-      case "nextgen-logistic-predictor" =>
-        logger.info(s"Trying to read trained model from ${file.toString}")
-        if (Files.isReadable(file.toPath)) {
-          val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
-          logger.info(s"Read model from file ${file.toString}")
-          Some(NextGenLogisticPredictor(Some(regression)))
-        } else {
-          logger.info(s"Could not read model from file ${file.toString}")
-          Some(NextGenLogisticPredictor(None))
-        }
-      case _ =>
-        logger.info(s"Trying to read trained model from ${file.toString}")
-        if (Files.isReadable(file.toPath)) {
-          val state = smile.read(file.getPath).asInstanceOf[String]
-          logger.info(s"Read model from file ${file.toString}")
-          Some(DummyModelEngine(Some(state)))
-        } else {
-          logger.info(s"Could not read model from file ${file.toString}")
-          Some(DummyModelEngine())
-        }
+
+    logger.info(s"Trying to read trained model from ${file.toString}")
+    if (Files.isReadable(file.toPath)) {
+      val state = smile.read(file.getPath).asInstanceOf[String]
+      logger.info(s"Read model from file ${file.toString}")
+      Some(DummyModelEngine(Some(state)))
+    } else {
+      logger.info(s"Could not read model from file ${file.toString}")
+      Some(DummyModelEngine())
+    }
+  }
+
+  private def loadNextGenLogisticPredictor(cfg: Configuration, key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
+    val file = getFileName(cfg, key, version)
+
+    logger.info(s"Trying to read trained model from ${file.toString}")
+    if (Files.isReadable(file.toPath)) {
+      val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
+      logger.info(s"Read model from file ${file.toString}")
+      Some(NextGenLogisticPredictor(Some(regression)))
+    } else {
+      logger.info(s"Could not read model from file ${file.toString}")
+      Some(NextGenLogisticPredictor(None))
+    }
+  }
+
+  private def loadBaseLineLogisticPredictor(cfg: Configuration, key: String, version: Int): Option[ModelEngine[java.io.Serializable]] = {
+    val file = getFileName(cfg, key, version)
+
+    logger.info(s"Trying to read trained model from ${file.toString}")
+    if (Files.isReadable(file.toPath)) {
+      val regression = smile.read(file.getPath).asInstanceOf[LogisticRegression]
+      logger.info(s"Read model from file ${file.toString}")
+      Some(BaselineLogisticPredictor(Some(regression)))
+    } else {
+      logger.info(s"Could not read model from file ${file.toString}")
+      Some(BaselineLogisticPredictor(None))
     }
   }
 
