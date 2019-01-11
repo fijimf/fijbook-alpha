@@ -1,21 +1,25 @@
 package jobs
 
-import javax.inject.Inject
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.ComputedStatisticService
+import com.fijimf.deepfij.models.services.GamePredictionService
+import javax.inject.Inject
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
-class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
+
+class PredictionUpdater @Inject()(svc: GamePredictionService) extends Actor {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
-    case year:String =>
+    case yearKey:String =>
+      val parts = yearKey.split('.')
+      val year = parts(0).toInt
+      val key =parts(1)
       logger.info(s"Received request to update all statistics for season $year")
       val capture = sender()
-      svc.update(year.toInt, 1.hour).onComplete{
+      svc.update(year,key, 1.hour).onComplete{
         case Success(msg)=>
           logger.info(s"Update complete sending status $msg to original caller ${capture.path.toStringWithoutAddress}")
           capture ! msg
@@ -27,7 +31,10 @@ class StatsUpdater @Inject()(svc: ComputedStatisticService) extends Actor {
   }
 }
 
-object StatsUpdater {
-  val name = "stats-updater"
+object PredictionUpdater {
+  val name = "prediction-updater"
 }
+
+
+
 
