@@ -22,6 +22,7 @@ class ScrapingModule extends AbstractModule with ScalaModule with AkkaGuiceSuppo
     bind[ScheduleDAO].to[ScheduleDAOImpl]
     bind[ScheduleUpdateService].to[ScheduleUpdateServiceImpl]
     bind[ComputedStatisticService].to[ComputedStatisticServiceImpl]
+    bind[GamePredictionService].to[GamePredictionServiceImpl]
     bind[MemoryMonitorService].to[MemoryMonitorServiceImpl]
     bind[RssFeedUpdateService].to[RssFeedUpdateServiceImpl]
   }

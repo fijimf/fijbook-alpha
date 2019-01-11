@@ -86,9 +86,9 @@ val logger=Logger(this.getClass)
 
                 logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
                 if (hp > ap ) {
-                  XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(hp), Some(math.min(spread, 0.0)), None)
+                  XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(hp), Some(math.max(spread, 0.0)), None)
                 } else {
-                  XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(ap), Some(math.min(-spread,0.0)), None)
+                  XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(ap), Some(math.max(-spread,0.0)), None)
                 }
               })
             }
