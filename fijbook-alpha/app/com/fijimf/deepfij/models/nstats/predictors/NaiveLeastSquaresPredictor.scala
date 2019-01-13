@@ -2,14 +2,13 @@ package com.fijimf.deepfij.models.nstats.predictors
 
 import java.time.LocalDate
 
-import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
 import play.api.Logger
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object NaiveLeastSquaresPredictor extends ModelEngine[String] {
 val logger = Logger(this.getClass)
@@ -30,9 +29,9 @@ val logger = Logger(this.getClass)
             a <- feat.get("away-raw-ols")
           } yield {
             if (h > a) {
-              XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(h - a), Some(h + a))
+              XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(h - a), None)
             } else {
-              XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(a - h), Some(h + a))
+              XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(a - h), None)
             }
           }
         }

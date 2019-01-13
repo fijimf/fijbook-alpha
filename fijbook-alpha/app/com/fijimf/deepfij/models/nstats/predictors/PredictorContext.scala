@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
+import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Schedule, XPrediction, XPredictionModel}
@@ -7,6 +8,7 @@ import play.api.{Configuration, Logger}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
   val logger=Logger(this.getClass)
   /*
@@ -29,8 +31,12 @@ case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
       } yield {
         if (e.kernel.isDefined) {
           logger.info(s"For ${m.key} version ${m.version} loaded trained kernel.")
-          Future.successful {
-            Predictor(m, e)
+          if (m.id === 0) {
+            dao.savePredictionModel(m.copy(version = m.version + 1)).map(Predictor(_,e))
+          } else {
+            Future.successful {
+              Predictor(m, e)
+            }
           }
         } else {
           Predictor(m, e).train(cfg, dao)
