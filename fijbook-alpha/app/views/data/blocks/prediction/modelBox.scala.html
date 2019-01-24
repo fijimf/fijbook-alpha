@@ -1,0 +1,9 @@
+@import com.fijimf.deepfij.models.XPredictionModel
+@import java.time.LocalDateTime
+@import controllers.Utils._
+@(model:XPredictionModel, trainedAt:LocalDateTime)
+<div class="card-header">
+    <h6>Model: @model.key </h6>
+    <h6>Version: @model.version</h6>
+    <h6>Trained at: @{trainedAt.fmt("yyyy-MM-dd HH:mm:ss")}</h6>
+</div>

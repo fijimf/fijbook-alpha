@@ -1,10 +1,13 @@
 package controllers
 
-import java.time.LocalDate
+import java.nio.file.Files
+import java.nio.file.attribute.FileTime
+import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.util.TimeZone
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.nstats.predictors.PredictorContext
+import com.fijimf.deepfij.models.nstats.predictors.{PredictionResult, Predictor, PredictorContext}
 import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
@@ -43,22 +46,6 @@ class PredictionController @Inject()(
   }
 
 
-  def showLatestX(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    val date = controllers.Utils.yyyymmdd(yyyymmdd)
-    val value: Future[List[(Game, Option[Result], Option[XPrediction])]] = for {
-      du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
-      ss <- dao.loadSchedules()
-      pm <- dao.loadLatestPredictionModel(key)
-      ps <- dao.findXPredicitions(pm.map(_.id).getOrElse(-1))
-    } yield {
-      predictResults(ss,ps, date)
-    }
-
-    value.map(v=> Ok(v.mkString("\n")))
-//    Future.successful)
-
-  }
   def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     val date = controllers.Utils.yyyymmdd(yyyymmdd)
     for {
@@ -72,7 +59,14 @@ class PredictionController @Inject()(
       ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
         case Some(sch)=>
           implicit val imoplicitSched: Schedule = sch
-          Ok(views.html.predictionPage(du,qw,date,key,predictResults(ss,ps, date)))
+          pm match {
+            case Some(m)=>
+              val trainedAt = Some(LocalDateTime.ofInstant(Predictor.modelTrainedAt(cfg, m.key,m.version).toInstant, TimeZone.getTimeZone("America/New_York").toZoneId))
+              Ok(views.html.predictionPage(du,qw,key, date,pm, trainedAt,predictResults(ss,ps, date)))
+            case None=>
+              Ok(views.html.predictionPage(du,qw,key, date,None, None,predictResults(ss,ps, date)))
+          }
+
         case None=> Redirect(routes.ReactMainController.index())
       }
     //  Ok(predictResults(ss,ps, date).mkString("\n"))
@@ -80,13 +74,13 @@ class PredictionController @Inject()(
 
   }
 
-  def predictResults(so: List[Schedule], predictions: List[XPrediction], date: LocalDate): List[(Game, Option[Result], Option[XPrediction])] = {
+  def predictResults(so: List[Schedule], predictions: List[XPrediction], date: LocalDate): List[PredictionResult] = {
     for {
       sch <- so.find(_.season.isInSeason(date))
     } yield {
       implicit val implicitSchedule: Schedule = sch
       val predMap = predictions.map(p => p.gameId -> p).toMap
-      sch.gameResults.filter(_._1.date == date).map(t => (t._1, t._2, predMap.get(t._1.id)))
+      sch.gameResults.filter(_._1.date == date).map(t => PredictionResult(t._1, t._2, predMap.get(t._1.id)))
     }
-  }.getOrElse(List.empty[(Game, Option[Result], Option[XPrediction])])
+  }.getOrElse(List.empty[PredictionResult])
 }

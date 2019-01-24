@@ -11,6 +11,8 @@ import smile.classification.LogisticRegression
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
 
 case class Predictor[+M <: java.io.Serializable](xm: XPredictionModel, me: ModelEngine[M]) {
 val logger = Logger(this.getClass)
@@ -109,6 +111,11 @@ object Predictor {
       case Failure(ex)=>logger.error("Failed to write model.  Exception was "+ex, ex)
     }
 
+  }
+
+  def modelTrainedAt(cfg: Configuration, key: String, version: Int)={
+   val file = getFileName(cfg,key,version)
+    Files.getLastModifiedTime(file.toPath)
   }
 
   def getFileName(cfg: Configuration, key: String, version: Int): File = {

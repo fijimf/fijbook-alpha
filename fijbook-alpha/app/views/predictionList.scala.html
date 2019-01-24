@@ -3,7 +3,9 @@
 @import com.fijimf.deepfij.models.Schedule
 @import controllers.Utils.LocalDateTimeWrapper
 @import com.fijimf.deepfij.models.XPrediction
-@(ps:List[(Game, Option[Result], Option[XPrediction])])(implicit sch:Schedule)
+@import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
+@import views.html.data.blocks.team.idNameLink
+@(ps:List[PredictionResult])(implicit sch:Schedule)
 @if(ps.isEmpty) {
     <div class="card-body"><p>No games scheduled</p></div>
 } else {
@@ -11,17 +13,31 @@
         <table class="table table-sm">
             <thead/>
             <tr>
-                <th>Home Team</th><th/>
-                <th>Away Team</th><th/>
-                <th>Date</th>
+                <th>Home Team</th>
+                <th/>
+                <th>Away Team</th>
+                <th/>
                 <th>Favorite</th>
+                <th/>
                 <th>Probability</th>
+                <th/>
                 <th>Spread</th>
-                <th>O/U</th>
+                <th/>
             </tr>
             <tbody>
             @for(t<-ps){
-                @views.html.data.blocks.prediction.predictionLine(t)
+                <tr>
+                <td>@idNameLink(t.homeId)</td>
+                <td>@t.homeScore.getOrElse("-")</td>
+                <td>@idNameLink(t.awayId)</td>
+                <td>@t.awayScore.getOrElse("-")</td>
+                <td>@idNameLink(t.favorite.getOrElse(-1))</td>
+                <td/>
+                <td>@t.probability.map(x=>"%4.1f%%".format(x*100)).getOrElse("-")</td>
+                <td>@t.probabilityError.map(x=>"%5.2f".format(x)).getOrElse("-")</td>
+                <td>@t.spread.map(x=>"%4.1f".format(x)).getOrElse("-")</td>
+                <td>@t.spreadError.map(x=>"%4.1f".format(x)).getOrElse("-")</td>
+                </tr>
             }
             </tbody>
         </table>

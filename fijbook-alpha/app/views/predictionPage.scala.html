@@ -6,17 +6,23 @@
 @import com.fijimf.deepfij.models.Game
 @import com.fijimf.deepfij.models.Result
 @import com.fijimf.deepfij.models.XPrediction
-@(du: DisplayUser, qw:QuoteWrapper,  today:LocalDate, modelKey:String, ps:List[(Game, Option[Result], Option[XPrediction])])(implicit sch:Schedule, request: RequestHeader, flash: Flash)
+@import com.fijimf.deepfij.models.XPredictionModel
+@import java.time.LocalDateTime
+@import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
+@(du: DisplayUser, qw:QuoteWrapper,  key:String, today:LocalDate, model:Option[XPredictionModel], trainedAt:Option[LocalDateTime], ps:List[PredictionResult])(implicit sch:Schedule, request: RequestHeader, flash: Flash)
 @main3000(displayUser = du, quoteWrapper = qw) {
-   <div class="row"><h4>@{
-      today.fmt("EEEE MMMM d, yyyy")
-   }</h4></div>
+   <div class="row">
+       <h4>@{today.fmt("EEEE MMMM d, yyyy")}</h4>
+   </div>
+
     <div class="row">
-       <div class="card w-100 my-1">
-           <div class="card-header">
-         <h6>@modelKey</h6>
-           </div>
-           @predictionList(ps)
-      </div>
+        <div class="card w-100 my-1">
+            @if(model.isDefined && trainedAt.isDefined) {
+                @data.blocks.prediction.modelBox(model.get, trainedAt.get)
+            } else {
+                @data.blocks.prediction.modelBoxEmpty(key)
+            }
+            @predictionList(ps)
+        </div>
     </div>
 }
