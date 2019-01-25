@@ -14,7 +14,7 @@ import scala.concurrent.Future
 case class BaselineLogisticPredictor(kernel: Option[LogisticRegression]) extends ModelEngine[LogisticRegression] {
 val logger=Logger(this.getClass)
 
-  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[Option[XPrediction]]] = {
+  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]] = {
     val f = BaseLogisticFeatureExtractor(s, ss)
     val now = LocalDate.now()
     kernel match {
@@ -38,8 +38,8 @@ val logger=Logger(this.getClass)
                 }
               })
             }
-          }
-      case _ => gs: List[Game] => Future.successful(List.empty[Option[XPrediction]])
+          }.flatten
+      case _ => gs: List[Game] => Future.successful(List.empty[XPrediction])
     }
   }
 

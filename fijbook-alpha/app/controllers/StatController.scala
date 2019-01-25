@@ -76,7 +76,7 @@ class StatController @Inject()(
       }))
         .xGrid()
         .yGrid()
-        .xAxis(labelFormatter=Some((d:Double)=>LocalDate.ofEpochDay(d.longValue()).fmt("MMM-dd")))
+        .xAxis(labelFormatter = Some((d: Double) => LocalDate.ofEpochDay(d.longValue()).fmt("MMM-dd")))
         .yAxis()
 
       returnBufferedImage(plot.render().asBufferedImage)
@@ -92,7 +92,7 @@ class StatController @Inject()(
       du <- loadDisplayUser(request)
       qw <- getQuoteWrapper(du)
       team <- dao.findTeamById(teamId)
-      lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString, DateTimeFormatter.ofPattern("yyyyMMdd")), key,false)
+      lst <- dao.findXStatsSnapshot(seasonId, LocalDate.parse(yyyymmdd.toString, DateTimeFormatter.ofPattern("yyyyMMdd")), key, false)
     } yield {
       val mean = lst.head.mean.getOrElse(Double.NaN)
       val stdDev = lst.head.stdDev.getOrElse(Double.NaN)
@@ -112,10 +112,10 @@ class StatController @Inject()(
         .filter(x => hist.xbounds.isInBounds(x))
         .foldLeft(hist) {
           case (p, xl) =>
-            if (xl===mean){
+            if (xl === mean) {
               p.vline(xl, thickness = theme.elements.strokeWidth, color = HTMLNamedColors.darkGray)
             } else {
-              p.vline(xl, thickness = 0.5* theme.elements.strokeWidth, color = HTMLNamedColors.lightGray)
+              p.vline(xl, thickness = 0.5 * theme.elements.strokeWidth, color = HTMLNamedColors.lightGray)
 
             }
         }
@@ -134,4 +134,11 @@ class StatController @Inject()(
   }
 
 
+  def showStat(key: String) = play.mvc.Results.TODO
+
+  def showStat(key: String, yyyymmdd:String) = play.mvc.Results.TODO
+
+  def stats() = play.mvc.Results.TODO
+
+  def showStatSnapshot(key: String, yyyymmdd: String) = play.mvc.Results.TODO
 }

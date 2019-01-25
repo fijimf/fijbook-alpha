@@ -1,23 +1,18 @@
 package controllers
 
-import java.nio.file.Files
-import java.nio.file.attribute.FileTime
-import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.time.{LocalDate, LocalDateTime}
 import java.util.TimeZone
 
-import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.predictors.{PredictionResult, Predictor, PredictorContext}
-import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction}
+import com.fijimf.deepfij.models.{Schedule, XPrediction}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
-import play.api.{Configuration, Logger}
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
-
-import scala.concurrent.Future
+import play.api.{Configuration, Logger}
 
 class PredictionController @Inject()(
                                       val controllerComponents: ControllerComponents,
@@ -34,7 +29,7 @@ class PredictionController @Inject()(
 
   private val predCtx: PredictorContext = PredictorContext(cfg, dao)
 
-  def updatePredictions(key: String, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+  def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     logger.info(s"Updating predictions for model '$key' and season $yyyy")
     for {
       du <- loadDisplayUser(rs)
@@ -83,4 +78,16 @@ class PredictionController @Inject()(
       sch.gameResults.filter(_._1.date == date).map(t => PredictionResult(t._1, t._2, predMap.get(t._1.id)))
     }
   }.getOrElse(List.empty[PredictionResult])
+
+  def trainModel(key: String) = play.mvc.Results.TODO
+
+  def compareModels(key1: String, version1: Int, key2: String, version2: Int, yyyyy: Int) = play.mvc.Results.TODO
+
+  def showVersion(key: String, version:Int, yyyymmdd: String) = play.mvc.Results.TODO
+
+  def showAll() = play.mvc.Results.TODO
+
+  def showVersions(key: String) = play.mvc.Results.TODO
+
+  def updatePredictions(key: String, version: Int, yyyy: Int) = play.mvc.Results.TODO
 }

@@ -46,7 +46,7 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     db.run(
       (for {
         _ <- repo.xpredictions.filter(x => x.modelId === modelId && x.schedMD5Hash === schedHash).delete
-        _ <- repo.xpredictions ++= xps
+        _ <- repo.xpredictions ++= xps.map(_.copy(modelId = modelId, schedMD5Hash = schedHash))
         ins <- repo.xpredictions.filter(x => x.modelId === modelId && x.schedMD5Hash === schedHash).result
       } yield {
         ins

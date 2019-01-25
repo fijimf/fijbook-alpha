@@ -10,5 +10,5 @@ trait ModelEngine[+M<: java.io.Serializable] {
 
   def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[M]]
 
-  def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[Option[XPrediction]]]
+  def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]]
 }

@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models.nstats.predictors
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
-import com.fijimf.deepfij.models.{Schedule, XPrediction, XPredictionModel}
+import com.fijimf.deepfij.models.{Game, Schedule, XPrediction, XPredictionModel}
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -65,13 +65,16 @@ case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
       predictor <- op
       s <- sch
     } yield {
-      val hash = ScheduleSerializer.md5Hash(s)
-      val modelId = predictor.xm.id
-      val pp = predictor.me.predict(s, dao)
-      val flist: Future[List[XPrediction]] = pp(s.incompleteGames).map(_.flatten)
-      flist.flatMap(lst => {
-        dao.updatePredictions(modelId, hash, lst.map(_.copy(modelId = modelId, schedMD5Hash = hash)))
-      })
+      calculateAndSavePredictions(predictor, s)
     }).getOrElse(Future.successful(List.empty[XPrediction]))
+  }
+
+  private def calculateAndSavePredictions(predictor: Predictor[_], s: Schedule) = {
+    val hash = ScheduleSerializer.md5Hash(s)
+    val modelId = predictor.xm.id
+    val pp: List[Game] => Future[List[XPrediction]] = predictor.me.predict(s, dao)
+    pp(s.games).flatMap(lst => {
+      dao.updatePredictions(modelId, hash, lst)
+    })
   }
 }

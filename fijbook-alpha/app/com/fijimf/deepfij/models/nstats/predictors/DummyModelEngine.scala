@@ -10,5 +10,5 @@ case class DummyModelEngine(state:Option[String]=None) extends ModelEngine[Strin
 
     override def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[String]] = if (state.isDefined) throw new IllegalStateException() else Future.successful(DummyModelEngine(Some("Trained")))
 
-    override def predict(s: Schedule, ss: StatValueDAO):List[Game] => Future[List[Option[XPrediction]]] = _=>Future.successful(List.empty[Option[XPrediction]])
+    override def predict(s: Schedule, ss: StatValueDAO):List[Game] => Future[List[XPrediction]] = _=>Future.successful(List.empty[XPrediction])
   }
