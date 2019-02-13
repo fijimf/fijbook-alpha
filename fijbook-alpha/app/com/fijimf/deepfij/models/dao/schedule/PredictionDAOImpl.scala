@@ -26,14 +26,22 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
-  override def loadLatestPredictionModel(key: String): Future[Option[XPredictionModel]] = {
-    //This should not have to be this way, but somehow slick & H2 were not working together....
-    val future = db.run(repo.xpredictionModels.filter(_.key === key).to[List].result)
-    future.map(_.sortBy(_.version).reverse.headOption)
+  override def loadLatestPredictionModel(key: String): Future[XPredictionModel] = {
+    db.run(repo.xpredictionModels.map(_.version).max.result).flatMap {
+      case Some(v) => loadPredictionModel(key, v).flatMap {
+        case Some(xp)=>Future.successful(xp)
+        case None=> Future.failed(new RuntimeException(s"Latest version for '$key' expected was $v, but it could not be loaded"))
+      }
+      case None => savePredictionModel(XPredictionModel(0L, key, 1))
+    }
   }
 
   def loadPredictionModel(key: String, version: Int): Future[Option[XPredictionModel]] = {
     db.run(repo.xpredictionModels.filter(pm => pm.key === key && pm.version === version).result.headOption)
+  }
+
+  def loadPredictionModel(key: String): Future[List[XPredictionModel]]={
+    db.run(repo.xpredictionModels.filter(pm => pm.key === key ).to[List].result)
   }
 
   override def savePredictionModel(model: XPredictionModel): Future[XPredictionModel] = {

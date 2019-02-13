@@ -29,17 +29,39 @@ class PredictionController @Inject()(
 
   private val predCtx: PredictorContext = PredictorContext(cfg, dao)
 
+
+  def managePredictions() : Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+   val modelNames = Predictor.predictionModels.keySet.toList.sorted
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      ps <- predCtx.loadPredictor()
+    } yield {
+      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
+    }
+  }
+
   def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    logger.info(s"Updating predictions for model '$key' and season $yyyy")
+    logger.info(s"Updating predictions for latest trained version model '$key' and season $yyyy")
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
       ps <- predCtx.updatePredictions(key, yyyy)
     } yield {
-      Ok(ps.map(_.toString).mkString("\n"))
+      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
     }
   }
 
+  def updatePredictions(key: String, version: Int, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+    logger.info(s"Updating predictions for version $version of model '$key' and season $yyyy")
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      ps <- predCtx.updatePredictions(key, version, yyyy)
+    } yield {
+      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
+    }
+  }
 
   def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
     val date = controllers.Utils.yyyymmdd(yyyymmdd)
@@ -48,23 +70,15 @@ class PredictionController @Inject()(
       qw <- getQuoteWrapper(du)
       ss <- dao.loadSchedules()
       pm <- dao.loadLatestPredictionModel(key)
-      ps <- dao.findXPredicitions(pm.map(_.id).getOrElse(-1))
+      ps <- dao.findXPredicitions(pm.id)
     } yield {
-
       ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
-        case Some(sch)=>
-          implicit val imoplicitSched: Schedule = sch
-          pm match {
-            case Some(m)=>
-              val trainedAt = Some(LocalDateTime.ofInstant(Predictor.modelTrainedAt(cfg, m.key,m.version).toInstant, TimeZone.getTimeZone("America/New_York").toZoneId))
-              Ok(views.html.predictionPage(du,qw,key, date,pm, trainedAt,predictResults(ss,ps, date)))
-            case None=>
-              Ok(views.html.predictionPage(du,qw,key, date,None, None,predictResults(ss,ps, date)))
-          }
-
-        case None=> Redirect(routes.ReactMainController.index())
+        case Some(sch) =>
+          implicit val impSched: Schedule = sch
+          val trainedAt = Some(LocalDateTime.ofInstant(Predictor.modelTrainedAt(cfg, pm.key, pm.version).toInstant, TimeZone.getTimeZone("America/New_York").toZoneId))
+          Ok(views.html.predictionPage(du, qw, key, date, pm, trainedAt, predictResults(ss, ps, date)))
+        case None => Redirect(routes.ReactMainController.index())
       }
-    //  Ok(predictResults(ss,ps, date).mkString("\n"))
     }
 
   }
@@ -73,7 +87,6 @@ class PredictionController @Inject()(
     for {
       sch <- so.find(_.season.isInSeason(date))
     } yield {
-      implicit val implicitSchedule: Schedule = sch
       val predMap = predictions.map(p => p.gameId -> p).toMap
       sch.gameResults.filter(_._1.date == date).map(t => PredictionResult(t._1, t._2, predMap.get(t._1.id)))
     }
@@ -89,5 +102,6 @@ class PredictionController @Inject()(
 
   def showVersions(key: String) = play.mvc.Results.TODO
 
-  def updatePredictions(key: String, version: Int, yyyy: Int) = play.mvc.Results.TODO
+
+
 }
