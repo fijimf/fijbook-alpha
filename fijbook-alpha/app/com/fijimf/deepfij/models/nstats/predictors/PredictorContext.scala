@@ -2,6 +2,8 @@ package com.fijimf.deepfij.models.nstats.predictors
 
 import java.io
 
+import cats.data.OptionT
+import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Game, Schedule, XPrediction, XPredictionModel}
@@ -11,19 +13,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
-  val logger=Logger(this.getClass)
+  val logger = Logger(this.getClass)
 
-  def loadLatestPredictor(key: String): Future[Predictor[io.Serializable]] = {
+  def loadLatestPredictor(key: String): OptionT[Future, Predictor[io.Serializable]] = {
     logger.info(s"Loading latest version of '$key'")
     for {
       model <- dao.loadLatestPredictionModel(key)
-      predictor <- loadOrTrainKernel(Some(model))
+      predictor <- loadOrTrainKernel(model)
     } yield {
       predictor
     }
   }
 
-  def loadPredictor(key: String, version: Int): Future[Predictor[io.Serializable]] = {
+  def loadPredictor(key: String, version: Int): OptionT[Future, Predictor[io.Serializable]] = {
     logger.info(s"Loading latest version of '$key'")
     for {
       model <- dao.loadPredictionModel(key, version)
@@ -33,72 +35,55 @@ case class PredictorContext(cfg:Configuration, dao: ScheduleDAO) {
     }
   }
 
-  def loadAllPredictors(key:String):Future[List[Predictor[io.Serializable]]] = {
+  def loadAllPredictors(key: String): Future[List[Predictor[io.Serializable]]] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    for {
-      models <- dao.loadPredictionModel(key)
-      predictors <- Future.sequence(models.map(xp=>loadOrTrainKernel(Some(xp)).collect()))
+    (for {
+      models <- OptionT.liftF(dao.loadPredictionModels(key))
+      predictors <- models.map(xp => loadOrTrainKernel(xp)).sequence
     } yield {
       predictors
-    }
+    }).getOrElse(List.empty[Predictor[io.Serializable]])
   }
 
-  def loadOrTrainKernel(model: Option[XPredictionModel]): Future[Predictor[io.Serializable]] = {
-    loadKernel(model).orElse(trainKernel(model)) match {
-      case Some(p)=>p
-      case _=> Future.failed(new RuntimeException("Failed to load or train kernel"))
-    }
+  def loadOrTrainKernel(model: XPredictionModel): OptionT[Future, Predictor[io.Serializable]] = {
+    loadKernel(model).orElse(trainKernel(model))
   }
 
-  private def trainKernel(model: Option[XPredictionModel]): Option[Future[Predictor[java.io.Serializable]]] = {
-    for {
-      m <- model
-      e <- Predictor.load(cfg, m.key, m.version)
-    } yield {
-      Predictor(m, e).train(cfg, dao)
-    }
-  }
+  private def trainKernel(model: XPredictionModel): OptionT[Future, Predictor[io.Serializable]] = for {
+    e <- OptionT.fromOption[Future](Predictor.load(cfg, model.key, model.version))
+    tm <- OptionT.liftF(Predictor(model, e).train(cfg, dao))
+  } yield tm
 
-  private def loadKernel(model: Option[XPredictionModel]): Option[Future[Predictor[java.io.Serializable]]] = {
-    for {
-      m <- model
-      e <- Predictor.load(cfg, m.key, m.version)
-      x <- e.kernel
-    } yield {
-      Future.successful(Predictor(m, e))
-    }
-  }
 
-  def updatePredictions(key:String, yyyy:Int): Future[List[XPrediction]] = {
-    for {
-      op <- loadLatestPredictor(key)
-      sch<-dao.loadSchedule(yyyy)
-      predictions<-calculateAndSavePredictions( op, sch)
-    } yield{
-      predictions
-    }
-  }
+  private def loadKernel(model: XPredictionModel): OptionT[Future, Predictor[io.Serializable]] = for {
+    e <- OptionT.fromOption[Future](Predictor.load(cfg, model.key, model.version))
+  } yield Predictor(model, e)
 
-  def updatePredictions(key: String, version: Int, yyyy: Int): Future[List[XPrediction]] = {
-    for {
-      op <- loadPredictor(key, version)
-      sch <- dao.loadSchedule(yyyy)
-      predictions <- calculateAndSavePredictions(op, sch)
-    } yield {
-      predictions
-    }
-  }
 
-  private def calculateAndSavePredictions(op: Predictor[_], sch: Option[Schedule]): Future[List[XPrediction]] = {
-    sch.map(calculateAndSavePredictions(op, _)).getOrElse(Future.successful(List.empty[XPrediction]))
-  }
+  def updatePredictions(key: String, yyyy: Int): Future[List[XPrediction]] = (for {
+    op <- loadLatestPredictor(key)
+    sch <- OptionT(dao.loadSchedule(yyyy))
+    predictions <- calculateAndSavePredictions(op, sch)
+  } yield {
+    predictions
+  }).getOrElse(List.empty[XPrediction])
 
-  private def calculateAndSavePredictions(predictor: Predictor[_], s: Schedule) = {
+
+  def updatePredictions(key: String, version: Int, yyyy: Int): Future[List[XPrediction]] = (for {
+    op <- loadPredictor(key, version)
+    sch <- OptionT(dao.loadSchedule(yyyy))
+    predictions <- calculateAndSavePredictions(op, sch)
+  } yield {
+    predictions
+  }).getOrElse(List.empty[XPrediction])
+
+
+  private def calculateAndSavePredictions(predictor: Predictor[_], s: Schedule): OptionT[Future, List[XPrediction]] = {
     val hash = ScheduleSerializer.md5Hash(s)
     val modelId = predictor.xm.id
     val pp: List[Game] => Future[List[XPrediction]] = predictor.me.predict(s, dao)
-    pp(s.games).flatMap(lst => {
+    OptionT.liftF(pp(s.games).flatMap(lst => {
       dao.updatePredictions(modelId, hash, lst)
-    })
+    }))
   }
 }

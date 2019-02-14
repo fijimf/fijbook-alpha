@@ -2,6 +2,8 @@ package com.fijimf.deepfij.models.dao.schedule
 
 import java.time.{LocalDate, LocalDateTime}
 
+import cats.data.OptionT
+import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
 import org.apache.commons.lang3.StringUtils
@@ -26,28 +28,24 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
-  override def loadLatestPredictionModel(key: String): Future[XPredictionModel] = {
-    db.run(repo.xpredictionModels.map(_.version).max.result).flatMap {
-      case Some(v) => loadPredictionModel(key, v).flatMap {
-        case Some(xp)=>Future.successful(xp)
-        case None=> Future.failed(new RuntimeException(s"Latest version for '$key' expected was $v, but it could not be loaded"))
-      }
-      case None => savePredictionModel(XPredictionModel(0L, key, 1))
-    }
-  }
+  override def loadLatestPredictionModel(key: String): OptionT[Future, XPredictionModel] = for {
+    v <- OptionT(db.run(repo.xpredictionModels.map(_.version).max.result))
+    p <- loadPredictionModel(key, v).orElse(savePredictionModel(XPredictionModel(0L, key, 1)))
+  } yield p
 
-  def loadPredictionModel(key: String, version: Int): Future[Option[XPredictionModel]] = {
+
+  def loadPredictionModel(key: String, version: Int): OptionT[Future, XPredictionModel] = OptionT(
     db.run(repo.xpredictionModels.filter(pm => pm.key === key && pm.version === version).result.headOption)
+  )
+
+  def loadPredictionModel(key: String): Future[List[XPredictionModel]] = {
+    db.run(repo.xpredictionModels.filter(pm => pm.key === key).to[List].result)
   }
 
-  def loadPredictionModel(key: String): Future[List[XPredictionModel]]={
-    db.run(repo.xpredictionModels.filter(pm => pm.key === key ).to[List].result)
-  }
-
-  override def savePredictionModel(model: XPredictionModel): Future[XPredictionModel] = {
+  override def savePredictionModel(model: XPredictionModel): OptionT[Future, XPredictionModel] = {
     require(model.version > 0)
     require(StringUtils.isNotBlank(model.key))
-    db.run(upsert(model))
+    OptionT.liftF(db.run(upsert(model)))
   }
 
   override def updatePredictions(modelId: Long, schedHash: String, xps: List[XPrediction]): Future[List[XPrediction]] = {
@@ -70,8 +68,8 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     }
   }
 
-  override def findXPredicitions(modelId:Long):Future[List[XPrediction]] ={
-    db.run(repo.xpredictions.filter(_.modelId===modelId).to[List].result)
+  override def findXPredicitions(modelId: Long): Future[List[XPrediction]] = {
+    db.run(repo.xpredictions.filter(_.modelId === modelId).to[List].result)
   }
 
 }
