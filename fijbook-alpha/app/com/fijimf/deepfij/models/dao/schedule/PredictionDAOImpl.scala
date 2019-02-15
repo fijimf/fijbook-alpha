@@ -34,11 +34,11 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
   } yield p
 
 
-  def loadPredictionModel(key: String, version: Int): OptionT[Future, XPredictionModel] = OptionT(
+  override def loadPredictionModel(key: String, version: Int): OptionT[Future, XPredictionModel] = OptionT(
     db.run(repo.xpredictionModels.filter(pm => pm.key === key && pm.version === version).result.headOption)
   )
 
-  def loadPredictionModel(key: String): Future[List[XPredictionModel]] = {
+  override def loadPredictionModels(key: String): Future[List[XPredictionModel]] = {
     db.run(repo.xpredictionModels.filter(pm => pm.key === key).to[List].result)
   }
 

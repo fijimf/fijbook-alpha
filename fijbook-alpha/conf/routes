@@ -152,17 +152,17 @@ GET         /deepfij/admin/readSnapshot:key                     controllers.Admi
 GET         /deepfij/admin/deleteSnapshot:key                   controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 ##### These need to be implemented
-GET         /deepfij/admin/updatePredictions/:key/latest/:yyyy     controllers.PredictionController.updateLatestPredictions(key:String,yyyy:Int)
-GET         /deepfij/admin/updatePredictions/:key/:version/:yyyy   controllers.PredictionController.updatePredictions(key:String,version:Int,yyyy:Int)
-GET         /deepfij/admin/train/:key                              controllers.PredictionController.trainModel(key:String)
+#GET         /deepfij/admin/updatePredictions/:key/latest/:yyyy     controllers.PredictionController.updateLatestPredictions(key:String,yyyy:Int)
+#GET         /deepfij/admin/updatePredictions/:key/:version/:yyyy   controllers.PredictionController.updatePredictions(key:String,version:Int,yyyy:Int)
+#GET         /deepfij/admin/train/:key                              controllers.PredictionController.trainModel(key:String)
 GET         /deepfij/admin/predictions                             controllers.PredictionController.managePredictions
 
-GET         /deepfij/predictions/                                  controllers.PredictionController.showAll()
-GET         /deepfij/predictions/:key                              controllers.PredictionController.showVersions(key:String)
-GET         /deepfij/predictions/:key/latest/:yyyymmdd             controllers.PredictionController.showLatest(key:String,yyyymmdd:String)
-GET         /deepfij/predictions/:key/:version/:yyyymmdd           controllers.PredictionController.showVersion(key:String,version:Int,yyyymmdd:String)
-GET         /deepfij/predictions/compare/:yyyy                     controllers.PredictionController.compareModels(key1:String,version1:Int, key2:String, version2:Int , yyyy:Int)
-############ SILHOUETTE
+#GET         /deepfij/predictions/                                  controllers.PredictionController.showAll()
+#GET         /deepfij/predictions/:key                              controllers.PredictionController.showVersions(key:String)
+#GET         /deepfij/predictions/:key/latest/:yyyymmdd             controllers.PredictionController.showLatest(key:String,yyyymmdd:String)
+#GET         /deepfij/predictions/:key/:version/:yyyymmdd           controllers.PredictionController.showVersion(key:String,version:Int,yyyymmdd:String)
+#GET         /deepfij/predictions/compare/:yyyy                     controllers.PredictionController.compareModels(key1:String,version1:Int, key2:String, version2:Int , yyyy:Int)
+############# SILHOUETTE
 GET         /deepfij/stats/                                        controllers.StatController.stats()
 GET         /deepfij/stats/:key                                    controllers.StatController.showStat(key:String)
 GET         /deepfij/stats/:key/:yyyymmdd                          controllers.StatController.showStatSnapshot(key:String,yyyymmdd:String)

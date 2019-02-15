@@ -1,0 +1,22 @@
+@import com.fijimf.deepfij.models.User
+@import com.fijimf.deepfij.models.Conference
+@import com.fijimf.deepfij.models.react.DisplayUser
+@import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.models.Job
+@import com.fijimf.deepfij.models.nstats.predictors.Predictor
+@import controllers.Utils._
+@import jobs.DeepFijQuartzSchedulerExtension
+@import com.fijimf.deepfij.models.JobRun
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, models:List[(String, List[Predictor[java.io.Serializable]])])(implicit request: RequestHeader, flash: Flash)
+@main3000(displayUser,quoteWrapper) {
+    <div class="row">
+    @for(name<-models) {
+        <div class="col-sm-12">
+            <h5>@name._1</h5>
+            @for(p<-name._2){
+                @p.xm.version
+            }
+        </div>
+    }
+    </div>
+}

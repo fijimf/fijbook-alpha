@@ -1,7 +1,6 @@
 package controllers
 
-import java.time.{LocalDate, LocalDateTime}
-import java.util.TimeZone
+import java.time.LocalDate
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.predictors.{PredictionResult, Predictor, PredictorContext}
@@ -13,6 +12,8 @@ import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.api.{Configuration, Logger}
+
+import scala.concurrent.Future
 
 class PredictionController @Inject()(
                                       val controllerComponents: ControllerComponents,
@@ -35,9 +36,11 @@ class PredictionController @Inject()(
     for {
       du <- loadDisplayUser(rs)
       qw <- getQuoteWrapper(du)
-      ps <- predCtx.loadPredictor()
+      predictorLists <- Future.sequence(modelNames.map(mn => {
+        predCtx.loadAllPredictors(mn).map(mn -> _)
+      })).map(_.sortBy(_._1))
     } yield {
-      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
+      Ok(views.html.admin.managePredictions(du,qw,predictorLists) )//<--TODO forward to display the predictions
     }
   }
 
@@ -63,25 +66,25 @@ class PredictionController @Inject()(
     }
   }
 
-  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    val date = controllers.Utils.yyyymmdd(yyyymmdd)
-    for {
-      du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
-      ss <- dao.loadSchedules()
-      pm <- dao.loadLatestPredictionModel(key)
-      ps <- dao.findXPredicitions(pm.id)
-    } yield {
-      ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
-        case Some(sch) =>
-          implicit val impSched: Schedule = sch
-          val trainedAt = Some(LocalDateTime.ofInstant(Predictor.modelTrainedAt(cfg, pm.key, pm.version).toInstant, TimeZone.getTimeZone("America/New_York").toZoneId))
-          Ok(views.html.predictionPage(du, qw, key, date, pm, trainedAt, predictResults(ss, ps, date)))
-        case None => Redirect(routes.ReactMainController.index())
-      }
-    }
-
-  }
+//  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+//    val date = controllers.Utils.yyyymmdd(yyyymmdd)
+//    for {
+//      du <- loadDisplayUser(rs)
+//      qw <- getQuoteWrapper(du)
+//      ss <- dao.loadSchedules()
+//      pm <- dao.loadLatestPredictionModel(key)
+//      ps <- dao.findXPredicitions(pm.id)
+//    } yield {
+//      ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
+//        case Some(sch) =>
+//          implicit val impSched: Schedule = sch
+//          val trainedAt = Some(LocalDateTime.ofInstant(Predictor.modelTrainedAt(cfg, pm.key, pm.version).toInstant, TimeZone.getTimeZone("America/New_York").toZoneId))
+//          Ok(views.html.predictionPage(du, qw, key, date, pm, trainedAt, predictResults(ss, ps, date)))
+//        case None => Redirect(routes.ReactMainController.index())
+//      }
+//    }
+//
+//  }
 
   def predictResults(so: List[Schedule], predictions: List[XPrediction], date: LocalDate): List[PredictionResult] = {
     for {

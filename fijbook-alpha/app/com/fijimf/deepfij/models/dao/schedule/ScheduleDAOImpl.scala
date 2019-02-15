@@ -34,7 +34,8 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with RssItemDAOImpl
     with JobDAOImpl
     with JobRunDAOImpl
-    with CalcStatusDAOImpl {
+    with CalcStatusDAOImpl
+{
 
   import dbConfig.profile.api._
 

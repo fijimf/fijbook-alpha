@@ -11,11 +11,9 @@ import smile.classification.LogisticRegression
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
 
-case class Predictor[+M <: java.io.Serializable](xm: XPredictionModel, me: ModelEngine[M]) {
-val logger = Logger(this.getClass)
+final case class Predictor[+M <: java.io.Serializable](xm: XPredictionModel, me: ModelEngine[M]) {
+  val logger = Logger(this.getClass)
   def isTrained: Boolean = me.kernel.isDefined
 
   def train(cfg: Configuration, dao: ScheduleDAO): Future[Predictor[M]] = if (isTrained) {
@@ -25,11 +23,15 @@ val logger = Logger(this.getClass)
     for {
       ss <- dao.loadSchedules()
       me2 <- me.train(ss, dao)
-      xp2 <- dao.savePredictionModel(xm.copy(id = 0L, version = xm.version + 1))
+      xp2 <- dao.savePredictionModel(xm.copy(id = 0L, version = xm.version + 1)).value
     } yield {
-      val pred = Predictor[M](xp2, me2)
-      Predictor.save(cfg, pred.xm.key, pred.xm.version, pred.me)
-      pred
+      xp2 match {
+        case Some(xx)=>
+          val pred = Predictor[M](xx, me2)
+          Predictor.save(cfg, pred.xm.key, pred.xm.version, pred.me)
+          pred
+        case None=>this
+      }
     }
   }
 
