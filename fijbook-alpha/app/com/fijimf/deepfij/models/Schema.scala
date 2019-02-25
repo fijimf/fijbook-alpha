@@ -7,6 +7,7 @@ import akka.actor.{ActorContext, ActorSelection}
 import cats.implicits._
 import com.fijimf.deepfij.util.ModelUtils
 import javax.inject.Inject
+import org.apache.commons.lang3.StringUtils
 import org.quartz.{JobKey, TriggerKey}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -147,7 +148,26 @@ final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, tea
   }
 }
 
-final case class XPredictionModel(id: Long, key: String, version: Int)
+final case class XPredictionModel(id: Long, key: String, version: Int, engineData: Option[String], createdAt: LocalDateTime) {
+  require(StringUtils.isNotBlank(key), "Key cannot be blank")
+  require(version >= 0, "Version must be non-negative")
+
+  def isTrained: Boolean = engineData.isDefined
+}
+
+object XPredictionModel {
+  def apply(key: String, version: Int): XPredictionModel = {
+    XPredictionModel(0L, key, version, none[String], LocalDateTime.now())
+  }
+
+  def apply(key: String, version: Int, engineData: String): XPredictionModel = {
+    XPredictionModel(0L, key, version, engineData.some, LocalDateTime.now())
+  }
+
+  def create(t:( Long, String,  Int,  Option[String],LocalDateTime)): XPredictionModel ={
+    XPredictionModel(t._1,t._2,t._3,t._4,t._5)
+  }
+}
 
 final case class XPrediction(id: Long, gameId: Long, modelId: Long, asOf: LocalDate, schedMD5Hash: String, favoriteId: Option[Long], probability: Option[Double], spread: Option[Double], overUnder: Option[Double]) {
   def odds: Option[Double] = probability.map(x => x / (1 - x))
@@ -492,7 +512,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def version: Rep[Int] = column[Int]("version")
 
-    def * = (id, key, version) <> (XPredictionModel.tupled, XPredictionModel.unapply)
+    def engineData: Rep[Option[String]] = column[Option[String]]("engine_data")
+
+    def createdAt: Rep[LocalDateTime] = column[LocalDateTime]("created_at")
+
+    def * = (id, key, version, engineData, createdAt) <> (XPredictionModel.create, XPredictionModel.unapply)
 
     def idx1: Index = index[(Rep[String], Rep[Int])]("pred_model_idx1", (key, version), unique = true)
   }

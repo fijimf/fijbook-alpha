@@ -5,10 +5,12 @@ import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
 
 import scala.concurrent.Future
 
-trait ModelEngine[+M<: java.io.Serializable] {
-  val kernel: Option[M]
+trait ModelEngine[T] {
 
-  def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[M]]
+  def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[T]]
 
   def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]]
+
+  def toString: String
+
 }

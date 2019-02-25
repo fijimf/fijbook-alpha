@@ -1,17 +1,17 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
-import com.fijimf.deepfij.models.{Game, Result, Schedule, XPrediction}
+import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
 import play.api.Logger
 import smile.classification._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-case class NextGenLogisticPredictor(kernel: Option[LogisticRegression]) extends ModelEngine[LogisticRegression] {
+case class NextGenLogisticPredictor(kernel: Option[LogisticRegression], trainedAt:LocalDateTime) extends ModelEngine[LogisticRegression] {
 val logger=Logger(this.getClass)
 
 
@@ -23,7 +23,7 @@ val logger=Logger(this.getClass)
       val (fs,cs) = fts.unzip
       val xs=fs.map(x=>Array(x)).toArray
       val ys = cs.toArray
-      NextGenLogisticPredictor(Some(logit(xs, ys)))
+      NextGenLogisticPredictor(Some(logit(xs, ys)),LocalDateTime.now())
     })
   }
 

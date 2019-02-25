@@ -3,10 +3,9 @@ package com.fijimf.deepfij.models.dao.schedule
 import java.time.{LocalDate, LocalDateTime}
 
 import cats.data.OptionT
-import cats.implicits._
+import cats.implicits.catsStdInstancesForFuture
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
-import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -28,10 +27,14 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
 
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
-  override def loadLatestPredictionModel(key: String): OptionT[Future, XPredictionModel] = for {
-    v <- OptionT(db.run(repo.xpredictionModels.map(_.version).max.result))
-    p <- loadPredictionModel(key, v).orElse(savePredictionModel(XPredictionModel(0L, key, 1)))
-  } yield p
+  override def loadLatestPredictionModel(key: String): OptionT[Future, XPredictionModel] = {
+    val notFound = OptionT.pure(-1)
+    val default = OptionT.pure(XPredictionModel(key, 0))
+    for {
+      v <- OptionT(db.run(repo.xpredictionModels.filter(_.key === key).map(_.version).max.result)).orElse(notFound)
+      p <- loadPredictionModel(key, v).orElse(default)
+    } yield p
+  }
 
 
   override def loadPredictionModel(key: String, version: Int): OptionT[Future, XPredictionModel] = OptionT(
@@ -43,8 +46,8 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
   }
 
   override def savePredictionModel(model: XPredictionModel): OptionT[Future, XPredictionModel] = {
-    require(model.version > 0)
-    require(StringUtils.isNotBlank(model.key))
+    require(model.version > 0, "Version 0 is reserved and cannot be save")
+    require(model.engineData.isDefined,"Cannot save an untrained model")
     OptionT.liftF(db.run(upsert(model)))
   }
 

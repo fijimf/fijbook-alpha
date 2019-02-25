@@ -28,43 +28,43 @@ class PredictionController @Inject()(
 
   val logger = Logger(getClass)
 
-  private val predCtx: PredictorContext = PredictorContext(cfg, dao)
+  private val predCtx: PredictorContext = PredictorContext( dao)
 
 
-  def managePredictions() : Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-   val modelNames = Predictor.predictionModels.keySet.toList.sorted
-    for {
-      du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
-      predictorLists <- Future.sequence(modelNames.map(mn => {
-        predCtx.loadAllPredictors(mn).map(mn -> _)
-      })).map(_.sortBy(_._1))
-    } yield {
-      Ok(views.html.admin.managePredictions(du,qw,predictorLists) )//<--TODO forward to display the predictions
-    }
-  }
+  def managePredictions() : Action[AnyContent] = TODO//silhouette.UserAwareAction.async { implicit rs =>
+//   val modelNames = Predictor.predictionModels.keySet.toList.sorted
+//    for {
+//      du <- loadDisplayUser(rs)
+//      qw <- getQuoteWrapper(du)
+//      predictorLists <- Future.sequence(modelNames.map(mn => {
+//        predCtx.loadAllPredictors(mn).map(mn -> _)
+//      })).map(_.sortBy(_._1))
+//    } yield {
+//      Ok(views.html.admin.managePredictions(du,qw,predictorLists) )//<--TODO forward to display the predictions
+//    }
+//  }
 
-  def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    logger.info(s"Updating predictions for latest trained version model '$key' and season $yyyy")
-    for {
-      du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
-      ps <- predCtx.updatePredictions(key, yyyy)
-    } yield {
-      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
-    }
-  }
+  def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
+//    logger.info(s"Updating predictions for latest trained version model '$key' and season $yyyy")
+//    for {
+//      du <- loadDisplayUser(rs)
+//      qw <- getQuoteWrapper(du)
+//      ps <- predCtx.updatePredictions(key, yyyy)
+//    } yield {
+//      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
+//    }
+//  }
 
-  def updatePredictions(key: String, version: Int, yyyy: Int): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    logger.info(s"Updating predictions for version $version of model '$key' and season $yyyy")
-    for {
-      du <- loadDisplayUser(rs)
-      qw <- getQuoteWrapper(du)
-      ps <- predCtx.updatePredictions(key, version, yyyy)
-    } yield {
-      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
-    }
-  }
+  def updatePredictions(key: String, version: Int, yyyy: Int): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
+//    logger.info(s"Updating predictions for version $version of model '$key' and season $yyyy")
+//    for {
+//      du <- loadDisplayUser(rs)
+//      qw <- getQuoteWrapper(du)
+//      ps <- predCtx.updatePredictions(key, version, yyyy)
+//    } yield {
+//      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
+//    }
+//  }
 
 //  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
 //    val date = controllers.Utils.yyyymmdd(yyyymmdd)

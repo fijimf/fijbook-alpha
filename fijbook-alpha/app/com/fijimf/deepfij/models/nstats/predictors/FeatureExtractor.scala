@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import com.fijimf.deepfij.models.{Game, Result}
+import com.fijimf.deepfij.models.Game
 
 import scala.concurrent.Future
 

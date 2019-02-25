@@ -15,10 +15,10 @@ class GamePredictionServiceImpl @Inject()(dao: ScheduleDAO, cfg:Configuration) e
 
   val logger = Logger(this.getClass)
 
-  private val predCtx: PredictorContext = PredictorContext(cfg, dao)
+  private val predCtx: PredictorContext = PredictorContext(dao)
 
   override def update(year: Int, key:String, timeout: FiniteDuration): Future[List[XPrediction]] = {
-    predCtx.updatePredictions(key, year)
+   Future.successful(List.empty[XPrediction]) //TODO
   }
 
 }

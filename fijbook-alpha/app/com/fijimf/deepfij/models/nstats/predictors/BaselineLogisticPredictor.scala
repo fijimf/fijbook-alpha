@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
@@ -11,7 +11,7 @@ import smile.classification._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-case class BaselineLogisticPredictor(kernel: Option[LogisticRegression]) extends ModelEngine[LogisticRegression] {
+case class BaselineLogisticPredictor(kernel: Option[LogisticRegression], trainedAt:LocalDateTime) extends ModelEngine[LogisticRegression] {
 val logger=Logger(this.getClass)
 
   override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]] = {
@@ -51,7 +51,7 @@ val logger=Logger(this.getClass)
       val (fs,cs) = fts.unzip
       val xs=fs.map(x=>Array(x)).toArray
       val ys = cs.toArray
-      BaselineLogisticPredictor(Some(logit(xs, ys)))
+      BaselineLogisticPredictor(Some(logit(xs, ys)), LocalDateTime.now())
     })
   }
 

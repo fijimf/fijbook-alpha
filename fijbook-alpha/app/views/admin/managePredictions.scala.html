@@ -7,14 +7,14 @@
 @import controllers.Utils._
 @import jobs.DeepFijQuartzSchedulerExtension
 @import com.fijimf.deepfij.models.JobRun
-@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, models:List[(String, List[Predictor[java.io.Serializable]])])(implicit request: RequestHeader, flash: Flash)
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, models:List[(String, List[Predictor])])(implicit request: RequestHeader, flash: Flash)
 @main3000(displayUser,quoteWrapper) {
     <div class="row">
     @for(name<-models) {
         <div class="col-sm-12">
             <h5>@name._1</h5>
             @for(p<-name._2){
-                @p.xm.version
+               <p> @p </p>
             }
         </div>
     }

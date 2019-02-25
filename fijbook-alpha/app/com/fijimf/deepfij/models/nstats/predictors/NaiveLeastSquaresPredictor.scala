@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
@@ -12,8 +12,6 @@ import scala.concurrent.Future
 
 object NaiveLeastSquaresPredictor extends ModelEngine[String] {
 val logger = Logger(this.getClass)
-  override val kernel: Option[String] = Some("-")
-
   override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]] = {
     val f = NaiveLeastSquaresFeatureExtractor(s, ss)
     val now = LocalDate.now()
