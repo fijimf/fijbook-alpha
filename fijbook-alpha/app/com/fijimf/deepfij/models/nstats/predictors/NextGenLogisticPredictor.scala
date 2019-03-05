@@ -1,99 +1,113 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
-import java.time.{LocalDate, LocalDateTime}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.time.LocalDate
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
-import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
+import com.fijimf.deepfij.models.services.ScheduleSerializer
+import com.fijimf.deepfij.models.{Schedule, XPrediction}
 import play.api.Logger
 import smile.classification._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
-case class NextGenLogisticPredictor(kernel: Option[LogisticRegression], trainedAt:LocalDateTime) extends ModelEngine[LogisticRegression] {
-val logger=Logger(this.getClass)
+case class NextGenLogisticPredictor(kernel: Option[String] = None) extends Predictor {
+  val logger = Logger(this.getClass)
 
+  val logisticRegression: Option[LogisticRegression] = kernel.flatMap(s => deserializeKernel(s))
 
-  override def train(ss: List[Schedule], sx: StatValueDAO): Future[ModelEngine[LogisticRegression]] = {
-    val futureTuples: Future[List[(Double, Int)]] = Future.sequence(ss.map(s => loadFeaturesAndCategories(s, sx))).map(_.flatten)
+  def featureExtractor(schedule: Schedule, statDao: StatValueDAO): FeatureExtractor = FeatureExtractor.repeat(BaseLogisticFeatureExtractor(statDao), 3)
 
-    futureTuples.map(fts=>{
-      logger.info(s"Training set has ${fts.size} a elements")
-      val (fs,cs) = fts.unzip
-      val xs=fs.map(x=>Array(x)).toArray
-      val ys = cs.toArray
-      NextGenLogisticPredictor(Some(logit(xs, ys)),LocalDateTime.now())
-    })
-  }
+  private val capValue = 35
 
-  private def loadFeaturesAndCategories(s: Schedule, sx: StatValueDAO): Future[List[(Double, Int)]] = {
+  def categoryExtractor: CategoryExtractor = CategoryExtractor.stitch(
+    SpreadCategoryExtractor(SpreadTransformers.cap(capValue)),
+    SpreadCategoryExtractor(SpreadTransformers.cappedNoisy(capValue, 0.025)),
+    SpreadCategoryExtractor(SpreadTransformers.cappedNoisy(capValue, 0.025)))
 
-    val f: BaseLogisticFeatureExtractor = BaseLogisticFeatureExtractor(s, sx)
-    val c: CategoryExtractor = SpreadCategoryExtractor(SpreadTransformers.cap(35))
-    val cPrime: CategoryExtractor = SpreadCategoryExtractor(SpreadTransformers.cappedNoisy(35,0.025))
-    val games = s.completeGames.filterNot(_._1.date.getMonthValue === 11)
-    logger.info(s"For schedule ${s.season.year} found ${games.size} games")
+  def loadFeaturesAndCategories(schedule: Schedule, statDao: StatValueDAO): Future[List[(Array[Double], Int)]] = {
+    val games = schedule.completeGames.filterNot(_._1.date.getMonthValue === 11)
+    logger.info(s"For schedule ${schedule.season.year} found ${games.size} games")
     for {
-      features <- f(games.map(_._1))
-      cats <- c(games)
-      catsPrime <-cPrime(games)
+      features <- featureExtractor(schedule, statDao)(games.map(_._1))
+      categories <- categoryExtractor(games)
     } yield {
-      val obs = features.zip(cats).flatMap {
+      val observations = features.zip(categories).flatMap {
         case (featureMap: Map[String, Double], cat: Option[Double]) =>
-          (featureMap.get("ols-z-diff"), cat.map(c=>math.round(c).toInt+35)) match {
-            case (Some(x), Some(y)) => Some(x, y)
+          (featureMap.get("ols.zscore.diff"), cat.map(_.toInt+capValue)) match {
+            case (Some(x), Some(y)) => Some(Array(x), y)
             case _ => None
           }
       }
-      val obsPrimes = features.zip(catsPrime).flatMap {
-        case (featureMap: Map[String, Double], cat: Option[Double]) =>
-          (featureMap.get("ols-z-diff"), cat.map(c=>math.round(c).toInt+35)) match {
-            case (Some(x), Some(y)) => Some(x, y)
-            case _ => None
-          }
-      }
-      val o2 = obs++obsPrimes
-      logger.info(s"For schedule ${s.season.year} found ${o2.size} observations")
-      val catValues=Set(o2.map(_._2))
-      logger.info(s"${catValues.size} categories from ${catValues.min} to ${catValues.max} ")
-      o2
+      logger.info(s"For schedule ${schedule.season.year} found ${observations.size} observations")
+      observations
     }
   }
 
+  def train(ss: List[Schedule], sx: StatValueDAO): Future[Option[String]] = {
+    val observations: Future[List[(Array[Double], Int)]] = Future.sequence(ss.map(s => loadFeaturesAndCategories(s, sx))).map(_.flatten)
 
-  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]] = {
-    val f = BaseLogisticFeatureExtractor(s, ss)
+    observations.map(obs => {
+      logger.info(s"Training set has ${obs.size} a elements")
+      val (featureVectors, categories) = obs.unzip
+      val xs = featureVectors.toArray
+      val ys = categories.toArray
+      val logisticRegression: LogisticRegression = logit(xs, ys)
+      serializeKernel(logisticRegression)
+    })
+  }
+
+  def serializeKernel(lr: LogisticRegression): Option[String] = {
+    Try {
+      val baos = new ByteArrayOutputStream()
+      val oos = new ObjectOutputStream(baos)
+      oos.writeObject(lr)
+      oos.close()
+      new String(baos.toByteArray)
+    }.toOption
+  }
+
+  def deserializeKernel(s: String): Option[LogisticRegression] = {
+    Try {
+      val bais = new ByteArrayInputStream(s.getBytes())
+      val ois = new ObjectInputStream(bais)
+      ois.readObject().asInstanceOf[LogisticRegression]
+    }.toOption
+  }
+
+
+  def predict(schedule: Schedule, statDao: StatValueDAO): Future[List[XPrediction]] = {
     val now = LocalDate.now()
-    kernel match {
-      case Some(k) =>
-        gs: List[Game] =>
-          logger.info(s"Running predictions for ${gs.size} games.")
-          logger.info(s"Start loading features.")
-          for {
-            features <- f(gs)
-          } yield {
-            logger.info(s"Done loading features.")
-            features.zip(gs).map { case (feat, g) =>
-              feat.get("ols-z-diff").map(x => {
-                val pp = Array.fill[Double](71)(0.0)
-                val p: Int = k.predict(Array(x), pp)
-                val spread=pp.zipWithIndex.map{case (probability: Double, spreadOff: Int) => probability * (spreadOff-35)}.sum
-                val hp1=pp.drop(35).sum
-                val ap1=pp.take(36).sum
-                val hp = hp1+(1.0-(hp1+ap1))/2
-                val ap = ap1+(1.0-(hp1+ap1))/2
+    val hash = ScheduleSerializer.md5Hash(schedule)
+    val gs = schedule.incompleteGames
+    logisticRegression match {
+      case None => Future.successful(List.empty[XPrediction])
+      case Some(lr) =>
+        for {
+          features <- featureExtractor(schedule, statDao)(gs)
+        } yield {
+          gs.zip(features).flatMap { case (g, feat) =>
+            feat.get("ols.zscore.diff").map(x => {
+              val pp = Array.fill[Double](2*capValue+1)(0.0)
+              val p: Int = lr.predict(Array(x), pp)
+              val spread = pp.zipWithIndex.map { case (probability: Double, spreadOff: Int) => probability * (spreadOff - capValue) }.sum
+              val hp1 = pp.drop(capValue).sum
+              val ap1 = pp.take(capValue+1).sum
+              val hp = hp1 + (1.0 - (hp1 + ap1)) / 2
+              val ap = ap1 + (1.0 - (hp1 + ap1)) / 2
 
-                logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
-                if (hp > ap ) {
-                  XPrediction(0L, g.id, 0L, now, "", Some(g.homeTeamId), Some(hp), Some(math.max(spread, 0.0)), None)
-                } else {
-                  XPrediction(0L, g.id, 0L, now, "", Some(g.awayTeamId), Some(ap), Some(math.max(-spread,0.0)), None)
-                }
-              })
-            }
-          }.flatten
-      case _ => gs: List[Game] => Future.successful(List.empty[XPrediction])
+              logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
+              if (hp > ap) {
+                XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), Some(hp), Some(math.max(spread, 0.0)), None)
+              } else {
+                XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), Some(ap), Some(math.max(-spread, 0.0)), None)
+              }
+            })
+          }
+        }
     }
   }
 }

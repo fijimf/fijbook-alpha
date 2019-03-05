@@ -6,6 +6,7 @@ import cats.data.OptionT
 import cats.implicits.catsStdInstancesForFuture
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -35,7 +36,6 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
       p <- loadPredictionModel(key, v).orElse(default)
     } yield p
   }
-
 
   override def loadPredictionModel(key: String, version: Int): OptionT[Future, XPredictionModel] = OptionT(
     db.run(repo.xpredictionModels.filter(pm => pm.key === key && pm.version === version).result.headOption)
@@ -71,8 +71,15 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     }
   }
 
-  override def findXPredicitions(modelId: Long): Future[List[XPrediction]] = {
+  override def findXPredictions(modelId: Long): Future[List[XPrediction]] = {
     db.run(repo.xpredictions.filter(_.modelId === modelId).to[List].result)
+  }
+
+  def findAllPredictions(): Future[Map[Long, List[PredictionResult]]] = {
+    db.run(repo.xpredictions.join(repo.games).on(_.gameId === _.id).joinLeft(repo.results).on(_._1.gameId === _.gameId).to[List].result)
+      .map(lst => {
+        lst.groupBy(_._1._1.modelId).mapValues(_.map(tuple => PredictionResult(tuple._1._2, tuple._2, Some(tuple._1._1))))
+      })
   }
 
 }

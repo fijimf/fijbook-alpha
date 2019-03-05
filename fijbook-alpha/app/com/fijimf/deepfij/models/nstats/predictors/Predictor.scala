@@ -1,8 +1,9 @@
 package com.fijimf.deepfij.models.nstats.predictors
 
 import cats.data.OptionT
-import com.fijimf.deepfij.models.XPredictionModel
-import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.dao.schedule.{ScheduleDAO, StatValueDAO}
+import com.fijimf.deepfij.models.{Schedule, XPrediction, XPredictionModel}
+import play.api.Logger
 
 import scala.concurrent.Future
 
@@ -24,6 +25,19 @@ import scala.concurrent.Future
 //   I want to load
 
 trait Predictor {
+
+  def featureExtractor(schedule: Schedule, statDao: StatValueDAO): FeatureExtractor
+
+  def categoryExtractor: CategoryExtractor
+
+  def loadFeaturesAndCategories(schedule: Schedule, statDao: StatValueDAO): Future[List[(Array[Double], Int)]]
+
+  def train(ss: List[Schedule], sx: StatValueDAO): Future[Option[String]]
+
+  def predict(schedule: Schedule, statDao: StatValueDAO): Future[List[XPrediction]]
+
+
+
 //  val model: XPredictionModel
 //  val engine: ModelEngine
 //
@@ -48,7 +62,35 @@ trait Predictor {
 }
 
 object Predictor {
+  val logger = Logger(this.getClass)
+  val keys = List("naive-least-squares", "win-based-logistic", "spread-based-logistic")
 
+  def create(xpm: XPredictionModel): Option[Predictor] = {
+    logger.info(s"Creating ${xpm.key} version ${xpm.version}")
+    xpm match {
+      case XPredictionModel(_, "naive-least-squares", _, _, _) => Some(NaiveLeastSquaresPredictor())
+      case XPredictionModel(_, "win-based-logistic", _, engineData, _) => Some(BaselineLogisticPredictor(engineData))
+      case XPredictionModel(_, "spread-based-logistic", _, engineData, _) => Some(NextGenLogisticPredictor(engineData))
+      case _ => None
+    }
+  }
+
+  def train(key: String, scheduleDAO: ScheduleDAO): OptionT[Future, XPredictionModel] = {
+    import cats.implicits.catsStdInstancesForFuture
+
+    import scala.concurrent.ExecutionContext.Implicits._
+    val fl = scheduleDAO.loadSchedules()
+    for {
+      ss <- OptionT.liftF(fl)
+      xpm <- scheduleDAO.loadLatestPredictionModel(key)
+      pred <- OptionT.fromOption(Predictor.create(xpm))
+      kernel <- OptionT(pred.train(ss, scheduleDAO))
+      xpmp <- scheduleDAO.savePredictionModel(XPredictionModel(key, xpm.version + 1, kernel))
+    } yield {
+      xpmp
+    }
+
+  }
 //  def realize(model: XPredictionModel): Predictor = {
 //    null
 //  }
@@ -172,5 +214,5 @@ object Predictor {
 //    new File(s"/$dir/$key/$version/model.txt")
 //  }
 //}
-
+//
 

@@ -9,6 +9,26 @@ trait CategoryExtractor {
   def apply(grs: List[(Game, Result)]): Future[List[Option[Double]]]
 }
 
+object CategoryExtractor {
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def repeat(c: CategoryExtractor, n: Int): CategoryExtractor = {
+    new CategoryExtractor {
+      override def apply(grs: List[(Game, Result)]): Future[List[Option[Double]]] = {
+        Future.sequence(List.fill(n)(c(grs))).map(_.flatten)
+      }
+    }
+  }
+
+  def stitch(cs: CategoryExtractor*): CategoryExtractor = {
+    new CategoryExtractor {
+      override def apply(grs: List[(Game, Result)]): Future[List[Option[Double]]] = {
+        Future.sequence(cs.map(c => c(grs)).toList).map(_.flatten)
+      }
+    }
+  }
+}
 
 case class WinLossCategoryExtractor(winVal: Double = 1.0, lossVal: Double = 0.0, tieVal: Option[Double] = None) extends CategoryExtractor {
   override def apply(grs: List[(Game, Result)]): Future[List[Option[Double]]] = {
@@ -20,7 +40,6 @@ case class WinLossCategoryExtractor(winVal: Double = 1.0, lossVal: Double = 0.0,
       else
         tieVal
     })
-
   }
 }
 
@@ -59,7 +78,7 @@ object SpreadTransformers {
     *
     * @param sd standard deviation
     * @return a function which randomly scales a number by 1.0 + N(0,sd).
-    *         For reference, 99.7% of the values will be scaled between 1.0 +/- 3*sd.  Fore example, with a value of 0.1
+    *         For reference, 99.7% of the values will be scaled between 1.0 +/- 3*sd.  For example, with a value of 0.1
     *         we would expect 99.7% of the values to be scaled by values between [.7 , 1.3]
     */
   def noisy(sd: Double): Double => Double = {

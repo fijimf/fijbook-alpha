@@ -1,21 +1,46 @@
-@import com.fijimf.deepfij.models.User
-@import com.fijimf.deepfij.models.Conference
-@import com.fijimf.deepfij.models.react.DisplayUser
-@import com.fijimf.deepfij.models.react.QuoteWrapper
-@import com.fijimf.deepfij.models.Job
-@import com.fijimf.deepfij.models.nstats.predictors.Predictor
-@import controllers.Utils._
-@import jobs.DeepFijQuartzSchedulerExtension
-@import com.fijimf.deepfij.models.JobRun
-@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, models:List[(String, List[Predictor])])(implicit request: RequestHeader, flash: Flash)
+@import com.fijimf.deepfij.models.XPredictionModel
+@import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
+@import java.time.format.DateTimeFormatter
+@import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
+@(displayUser: DisplayUser, quoteWrapper: QuoteWrapper, models:List[(String, List[XPredictionModel])], predMap:Map[Long, List[PredictionResult]])(implicit request: RequestHeader, flash: Flash)
 @main3000(displayUser,quoteWrapper) {
     <div class="row">
+     <h4>Predictive Models</h4>
+    </div>
+    <div class="row">
     @for(name<-models) {
-        <div class="col-sm-12">
-            <h5>@name._1</h5>
-            @for(p<-name._2){
-               <p> @p </p>
-            }
+        <div class="card w-auto m-2" >
+            <div class="card-header">
+                <h6><em>@name._1</em></h6>
+            </div>
+            <div class="card-body">
+            <a  class="card-link" href=@routes.PredictionController.trainModel(name._1)>Train new version</a></li>
+                <table class="table table-condensed">
+                    <thead><tr><th>Version</th>
+                        <th>Trained On</th>
+                        <th># games predicted</th>
+                        <th># games correct</th>
+                        <th># games incorrect</th>
+                        <th/>
+                        <th/>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for(p <- name._2) {
+                        <tr>
+                            <td>@p.version</td>
+                            <td>@{p.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}</td>
+                            <td>@{PredictionResult.numPredicted(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
+                            <td>@{PredictionResult.numCorrect(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
+                            <td>@{PredictionResult.numIncorrect(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
+                            <td><a href="#">Update predictions</a></td>
+                            <td><a href="#">Delete model & predictions</a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+
+            </div>
         </div>
     }
     </div>

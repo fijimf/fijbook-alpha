@@ -4,40 +4,43 @@ import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
-import com.fijimf.deepfij.models.{Game, Schedule, XPrediction}
+import com.fijimf.deepfij.models.{Schedule, XPrediction}
 import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object NaiveLeastSquaresPredictor extends ModelEngine[String] {
-val logger = Logger(this.getClass)
-  override def predict(s: Schedule, ss: StatValueDAO): List[Game] => Future[List[XPrediction]] = {
-    val f = NaiveLeastSquaresFeatureExtractor(s, ss)
-    val now = LocalDate.now()
-    val hash = ScheduleSerializer.md5Hash(s)
+case class NaiveLeastSquaresPredictor() extends Predictor {
 
-    gs: List[Game] => {
-      for {
-        features <- f(gs)
-      } yield features.zip(gs).flatMap { case (feat, g) =>
+  val logger = Logger(this.getClass)
+
+  def featureExtractor(schedule: Schedule, statDao: StatValueDAO): FeatureExtractor = NaiveLeastSquaresFeatureExtractor(statDao)
+
+  def categoryExtractor: CategoryExtractor = SpreadCategoryExtractor()
+
+  def loadFeaturesAndCategories(schedule: Schedule, statDao: StatValueDAO): Future[List[(Array[Double], Int)]] = Future.successful(List.empty[(Array[Double], Int)])
+
+  def train(ss: List[Schedule], sx: StatValueDAO): Future[Option[String]] = Future.successful(Some(LocalDateTime.now.toString))
+
+  def predict(schedule: Schedule, statDao: StatValueDAO): Future[List[XPrediction]] = {
+    val now = LocalDate.now()
+    val hash = ScheduleSerializer.md5Hash(schedule)
+    val gs = schedule.incompleteGames
+
+    for {
+      features <- featureExtractor(schedule,statDao)(gs)
+    } yield {
+      gs.zip(features).flatMap { case (g, feat) =>
         for {
-          h <- feat.get("home-raw-ols")
-          a <- feat.get("away-raw-ols")
+          s <- feat.get("ols.value.diff") if s != 0.0
         } yield {
-          if (h > a) {
-            XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(h - a), None)
+          if (s > 0) {
+            XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(s), None)
           } else {
-            XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(a - h), None)
+            XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(-s), None)
           }
         }
       }
     }
   }
-
-  override def train(s: List[Schedule], dx: StatValueDAO): Future[ModelEngine[String]] = {
-    logger.info("NaiveLeastSquaresPredictor manipulates raw features -- no training necessary")
-    Future.successful(this)
-  }
-
 }

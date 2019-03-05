@@ -31,18 +31,22 @@ class PredictionController @Inject()(
   private val predCtx: PredictorContext = PredictorContext( dao)
 
 
-  def managePredictions() : Action[AnyContent] = TODO//silhouette.UserAwareAction.async { implicit rs =>
-//   val modelNames = Predictor.predictionModels.keySet.toList.sorted
-//    for {
-//      du <- loadDisplayUser(rs)
-//      qw <- getQuoteWrapper(du)
-//      predictorLists <- Future.sequence(modelNames.map(mn => {
-//        predCtx.loadAllPredictors(mn).map(mn -> _)
-//      })).map(_.sortBy(_._1))
-//    } yield {
-//      Ok(views.html.admin.managePredictions(du,qw,predictorLists) )//<--TODO forward to display the predictions
-//    }
-//  }
+  def managePredictions(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    val ts = Future.sequence(Predictor.keys.map(key => {
+      dao.loadPredictionModels(key).map(lst => key -> lst)
+    }))
+
+    val aps = dao.findAllPredictions()
+
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      predictorLists <- ts
+      predictionMap  <- aps
+    } yield {
+      Ok(views.html.admin.managePredictions(du, qw, predictorLists, predictionMap)) //<--TODO forward to display the predictions
+    }
+  }
 
   def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
 //    logger.info(s"Updating predictions for latest trained version model '$key' and season $yyyy")
@@ -95,13 +99,22 @@ class PredictionController @Inject()(
     }
   }.getOrElse(List.empty[PredictionResult])
 
-  def trainModel(key: String) = play.mvc.Results.TODO
+  def trainModel(key: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    for {
+      oxpm <- Predictor.train(key, dao).value
+    } yield {
+      oxpm match {
+        case Some(predictor) => Redirect(routes.PredictionController.managePredictions()).flashing("info" -> s"Trained new '$key'. ")
+        case None => Redirect(routes.PredictionController.managePredictions()).flashing("error" -> s"Failed to train new '$key'. ")
+      }
+    }
+  }
 
   def compareModels(key1: String, version1: Int, key2: String, version2: Int, yyyyy: Int) = play.mvc.Results.TODO
 
   def showVersion(key: String, version:Int, yyyymmdd: String) = play.mvc.Results.TODO
 
-  def showAll() = play.mvc.Results.TODO
+  def showAll(): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
 
   def showVersions(key: String) = play.mvc.Results.TODO
 
