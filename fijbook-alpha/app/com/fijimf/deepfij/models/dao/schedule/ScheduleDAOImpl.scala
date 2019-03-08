@@ -35,21 +35,13 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     with JobDAOImpl
     with JobRunDAOImpl
     with CalcStatusDAOImpl
+    with ScoreboardDAOImpl
 {
 
   import dbConfig.profile.api._
 
-  implicit val JavaLocalDateTimeMapper: BaseColumnType[LocalDateTime] = MappedColumnType.base[LocalDateTime, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE_TIME),
-    str => LocalDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(str))
-  )
-
-  implicit val JavaLocalDateMapper: BaseColumnType[LocalDate] = MappedColumnType.base[LocalDate, String](
-    ldt => ldt.format(DateTimeFormatter.ISO_DATE),
-    str => LocalDate.from(DateTimeFormatter.ISO_DATE.parse(str))
-  )
-
   val log = Logger(this.getClass)
+
 
   def loadSchedule(s: Season): Future[Schedule] = {
     val fTeams: Future[List[Team]] = db.run(repo.teams.to[List].result)
@@ -109,16 +101,24 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   private def handleGame(g: Game): DBIO[Option[Game]] = {
-    sameGame(g).map(_.id).result.flatMap(
-      (longs: Seq[Long]) => {
-        longs.headOption match {
-          case Some(id) =>
-            val g1 = g.copy(id = id)
-            repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
-          case None => ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Some(g.copy(id = id))))
-        }
-      }
-    )
+    findMatchingGame(g).result.headOption.flatMap {
+      case Some(gh) if g.isMateriallyDifferent(gh) => createUpdateGameAction(g, gh)
+      case Some(gh) if !g.isMateriallyDifferent(gh) => createNoOpGameAction(gh)
+      case None => createInsertGameAction(g)
+    }
+  }
+
+  private def createInsertGameAction(g: Game): DBIO[Option[Game]] = {
+    ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Some(g.copy(id = id))))
+  }
+
+  private def createNoOpGameAction(g: Game): DBIO[Option[Game]] = {
+    DBIO.successful(Some(g))
+  }
+
+  private def createUpdateGameAction(g: Game, gh: Game): DBIO[Option[Game]] = {
+    val g1 = g.copy(id = gh.id)
+    repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
   }
 
   private def handleResult(og: Option[Game], r: Result): DBIO[Option[Game]] = {
@@ -135,7 +135,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
     }
   }
 
-  private def sameGame(g: Game) = {
+  private def findMatchingGame(g: Game) = {
     repo.games.filter(h => h.date === g.date && h.homeTeamId === g.homeTeamId && h.awayTeamId === g.awayTeamId)
   }
 
@@ -165,7 +165,15 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
   }
 
   override def loadLatestSchedule(): Future[Option[Schedule]] = {
-    loadSchedules().map(_.sortBy(s => -s.season.year).headOption)
+    for {
+      s <- loadSchedules().map(_.sortBy(s => -s.season.year).headOption)
+    } yield {
+      s match {
+        case Some(sch) => log.info(s"Load latest schedule loaded ${sch.season.year}, with ${sch.incompleteGames.size} games yet to play.")
+        case _ => log.warn(s"Failed tp load latest schedule.")
+      }
+      s
+    }
   }
 
 }

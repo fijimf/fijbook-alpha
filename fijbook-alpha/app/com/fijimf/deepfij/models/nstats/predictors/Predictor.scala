@@ -25,6 +25,11 @@ import scala.concurrent.Future
 //   I want to load
 
 trait Predictor {
+  def key: String
+
+  def version: Int
+
+  def modelId: Long
 
   def featureExtractor(schedule: Schedule, statDao: StatValueDAO): FeatureExtractor
 
@@ -68,9 +73,9 @@ object Predictor {
   def create(xpm: XPredictionModel): Option[Predictor] = {
     logger.info(s"Creating ${xpm.key} version ${xpm.version}")
     xpm match {
-      case XPredictionModel(_, "naive-least-squares", _, _, _) => Some(NaiveLeastSquaresPredictor())
-      case XPredictionModel(_, "win-based-logistic", _, engineData, _) => Some(BaselineLogisticPredictor(engineData))
-      case XPredictionModel(_, "spread-based-logistic", _, engineData, _) => Some(NextGenLogisticPredictor(engineData))
+      case XPredictionModel(modelId, "naive-least-squares", version, _, _) => Some(NaiveLeastSquaresPredictor(modelId, version))
+      case XPredictionModel(modelId, "win-based-logistic", version, engineData, _) => Some(BaselineLogisticPredictor(modelId, version, engineData))
+      case XPredictionModel(modelId, "spread-based-logistic", version, engineData, _) => Some(NextGenLogisticPredictor(modelId, version, engineData))
       case _ => None
     }
   }
@@ -88,6 +93,22 @@ object Predictor {
       xpmp <- scheduleDAO.savePredictionModel(XPredictionModel(key, xpm.version + 1, kernel))
     } yield {
       xpmp
+    }
+
+  }
+
+  def updatePredictions(key: String, version: Int, scheduleDAO: ScheduleDAO): OptionT[Future, Int] = {
+    import cats.implicits.catsStdInstancesForFuture
+
+    import scala.concurrent.ExecutionContext.Implicits._
+    for {
+      s <- OptionT(scheduleDAO.loadLatestSchedule())
+      xpm <- scheduleDAO.loadPredictionModel(key, version)
+      pred <- OptionT.fromOption(Predictor.create(xpm))
+      predictions <- OptionT.liftF(pred.predict(s, scheduleDAO))
+      preds <- OptionT.liftF(scheduleDAO.updatePredictions(predictions))
+    } yield {
+      preds.size
     }
 
   }

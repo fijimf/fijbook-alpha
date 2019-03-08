@@ -51,6 +51,11 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     OptionT.liftF(db.run(upsert(model)))
   }
 
+  override def updatePredictions(xps: List[XPrediction]): Future[List[XPrediction]] = {
+    Future.sequence(xps.groupBy(xp=>(xp.modelId,xp.schedMD5Hash)).map{case ((modelId,md5hash),predictions) => updatePredictions(modelId,md5hash,predictions)}.toList).map(_.flatten)
+
+  }
+
   override def updatePredictions(modelId: Long, schedHash: String, xps: List[XPrediction]): Future[List[XPrediction]] = {
     db.run(
       (for {

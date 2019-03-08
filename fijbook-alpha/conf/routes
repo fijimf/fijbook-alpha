@@ -152,10 +152,9 @@ GET         /deepfij/admin/readSnapshot:key                     controllers.Admi
 GET         /deepfij/admin/deleteSnapshot:key                   controllers.AdminController.deleteSnapshot(key:String)
 GET         /deepfij/admin/snapshots                            controllers.AdminController.listSnapshots
 ##### These need to be implemented
-#GET         /deepfij/admin/updatePredictions/:key/latest/:yyyy     controllers.PredictionController.updateLatestPredictions(key:String,yyyy:Int)
-#GET         /deepfij/admin/updatePredictions/:key/:version/:yyyy   controllers.PredictionController.updatePredictions(key:String,version:Int,yyyy:Int)
-GET         /deepfij/admin/train/:key                              controllers.PredictionController.trainModel(key:String)
-GET         /deepfij/admin/predictions                             controllers.PredictionController.managePredictions
+GET         /deepfij/admin/updatePredictions/:key/:version      controllers.PredictionController.updatePredictions(key:String, version:Int)
+GET         /deepfij/admin/train/:key                           controllers.PredictionController.trainModel(key:String)
+GET         /deepfij/admin/predictions                          controllers.PredictionController.managePredictions
 
 #GET         /deepfij/predictions/                                  controllers.PredictionController.showAll()
 #GET         /deepfij/predictions/:key                              controllers.PredictionController.showVersions(key:String)

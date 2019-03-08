@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models.nstats.predictors
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.time.LocalDate
+import java.util.Base64
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
@@ -14,8 +15,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
-case class BaselineLogisticPredictor(kernel: Option[String] = None) extends Predictor {
+case class BaselineLogisticPredictor(modelId:Long, version:Int, kernel: Option[String] = None) extends Predictor {
   val logger = Logger(this.getClass)
+
+  override def key: String = "win-based-logistic"
 
   val logisticRegression: Option[LogisticRegression] = kernel.flatMap(s => deserializeKernel(s))
 
@@ -61,18 +64,17 @@ case class BaselineLogisticPredictor(kernel: Option[String] = None) extends Pred
       val oos = new ObjectOutputStream(baos)
       oos.writeObject(lr)
       oos.close()
-      new String(baos.toByteArray)
+      Base64.getEncoder.encodeToString(baos.toByteArray)
     }.toOption
   }
 
   def deserializeKernel(s: String): Option[LogisticRegression] = {
     Try {
-      val bais = new ByteArrayInputStream(s.getBytes())
+      val bais = new ByteArrayInputStream(Base64.getDecoder.decode(s))
       val ois = new ObjectInputStream(bais)
       ois.readObject().asInstanceOf[LogisticRegression]
     }.toOption
   }
-
 
   def predict(schedule: Schedule, statDao: StatValueDAO): Future[List[XPrediction]] = {
     val now = LocalDate.now()
@@ -90,14 +92,13 @@ case class BaselineLogisticPredictor(kernel: Option[String] = None) extends Pred
               val p = lr.predict(Array(x), pp)
               logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
               if (p === 1) {
-                XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), Some(pp(1)), None, None)
+                XPrediction(0L, g.id, modelId, now, hash, Some(g.homeTeamId), Some(pp(1)), None, None)
               } else {
-                XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), Some(pp(0)), None, None)
+                XPrediction(0L, g.id, modelId, now, hash, Some(g.awayTeamId), Some(pp(0)), None, None)
               }
             })
           }
         }
     }
   }
-
 }

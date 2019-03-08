@@ -22,17 +22,39 @@ import scala.language.postfixOps
 import scala.util.matching.Regex
 import scala.util.{Failure, Success}
 
-final case class UpdateControlString(str: String) {
+
+sealed trait ScheduleUpdateControl {
+  def season: Int
+
+  def dates: Option[List[LocalDate]]
+
+  def dateOK(d: LocalDate): Boolean = {
+    !d.isBefore(Season.startDate(season)) && !d.isAfter(Season.endDate(season))
+  }
+}
+
+case class WholeSeasonUpdate(season: Int) extends ScheduleUpdateControl {
+  val dates = Option.empty[List[LocalDate]]
+}
+
+case class ToFromTodayUpdate(season: Int, daysBack: Int, daysAhead:Int) extends ScheduleUpdateControl {
+  val today: LocalDate = LocalDate.now()
+  val dates = Some((-1 * daysBack).to(daysAhead).map(today.plusDays(_)).filter(dateOK).toList)
+}
+
+case class SingleDateUpdate(season: Int, d: LocalDate) extends ScheduleUpdateControl {
+  override def dates: Option[List[LocalDate]] = Some(List(d).filter(dateOK))
+}
+
+object UpdateControlString {
   val wholeSeason: Regex = """(\d{4})\.(?i)(all)""".r
   val seasonBeforeAndAfterNow: Regex = """(\d{4})\.(\d+)\.(d+)""".r
   val seasonDate: Regex = """(\d{4})\.(\d{8})""".r
-  val (season: Int, dates:Option[List[LocalDate]]) = str match {
-    case wholeSeason(s, _) => (s.toInt, Option.empty[List[LocalDate]])
-    case seasonBeforeAndAfterNow(s, b, a) =>
-      val today = LocalDate.now()
-      (s.toInt, Some((-1 * b.toInt).to(a.toInt).map(i => today.plusDays(i)).toList))
-    case seasonBeforeAndAfterNow(s, d) =>
-      (s.toInt, Some(List(LocalDate.parse(d, DateTimeFormatter.ofPattern("yyyyMMdd")))))
+
+  def apply(str: String): ScheduleUpdateControl = str match {
+    case wholeSeason(s, _) => WholeSeasonUpdate(s.toInt)
+    case seasonBeforeAndAfterNow(s, b, a) => ToFromTodayUpdate(s.toInt, b.toInt, a.toInt)
+    case seasonDate(s, d) => SingleDateUpdate(s.toInt, LocalDate.parse(d, DateTimeFormatter.ofPattern("yyyyMMdd")))
   }
 }
 
@@ -43,22 +65,11 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   val zoneId: ZoneId = ZoneId.of("America/New_York")
   implicit val timeout: Timeout = Timeout(600.seconds)
 
-
-  def update(str: String): Future[String] = update(UpdateControlString(str))
-
-  def update(ucs: UpdateControlString): Future[String] = {
-    dao.findSeasonByYear(ucs.season).flatMap {
-      case Some(s) => updateSeason(ucs.dates, s).map(collapseResults(s.year, _))
-      case None => Future(s"No schedule found for ${ucs.season}")
-    }
-  }
-
-  def update(optOffsets: Option[List[Int]] = None): Future[String] = {
-    val now = LocalDate.now()
-    val optDates = optOffsets.map(_.map(i => now.plusDays(i)))
-    dao.listSeasons.map(_.find(_.dates.contains(now))).flatMap {
-      case None => Future(s"No schedule found for $now")
-      case Some(s) => updateSeason(optDates, s).map(collapseResults(s.year, _))
+  def update(str: String): Future[String] = {
+    val control = UpdateControlString(str)
+    dao.findSeasonByYear(control.season).flatMap {
+      case Some(s) => updateSeason(control.dates, s).map(collapseResults(s.year, _))
+      case None => Future(s"No schedule found for ${control.season}")
     }
   }
 
@@ -107,10 +118,6 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     results
   }
 
-  implicit def ms: Messages = {
-    messagesApi.preferred(Seq(Lang.defaultLang))
-  }
-
   def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[UpdateDbResult]] = {
     val groups = updateData.groupBy(_.sourceKey)
     val eventualTuples = keys.map(k => {
@@ -120,20 +127,33 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     Future.sequence(eventualTuples)
   }
 
+
   def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[List[UpdateDbResult]] = {
-    val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.canUpdate(d))
-    dao.listAliases.flatMap(aliasDict => {
-      dao.listTeams.flatMap(teamDictionary => {
-        Future.sequence(dateList.map(d => {
-          for {
-            updateData <- scrape(season, updatedBy, teamDictionary, aliasDict, d)
-            updateResults <- updateDb(List(d.toString), updateData)
-          } yield {
-            updateResults
-          }
-        })).map(_.flatten)
-      })
-    })
+    val dates: List[LocalDate] = optDates match {
+      case Some(ds)=>ds.filter(season.canUpdate)
+      case None=> season.dates
+    }
+
+    for {
+      aliases<-dao.listAliases
+      teams<-dao.listTeams
+      data<-loadGameData(dates,season,updatedBy,teams,aliases)
+    } yield {
+      data
+    }
+  }
+
+  def loadGameData(dates:List[LocalDate],season:Season, updatedBy:String, teams:List[Team], aliases:List[Alias] ): Future[List[UpdateDbResult]] =
+    Future.sequence(dates.map({loadOneDate(season, updatedBy, teams, aliases, _)})).map(_.flatten)
+
+
+  def loadOneDate(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[Iterable[UpdateDbResult]] = {
+    for {
+      updateData <- scrape(season, updatedBy, teams, aliases, d)
+      updateResults <- updateDb(List(d.toString), updateData)
+    } yield {
+      updateResults
+    }
   }
 
   def scrape(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {

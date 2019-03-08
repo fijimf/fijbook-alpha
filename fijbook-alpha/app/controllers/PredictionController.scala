@@ -59,16 +59,16 @@ class PredictionController @Inject()(
 //    }
 //  }
 
-  def updatePredictions(key: String, version: Int, yyyy: Int): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
-//    logger.info(s"Updating predictions for version $version of model '$key' and season $yyyy")
-//    for {
-//      du <- loadDisplayUser(rs)
-//      qw <- getQuoteWrapper(du)
-//      ps <- predCtx.updatePredictions(key, version, yyyy)
-//    } yield {
-//      Ok(ps.map(_.toString).mkString("\n")) //<--TODO forward to display the predictions
-//    }
-//  }
+  def updatePredictions(key:String, version:Int): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
+    logger.info(s"Updating predictions for version $version of model '$key' ")
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      ps <- Predictor.updatePredictions(key, version, dao).value
+    } yield {
+      Redirect(routes.PredictionController.managePredictions()).flashing("info" -> s"Updated ${ps.getOrElse(0)} predictions. ")
+    }
+  }
 
 //  def showLatest(key: String, yyyymmdd: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
 //    val date = controllers.Utils.yyyymmdd(yyyymmdd)

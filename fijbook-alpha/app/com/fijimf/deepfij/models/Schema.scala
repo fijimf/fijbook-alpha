@@ -56,6 +56,15 @@ final case class Conference(id: Long, key: String, name: String, level:String = 
 final case class GameSignature(dateHash: Int, homeId: Long, awayId: Long)
 
 final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Long, date: LocalDate, datetime: LocalDateTime, location: Option[String], isNeutralSite: Boolean, tourneyKey: Option[String], homeTeamSeed: Option[Int], awayTeamSeed: Option[Int], sourceKey: String, updatedAt: LocalDateTime, updatedBy: String) extends ModelUtils {
+  def isMateriallyDifferent(g: Game): Boolean = !(
+    g.homeTeamId === homeTeamId
+      && g.awayTeamId === awayTeamId
+      && g.date === date
+      && g.datetime === datetime
+      && g.location === location
+      && g.isNeutralSite === isNeutralSite
+    )
+
 
   def signature: GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
@@ -95,6 +104,10 @@ final case class Team(id: Long, key: String, name: String, longName: String, nic
 final case class Alias(id: Long, alias: String, key: String)
 
 final case class Result(id: Long, gameId: Long, homeScore: Int, awayScore: Int, periods: Int, updatedAt: LocalDateTime, updatedBy: String) {
+  def isMateriallyDifferent(r1: Result): Boolean = !(r1.homeScore === homeScore
+    && r1.awayScore === awayScore
+    && r1.periods === periods)
+
 
   def sameData(r: Result): Boolean = (r.gameId === gameId
     && r.homeScore === homeScore

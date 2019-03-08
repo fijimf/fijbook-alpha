@@ -8,7 +8,7 @@ import scala.concurrent.Future
 case class NaiveLeastSquaresFeatureExtractor(statDao: StatValueDAO) extends FeatureExtractor {
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val sfe = StatisticFeatureExtractor(statDao, List(("ols", "zscore")))
+  val sfe = StatisticFeatureExtractor(statDao, List(("ols", "value")))
 
   def apply(gs: List[Game]): Future[List[Map[String, Double]]] = sfe(gs).map(lst => lst.map(m => transform(m)))
 

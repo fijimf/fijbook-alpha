@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models.nstats.predictors
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.time.LocalDate
+import java.util.Base64
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
@@ -14,8 +15,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
-case class NextGenLogisticPredictor(kernel: Option[String] = None) extends Predictor {
+case class NextGenLogisticPredictor(modelId:Long, version:Int, kernel: Option[String] = None) extends Predictor {
   val logger = Logger(this.getClass)
+
+  override def key: String = "spread-based-logistic"
 
   val logisticRegression: Option[LogisticRegression] = kernel.flatMap(s => deserializeKernel(s))
 
@@ -66,13 +69,13 @@ case class NextGenLogisticPredictor(kernel: Option[String] = None) extends Predi
       val oos = new ObjectOutputStream(baos)
       oos.writeObject(lr)
       oos.close()
-      new String(baos.toByteArray)
+      Base64.getEncoder.encodeToString(baos.toByteArray)
     }.toOption
   }
 
   def deserializeKernel(s: String): Option[LogisticRegression] = {
     Try {
-      val bais = new ByteArrayInputStream(s.getBytes())
+      val bais = new ByteArrayInputStream(Base64.getDecoder.decode(s))
       val ois = new ObjectInputStream(bais)
       ois.readObject().asInstanceOf[LogisticRegression]
     }.toOption
@@ -101,13 +104,14 @@ case class NextGenLogisticPredictor(kernel: Option[String] = None) extends Predi
 
               logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")
               if (hp > ap) {
-                XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), Some(hp), Some(math.max(spread, 0.0)), None)
+                XPrediction(0L, g.id, modelId, now, hash, Some(g.homeTeamId), Some(hp), Some(math.max(spread, 0.0)), None)
               } else {
-                XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), Some(ap), Some(math.max(-spread, 0.0)), None)
+                XPrediction(0L, g.id, modelId, now, hash, Some(g.awayTeamId), Some(ap), Some(math.max(-spread, 0.0)), None)
               }
             })
           }
         }
     }
   }
+
 }

@@ -16,30 +16,33 @@
             <div class="card-body">
             <a  class="card-link" href=@routes.PredictionController.trainModel(name._1)>Train new version</a></li>
                 <table class="table table-condensed">
-                    <thead><tr><th>Version</th>
-                        <th>Trained On</th>
-                        <th># games predicted</th>
-                        <th># games correct</th>
-                        <th># games incorrect</th>
-                        <th/>
-                        <th/>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Id</th>
+                            <th>Trained On</th>
+                            <th># games predicted</th>
+                            <th># games correct</th>
+                            <th># games incorrect</th>
+                            <th/>
+                            <th/>
+                        </tr>
                     </thead>
                     <tbody>
                     @for(p <- name._2) {
                         <tr>
                             <td>@p.version</td>
+                            <td>@p.id</td>
                             <td>@{p.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}</td>
                             <td>@{PredictionResult.numPredicted(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
                             <td>@{PredictionResult.numCorrect(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
                             <td>@{PredictionResult.numIncorrect(predMap.getOrElse(p.id, List.empty[PredictionResult]))}</td>
-                            <td><a href="#">Update predictions</a></td>
-                            <td><a href="#">Delete model & predictions</a></td>
+                            <td><a href="@routes.PredictionController.updatePredictions(p.key,p.version)" title="Update predictions"><span class="fa fa-refresh text-success"></span></a></td>
+                            <td><a href="#" title="Delete version and predictions"><span class="fa fa-times-rectangle text-danger"></span></a></td>
                         </tr>
                     }
                     </tbody>
                 </table>
-
             </div>
         </div>
     }

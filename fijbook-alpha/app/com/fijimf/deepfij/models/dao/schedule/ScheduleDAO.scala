@@ -24,11 +24,8 @@ trait ScheduleDAO
     with JobDAO
     with JobRunDAO
     with CalcStatusDAO
+    with ScoreboardDAO
 {
-
-  def saveGameResult(g:Game,r:Option[Result]):Future[Option[Game]]
-
-  def updateScoreboard(updateData: List[GameMapping], sourceTag: String):Future[(Seq[Long], Seq[Long])]
 
   def loadSchedules(): Future[List[Schedule]]
 

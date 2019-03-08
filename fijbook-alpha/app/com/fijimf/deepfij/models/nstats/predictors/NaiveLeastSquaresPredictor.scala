@@ -10,7 +10,9 @@ import play.api.Logger
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-case class NaiveLeastSquaresPredictor() extends Predictor {
+case class NaiveLeastSquaresPredictor(modelId:Long, version:Int) extends Predictor {
+
+  override def key: String = "naive-least-squares"
 
   val logger = Logger(this.getClass)
 
@@ -35,9 +37,9 @@ case class NaiveLeastSquaresPredictor() extends Predictor {
           s <- feat.get("ols.value.diff") if s != 0.0
         } yield {
           if (s > 0) {
-            XPrediction(0L, g.id, 0L, now, hash, Some(g.homeTeamId), None, Some(s), None)
+            XPrediction(0L, g.id, modelId, now, hash, Some(g.homeTeamId), None, Some(s), None)
           } else {
-            XPrediction(0L, g.id, 0L, now, hash, Some(g.awayTeamId), None, Some(-s), None)
+            XPrediction(0L, g.id, modelId, now, hash, Some(g.awayTeamId), None, Some(-s), None)
           }
         }
       }

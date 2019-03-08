@@ -16,6 +16,8 @@ trait PredictionDAO {
 
   def savePredictionModel(model: XPredictionModel) : OptionT[Future,XPredictionModel]
 
+  def updatePredictions(xps: List[XPrediction]): Future[List[XPrediction]]
+
   def updatePredictions(modelId:Long, schedHash:String, xps: List[XPrediction]):Future[List[XPrediction]]
 
   def findXPredictions(modelId:Long):Future[List[XPrediction]]
