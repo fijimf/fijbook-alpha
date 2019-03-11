@@ -1,18 +1,14 @@
 package com.fijimf.deepfij.models.dao.schedule
 
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime}
-
 import akka.actor.ActorSystem
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
-import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.Failure
 
 
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
@@ -58,87 +54,6 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       Schedule(s, teams, conferences, conferenceMap, results)
     }
   }
-
-  override def saveGameResult(g: Game, r: Option[Result]): Future[Option[Game]] = {
-    db.run(((g, r) match {
-      case (g, None) =>
-        handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
-      case (g, Some(r)) =>
-        handleGame(g).flatMap(g1 => handleResult(g1, r))
-    }).transactionally)
-  }
-
-  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[(Seq[Long], Seq[Long])] = {
-    val startTime = System.currentTimeMillis()
-    val mutations = updateData.map {
-      case MappedGame(g) =>
-        handleGame(g).flatMap(g1 => repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete.andThen(DBIO.successful(g1)))
-      case MappedGameAndResult(g, r) =>
-        handleGame(g).flatMap(g1 => handleResult(g1, r))
-      case UnmappedGame(keys, _) =>
-        DBIO.successful(None)
-    }
-    val updateAndCleanUp = DBIO.sequence(mutations).flatMap(ogs => {
-      val goodIds = ogs.flatten.map(_.id)
-      repo.games.filter(g => {
-        g.sourceKey === sourceKey && !g.id.inSet(goodIds)
-      }).map(_.id).result.flatMap(badIds => {
-        repo.results.filter(_.gameId.inSet(badIds)).delete.
-          andThen(repo.games.filter(_.id.inSet(badIds)).delete).
-          andThen(DBIO.successful((goodIds, badIds)))
-      })
-    }).transactionally
-
-    val f = runWithRecover(updateAndCleanUp, backoffStrategy)
-
-    f.onComplete {
-      case Success((upserts, deletes)) =>
-        log.info(s"UpdateScoreboard succeeded for $sourceKey in ${System.currentTimeMillis() - startTime} with ${upserts.size} upserts and ${deletes.size} deletes")
-      case Failure(thr) =>
-        log.error(s"UpdateScoreboard failed for $sourceKey in ${System.currentTimeMillis() - startTime} ms with ${thr.getMessage}", thr)
-    }
-    f
-  }
-
-  private def handleGame(g: Game): DBIO[Option[Game]] = {
-    findMatchingGame(g).result.headOption.flatMap {
-      case Some(gh) if g.isMateriallyDifferent(gh) => createUpdateGameAction(g, gh)
-      case Some(gh) if !g.isMateriallyDifferent(gh) => createNoOpGameAction(gh)
-      case None => createInsertGameAction(g)
-    }
-  }
-
-  private def createInsertGameAction(g: Game): DBIO[Option[Game]] = {
-    ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Some(g.copy(id = id))))
-  }
-
-  private def createNoOpGameAction(g: Game): DBIO[Option[Game]] = {
-    DBIO.successful(Some(g))
-  }
-
-  private def createUpdateGameAction(g: Game, gh: Game): DBIO[Option[Game]] = {
-    val g1 = g.copy(id = gh.id)
-    repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
-  }
-
-  private def handleResult(og: Option[Game], r: Result): DBIO[Option[Game]] = {
-    og match {
-      case Some(g) =>
-        val r0 = r.copy(gameId = g.id)
-        repo.results.filter(_.gameId === g.id).map(_.id).result.flatMap(
-          (longs: Seq[Long]) => {
-            val r1 = r0.copy(id = longs.headOption.getOrElse(0))
-            repo.results.insertOrUpdate(r1).andThen(DBIO.successful(og))
-          }
-        )
-      case None => DBIO.successful(og)
-    }
-  }
-
-  private def findMatchingGame(g: Game) = {
-    repo.games.filter(h => h.date === g.date && h.homeTeamId === g.homeTeamId && h.awayTeamId === g.awayTeamId)
-  }
-
   override def loadSchedules(): Future[List[Schedule]] = {
     val result: DBIO[List[Season]] = repo.seasons.to[List].result
     db.run(result).flatMap(seasons =>

@@ -14,7 +14,7 @@ import com.google.inject.name.Named
 import controllers._
 import javax.inject.Inject
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -74,9 +74,8 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   }
 
   def collapseResults(y: Int,rs:List[UpdateDbResult]):String={
-    val (u,d)=rs.foldLeft((0L,0L)){case ((ups, del),r ) =>(ups+r.upserted.sum, del+r.deleted.sum)}
-    s"$y: $u records updated/inserted, $d deleted"
-
+    val zero = UpdateDbResult("y", Seq.empty[Long], Seq.empty[Long], Seq.empty[Long], Seq.empty[Long])
+    rs.foldLeft(zero) { case (u, u1) => u.merge(y.toString, u1) }.toString
   }
 
   def loadSeason(s: Season, tag: String): Future[List[UpdateDbResult]] = {
@@ -122,7 +121,7 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
     val groups = updateData.groupBy(_.sourceKey)
     val eventualTuples = keys.map(k => {
       val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
-      dao.updateScoreboard(gameMappings, k).map(tup => UpdateDbResult(k, tup._1, tup._2))
+      dao.updateScoreboard(gameMappings, k)
     })
     Future.sequence(eventualTuples)
   }

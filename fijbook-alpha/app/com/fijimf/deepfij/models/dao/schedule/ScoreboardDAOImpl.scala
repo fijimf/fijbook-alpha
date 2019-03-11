@@ -4,11 +4,31 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.models.services.UpdateDbResult
 import com.fijimf.deepfij.models.{Game, Result, ScheduleRepository}
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.Future
+
+sealed trait GG {
+  def g: Option[Game]
+
+  def op: String
+}
+
+case class Insert(g: Option[Game]) extends GG {
+  val op = "INSERT"
+}
+
+case class Update(g: Option[Game]) extends GG {
+  val op = "UPDATE"
+}
+
+case class NoOp(g: Option[Game]) extends GG {
+  val op = "NOOP"
+}
+
 
 
 trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
@@ -32,14 +52,14 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
   )
 
   override def saveGameResult(g: Game, r: Option[Result]): Future[Option[Game]] = {
-    db.run(stageGameResult(g, r).transactionally)
+    db.run(stageGameResult(g, r).map(_.g).transactionally)
   }
 
-  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[(Seq[Long], Seq[Long])] = {
+  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[UpdateDbResult] = {
     val mutations = updateData.map {
       case MappedGame(g) => stageGameResult(g,None)
       case MappedGameAndResult(g, r) => stageGameResult(g, Some(r))
-      case UnmappedGame(_, _) => DBIO.successful(None)
+      case UnmappedGame(_, _) => DBIO.successful(NoOp(None))
     }
 
     val updateAndCleanUp = DBIO.sequence(mutations).flatMap(gameList=>deletes(gameList,sourceKey)).transactionally
@@ -47,9 +67,9 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     runWithRecover(updateAndCleanUp, backoffStrategy)
   }
 
-  def stageGameResult(game: Game, res: Option[Result]): DBIO[Option[Game]] = {
+  def stageGameResult(game: Game, res: Option[Result]): DBIO[GG] = {
     (game, res) match {
-      case (g, None) => handleGame(g).flatMap(g1 => deleteGameResult(g1).andThen(DBIO.successful(g1)))
+      case (g, None) => handleGame(g).flatMap(g1 => deleteGameResult(g1.g).andThen(DBIO.successful(g1)))
       case (g, Some(r)) => handleGame(g).flatMap(g1 => handleResult(g1, r))
     }
   }
@@ -58,14 +78,22 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete
   }
 
-  def deletes(gameList: List[Option[Game]], sourceKey: String): DBIO[(Seq[Long], Seq[Long])] = {
-    val knownIds = gameList.flatten.map(_.id)
+  def deletes(gameList: List[GG], sourceKey: String): DBIO[UpdateDbResult] = {
+    val knownIds = gameList.flatMap(_.g).map(_.id)
     for {
       unknownIds <- findUnknownGames(sourceKey, knownIds)
       _ <- repo.results.filter(_.gameId.inSet(unknownIds)).delete
       _ <- repo.games.filter(_.id.inSet(unknownIds)).delete
     } yield {
-      (knownIds, unknownIds)
+      val opMap: Map[String, List[Long]] = gameList.groupBy(_.op).mapValues(_.flatMap(_.g).map(_.id))
+      println(s"$sourceKey    $opMap")
+      UpdateDbResult(
+        sourceKey,
+        opMap.getOrElse("INSERT", Seq.empty[Long]),
+        opMap.getOrElse("UPDATE", Seq.empty[Long]),
+        opMap.getOrElse("NOOP", Seq.empty[Long]),
+        unknownIds
+      )
     }
   }
 
@@ -75,7 +103,7 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     }).map(_.id).result
   }
 
-  private def handleGame(g: Game): DBIO[Option[Game]] = {
+  private def handleGame(g: Game): DBIO[GG] = {
     findMatchingGame(g).result.headOption.flatMap {
       case Some(gh) if g.isMateriallyDifferent(gh) => createUpdateGameAction(g, gh)
       case Some(gh) if !g.isMateriallyDifferent(gh) => createNoOpGameAction(gh)
@@ -83,21 +111,21 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     }
   }
 
-  private def createInsertGameAction(g: Game): DBIO[Option[Game]] = {
-    ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Some(g.copy(id = id))))
+  private def createInsertGameAction(g: Game): DBIO[GG] = {
+    ((repo.games returning repo.games.map(_.id)) += g).flatMap(id => DBIO.successful(Insert(Some(g.copy(id = id)))))
   }
 
-  private def createNoOpGameAction(g: Game): DBIO[Option[Game]] = {
-    DBIO.successful(Some(g))
+  private def createNoOpGameAction(g: Game): DBIO[GG] = {
+    DBIO.successful(NoOp(Some(g)))
   }
 
-  private def createUpdateGameAction(g: Game, gh: Game): DBIO[Option[Game]] = {
+  private def createUpdateGameAction(g: Game, gh: Game): DBIO[GG] = {
     val g1 = g.copy(id = gh.id)
-    repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Some(g1)))
+    repo.games.filter(_.id === g1.id).update(g1).andThen(DBIO.successful(Update(Some(g1))))
   }
 
-  private def handleResult(og: Option[Game], r: Result): DBIO[Option[Game]] = {
-    og match {
+  private def handleResult(og: GG, r: Result): DBIO[GG] = {
+    og.g match {
       case Some(g) =>
         val r0 = r.copy(gameId = g.id)
         repo.results.filter(_.gameId === g.id).map(_.id).result.flatMap(

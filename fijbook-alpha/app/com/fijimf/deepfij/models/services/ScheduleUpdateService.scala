@@ -9,9 +9,6 @@ import scala.concurrent.Future
 import scala.language.postfixOps
 
 trait ScheduleUpdateService {
-  final case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long]) {
-    override def toString: String = s"For source $source updated/inserted ${upserted.sum} records, deleted ${deleted.sum}."
-  }
 
   def update(str: String):Future[String]
 

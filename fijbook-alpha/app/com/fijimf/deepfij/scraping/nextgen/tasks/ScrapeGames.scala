@@ -10,6 +10,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.services.UpdateDbResult
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.fijimf.deepfij.scraping.nextgen.{SSTask, SSTaskProgress}
 import com.fijimf.deepfij.scraping.{ScoreboardByDateReq, ScrapingResponse}
@@ -25,8 +26,6 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-
-  final case class UpdateDbResult(source: String, upserted: Seq[Long], deleted: Seq[Long])
   val logger = Logger(this.getClass)
   def name: String = "Scrape games"
   def run(messageListener:Option[ActorRef]):Future[List[_]] = {
@@ -89,7 +88,7 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
     val groups = updateData.groupBy(_.sourceKey)
     val eventualTuples = keys.map(k => {
       val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
-      dao.updateScoreboard(gameMappings, k).map(tup => UpdateDbResult(k, tup._1, tup._2))
+      dao.updateScoreboard(gameMappings, k)
     })
     Future.sequence(eventualTuples)
   }
