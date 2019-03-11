@@ -17,7 +17,7 @@ final case class ScoreboardByDateReq(date: LocalDate) extends JsonScrapeRequest[
       case Success(jsa) =>
         jsa.value.toList.flatMap(v => NcaaComGameScraper.getGameData(v, date.toString))
       case Failure(ex) =>
-        logger.error("Failed scraping data ", ex)
+        logger.error(s"Failed scraping data ${ex.getMessage}")
         List.empty
     }
   }
@@ -33,7 +33,7 @@ final case class CasablancaScoreboardByDateReq(date: LocalDate) extends Casablan
       case Success(jsa) =>
         jsa.flatMap(v => CasablancaGameScraper.getGameData(v, date.toString))
       case Failure(ex) =>
-        logger.error("Failed scraping data ", ex)
+        logger.error(s"Failed scraping data ${ex.getMessage}")
         List.empty
     }
   }
