@@ -9,7 +9,7 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService}
+import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService, WholeSeasonUpdate}
 import play.api.Logger
 
 import scala.concurrent.Future
@@ -183,7 +183,7 @@ final case class UberScraper(dao: ScheduleDAO, repo: ScheduleRepository, schedSv
   def scrapeGames(tag: String): Future[List[Tracking]] = {
     dao.listSeasons.flatMap(ss => {
       Future.sequence(ss.map(s => {
-        schedSvc.loadSeason(s, tag).map(_ => Tracking(LocalDateTime.now(), s"Loaded games for ${s.year}"))
+        schedSvc.update(WholeSeasonUpdate(s.year)).map(_ => Tracking(LocalDateTime.now(), s"Loaded games for ${s.year}"))
           .recover {
             case thr =>
               logger.error(s"Failed loading games for ${s.year} with ${thr.getMessage}")

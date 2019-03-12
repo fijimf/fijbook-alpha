@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.services.UpdateDbResult
+import com.fijimf.deepfij.models.services.ScheduleUpdateResult
 import com.fijimf.deepfij.models.{Game, Result, ScheduleRepository}
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.db.slick.DatabaseConfigProvider
@@ -55,7 +55,7 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     db.run(stageGameResult(g, r).map(_.g).transactionally)
   }
 
-  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[UpdateDbResult] = {
+  override def updateScoreboard(updateData: List[GameMapping], sourceKey: String): Future[ScheduleUpdateResult] = {
     val mutations = updateData.map {
       case MappedGame(g) => stageGameResult(g,None)
       case MappedGameAndResult(g, r) => stageGameResult(g, Some(r))
@@ -78,7 +78,7 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
     repo.results.filter(_.gameId === g1.map(_.id).getOrElse(0L)).delete
   }
 
-  def deletes(gameList: List[GG], sourceKey: String): DBIO[UpdateDbResult] = {
+  def deletes(gameList: List[GG], sourceKey: String): DBIO[ScheduleUpdateResult] = {
     val knownIds = gameList.flatMap(_.g).map(_.id)
     for {
       unknownIds <- findUnknownGames(sourceKey, knownIds)
@@ -86,8 +86,7 @@ trait ScoreboardDAOImpl extends ScoreboardDAO with DAOSlick {
       _ <- repo.games.filter(_.id.inSet(unknownIds)).delete
     } yield {
       val opMap: Map[String, List[Long]] = gameList.groupBy(_.op).mapValues(_.flatMap(_.g).map(_.id))
-      println(s"$sourceKey    $opMap")
-      UpdateDbResult(
+      ScheduleUpdateResult(
         sourceKey,
         opMap.getOrElse("INSERT", Seq.empty[Long]),
         opMap.getOrElse("UPDATE", Seq.empty[Long]),

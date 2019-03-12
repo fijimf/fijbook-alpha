@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.models.services.{ScheduleUpdateControl, ScheduleUpdateService, ToFromTodayUpdate, WholeSeasonUpdate}
 import com.fijimf.deepfij.scraping.nextgen.tasks.TourneyUpdater
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
@@ -25,7 +25,7 @@ class GameScrapeController @Inject()(
 
   def scrapeGames(seasonId: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
     dao.findSeasonById(seasonId).map {
-      case Some(seas) => scheduleUpdateService.updateSeason(None, seas)
+      case Some(seas) => scheduleUpdateService.update(WholeSeasonUpdate(seas.year))
         Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
       case None => Redirect(routes.AdminController.index()).flashing("info" -> ("Scraping season " + seasonId))
     }
@@ -33,14 +33,14 @@ class GameScrapeController @Inject()(
   }
 
   def scrapeToday(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
-    scheduleUpdateService.updateSeason(Some(List(LocalDate.now())))
+    scheduleUpdateService.update(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE))
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Scraping today "))
   }
   }
 
   def scrapeForDay(yyyymmdd: String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs => {
-    val d = LocalDate.parse(yyyymmdd, DateTimeFormatter.BASIC_ISO_DATE)
-    scheduleUpdateService.updateSeason(Some(List(d)))
+
+    scheduleUpdateService.update(yyyymmdd)
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> s"Scraping $yyyymmdd "))
   }
   }

@@ -21,7 +21,7 @@ class ScheduleUpdateServiceImplStressSpec extends PlaySpec with OneAppPerTest wi
 
   val log = Logger(this.getClass)
   val dao = Injector.inject[ScheduleDAO]
-  val svc = Injector.inject[ScheduleUpdateService]
+  val svc = Injector.inject[ScheduleUpdateService].asInstanceOf[ScheduleUpdateServiceImpl]
 
   val rng = new Random(0L)
   val today = LocalDateTime.now

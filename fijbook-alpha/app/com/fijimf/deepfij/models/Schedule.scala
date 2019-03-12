@@ -1,12 +1,28 @@
 package com.fijimf.deepfij.models
 
-import java.security.MessageDigest
-import java.time.{LocalDate, Month}
+import java.time.{LocalDate, LocalDateTime, Month}
 
 import cats.implicits._
-import com.fijimf.deepfij.models.services.ScheduleSerializer
 
 import scala.collection.immutable
+
+final case class ScheduleStatus
+(
+  year: Int,
+  numberOfGames: Int,
+  firstGame: Option[LocalDateTime],
+  lastGame: Option[LocalDateTime],
+  daysWithGames: Int,
+  lastUpdatedGame: Option[LocalDateTime],
+  maxGameId: Option[Long],
+  numberOfResults: Int,
+  firstResult: Option[LocalDateTime],
+  lastResult: Option[LocalDateTime],
+  daysWithResults: Int,
+  lastUpdatedResult: Option[LocalDateTime],
+  maxResultId: Option[Long],
+  orphanedGames: Int
+)
 
 final case class Schedule
 (
@@ -16,6 +32,27 @@ final case class Schedule
   conferenceMap: List[ConferenceMap],
   gameResults: List[(Game, Option[Result])]
 ) {
+
+
+  def snapshot: ScheduleStatus = {
+    ScheduleStatus(
+      season.year,
+      games.size,
+      firstGame,
+      lastGame,
+      games.map(_.date).toSet.size,
+      lastUpdatedGame,
+      games.map(_.id).maximumOption,
+      results.size,
+      firstResult,
+      lastResult,
+      completeGames.map(_._1.date).toSet.size,
+      lastUpdatedResult,
+      results.map(_.id).maximumOption,
+      orphanedGames
+    )
+  }
+
 
   implicit class CompletedGame(tup: (Game, Result)) {
     val game: Game = tup._1
@@ -68,15 +105,34 @@ final case class Schedule
   val completeGames: List[(Game, Result)] =gameResults.flatMap(gr => gr._2.map(r => (gr._1, r)))
   val incompleteGames: List[Game] =gameResults.filter(_._2.isEmpty).map(_._1)
 
-  def firstGame: Option[LocalDate] = games.headOption.map(_.date)
+  val firstGame: Option[LocalDateTime] = findFirstLocalDateTime(games.map(_.datetime))
+  val lastGame: Option[LocalDateTime] = findLastLocalDateTime(games.map(_.datetime))
+  val lastUpdatedGame: Option[LocalDateTime] = findLastLocalDateTime(games.map(_.updatedAt))
 
-  def lastGame: Option[LocalDate] = games.lastOption.map(_.date)
+  val firstResult: Option[LocalDateTime] = findFirstLocalDateTime(gameResults.filter(_._2.isDefined).map(_._1.datetime))
+  val lastResult: Option[LocalDateTime] = findLastLocalDateTime(gameResults.filter(_._2.isDefined).map(_._1.datetime))
+  val lastUpdatedResult: Option[LocalDateTime] = findLastLocalDateTime(results.map(_.updatedAt))
+
+  val orphanedGames: Int = lastResult match {
+    case None => 0
+    case Some(d) => incompleteGames.count(_.date.atStartOfDay().isBefore(d.minusDays(1)))
+  }
+
+  def findFirstLocalDateTime(gs: List[LocalDateTime]): Option[LocalDateTime] = {
+    gs.foldLeft(Option.empty[LocalDateTime]) {
+      case (Some(date), g) => if (date.isBefore(g)) Some(date) else Some(g)
+      case (None, g) => Some(g)
+    }
+  }
+
+  def findLastLocalDateTime(gs: List[LocalDateTime]): Option[LocalDateTime] = {
+    gs.foldLeft(Option.empty[LocalDateTime]) {
+      case (Some(date), g) => if (date.isAfter(g)) Some(date) else Some(g)
+      case (None, g) => Some(g)
+    }
+  }
 
   def numResults: Int = games.size
-
-  def firstResult: Option[LocalDate] = resultDates.headOption
-
-  def lastResult: Option[LocalDate] = resultDates.reverse.headOption
 
   def resultDates: List[LocalDate] = results.map(r => gameMap(r.gameId).date).sortBy(_.toEpochDay)
 

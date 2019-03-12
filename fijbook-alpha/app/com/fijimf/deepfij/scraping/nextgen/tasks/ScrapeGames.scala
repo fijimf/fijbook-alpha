@@ -10,7 +10,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.UpdateDbResult
+import com.fijimf.deepfij.models.services.ScheduleUpdateResult
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.fijimf.deepfij.scraping.nextgen.{SSTask, SSTaskProgress}
 import com.fijimf.deepfij.scraping.{ScoreboardByDateReq, ScrapingResponse}
@@ -40,12 +40,12 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
     })
   }
 
-  override def cancel = {
+  override def cancel: Unit = {
     throttler ! Throttler.SetTarget(None)
     throttler ! PoisonPill
   }
 
-  def loadSeason(s: Season, tag: String, messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[UpdateDbResult]] = {
+  def loadSeason(s: Season, tag: String, messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[ScheduleUpdateResult]] = {
     val f = scrapeSeasonGames(s, Some(s.dates), tag, messageListener, dateCounter)
     f.onComplete {
       case Success(_) => logger.info(s"Game scrape succeeded for season ${s.year}")
@@ -56,7 +56,7 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
 
 
 
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], tag: String,messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[UpdateDbResult]] = {
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], tag: String,messageListener:Option[ActorRef], dateCounter:Agent[(Int, Int)]): Future[List[ScheduleUpdateResult]] = {
     val dateList: List[LocalDate] = optDates.getOrElse(season.dates).filter(d => season.canUpdate(d))
     dao.listAliases.flatMap(aliasDict => {
       dao.listTeams.flatMap(teamDictionary => {
@@ -84,7 +84,7 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
       })
     })
   }
-  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[UpdateDbResult]] = {
+  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[ScheduleUpdateResult]] = {
     val groups = updateData.groupBy(_.sourceKey)
     val eventualTuples = keys.map(k => {
       val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
@@ -96,21 +96,13 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
   def scrape(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
     val masterDict: Map[String, Team] = createMasterDictionary(teams, aliases)
     logger.info("Loading date " + d)
-    implicit val timeout=Timeout(10.minutes)
+    implicit val timeout: Timeout =Timeout(10.minutes)
     val response = (throttler ? ScoreboardByDateReq(d)).mapTo[ScrapingResponse[List[GameData]]]
     logScrapeResponse(d, response)
 
     response.map(_.result match {
       case Success(lgd) => lgd.map(gameDataToGame(season, d, updatedBy, masterDict, _))
-      case Failure(thr) => List.empty[GameMapping]
-    })
-  }
-
-  private def createMasterDictionary(): Future[Map[String, Team]] = {
-    dao.listAliases.flatMap(aliases => {
-      dao.listTeams.map(teams => {
-        createMasterDictionary(teams, aliases)
-      })
+      case Failure(_) => List.empty[GameMapping]
     })
   }
 
@@ -126,8 +118,8 @@ final case class ScrapeGames(dao: ScheduleDAO, throttler:ActorRef) extends SSTas
     val htk = gd.homeTeamKey
     (teamDict.get(htk), teamDict.get(atk)) match {
       case (None, None) => UnmappedGame(List(htk, atk), sourceKey)
-      case (Some(t), None) => UnmappedGame(List(atk), sourceKey)
-      case (None, Some(t)) => UnmappedGame(List(htk), sourceKey)
+      case (Some(_), None) => UnmappedGame(List(atk), sourceKey)
+      case (None, Some(_)) => UnmappedGame(List(htk), sourceKey)
       case (Some(ht), Some(at)) =>
         val game = populateGame(d, season, updatedBy, gd, ht, at)
         gd.result match {

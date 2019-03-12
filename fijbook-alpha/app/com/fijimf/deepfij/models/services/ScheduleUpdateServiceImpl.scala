@@ -19,7 +19,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.matching.Regex
 import scala.util.{Failure, Success}
 
 
@@ -29,94 +28,65 @@ class ScheduleUpdateServiceImpl @Inject()(dao: ScheduleDAO, override val message
   val zoneId: ZoneId = ZoneId.of("America/New_York")
   implicit val timeout: Timeout = Timeout(600.seconds)
 
-  def update(str: String): Future[String] = {
-    val control = UpdateControlString(str)
-    dao.findSeasonByYear(control.season).flatMap {
-      case Some(s) => updateSeason(control.dates, s).map(collapseResults(s.year, _))
-      case None => Future(s"No schedule found for ${control.season}")
+  def update(str: String): Future[ScheduleUpdateResult] = {
+    update(ScheduleUpdateControl(str))
+  }
+
+  def update(suc:ScheduleUpdateRequest):Future[ScheduleUpdateResult]={
+    dao.findSeasonByYear(suc.season).flatMap {
+      case Some(s) => scrapeSeasonGames(s, suc.dates, "Scraper[Updater]").map(collapseResults(s.year, _))
+      case None => Future.failed(new RuntimeException(s"No schedule found for ${suc.season}"))
     }
   }
 
-  def collapseResults(y: Int,rs:List[UpdateDbResult]):String={
-    val zero = UpdateDbResult("y", Seq.empty[Long], Seq.empty[Long], Seq.empty[Long], Seq.empty[Long])
-    rs.foldLeft(zero) { case (u, u1) => u.merge(y.toString, u1) }.toString
-  }
-
-  def loadSeason(s: Season, tag: String): Future[List[UpdateDbResult]] = {
-    val f = scrapeSeasonGames(s, Some(s.dates), tag)
-    f.onComplete {
-      case Success(_) => logger.info(s"Game scrape succeeded for season ${s.year}")
-      case Failure(_) => logger.info(s"Game scrape failed for season ${s.year}")
-    }
-    f
-  }
-
-  def updateSeason(optDates: Option[List[LocalDate]]): Future[List[UpdateDbResult]] = {
-    dao.listSeasons.flatMap(ss => {
-      runSeasonDates(optDates, ss)
-    })
-  }
-
-  private def runSeasonDates(optDates: Option[List[LocalDate]], ss: List[Season]): Future[List[UpdateDbResult]] = {
-    (optDates match {
-      case Some(ds) =>
-        val eventualResultses = ds.groupBy(d => ss.find(s => s.dates.contains(d)))
-          .filter { case (ms: Option[Season], dates: List[LocalDate]) => ms.isDefined && dates.nonEmpty }
-          .map { case (ms: Option[Season], dates: List[LocalDate]) => updateSeason(Some(dates), ms.get) }
-        Future.sequence(eventualResultses).map(_.flatten)
-      case None => updateSeason(None, ss.maxBy(_.year))
-    }).map(_.toList)
-  }
-
-  def updateSeason(optDates: Option[List[LocalDate]], s: Season): Future[List[UpdateDbResult]] = {
-    logger.info(s"Updating season ${s.year} for ${optDates.map(_.mkString(",")).getOrElse("all dates")}.")
-    val updatedBy: String = "Scraper[Updater]"
-    val results: Future[List[UpdateDbResult]] = scrapeSeasonGames(s, optDates, updatedBy)
-    results.onComplete {
-      case Success(_) =>
-        logger.info("Schedule update scrape complete.")
-      case Failure(thr) =>
-        logger.error("Schedule update scrape failed.", thr)
-    }
-    results
-  }
-
-  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[UpdateDbResult]] = {
-    val groups = updateData.groupBy(_.sourceKey)
-    val eventualTuples = keys.map(k => {
-      val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
-      dao.updateScoreboard(gameMappings, k)
-    })
-    Future.sequence(eventualTuples)
-  }
-
-
-  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[List[UpdateDbResult]] = {
-    val dates: List[LocalDate] = optDates match {
-      case Some(ds)=>ds.filter(season.canUpdate)
-      case None=> season.dates
-    }
-
+  def scrapeSeasonGames(season: Season, optDates: Option[List[LocalDate]], updatedBy: String): Future[List[ScheduleUpdateResult]] = {
     for {
+      before<-dao.loadSchedule(season.year).map(_.map(_.snapshot))
       aliases<-dao.listAliases
       teams<-dao.listTeams
-      data<-loadGameData(dates,season,updatedBy,teams,aliases)
+      data<-loadGameData(datesToRun(season, optDates),season,updatedBy,teams,aliases)
+      after<-dao.loadSchedule(season.year).map(_.map(_.snapshot))
     } yield {
+      println(before)
+      println(after)
       data
     }
   }
 
-  def loadGameData(dates:List[LocalDate],season:Season, updatedBy:String, teams:List[Team], aliases:List[Alias] ): Future[List[UpdateDbResult]] =
+
+  private def datesToRun(season: Season, optDates: Option[List[LocalDate]]) = {
+    optDates match {
+      case Some(ds) => ds.filter(season.canUpdate)
+      case None => season.dates
+    }
+  }
+
+  def collapseResults(y: Int, rs:List[ScheduleUpdateResult]):ScheduleUpdateResult={
+    val zero = ScheduleUpdateResult(s"$y", Seq.empty[Long], Seq.empty[Long], Seq.empty[Long], Seq.empty[Long])
+    rs.foldLeft(zero) { case (u, u1) => u.merge(y.toString, u1) }
+  }
+
+
+
+  def loadGameData(dates:List[LocalDate],season:Season, updatedBy:String, teams:List[Team], aliases:List[Alias] ): Future[List[ScheduleUpdateResult]] =
     Future.sequence(dates.map({loadOneDate(season, updatedBy, teams, aliases, _)})).map(_.flatten)
 
 
-  def loadOneDate(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[Iterable[UpdateDbResult]] = {
+  def loadOneDate(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[Iterable[ScheduleUpdateResult]] = {
     for {
       updateData <- scrape(season, updatedBy, teams, aliases, d)
       updateResults <- updateDb(List(d.toString), updateData)
     } yield {
       updateResults
     }
+  }
+
+  def updateDb(keys: List[String], updateData: List[GameMapping]): Future[Iterable[ScheduleUpdateResult]] = {
+    val groups = updateData.groupBy(_.sourceKey)
+    Future.sequence(keys.map(k => {
+      val gameMappings = groups.getOrElse(k, List.empty[GameMapping])
+      dao.updateScoreboard(gameMappings, k)
+    }))
   }
 
   def scrape(season: Season, updatedBy: String, teams: List[Team], aliases: List[Alias], d: LocalDate): Future[List[GameMapping]] = {
