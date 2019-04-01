@@ -34,8 +34,8 @@ case class BaselineLogisticPredictor(modelId:Long, version:Int, kernel: Option[S
       categories <- categoryExtractor(games)
     } yield {
       val observations = features.zip(categories).flatMap {
-        case (featureMap: Map[String, Double], cat: Option[Double]) =>
-          (featureMap.get("ols.zscore.diff"), cat.map(_.toInt)) match {
+        case (featureMap: (Long,Map[String, Double]), cat: (Long,Option[Double])) =>
+          (featureMap._2.get("ols.zscore.diff"), cat._2.map(_.toInt)) match {
             case (Some(x), Some(y)) => Some(Array(x), y)
             case _ => None
           }
@@ -87,7 +87,7 @@ case class BaselineLogisticPredictor(modelId:Long, version:Int, kernel: Option[S
           features <- featureExtractor(schedule, statDao)(gs)
         } yield {
           gs.zip(features).flatMap { case (g, feat) =>
-            feat.get("ols.zscore.diff").map(x => {
+            feat._2.get("ols.zscore.diff").map(x => {
               val pp = Array[Double](Double.NaN, Double.NaN)
               val p = lr.predict(Array(x), pp)
               logger.info(s"For game (${g.id} | ${g.date}), feature $x => probability $p")

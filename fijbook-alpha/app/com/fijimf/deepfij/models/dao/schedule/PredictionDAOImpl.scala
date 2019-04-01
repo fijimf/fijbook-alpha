@@ -76,8 +76,8 @@ trait PredictionDAOImpl extends PredictionDAO with DAOSlick {
     }
   }
 
-  override def findXPredictions(modelId: Long): Future[List[XPrediction]] = {
-    db.run(repo.xpredictions.filter(_.modelId === modelId).to[List].result)
+  override def findXPredictions(modelId: Long): OptionT[Future,List[XPrediction]] = {
+    OptionT.liftF(db.run(repo.xpredictions.filter(_.modelId === modelId).to[List].result))
   }
 
   def findAllPredictions(): Future[Map[Long, List[PredictionResult]]] = {

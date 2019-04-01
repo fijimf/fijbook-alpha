@@ -13,22 +13,23 @@ case class StatisticFeatureExtractor(statDao: StatValueDAO, stats: List[(String,
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def apply(games: List[Game]): Future[List[Map[String, Double]]] = {
+  override def apply(games: List[Game]): Future[List[(Long,Map[String, Double])]] = {
     Future.sequence(games.groupBy(_.seasonId).flatMap { case (seasonId, gs) => featuresBySeason(seasonId, gs) }.toList)
   }
 
-  def featuresBySeason(seasonId: Long, games: List[Game]): List[Future[Map[String, Double]]] = {
+  def featuresBySeason(seasonId: Long, games: List[Game]): List[Future[(Long,Map[String, Double])]] = {
     games.groupBy(_.date).flatMap { case (date, gs) => featuresByDate(seasonId, date, gs) }.toList
   }
 
-  def featuresByDate(seasonId: Long, date: LocalDate, games: List[Game]): List[Future[Map[String, Double]]] = {
+  def featuresByDate(seasonId: Long, date: LocalDate, games: List[Game]): List[Future[(Long, Map[String, Double])]] = {
     val fs = stats.map { case (stat, measure) => s"$stat.$measure" -> createLookup(seasonId, date, stat, measure) }
     games.map(g => {
-      Future.sequence(fs.map { case (key, futLookup) =>
+      val futMap = Future.sequence(fs.map { case (key, futLookup) =>
         futLookup.map(lu => s"$key.home" -> lu.get(g.homeTeamId) :: s"$key.away" -> lu.get(g.awayTeamId) :: Nil)
       }).map(_.flatten.collect {
         case (k, Some(v)) => k -> v
       }.toMap)
+      futMap.map(m=>g.id->m)
     })
   }
 

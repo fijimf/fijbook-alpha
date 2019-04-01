@@ -10,12 +10,12 @@ case class NaiveLeastSquaresFeatureExtractor(statDao: StatValueDAO) extends Feat
 
   val sfe = StatisticFeatureExtractor(statDao, List(("ols", "value")))
 
-  def apply(gs: List[Game]): Future[List[Map[String, Double]]] = sfe(gs).map(lst => lst.map(m => transform(m)))
+  def apply(gs: List[Game]): Future[List[(Long, Map[String, Double])]] = sfe(gs).map(lst => lst.map(m => transform(m)))
 
-  def transform(m: Map[String, Double]): Map[String, Double] = {
-    (for {
-      h <- m.get("ols.value.home")
-      a <- m.get("ols.value.away")
+  def transform(m: (Long,Map[String, Double])): (Long,Map[String, Double]) = {
+    m._1-> (for {
+      h <- m._2.get("ols.value.home")
+      a <- m._2.get("ols.value.away")
     } yield {
       Map("ols.value.diff" -> (h - a))
     }).getOrElse(Map.empty[String, Double])

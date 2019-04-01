@@ -5,7 +5,7 @@ import com.fijimf.deepfij.models.Game
 import scala.concurrent.Future
 
 trait FeatureExtractor {
-  def apply(gs: List[Game]): Future[List[Map[String, Double]]]
+  def apply(gs: List[Game]): Future[List[(Long,Map[String, Double])]]
 }
 
 object FeatureExtractor {
@@ -14,7 +14,7 @@ object FeatureExtractor {
 
   def repeat(f: FeatureExtractor, n: Int): FeatureExtractor = {
     new FeatureExtractor {
-      override def apply(gs: List[Game]): Future[List[Map[String, Double]]] = {
+      override def apply(gs: List[Game]): Future[List[(Long,Map[String, Double])]] = {
         f(gs).map(fm => List.fill(n)(fm).flatten)
       }
     }
@@ -22,7 +22,7 @@ object FeatureExtractor {
 
   def stitch(fs: FeatureExtractor*): FeatureExtractor = {
     new FeatureExtractor {
-      override def apply(gs: List[Game]): Future[List[Map[String, Double]]] = {
+      override def apply(gs: List[Game]): Future[List[(Long,Map[String, Double])]] = {
         Future.sequence(fs.map(f => f(gs))).map(fms => fms.flatten.toList)
       }
     }
@@ -34,12 +34,15 @@ object FeatureExtractor {
 
   def merge(a: FeatureExtractor, b: FeatureExtractor): FeatureExtractor = {
     new FeatureExtractor {
-      override def apply(gs: List[Game]): Future[List[Map[String, Double]]] = {
+      override def apply(gs: List[Game]): Future[List[(Long,Map[String, Double])]] = {
         for {
           x <- a(gs)
           y <- b(gs)
         } yield {
-          x.zip(y).map(tup => tup._1 ++ tup._2)
+          x.zip(y).map(tup =>{
+            require(tup._1._1==tup._2._1)
+            (tup._1._1, tup._1._2 ++ tup._2._2)
+          })
         }
       }
     }

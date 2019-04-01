@@ -2,15 +2,18 @@ package controllers
 
 import java.time.LocalDate
 
+import cats.data.OptionT
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.predictors.{PredictionResult, Predictor, PredictorContext}
+import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 import com.fijimf.deepfij.models.{Schedule, XPrediction}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import controllers.silhouette.utils.DefaultEnv
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc._
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.Future
@@ -116,8 +119,36 @@ class PredictionController @Inject()(
 
   def showAll(): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
 
-  def showVersions(key: String) = play.mvc.Results.TODO
+  def showVersions(key: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
+    val date = LocalDate.now()
+    for {
+      du <- loadDisplayUser(rs)
+      qw <- getQuoteWrapper(du)
+      ss <- dao.loadSchedules()
+      page: Option[Result] <- buildPage(key,date,  du, qw, ss)
+    } yield {
+      page match {
+        case Some(p) => p
+        case None=>Redirect(routes.ReactMainController.index())
+      }
+    }
+  }
 
 
 
+  private def buildPage(key: String, date: LocalDate, du: DisplayUser, qw: QuoteWrapper, ss: List[Schedule])(implicit rs:Request[ AnyContent]) = {
+    import cats.implicits.catsStdInstancesForFuture
+    ss.find(_.season.isInSeason(date)).orElse(ss.headOption) match {
+      case Some(sch) =>
+        (for {
+          model <- dao.loadLatestPredictionModel(key)
+          predictions <- dao.findXPredictions(model.id)
+        } yield {
+          implicit val impSched: Schedule = sch
+          val trainedAt = if (model.isTrained) Some(model.createdAt) else None
+          Ok(views.html.predictionPage(du, qw, key, date, model, trainedAt, predictResults(ss, predictions, date)))
+        }).value
+
+    }
+  }
 }

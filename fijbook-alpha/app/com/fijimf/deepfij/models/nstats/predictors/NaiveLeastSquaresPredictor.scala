@@ -18,7 +18,7 @@ case class NaiveLeastSquaresPredictor(modelId:Long, version:Int) extends Predict
 
   def featureExtractor(schedule: Schedule, statDao: StatValueDAO): FeatureExtractor = NaiveLeastSquaresFeatureExtractor(statDao)
 
-  def categoryExtractor: CategoryExtractor = SpreadCategoryExtractor()
+  def categoryExtractor: CategoryExtractor = SpreadCategoryExtractor(r=>Some(r),x=>Some(x))
 
   def loadFeaturesAndCategories(schedule: Schedule, statDao: StatValueDAO): Future[List[(Array[Double], Int)]] = Future.successful(List.empty[(Array[Double], Int)])
 
@@ -34,7 +34,7 @@ case class NaiveLeastSquaresPredictor(modelId:Long, version:Int) extends Predict
     } yield {
       gs.zip(features).flatMap { case (g, feat) =>
         for {
-          s <- feat.get("ols.value.diff") if s != 0.0
+          s <- feat._2.get("ols.value.diff") if s != 0.0
         } yield {
           if (s > 0) {
             XPrediction(0L, g.id, modelId, now, hash, Some(g.homeTeamId), None, Some(s), None)

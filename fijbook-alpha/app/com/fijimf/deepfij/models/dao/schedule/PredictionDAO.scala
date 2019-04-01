@@ -20,7 +20,7 @@ trait PredictionDAO {
 
   def updatePredictions(modelId:Long, schedHash:String, xps: List[XPrediction]):Future[List[XPrediction]]
 
-  def findXPredictions(modelId:Long):Future[List[XPrediction]]
+  def findXPredictions(modelId:Long):OptionT[Future,List[XPrediction]]
 
   def findAllPredictions(): Future[Map[Long, List[PredictionResult]]]
 
