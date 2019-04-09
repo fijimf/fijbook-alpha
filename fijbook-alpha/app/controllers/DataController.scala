@@ -384,7 +384,7 @@ class DataController @Inject()(
   }
 
 
-  def deleteTeam(id: Long): mvc.Result = play.mvc.Results.TODO
+  def deleteTeam(id: Long) =silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
   def getUnmappedTeams(cms: List[ConferenceMap], ss: List[Season], ts: List[Team]) : Map[Season,List[Team]]={
     val seasons: Map[Long, Set[Long]] = cms.groupBy(_.seasonId).mapValues(_.map(_.teamId).toSet)
@@ -520,9 +520,9 @@ class DataController @Inject()(
     }
   }
 
-  def lockSeason(id: Long): mvc.Result = play.mvc.Results.TODO
+  def lockSeason(id: Long) = silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
-  def deleteSeason(id: Long): mvc.Result = play.mvc.Results.TODO
+  def deleteSeason(id: Long) = silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
   def editGame(id: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
     (for {

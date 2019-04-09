@@ -134,11 +134,11 @@ class StatController @Inject()(
   }
 
 
-  def showStat(key: String) = play.mvc.Results.TODO
+  def showStat(key: String) =  silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
-  def showStat(key: String, yyyymmdd:String) = play.mvc.Results.TODO
+  def showStat(key: String, yyyymmdd:String) =  silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
-  def stats() = play.mvc.Results.TODO
+  def stats() =  silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
-  def showStatSnapshot(key: String, yyyymmdd: String) = play.mvc.Results.TODO
+  def showStatSnapshot(key: String, yyyymmdd: String) =  silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 }

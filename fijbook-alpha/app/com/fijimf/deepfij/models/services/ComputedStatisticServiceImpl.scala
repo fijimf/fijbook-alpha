@@ -14,7 +14,7 @@ class ComputedStatisticServiceImpl @Inject()(dao: ScheduleDAO, actorSystem: Acto
 
   val logger = Logger(this.getClass)
 
-  private val wrapper = new StatsWrapper(dao, actorSystem)
+  private val wrapper = new StatsUpdater(dao, actorSystem)
 
   override def update(year: Int, timeout: FiniteDuration): Future[String] = {
     import scala.concurrent.ExecutionContext.Implicits.global

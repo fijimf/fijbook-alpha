@@ -10,7 +10,7 @@ import play.api.libs.concurrent.AkkaGuiceSupport
   */
 class NewJobModule extends ScalaModule with AkkaGuiceSupport {
 
-  def configure() = {
+  override def configure() = {
     bind[ScheduleDAO].to[ScheduleDAOImpl]
     bindActor[AuthTokenCleaner](AuthTokenCleaner.name)
     bind[NewScheduler].asEagerSingleton()

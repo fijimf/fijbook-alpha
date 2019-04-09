@@ -53,5 +53,5 @@ class AdminController @Inject()
     }
   }
 
-  def userProfile(id: String): Result = play.mvc.Results.TODO
+  def userProfile(id: String) = silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 }

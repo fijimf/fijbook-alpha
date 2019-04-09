@@ -7,6 +7,7 @@ import com.fijimf.deepfij.models.nstats.{SendingComplete, SnapshotDbBundle}
 import play.api.Logger
 import cats.implicits._
 
+import scala.concurrent.Promise
 import scala.concurrent.duration.Duration
 
 object SnapshotBuffer {
@@ -16,7 +17,7 @@ object SnapshotBuffer {
 
 /**
   * The Snapshot Buffer manages writing to the database
-  * -- it creates a child actor 'writer' whioch handles the actual writing to the DB
+  * -- it creates a child actor 'writer' which handles the actual writing to the DB
   * -- The initial state is
   *     a) An empty list of DB Bundles;
   *     b) A writer-ready flag set to true;
@@ -27,7 +28,7 @@ object SnapshotBuffer {
   * -- When we receive FeedMe,
   *
   */
-class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
+class SnapshotBuffer(dao: ScheduleDAO, promise:Promise[Any]) extends Actor {
   val log = Logger(this.getClass)
 
   val batchSize = 500
@@ -54,6 +55,7 @@ class SnapshotBuffer(dao: ScheduleDAO) extends Actor {
             log.info("Writer completed batch.  Buffer is empty.  Completion notify   Ready to die.  I'm literally dying")
             val d = Duration.fromNanos(System.nanoTime() - startTime)
             tgt ! s"Completed in ${d.toString()} "
+            promise.success("Snapshot buffer is done")
             context stop self
           case None =>
             context become buffer(List.empty[SnapshotDbBundle], writerReady = true, notifyTarget)

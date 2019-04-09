@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 
 
 class ScrapingModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
-  def configure() = {
+  override def configure() = {
     bindActor[SuperScrapeActor]("super-scraper")
     bindActor[ScrapingActor]("data-load-actor")
     bindActor[TimerBasedThrottler]("throttler", p => Props(classOf[TimerBasedThrottler], Rate(2, 1.second)))

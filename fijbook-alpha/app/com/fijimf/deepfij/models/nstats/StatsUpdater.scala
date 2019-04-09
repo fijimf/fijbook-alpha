@@ -9,74 +9,46 @@ import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.actor.SnapshotBuffer
 import com.fijimf.deepfij.models.services.ScheduleSerializer
-import com.fijimf.deepfij.models.{CalcStatus, Schedule, XStat}
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+import com.fijimf.deepfij.models.{CalcStatus, Schedule, Season, Team, XStat}
 import play.api.Logger
 
-import scala.concurrent.Future
+import scala.collection.immutable
+import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration._
-
-
-final case class Snapshot(date: LocalDate, obs: Map[Long, Double]) {
-  val n: Int = obs.size
-  val (mean, stdDev, min, max) = if (obs.nonEmpty) {
-    val s = new DescriptiveStatistics(obs.values.toArray)
-    //final case class XStat(id:Long, seasonId:Long, date: LocalDate, key: String, teamId: Long, value: Option[Double], rankAsc: Option[Int], rankDesc: Option[Int], percentileAsc: Option[Double], percentileDesc: Option[Double], mean: Option[Double], stdDev: Option[Double], min: Option[Double], max: Option[Double], n: Int)
-    (Some(s.getMean), Some(s.getStandardDeviation), Some(s.getMin), Some(s.getMax))
-  } else {
-    (None, None, None, None)
-  }
-
-  val rankMap: Map[Long, Int] = obs.toList.sortBy(_._2).foldLeft(List.empty[(Long, Double, Int, Int)]) { case (list, (key, value)) =>
-    if (list.isEmpty) {
-      List((key, value, 1, 1))
-    } else {
-      val x = list.head
-      if (value === x._2) {
-        (key, value, x._3, x._4 + 1) :: list
-      } else {
-        (key, value, x._4 + 1, x._4 + 1) :: list
-      }
-    }
-  }.map(t => t._1 -> t._3).toMap
-
-  def value(id: Long): Option[Double] = obs.get(id)
-
-  def rank(id: Long): Option[Int] = rankMap.get(id)
-
-  def percentile(id: Long): Option[Double] = rankMap.get(id).map(_.toDouble / n)
-
-}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 final case class SnapshotDbBundle(d: LocalDate, k: String, xs: List[XStat])
 
-final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
+final case class StatsUpdater(dao: ScheduleDAO, actorSystem: ActorSystem) {
   val logger = Logger(this.getClass)
 
-  private def writeSnapshot(a: Analysis[_], s: Schedule, key: String, snapshot: Snapshot): Unit = {
-    if (snapshot.n > 0) {
-      val xstats = s.teams.map(t => {
-        val id = t.id
-        XStat(
-          id = 0L,
-          seasonId = s.season.id,
-          date = snapshot.date,
-          key = a.key,
-          teamId = id,
-          value = snapshot.value(id),
-          rank = snapshot.rank(id),
-          percentile = snapshot.percentile(id),
-          mean = snapshot.mean,
-          stdDev = snapshot.stdDev,
-          min = snapshot.min,
-          max = snapshot.max,
-          n = snapshot.n
-        )
-      })
+  def writeSnapshot(a: Analysis[_], s: Schedule, key: String, snapshot: Snapshot): Unit = {
+    if (snapshot.nonEmpty()) {
+      val xstats = createTeamStatValues(a.key, s.season, s.teams, snapshot)
       logger.info(s"Write snapshot ${snapshot.n} ${snapshot.obs.size} ${xstats.size}")
-
       actorSystem.actorSelection(s"/user/$key") ! SnapshotDbBundle(snapshot.date, a.key, xstats)
     }
+  }
+
+  def createTeamStatValues(statKey: String, season: Season, teams: List[Team], snapshot: Snapshot): List[XStat] = {
+    teams.map(t => {
+      val id = t.id
+      XStat(
+        id = 0L,
+        seasonId = season.id,
+        date = snapshot.date,
+        key = statKey,
+        teamId = id,
+        value = snapshot.value(id),
+        rank = snapshot.rank(id),
+        percentile = snapshot.percentile(id),
+        mean = snapshot.mean,
+        stdDev = snapshot.stdDev,
+        min = snapshot.min,
+        max = snapshot.max,
+        n = snapshot.n
+      )
+    })
   }
 
   def updateStats(s: Schedule, models: List[Analysis[_]], timeout:FiniteDuration): Future[Any]= {
@@ -84,36 +56,38 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
     import scala.concurrent.ExecutionContext.Implicits.global
     val instanceId = UUID.randomUUID().toString
     val key = s"snapshot-$instanceId"
-    val buffer = actorSystem.actorOf(Props(classOf[SnapshotBuffer], dao), key)
+    val promise:Promise[Any]=Promise[Any]
+    val buffer = actorSystem.actorOf(Props(classOf[SnapshotBuffer], dao, promise), key)
+
 
     val schedHash = ScheduleSerializer.md5Hash(s)
 
     logger.info(s"Hash value for ${s.season.year} is $schedHash")
-    val analyses: Future[List[Option[Analysis[_]]]] = Future.sequence(models.map(m => {
-      dao.findStatus(s.season.id, m.key).map {
-        case Some(c) if c.hash === schedHash =>
-          logger.info(s"Skipping model ${m.key} for ${s.season.year}.  Stats are up to date")
-          Option.empty[Analysis[_]]
-        case _ => Some(m)
-      }
-    }))
-    analyses.map(_.flatten).map {
+
+    val analyses: Future[List[Analysis[_]]] = selectModelsToBeUpdated(s.season, models, schedHash)
+
+    analyses.map {
       case Nil =>
-        logger.info("**** No models to run")
+        logger.info("No models to run")
         sendCompletionMessage(timeout, key, buffer)
+        //Complete
       case m :: Nil =>
         for {
           _ <- dao.deleteXStatBySeason(s.season, m.key)
+          // Should have something to do the saving here
           _ <- dao.saveStatus(CalcStatus(0L, s.season.id, m.key, schedHash))
         } yield {
+          // Should return some kind of status
           Analysis.analyzeSchedule(s, m, writeSnapshot(m, s, key, _), terminateCallback(timeout, key, buffer))
         }
       case m :: ms =>
         ms.foreach(m1 => {
           for {
             _ <- dao.deleteXStatBySeason(s.season, m1.key)
+            // Should have something to do the saving
             _ <- dao.saveStatus(CalcStatus(0L, s.season.id, m1.key, schedHash))
           } yield {
+            // Should return some kind of status
             Analysis.analyzeSchedule(s, m1, writeSnapshot(m1, s, key, _))
           }
         })
@@ -124,6 +98,23 @@ final case class StatsWrapper(dao: ScheduleDAO, actorSystem: ActorSystem) {
           Analysis.analyzeSchedule(s, m, writeSnapshot(m, s, key, _), terminateCallback(timeout, key, buffer))
         }
 
+    }
+    promise.future
+  }
+
+  private def selectModelsToBeUpdated(season:Season, models: List[Analysis[_]], schedHash: String) = {
+    Future.sequence(models.map(m => {
+      modelNeedsUpdate(season, schedHash, m)
+    })).map(_.flatten)
+  }
+
+  private def modelNeedsUpdate(season:Season, schedHash: String, m: Analysis[_]) = {
+
+    dao.findStatus(season.id, m.key).map {
+      case Some(c) if c.hash === schedHash =>
+        logger.info(s"Skipping model ${m.key} for ${season.year}.  Stats are up to date")
+        Option.empty[Analysis[_]]
+      case _ => Some(m)
     }
   }
 

@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "mysql" % "mysql-connector-java" % "5.1.34",
   "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2",
-  "org.webjars" %% "webjars-play" % "2.6.3",
+  "org.webjars" %% "webjars-play" % "2.7.0",
   "org.webjars" % "bootstrap" % "4.1.2",
   "org.webjars" % "jquery" % "3.3.1-1",
   "org.webjars" % "font-awesome" % "5.2.0",

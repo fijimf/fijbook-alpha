@@ -51,7 +51,7 @@ class PredictionController @Inject()(
     }
   }
 
-  def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
+  def updateLatestPredictions(key: String, yyyy: Int): Action[AnyContent] =  silhouette.SecuredAction.async { implicit rs =>TODO (rs)}//silhouette.UserAwareAction.async { implicit rs =>
 //    logger.info(s"Updating predictions for latest trained version model '$key' and season $yyyy")
 //    for {
 //      du <- loadDisplayUser(rs)
@@ -113,9 +113,9 @@ class PredictionController @Inject()(
     }
   }
 
-  def compareModels(key1: String, version1: Int, key2: String, version2: Int, yyyyy: Int) = play.mvc.Results.TODO
+  def compareModels(key1: String, version1: Int, key2: String, version2: Int, yyyyy: Int) =silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
-  def showVersion(key: String, version:Int, yyyymmdd: String) = play.mvc.Results.TODO
+  def showVersion(key: String, version:Int, yyyymmdd: String) = silhouette.SecuredAction.async { implicit rs => TODO(rs) }
 
   def showAll(): Action[AnyContent] = TODO //silhouette.UserAwareAction.async { implicit rs =>
 

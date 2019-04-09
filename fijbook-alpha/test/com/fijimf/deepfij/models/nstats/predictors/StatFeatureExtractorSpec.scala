@@ -28,7 +28,7 @@ class StatFeatureExtractorSpec extends PlaySpec with OneAppPerTest with BeforeAn
   val isS3Json: InputStream = classOf[ScheduleSerializerSpec].getResourceAsStream("/test-data/s3Sched.json")
   val s3Sched: Array[Byte] = Source.fromInputStream(isS3Json).mkString.getBytes
 
-  val statsWrapper = StatsWrapper(dao, actorSystem)
+  val statsWrapper = StatsUpdater(dao, actorSystem)
 
   "The StatisticFeatureExtractor object " should {
 
@@ -38,10 +38,10 @@ class StatFeatureExtractorSpec extends PlaySpec with OneAppPerTest with BeforeAn
           println("Loading schedule to db.")
           Await.result(saveToDb(uni, dao, repo), testDbTimeout)
           val ss = Await.result(dao.loadSchedules(), testDbTimeout)
-          Await.ready(Future.sequence(ss.map(s => {
+         val sk= Await.result(Future.sequence(ss.map(s => {
             statsWrapper.updateStats(s, List(Counters.wins, Appenders.meanMargin), testDbTimeout * 2)
           })), testDbTimeout * 2)
-          Thread.sleep(45000) //FIXME <---- Oh my god is this garbage
+          assert(sk==="Snapshot buffer is done")
           println("OK")
           ss.foreach(s => {
             val extractor = StatisticFeatureExtractor( dao, List(("wins", "value")))
