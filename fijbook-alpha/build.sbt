@@ -73,7 +73,6 @@ libraryDependencies ++= Seq(
   "org.aspectj" % "aspectjweaver" % "1.8.9",
   "com.amazonaws" % "aws-java-sdk" % "1.11.297",
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
-  "org.apache.spark" %% "spark-mllib" % "2.2.1",
   "org.typelevel" %% "cats-core" % "1.4.0" ,
   "org.typelevel" %% "cats-free" % "1.4.0",
   "com.github.haifengl" %% "smile-scala" % "1.5.1",
