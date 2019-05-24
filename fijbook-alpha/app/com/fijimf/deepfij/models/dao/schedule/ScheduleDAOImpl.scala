@@ -13,25 +13,6 @@ import scala.util.Failure
 
 class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, val repo: ScheduleRepository, val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
   extends ScheduleDAO with DAOSlick
-    with TeamDAOImpl
-    with GameDAOImpl
-    with ResultDAOImpl
-    with QuoteDAOImpl
-    with SeasonDAOImpl
-    with ConferenceDAOImpl
-    with ConferenceMapDAOImpl
-    with AliasDAOImpl
-    with StatValueDAOImpl
-    with PredictionDAOImpl
-    with UserProfileDAOImpl
-    with QuoteVoteDAOImpl
-    with FavoriteLinkDAOImpl
-    with RssFeedDAOImpl
-    with RssItemDAOImpl
-    with JobDAOImpl
-    with JobRunDAOImpl
-    with CalcStatusDAOImpl
-    with ScoreboardDAOImpl
 {
 
   import dbConfig.profile.api._

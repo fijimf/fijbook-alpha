@@ -1,30 +1,29 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models._
-import controllers.GameMapping
 
 import scala.concurrent.Future
 
 trait ScheduleDAO
-  extends TeamDAO
-    with SeasonDAO
-    with AliasDAO
-    with ResultDAO
-    with GameDAO
-    with QuoteDAO
-    with ConferenceDAO
-    with ConferenceMapDAO
-    with StatValueDAO
-    with PredictionDAO
-    with UserProfileDAO
-    with QuoteVoteDAO
-    with FavoriteLinkDAO
-    with RssFeedDAO
-    with RssItemDAO
-    with JobDAO
-    with JobRunDAO
-    with CalcStatusDAO
-    with ScoreboardDAO
+  extends TeamDAOImpl
+    with GameDAOImpl
+    with ResultDAOImpl
+    with QuoteDAOImpl
+    with SeasonDAOImpl
+    with ConferenceDAOImpl
+    with ConferenceMapDAOImpl
+    with AliasDAOImpl
+    with StatValueDAOImpl
+    with PredictionDAOImpl
+    with UserProfileDAOImpl
+    with QuoteVoteDAOImpl
+    with FavoriteLinkDAOImpl
+    with RssFeedDAOImpl
+    with RssItemDAOImpl
+    with JobDAOImpl
+    with JobRunDAOImpl
+    with CalcStatusDAOImpl
+    with ScoreboardDAOImpl
 {
 
   def loadSchedules(): Future[List[Schedule]]
