@@ -9,8 +9,7 @@ import slick.dbio.DBIO
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{FiniteDuration, _}
 import scala.util.Random
 
 /**
