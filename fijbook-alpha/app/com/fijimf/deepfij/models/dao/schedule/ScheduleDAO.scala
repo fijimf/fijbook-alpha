@@ -5,14 +5,14 @@ import com.fijimf.deepfij.models._
 import scala.concurrent.Future
 
 trait ScheduleDAO
-  extends TeamDAOImpl
-    with GameDAOImpl
-    with ResultDAOImpl
-    with QuoteDAOImpl
-    with SeasonDAOImpl
-    with ConferenceDAOImpl
-    with ConferenceMapDAOImpl
-    with AliasDAOImpl
+  extends TeamDAO
+    with GameDAO
+    with ResultDAO
+    with QuoteDAO
+    with SeasonDAO
+    with ConferenceDAO
+    with ConferenceMapDAO
+    with AliasDAO
     with StatValueDAOImpl
     with PredictionDAOImpl
     with UserProfileDAOImpl
