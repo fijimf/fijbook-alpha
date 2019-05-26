@@ -9,6 +9,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import slick.dbio.Effect.Write
 
 import scala.concurrent.Future
+import cats.implicits._
 import scala.util.{Failure, Success, Try}
 
 
@@ -28,12 +29,6 @@ trait GameDAO extends DAOSlick {
   implicit val JavaLocalDateMapper: BaseColumnType[LocalDate]
 
   def listGames: Future[List[Game]] = db.run(repo.games.to[List].result)
-
-  def clearGamesByDate(d: LocalDate): Future[Int] = {
-    val dateGames = repo.games.filter(g => g.date === d)
-    val dateResults = repo.results.filter(_.gameId in dateGames.map(_.id))
-    db.run((dateResults.delete andThen dateGames.delete).transactionally)
-  }
 
   def saveGame(gt: (Game, Option[Result])): Future[Long] = {
     val (game, optResult) = gt
@@ -70,31 +65,19 @@ trait GameDAO extends DAOSlick {
     })).transactionally)
   }
 
-
-  def updateGames(games: List[Game]): Future[List[Game]] = {
-    val ops = games.map(g1 => repo.games.filter(_.id===g1.id).update(g1).flatMap(_ => DBIO.successful(g1)))
-    runWithRecover(DBIO.sequence(ops).transactionally,backoffStrategy)
-  }
-
-  def gamesByDate(ds: List[LocalDate]): Future[List[(Game, Option[Result])]] =
-    db.run(repo.gameResults.filter(_._1.date inSet ds).to[List].result)
-
-  def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]] =
-    db.run(repo.gameResults.filter(_._1.sourceKey === sourceKey).to[List].result)
-
   def gamesById(id: Long): Future[Option[(Game, Option[Result])]] =
     db.run(repo.gameResults.filter(_._1.id === id).to[List].result.headOption)
 
-  def teamGames(key: String): Future[List[(Season, Game, Result)]] = {
-    db.run(repo.teams.filter(_.key===key).flatMap(t=>repo.completedResults.filter(gr=> gr._1._2.homeTeamId===t.id || gr._1._2.awayTeamId===t.id)).to[List].result).map(_.map(x=>(x._1._1,x._1._2,x._2)))
-  }
+  def updateGame(g: Game): Future[Game] = db.run(upsert(g))
 
-  def updateGame(game: Game): Future[Game] = {
-    updateGames(List(game)).map(_.head)
-  }
+  def updateGames(gs: List[Game]): Future[List[Game]] = db.run(DBIO.sequence(gs.map(upsert)).transactionally)
 
-  def insertGame(game: Game): Future[Game] = {
-    db.run(repo.games returning repo.games.map(_.id) += game).map(i => game.copy(id = i))
+  private def upsert(x: Game) = {
+    require(! (x.awayTeamId===x.homeTeamId),"Home and away teams are the same")
+    (repo.games returning repo.games.map(_.id)).insertOrUpdate(x).flatMap {
+      case Some(id) => repo.games.filter(_.id === id).result.head
+      case None => DBIO.successful(x)
+    }
   }
 
   def deleteGames(ids: List[Long]): Future[Unit] = {
