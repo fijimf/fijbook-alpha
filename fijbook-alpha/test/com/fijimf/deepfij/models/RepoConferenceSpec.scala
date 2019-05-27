@@ -7,14 +7,14 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.Await
 
 
-class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
-  implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
+class RepoConferenceSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
   val dao = Injector.inject[ScheduleDAO]
 
   "Conferences " should {
@@ -22,11 +22,6 @@ class RepoConferenceSpec extends PlaySpec with OneAppPerTest with BeforeAndAfter
       assert(Await.result(dao.listConferences, testDbTimeout).isEmpty)
     }
   }
-
-
-  /////
-
-
 
   "return the new ID when inserted" in new WithApplication() {
     assertConferencesIsEmpty()

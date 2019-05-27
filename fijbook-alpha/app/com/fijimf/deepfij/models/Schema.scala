@@ -325,8 +325,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def officialFacebook: Rep[Option[String]] = column[Option[String]]("official_facebook", O.Length(64))
 
-    def lockRecord: Rep[Boolean] = column[Boolean]("lock_record")
-
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
@@ -408,14 +406,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def year: Rep[Int] = column[Int]("year")
 
-    def lock: Rep[String] = column[String]("lock", O.Length(8))
-
-    def lockBefore: Rep[Option[LocalDate]] = column[Option[LocalDate]]("lockBefore")
-
-
     def * : ProvenShape[Season] = (id, year) <> ((Season.apply _).tupled, Season.unapply)
 
     def idx1: Index = index[Rep[Int]]("season_idx1", year, unique = true)
+
+    def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
+
+    def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
 
   }
 
@@ -434,8 +431,6 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def teamId: Rep[Long] = column[Long]("team_id")
 
     def team: ForeignKeyQuery[TeamsTable, Team] = foreignKey("fk_cm_team", teamId, teams)(_.id)
-
-    def lockRecord: Rep[Boolean] = column[Boolean]("lock_record")
 
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
@@ -540,7 +535,11 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def gameId: Rep[Long] = column[Long]("game_id")
 
+    def game: ForeignKeyQuery[GamesTable, Game] = foreignKey("fk_xpred_game", gameId, games)(_.id)
+
     def modelId: Rep[Long] = column[Long]("model_id")
+
+    def model: ForeignKeyQuery[XPredictionModelTable, XPredictionModel] = foreignKey("fk_xpred_model", modelId, xpredictionModels)(_.id)
 
     def asOf: Rep[LocalDate] = column[LocalDate]("as_of", O.Length(12))
 
@@ -664,12 +663,13 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
 
     def seasonId: Rep[Long] = column[Long]("season_id")
 
+    def season: ForeignKeyQuery[SeasonsTable, Season] = foreignKey("fk_calcstat_seas", seasonId, seasons)(_.id)
+
     def modelKey: Rep[String] = column[String]("model_key", O.Length(32))
 
     def schedMD5Hash: Rep[String] = column[String]("sched_md5_hash")
 
     def * = (id, seasonId, modelKey, schedMD5Hash) <> (CalcStatus.tupled, CalcStatus.unapply)
-
 
     def idx1: Index = index[(Rep[Long],Rep[String])]("cstat_idx1", (seasonId, modelKey), unique = true)
   }

@@ -5,18 +5,16 @@ import java.time.LocalDateTime
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.{Await, Future}
 
-class RepoTeamSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
-  implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
+class RepoTeamSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global
-
   val dao = Injector.inject[ScheduleDAO]
 
   "Teams " should {

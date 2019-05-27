@@ -5,12 +5,13 @@ import java.time.LocalDate
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test._
 import testhelpers.Injector
 
 import scala.concurrent.{Await, Future}
 
-class RepoXStatSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+class RepoXStatSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

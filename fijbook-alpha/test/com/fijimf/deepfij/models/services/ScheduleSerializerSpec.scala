@@ -8,13 +8,14 @@ import com.fijimf.deepfij.models.{Alias, Quote, RebuildDatabaseMixin, Team}
 import org.apache.commons.lang3.StringUtils
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import testhelpers.Injector
 
 import scala.concurrent.Await
 import scala.io.Source
 
-class ScheduleSerializerSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+class ScheduleSerializerSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
 
   val isS3Json: InputStream = classOf[ScheduleSerializerSpec].getResourceAsStream("/test-data/s3Sched.json")

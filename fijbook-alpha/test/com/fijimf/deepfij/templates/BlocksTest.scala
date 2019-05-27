@@ -8,6 +8,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{RebuildDatabaseMixin, Schedule, Team}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
 import play.test.Helpers._
@@ -17,7 +18,7 @@ import testhelpers.Injector
 import scala.concurrent.Await
 import scala.io.Source
 
-class BlocksTest extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+class BlocksTest extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
 
   import ScheduleSerializer._
 

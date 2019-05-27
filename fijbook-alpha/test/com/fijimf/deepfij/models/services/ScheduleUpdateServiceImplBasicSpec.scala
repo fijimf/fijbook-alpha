@@ -6,16 +6,17 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import controllers.{GameMapping, MappedGame, MappedGameAndResult}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Logger
-import play.api.test.{WithApplication}
+import play.api.test.WithApplication
 import testhelpers.Injector
 
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Random, Success}
 
 
-class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+class ScheduleUpdateServiceImplBasicSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

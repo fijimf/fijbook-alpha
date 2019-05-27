@@ -178,14 +178,14 @@ object ScheduleSerializer {
         dao.saveSeason(seas).flatMap(season => {
           log.info(s"Saving season ${seas.year}.")
           saveSeasonDataToDb(dao, ms, season.id, uni.timestamp, teamMap, confMap).map(gs => {
-            gs :: ll
+            gs.map(_._1.id) :: ll
           })
         })
       })
     }.map(_.flatten)
   }
 
-  def saveSeasonDataToDb(dao: ScheduleDAO, ms: MappedSeason, id: Long, ts: LocalDateTime, teamMap: Map[String, Team], confMap: Map[String, Conference]): Future[List[Long]] = {
+  def saveSeasonDataToDb(dao: ScheduleDAO, ms: MappedSeason, id: Long, ts: LocalDateTime, teamMap: Map[String, Team], confMap: Map[String, Conference]): Future[List[(Game,Option[Result])]] = {
     val conferenceMaps: List[ConferenceMap] = ms.confMap.flatMap(cm => {
       cm.teams.flatMap(tk => {
         for {
@@ -231,7 +231,7 @@ object ScheduleSerializer {
             (g, r)
           }
         })
-        dao.saveGames(gameResults)
+        dao.updateGamesWithResults(gameResults)
       })
 
       ).map(_.flatten)

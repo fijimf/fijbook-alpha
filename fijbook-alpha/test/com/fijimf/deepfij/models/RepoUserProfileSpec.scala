@@ -3,16 +3,14 @@ package com.fijimf.deepfij.models
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test.WithApplication
 import testhelpers.Injector
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 
-class RepoUserProfileSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin  with ScalaFutures {
-  implicit override val patienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(250, Millis))
+class RepoUserProfileSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
   val dao = Injector.inject[ScheduleDAO]
 
 

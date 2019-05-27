@@ -9,6 +9,7 @@ import com.fijimf.deepfij.models.nstats._
 import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
 import testhelpers.Injector
@@ -16,7 +17,7 @@ import testhelpers.Injector
 import scala.concurrent.{Await, Future}
 import scala.io.Source
 
-class StatFeatureExtractorSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
+class StatFeatureExtractorSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

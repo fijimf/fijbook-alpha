@@ -7,6 +7,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
 import com.fijimf.deepfij.models.{Game, RebuildDatabaseMixin, Result}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import play.api.libs.json.Json
 import testhelpers.Injector
@@ -14,7 +15,7 @@ import testhelpers.Injector
 import scala.concurrent.Await
 import scala.io.Source
 
-class NSTatsTesterSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
+class NSTatsTesterSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin {
 
   type SB = com.fijimf.deepfij.models.nstats.Scoreboard
 

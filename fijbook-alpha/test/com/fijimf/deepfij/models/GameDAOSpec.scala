@@ -7,6 +7,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test._
 import testhelpers.Injector
 
@@ -38,7 +39,7 @@ import scala.concurrent.Await
 
 //def deleteGames(ids: List[Long]): Future[Unit]
 
-class GameDAOSpec extends PlaySpec with OneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
+class GameDAOSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
 
 
