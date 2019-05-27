@@ -13,32 +13,6 @@ import testhelpers.Injector
 
 import scala.concurrent.Await
 
-
-//def listGames: Future[List[Game]]
-
-//def clearGamesByDate(d: LocalDate): Future[Int]
-
-//def saveGame(gt: (Game, Option[Result])): Future[Long]
-
-//def saveGames(gts: List[(Game, Option[Result])]): Future[List[Long]]
-
-
-//def updateGames(games: List[Game]): Future[List[Game]]
-
-//def gamesByDate(ds: List[LocalDate]): Future[List[(Game, Option[Result])]]
-
-//def gamesBySource(sourceKey: String): Future[List[(Game, Option[Result])]]
-
-//def gamesById(id: Long): Future[Option[(Game, Option[Result])]]
-
-//def teamGames(key: String): Future[List[(Season, Game, Result)]]
-
-//def updateGame(game: Game): Future[Game]
-
-//def insertGame(game: Game): Future[Game]
-
-//def deleteGames(ids: List[Long]): Future[Unit]
-
 class GameDAOSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEach with RebuildDatabaseMixin with ScalaFutures {
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
 

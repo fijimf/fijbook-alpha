@@ -23,7 +23,7 @@ trait ScheduleDAO
     with JobDAOImpl
     with JobRunDAOImpl
     with CalcStatusDAOImpl
-    with ScoreboardDAOImpl
+    with ScoreboardDAO
 {
 
   def loadSchedules(): Future[List[Schedule]]
