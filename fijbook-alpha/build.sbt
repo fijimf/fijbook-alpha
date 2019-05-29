@@ -134,3 +134,5 @@ wartremoverWarnings ++= Warts.all
 import play.twirl.sbt.Import.TwirlKeys
 wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
 wartremoverExcluded ++= routes.in(Compile).value
+
+testOptions in Test += Tests.Argument("-oD")

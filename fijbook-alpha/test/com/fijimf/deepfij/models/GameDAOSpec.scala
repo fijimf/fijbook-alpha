@@ -175,6 +175,111 @@ class GameDAOSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEa
 
     }
 
+
+    "be able to save one new game WITH NO result" in new WithApplication() {
+      val teams: List[Team] = load4Teams
+      val season: Season = loadSeason
+      val g: (Game, Option[Result]) = Await.result(dao.updateGameWithResult(shorthandGame(season, teams(1), teams(2), LocalDate.now()),Option.empty[Result]), testDbTimeout)
+
+      assert(g._1.id > 0)
+      assert(g._1.seasonId === season.id)
+      assert(g._1.homeTeamId === teams(1).id)
+      assert(g._1.awayTeamId === teams(2).id)
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 0)
+    }
+
+    "be able to save one new game WITH result" in new WithApplication() {
+      val teams: List[Team] = load4Teams
+      val season: Season = loadSeason
+      val g: (Game, Option[Result]) = Await.result(dao.updateGameWithResult(shorthandGame(season, teams(1), teams(2), LocalDate.now()),Some(Result(0L,0L,100,98,2,LocalDateTime.now(),"Test"))), testDbTimeout)
+
+      assert(g._1.id > 0)
+      assert(g._1.seasonId === season.id)
+      assert(g._1.homeTeamId === teams(1).id)
+      assert(g._1.awayTeamId === teams(2).id)
+      assert(g._2.isDefined)
+      assert(g._2.map(_.gameId)===Some(g._1.id))
+      assert(g._2.map(_.homeScore)===Some(100))
+      assert(g._2.map(_.awayScore)===Some(98))
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 1)
+    }
+
+    "be able to update game WITH result" in new WithApplication() {
+      val teams: List[Team] = load4Teams
+      val season: Season = loadSeason
+      val g: (Game, Option[Result]) =
+        Await.result(
+          dao.updateGameWithResult(shorthandGame(season, teams(1), teams(2), LocalDate.now()),Some(Result(0L,0L,100,98,2,LocalDateTime.now(),"Test"))
+          ), testDbTimeout
+        )
+
+      assert(g._1.id > 0)
+      assert(g._1.seasonId === season.id)
+      assert(g._1.homeTeamId === teams(1).id)
+      assert(g._1.awayTeamId === teams(2).id)
+      assert(g._2.isDefined)
+      assert(g._2.map(_.gameId)===Some(g._1.id))
+      assert(g._2.map(_.homeScore)===Some(100))
+      assert(g._2.map(_.awayScore)===Some(98))
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 1)
+
+      val h: (Game,Option[Result]) = Await.result(
+        dao.updateGameWithResult(g._1.copy(homeTeamId = teams(3).id),g._2
+        ), testDbTimeout
+      )
+
+      assert(g._1.id === h._1.id)
+      assert(g._1.seasonId === h._1.seasonId )
+      assert(h._1.homeTeamId === teams(3).id)
+      assert(h._1.awayTeamId === teams(2).id)
+      assert(h._2.isDefined)
+      assert(h._2.map(_.gameId)===Some(h._1.id))
+      assert(h._2.map(_.homeScore)===Some(100))
+      assert(h._2.map(_.awayScore)===Some(98))
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 1)
+
+    }
+
+
+    "be able to update game and REMOVE result" in new WithApplication() {
+      val teams: List[Team] = load4Teams
+      val season: Season = loadSeason
+      val g: (Game, Option[Result]) =
+        Await.result(
+          dao.updateGameWithResult(shorthandGame(season, teams(1), teams(2), LocalDate.now()),Some(Result(0L,0L,100,98,2,LocalDateTime.now(),"Test"))
+          ), testDbTimeout
+        )
+
+      assert(g._1.id > 0)
+      assert(g._1.seasonId === season.id)
+      assert(g._1.homeTeamId === teams(1).id)
+      assert(g._1.awayTeamId === teams(2).id)
+      assert(g._2.isDefined)
+      assert(g._2.map(_.gameId)===Some(g._1.id))
+      assert(g._2.map(_.homeScore)===Some(100))
+      assert(g._2.map(_.awayScore)===Some(98))
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 1)
+
+      val h: (Game,Option[Result]) = Await.result(
+        dao.updateGameWithResult(g._1.copy(homeTeamId = teams(3).id),Option.empty[Result]
+        ), testDbTimeout
+      )
+
+      assert(g._1.id === h._1.id)
+      assert(g._1.seasonId === h._1.seasonId )
+      assert(h._1.homeTeamId === teams(3).id)
+      assert(h._1.awayTeamId === teams(2).id)
+      assert(h._2.isEmpty)
+      assert(Await.result(dao.listGames, testDbTimeout).size === 1)
+      assert(Await.result(dao.listResults, testDbTimeout).size === 0)
+
+    }
+
   }
 
   private def shorthandGame(season: Season, homeTeam: Team, awayTeam: Team, date: LocalDate): Game = {

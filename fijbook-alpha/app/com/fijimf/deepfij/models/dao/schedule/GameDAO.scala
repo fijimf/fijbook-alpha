@@ -37,10 +37,20 @@ trait GameDAO extends DAOSlick {
 
   def updateGames(gs: List[Game]): Future[List[Game]] = db.run(DBIO.sequence(gs.map(upsert)).transactionally)
 
-  def updateGameWithResult(g: Game, r: Option[Result]): Future[(Game, Option[Result])] = r match {
-    case Some(res) => db.run(upsertGameAndResult(g, res).transactionally).map { case (gg, rr) => (gg, Some(rr)) }
-    case None => db.run(upsert(g)).map(g1 => (g1, Option.empty[Result]))
-  }
+  def updateGameWithResult(g: Game, r: Option[Result]): Future[(Game, Option[Result])] =
+    db.run((r match {
+      case Some(res) => upsertGameAndResult(g, res).map(t => (t._1, Some(t._2)))
+      case None =>
+        for {
+          g1 <- upsert(g)
+          _ <- repo.results.filter(_.gameId === g1.id).delete
+        } yield {
+          (g1, None)
+        }
+    }).transactionally)
+
+
+
 
   def updateGamesWithResults(gs: List[(Game, Option[Result])]): Future[List[(Game, Option[Result])]] = {
     db.run(DBIO.sequence(gs.map {

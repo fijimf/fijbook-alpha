@@ -8,7 +8,6 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.Analysis
 import com.fijimf.deepfij.models.react.DisplayLink
-import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
@@ -126,14 +125,13 @@ class TeamController @Inject()(
             "homeAwayClass" -> Json.toJson(han)
           )
         )
-      case (_, _) => None
+      case (_, _) => Option.empty[JsObject]
     }
   }
 
   def loadTeamStats(t: Team, sch: Schedule): Future[List[ModelTeamContext]] = {
-    Future.sequence(Analysis.models.map { case (display, ananlysis) => {
+    Future.sequence(Analysis.models.map { case (display, ananlysis) =>
       dao.findXStatsLatest(sch.season.id, t.id, ananlysis.key).map(_.map(xs => (display, ananlysis, xs)))
-    }
     }).map(_.flatten.toList.map {
       case (d, a, x) =>
         ModelTeamContext(x.seasonId, x.date, d, a.key, x.value, x.rank, x.mean, x.stdDev, a.fmtString)

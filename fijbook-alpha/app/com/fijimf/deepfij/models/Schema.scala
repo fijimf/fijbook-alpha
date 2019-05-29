@@ -68,15 +68,6 @@ final case class Game(id: Long, seasonId: Long, homeTeamId: Long, awayTeamId: Lo
 
   def signature: GameSignature = GameSignature(date.hashCode(), homeTeamId, awayTeamId)
 
-  def sameData(g: Game): Boolean = (g.seasonId === seasonId
-    && g.homeTeamId === homeTeamId
-    && g.awayTeamId === awayTeamId
-    && g.date === date
-    && g.datetime === datetime
-    && g.location === location
-    && g.isNeutralSite === isNeutralSite
-    )
-
 }
 
 final case class Team(id: Long, key: String, name: String, longName: String, nickname: String, optConference: String, logoLgUrl: Option[String], logoSmUrl: Option[String], primaryColor: Option[String], secondaryColor: Option[String], officialUrl: Option[String], officialTwitter: Option[String], officialFacebook: Option[String], updatedAt: LocalDateTime, updatedBy: String) extends Ordering[Team] {
@@ -371,6 +362,8 @@ class ScheduleRepository @Inject()(protected val dbConfigProvider: DatabaseConfi
     def updatedAt: Rep[LocalDateTime] = column[LocalDateTime]("updated_at")
 
     def updatedBy: Rep[String] = column[String]("updated_by", O.Length(64))
+
+    def idx1: Index = index[(Rep[LocalDate],Rep[Long],Rep[Long])]("signature_ix", (date, homeTeamId, awayTeamId), unique = true)
 
     def * : ProvenShape[Game] = (id, seasonId, homeTeamId, awayTeamId, date, datetime, location, isNeutralSite, tourneyKey, homeTeamSeed, awayTeamSeed, sourceKey, updatedAt, updatedBy) <> (Game.tupled, Game.unapply)
 
