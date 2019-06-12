@@ -88,6 +88,19 @@ class GameDAOSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAfterEa
 
     }
 
+    "fail to save games with duplicate signature" in new WithApplication() {
+      val teams: List[Team] = load4Teams
+      val season: Season = loadSeason
+      try {
+        Await.result(dao.updateGame(shorthandGame(season.id,teams(2).id,teams(3).id,LocalDate.now())), testDbTimeout)
+        Await.result(dao.updateGame(shorthandGame(season.id,teams(2).id,teams(3).id,LocalDate.now())), testDbTimeout)
+        fail()
+      } catch {
+        case _:SQLException=> //OK
+      }
+
+    }
+
     "be able to be saved in bulk" in new WithApplication() {
       val teams: List[Team] = load4Teams
       val season: Season = loadSeason

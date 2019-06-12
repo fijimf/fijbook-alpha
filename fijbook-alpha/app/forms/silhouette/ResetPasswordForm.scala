@@ -11,7 +11,7 @@ object ResetPasswordForm {
   /**
     * A play framework form.
     */
-  val form = Form(
+  val form: Form[String] = Form(
     "password" -> nonEmptyText
   )
 }

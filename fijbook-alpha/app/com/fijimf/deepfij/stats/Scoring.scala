@@ -29,7 +29,7 @@ final case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[S
   }
 
   private def processGames: Map[LocalDate, Map[Team, ScoringAccumulator]] = {
-    s.games.sortBy(_.date.toEpochDay).foldLeft(InnerAccumulator())((acc:InnerAccumulator, game: Game) => {
+    s.games.sortBy(_.date.toEpochDay).foldLeft(Scoring.InnerAccumulator())((acc:Scoring.InnerAccumulator, game: Game) => {
       s.resultMap.get(game.id) match {
           case Some(result) =>
             val acc1 = addGame(acc, game.homeTeamId, result.homeScore, result.awayScore)
@@ -41,7 +41,7 @@ final case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[S
       }).byDate
   }
 
-  private def addGame(acc: InnerAccumulator, teamId: Long, pointsFor: Int, pointsAgainst: Int):InnerAccumulator = {
+  private def addGame(acc: Scoring.InnerAccumulator, teamId: Long, pointsFor: Int, pointsAgainst: Int):Scoring.InnerAccumulator = {
     s.teamsMap.get(teamId) match {
       case Some(t) =>
         val data = acc.runningTotals.getOrElse(t, ScoringAccumulator()).addGame(pointsFor, pointsAgainst)
@@ -50,11 +50,7 @@ final case class Scoring(s: Schedule, dates: List[LocalDate]) extends Analyzer[S
     }
   }
 
-  final case class InnerAccumulator
-  (
-    runningTotals:Map[Team, ScoringAccumulator]=Map.empty[Team, ScoringAccumulator],
-    byDate:Map[LocalDate, Map[Team, ScoringAccumulator]]=Map.empty[LocalDate,Map[Team,ScoringAccumulator]]
-  )
+
 }
 
 case object Scoring extends Model[ScoringAccumulator] {
@@ -87,4 +83,10 @@ case object Scoring extends Model[ScoringAccumulator] {
       case dates=>Some(Scoring(s,dates))
     }
   }
+
+  final case class InnerAccumulator
+  (
+    runningTotals:Map[Team, ScoringAccumulator]=Map.empty[Team, ScoringAccumulator],
+    byDate:Map[LocalDate, Map[Team, ScoringAccumulator]]=Map.empty[LocalDate,Map[Team,ScoringAccumulator]]
+  )
 }

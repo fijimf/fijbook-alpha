@@ -5,12 +5,13 @@ import com.fijimf.deepfij.models.services.AuthTokenService
 import com.mohiva.play.silhouette.api.util.Clock
 import javax.inject.Inject
 import cats.implicits._
+import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class AuthTokenCleaner @Inject() (service: AuthTokenService, clock: Clock) extends Actor {
 
-  val logger = play.api.Logger(this.getClass)
+  val logger: Logger = play.api.Logger(this.getClass)
 
   def receive: Receive = {
     case s: String if s === "CleanTokens" =>

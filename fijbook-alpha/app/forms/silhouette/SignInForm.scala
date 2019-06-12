@@ -11,7 +11,7 @@ object SignInForm {
   /**
     * A play framework form.
     */
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "email" -> email,
       "password" -> nonEmptyText,

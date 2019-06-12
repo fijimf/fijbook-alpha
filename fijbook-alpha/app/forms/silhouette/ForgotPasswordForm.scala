@@ -11,7 +11,7 @@ object ForgotPasswordForm {
   /**
     * A play framework form.
     */
-  val form = Form(
+  val form: Form[String] = Form(
     "email" -> email
   )
 }

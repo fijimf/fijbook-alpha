@@ -199,38 +199,10 @@ object ScheduleSerializer {
     })
     dao.saveConferenceMaps(conferenceMaps).flatMap(_ => {
       Future.sequence(ms.scoreboards.map(s => {
-        val gameResults: List[(Game, Option[Result])] = s.games.flatMap(gg => {
-          for {
-            hh <- teamMap.get(gg.homeTeamKey)
-            aa <- teamMap.get(gg.awayTeamKey)
-          } yield {
-            val g = Game(
-              0L,
-              id,
-              hh.id,
-              aa.id,
-              gg.date,
-              gg.datetime,
-              if (gg.location == "") None else Some(gg.location),
-              gg.isNeutralSite,
-              if (gg.tourneyKey == "") None else Some(gg.tourneyKey),
-              if (gg.homeTeamSeed < 1) None else Some(gg.homeTeamSeed),
-              if (gg.awayTeamSeed < 1) None else Some(gg.awayTeamSeed),
-              s.date,
-              ts,
-              ""
-            )
-
-            val r = for {
-              hs <- gg.result.get(HOME_SCORE_KEY)
-              as <- gg.result.get(AWAY_SCORE_KEY)
-              p <- gg.result.get(PERIODS_KEY)
-            } yield {
-              Result(0L, 0L, hs, as, p, ts, "")
-            }
-            (g, r)
-          }
+        val gameResults: List[(Game, Option[Result])] = s.games.flatMap(mappedGame => {
+          mappedGameToGameResult(id, ts, teamMap, s, mappedGame)
         })
+        log.info(s"For ${s.date} got ${gameResults.size} games.")
         dao.updateGamesWithResults(gameResults)
       })
 
@@ -238,6 +210,39 @@ object ScheduleSerializer {
     })
   }
 
+
+  private def mappedGameToGameResult(seasonId: Long, timestamp: LocalDateTime, teamMap: Map[String, Team], s: Scoreboard, mappedGame: MappedGame): Option[(Game, Option[Result])] = {
+    for {
+      hh <- teamMap.get(mappedGame.homeTeamKey)
+      aa <- teamMap.get(mappedGame.awayTeamKey)
+    } yield {
+      val g = Game(
+        0L,
+        seasonId,
+        hh.id,
+        aa.id,
+        mappedGame.date,
+        mappedGame.datetime,
+        if (mappedGame.location == "") None else Some(mappedGame.location),
+        mappedGame.isNeutralSite,
+        if (mappedGame.tourneyKey == "") None else Some(mappedGame.tourneyKey),
+        if (mappedGame.homeTeamSeed < 1) None else Some(mappedGame.homeTeamSeed),
+        if (mappedGame.awayTeamSeed < 1) None else Some(mappedGame.awayTeamSeed),
+        s.date,
+        timestamp,
+        ""
+      )
+
+      val r = for {
+        hs <- mappedGame.result.get(HOME_SCORE_KEY)
+        as <- mappedGame.result.get(AWAY_SCORE_KEY)
+        p <- mappedGame.result.get(PERIODS_KEY)
+      } yield {
+        Result(0L, 0L, hs, as, p, timestamp, "")
+      }
+      (g, r)
+    }
+  }
 
   def readSchedulesFromS3(key: String, dao: ScheduleDAO, repo: ScheduleRepository): Future[(Int, Int, Int)] = {
     val s3: AmazonS3 = createClient()

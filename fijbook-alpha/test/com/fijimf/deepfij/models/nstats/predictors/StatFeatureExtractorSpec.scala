@@ -40,7 +40,7 @@ class StatFeatureExtractorSpec extends PlaySpec with GuiceOneAppPerTest with Bef
           Await.result(saveToDb(uni, dao, repo), testDbTimeout)
           val ss = Await.result(dao.loadSchedules(), testDbTimeout)
          val sk= Await.result(Future.sequence(ss.map(s => {
-            statsWrapper.updateStats(s, List(Counters.wins, Appenders.meanMargin), testDbTimeout * 2)
+            statsWrapper.updateStats(s, List(Counter.wins, Appender.meanMargin), testDbTimeout * 2)
           })), testDbTimeout * 2)
           assert(sk==="Snapshot buffer is done")
           println("OK")

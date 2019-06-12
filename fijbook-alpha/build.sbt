@@ -130,7 +130,7 @@ parallelExecution in Test := false
 javaOptions in Test += "-Dconfig.resource=application-test.conf"
 
 
-wartremoverWarnings ++= Warts.all
+wartremoverWarnings ++= Warts.allBut(Wart.NonUnitStatements)
 import play.twirl.sbt.Import.TwirlKeys
 wartremoverExcluded += (target in TwirlKeys.compileTemplates).value
 wartremoverExcluded ++= routes.in(Compile).value

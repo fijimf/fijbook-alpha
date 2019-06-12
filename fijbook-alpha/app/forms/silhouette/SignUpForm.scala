@@ -11,7 +11,7 @@ object SignUpForm {
   /**
     * A play framework form.
     */
-  val form = Form(
+  val form: Form[Data] = Form(
     mapping(
       "firstName" -> nonEmptyText,
       "lastName" -> nonEmptyText,

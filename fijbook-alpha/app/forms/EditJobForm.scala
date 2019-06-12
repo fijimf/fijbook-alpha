@@ -53,7 +53,7 @@ object EditJobForm {
       }
     }, "error.finiteDuration", Nil)(key, data)
 
-    override def unbind(key: String, value: FiniteDuration) = Map(key -> value.toString)
+    override def unbind(key: String, value: FiniteDuration): Map[String, String] = Map(key -> value.toString)
   }
 
   val form: Form[Data] = Form(

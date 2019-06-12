@@ -11,7 +11,7 @@ object ChangePasswordForm {
   /**
     * A play framework form.
     */
-  val form = Form(tuple(
+  val form: Form[(String, String)] = Form(tuple(
     "current-password" -> nonEmptyText,
     "new-password" -> nonEmptyText
   ))

@@ -34,7 +34,7 @@ object EditBlogPostForm {
                   content: String
                  )
 
-  def fromS3BlogPost(b: S3BlogPost) = Data(
+  def fromS3BlogPost(b: S3BlogPost): Data = Data(
     key = b.meta.key,
     date = LocalDate.parse(b.meta.date,DateTimeFormatter.ISO_LOCAL_DATE),
     author = b.meta.author,
@@ -46,7 +46,7 @@ object EditBlogPostForm {
     content = new String(b.content)
   )
 
-  val empty = Data(
+  val empty: Data = Data(
     key = "",
     date = LocalDate.now(),
     author = "",
