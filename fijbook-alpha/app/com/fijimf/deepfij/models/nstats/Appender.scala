@@ -8,27 +8,6 @@ import com.fijimf.deepfij.models.{Game, Result, Schedule}
 object Appender {
 
   type ResultValue = (Game, Result) => Double
-  trait base extends Analysis[Map[Long, List[Double]]] {
-
-    override def zero(s:Schedule): Map[Long, List[Double]] = Map.empty[Long, List[Double]]
-
-    override def update(os: Option[Scoreboard], b: Map[Long, List[Double]]): Map[Long, List[Double]] = os match {
-      case Some(sb) =>
-        sb.gs.foldLeft(b) {
-          case (map, (game, result)) =>
-            appendKeyValues(game, result).foldLeft(map) {
-              case (m1, (k, v)) => m1 + (k -> (v :: m1.getOrElse(k, List.empty[Double])))
-            }
-        }
-
-      case None => b
-    }
-
-    def appendKeyValues(g: Game, r: Result): List[(Long, Double)]
-
-    override def extract(b: Map[Long, List[Double]]): Map[Long, Double]
-  }
-
 
   private val listMean: List[Double] => Option[Double] = {
     case Nil => None

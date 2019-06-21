@@ -15,8 +15,6 @@ import scala.xml.{Node, XML}
 
 class RssFeedUpdateServiceImpl @Inject()(dao: ScheduleDAO, wsClient: WSClient)(implicit ec: ExecutionContext) extends RssFeedUpdateService {
 
-  import scala.concurrent.ExecutionContext.Implicits._
-
   val logger = play.api.Logger(this.getClass)
 
   override def updateAllFeeds(): Future[List[RssItem]] = {

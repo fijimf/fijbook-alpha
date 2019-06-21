@@ -2,7 +2,9 @@ package com.fijimf.deepfij.models
 
 import java.time.{LocalDate, LocalDateTime, Month}
 
+import cats.data.State
 import cats.implicits._
+import com.fijimf.deepfij.models.nstats.Scoreboard
 
 import scala.collection.immutable
 
@@ -281,6 +283,16 @@ final case class Schedule
       games.groupBy(g => (g.date, g.location))
     }
     }
+  }
+
+  val scoreboardByDate:State[LocalDate, Option[Scoreboard]] = State[LocalDate, Option[Scoreboard]]{
+    d=>
+      val temporal = lastResult.map(_.toLocalDate).getOrElse(season.endDate)
+      if (season.dates.contains(d) && !d.isAfter(temporal)){
+        (d,None)
+      } else {
+        (d.plusDays(1),Some(Scoreboard(d, completeGames.filter(_._1.date == d))))
+      }
   }
 
 }

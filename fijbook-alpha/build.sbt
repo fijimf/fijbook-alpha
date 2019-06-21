@@ -1,6 +1,6 @@
 name := """fijbook-alpha"""
 
-scalaVersion in ThisBuild := "2.11.12"
+scalaVersion in ThisBuild := "2.12.8"
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
@@ -19,7 +19,6 @@ routesGenerator := InjectedRoutesGenerator
 resolvers += "Atlassian Releases" at "https://maven.atlassian.com/content/repositories/atlassian-public/"
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-resolvers += "Kamon Repository Snapshots" at "http://snapshots.kamon.io"
 resolvers += "Apache" at "https://repository.apache.org/content/repositories/releases"
 resolvers += Resolver.bintrayRepo("cibotech", "public")
 
@@ -48,20 +47,20 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-silhouette" % "5.0.0-RC3",
-  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.0-RC3",
-  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.0-RC3",
-  "com.mohiva" %% "play-silhouette-persistence" % "5.0.0-RC3",
-  "net.codingwell" %% "scala-guice" % "4.0.0",
-  "net.ceedubs" %% "ficus" % "1.1.2",
+  "com.mohiva" %% "play-silhouette" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-persistence" % "5.0.6",
+  "net.codingwell" %% "scala-guice" % "4.2.3",
+  "com.iheart" %% "ficus" % "1.4.6",
   "com.typesafe.play" %% "play-mailer" % "6.0.0",
   "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
   "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
-  "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
-  "com.typesafe.akka" %% "akka-contrib" % "2.3.15",
-  "com.typesafe.akka" %% "akka-agent" % "2.3.15",
-  "com.chuusai" %% "shapeless" % "2.3.1",
+  "com.mohiva" %% "play-silhouette-testkit" % "5.0.6" % "test",
+  "com.typesafe.akka" %% "akka-contrib" % "2.5.23",
+  "com.typesafe.akka" %% "akka-agent" % "2.5.23",
+  "com.chuusai" %% "shapeless" % "2.3.3",
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.apache.commons" % "commons-text" % "1.1",
   "org.scalanlp" %% "breeze" % "0.13.2",
@@ -75,8 +74,7 @@ libraryDependencies ++= Seq(
   "com.vladsch.flexmark" % "flexmark-all" % "0.27.0",
   "org.typelevel" %% "cats-core" % "1.4.0" ,
   "org.typelevel" %% "cats-free" % "1.4.0",
-  "com.github.haifengl" %% "smile-scala" % "1.5.1",
-  "com.cibo" %% "evilplot" % "0.6.0"
+  "com.github.haifengl" %% "smile-scala" % "1.5.1"
 )
 test in assembly := {}
 mainClass in assembly := Some("play.core.server.ProdServerStart")

@@ -34,8 +34,6 @@ GET         /deepfij/teams/:key                                 controllers.Team
 GET         /api/teamgames/:key                                 controllers.TeamController.teamGames(key:String)
 GET         /deepfij/conferences                                controllers.TeamController.conferences()
 GET         /deepfij/conferences/:key                           controllers.TeamController.conference(key:String)
-GET         /deepfij/stat/series/:season/:key/:team             controllers.StatController.timeSeries(season:Long,key:String,team:Long, width:Double,height:Double)
-GET         /deepfij/stat/hist/:season/:key/:yyyymmdd/:teamId   controllers.StatController.histogram(season:Long,key:String,yyyymmdd:Int, teamId:Long, width:Double,height:Double)
 
 GET         /deepfij/quotes/random                              controllers.QuoteController.random
 GET         /deepfij/quotes/keyed/:key                          controllers.QuoteController.keyed(key)
