@@ -88,7 +88,7 @@ case class NextGenLogisticPredictor(modelId:Long, version:Int, kernel: Option[St
       0.to(2*capValue).foreach(i=>println(s"$i   ${hist.get(i)}"))
       ys.foreach(println(_))
       val logisticRegression: LogisticRegression = logit(xs, ys,0.25,1E-5)
-      logisticRegression.e
+
       val arr: Array[Double] =Array.fill(2*capValue+1)(0.0)
       obs.foreach(tup => {
         val p = logisticRegression.predict(tup._1,arr)

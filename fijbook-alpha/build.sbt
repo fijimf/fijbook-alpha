@@ -27,6 +27,17 @@ dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.6.5"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.5"
 dependencyOverrides += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.5"
 
+lazy val doobieVersion = "0.7.0"
+
+libraryDependencies ++= Seq(
+  "org.tpolecat" %% "doobie-core"     % doobieVersion,
+  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+  "org.tpolecat" %% "doobie-specs2"   % doobieVersion,
+  "org.tpolecat" %% "doobie-scalatest"  % doobieVersion
+)
+
+scalacOptions += "-Ypartial-unification"
+
 libraryDependencies ++= Seq(
   ehcache,
   guice,
@@ -98,6 +109,24 @@ assemblyExcludedJars in assembly := {
 assemblyOutputPath in assembly :=  file(s"${sys.env.getOrElse("DEPLOY_DIR", "/tmp")}/${name.value}-${version.value}-assembly.jar")
 
 import com.typesafe.sbt.packager.SettingsHelper._
+
+enablePlugins(DockerPlugin)
+dockerEntrypoint := Seq(
+  "/opt/docker/bin/fijbook-alpha",
+  "-J-Xmx2G",
+  "-J-Xms1G",
+  "-Dhttp.port=80",
+  "-Dplay.http.secret.key='QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n'",
+  "-Dplay.mailer.user=AKIAJA3YYE3R7HP7FFXA ",
+  "-Dplay.mailer.password='AiaidxRsYJrzcUm9RLQzIlbec0m5cpB9xQUERnOmq2at'",
+  "-Dplay.mailer.from=deepfij@gmail.com",
+  "-Dadmin.user=fijimf@gmail.com",
+  "-Daws.region=us-east-1",
+  "-Daws.accessKeyId=AKIAJYMRDEXFED3D6UEQ ",
+  "-Daws.secretKey=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",
+  "-Duser.timezone=America/New_York",
+  "-Duser.home=/home/ec2-user",
+  "-Dlogger.resource=prod-logback.xml")
 
 makeDeploymentSettings(Universal, packageBin in Universal, "zip")
 publishTo := Some(Resolver.file("file", new File(sys.env.getOrElse("DEPLOY_DIR", "/tmp"))))
