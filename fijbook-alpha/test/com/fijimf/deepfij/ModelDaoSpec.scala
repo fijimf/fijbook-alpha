@@ -1,12 +1,15 @@
 package com.fijimf.deepfij
 
+
+import java.util.UUID
+
 import cats.effect.IO
 import com.fijimf.deepfij.model._
+import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.model.schedule._
 import doobie.util.transactor.Transactor
 import doobie.util.{ExecutionContexts, Put, Read}
 import org.scalatest._
-
-import ModelDao._
 
 class ModelDaoSpec extends FunSuite with Matchers with doobie.scalatest.IOChecker {
 
@@ -15,7 +18,7 @@ class ModelDaoSpec extends FunSuite with Matchers with doobie.scalatest.IOChecke
   val transactor = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver", "jdbc:postgresql:deepfijdb", "fijuser", "mut()mb()"
   )
-
+import ModelDao._
   checkModelDao[Alias, Long](Alias.Dao(transactor), "Alias", 0L)
   checkModelDao[Conference, Long](Conference.Dao(transactor), "Conference", 0L)
   checkModelDao[ConferenceMap, Long](ConferenceMap.Dao(transactor), "ConferenceMap", 0L)
@@ -25,6 +28,7 @@ class ModelDaoSpec extends FunSuite with Matchers with doobie.scalatest.IOChecke
   checkModelDao[Team, Long](Team.Dao(transactor), "Team", 0L)
   checkModelDao[TournamentData, Long](TournamentData.Dao(transactor), "TournamentData", 0L)
   checkModelDao[Game, Long](Game.Dao(transactor), "Game", 0L)
+   checkModelDao[User, UUID](User.Dao(transactor), "User", UUID.randomUUID())
 
 
   def checkModelDao[K, ID](dao: ModelDao[K, ID], name: String, id: ID)(implicit ID: Put[ID], K: Read[K]): Unit = {

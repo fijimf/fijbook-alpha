@@ -2,10 +2,11 @@ package com.fijimf.deepfij.model
 
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
+import java.util.UUID
 
 import doobie.implicits._
-import doobie.util.{Get, Put, Read, Write}
 import doobie.util.fragment.Fragment
+import doobie.util.{Get, Put, Read, Write}
 
 object ModelDao {
 
@@ -16,6 +17,13 @@ object ModelDao {
   implicit val ldRead: Read[LocalDate] = Read[Date].map(dt => dt.toLocalDate)
 
   implicit val ldWrite: Write[LocalDate] = Write[Date].contramap(ld =>Date.valueOf(ld))
+
+  implicit val uuidRead: Read[UUID] = Read[String].map(uuid => UUID.fromString(uuid))
+
+  implicit val uuidWrite: Write[UUID] = Write[String].contramap(uuid => uuid.toString)
+
+  implicit val natGet: Get[UUID] = Get[String].map(UUID.fromString)
+  implicit val natPut: Put[UUID] = Put[String].contramap(_.toString)
 
 }
 trait ModelDao[K, ID] {

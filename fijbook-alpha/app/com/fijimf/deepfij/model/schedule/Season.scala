@@ -1,11 +1,11 @@
-package com.fijimf.deepfij.model
+package com.fijimf.deepfij.model.schedule
 
 import java.time.LocalDate
 
 import cats.effect._
 import cats.implicits._
+import com.fijimf.deepfij.model.ModelDao
 import doobie.implicits._
-import doobie.util.fragment.Fragment
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update
 

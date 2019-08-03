@@ -1,8 +1,9 @@
-package com.fijimf.deepfij.model
+package com.fijimf.deepfij.model.schedule
 
 import java.time.LocalDateTime
 
 import cats.effect.Bracket
+import com.fijimf.deepfij.model.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 

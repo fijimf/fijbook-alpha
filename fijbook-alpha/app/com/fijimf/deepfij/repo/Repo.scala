@@ -5,7 +5,8 @@ import doobie.implicits._
 import cats._
 import cats.effect._
 import cats.implicits._
-import com.fijimf.deepfij.model.{Alias, Conference, ConferenceMap, Game, Quote, Result, Season, Team, TournamentData}
+import com.fijimf.deepfij.model.schedule._
+import com.fijimf.deepfij.model.auth._
 import doobie.util.transactor.Transactor.Aux
 import org.postgresql.Driver
 object Repo {
@@ -20,7 +21,8 @@ object Repo {
       Result.Dao(xa),
       Season.Dao(xa),
       Team.Dao(xa),
-      TournamentData.Dao(xa)
+      TournamentData.Dao(xa),
+      User.Dao(xa)
     )
     (daos.map(_.dropDdl)++daos.map(_.createDdl)).sequence
   }

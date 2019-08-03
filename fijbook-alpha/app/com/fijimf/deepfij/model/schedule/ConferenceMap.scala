@@ -1,11 +1,11 @@
-package com.fijimf.deepfij.model
+package com.fijimf.deepfij.model.schedule
 
 import java.time.LocalDateTime
 
 import cats.effect.Bracket
-import doobie.util.fragment.Fragment
-import doobie.util.transactor.Transactor
+import com.fijimf.deepfij.model.ModelDao
 import doobie.implicits._
+import doobie.util.transactor.Transactor
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, updatedAt: LocalDateTime, updatedBy: String) {
 
 }
@@ -24,7 +24,7 @@ object ConferenceMap {
            updated_at TIMESTAMP NOT NULL,
            updated_by VARCHAR(36) NOT NULL);
          CREATE UNIQUE INDEX ON conference_map(season_id, team_id);
-         CREATE INDEX ON conference_map(season_id, conference_id);;
+         CREATE INDEX ON conference_map(season_id, conference_id);
          """.update.run
     val dropDdl: doobie.ConnectionIO[Int] =
       sql"""

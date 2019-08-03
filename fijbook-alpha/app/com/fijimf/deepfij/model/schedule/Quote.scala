@@ -1,8 +1,8 @@
-package com.fijimf.deepfij.model
+package com.fijimf.deepfij.model.schedule
 
 import cats.effect.Bracket
+import com.fijimf.deepfij.model.ModelDao
 import doobie.implicits._
-import doobie.util.fragment.Fragment
 import doobie.util.transactor.Transactor
 
 
