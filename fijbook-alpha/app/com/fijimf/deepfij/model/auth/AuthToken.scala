@@ -1,5 +1,7 @@
 package com.fijimf.deepfij.model.auth
 
-class AuthToken {
+import java.util.UUID
 
-}
+import org.joda.time.DateTime
+
+final case class AuthToken(id: UUID, userID: UUID, expiry: DateTime)

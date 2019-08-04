@@ -44,7 +44,6 @@ class ReactMainController @Inject()(
     IO.fromFuture(IO {
       frontPageForDate(LocalDate.now())
     })
-
   }
 
   def dateIndex(d: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>

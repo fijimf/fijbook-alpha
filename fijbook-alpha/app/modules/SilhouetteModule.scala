@@ -19,15 +19,15 @@ import com.mohiva.play.silhouette.password.BCryptPasswordHasher
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
 import com.typesafe.config.Config
+import controllers.silhouette.utils.DefaultEnv
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
+import net.ceedubs.ficus.readers.ValueReader
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Cookie, CookieHeaderEncoding}
 import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler}
-import controllers.silhouette.utils.DefaultEnv
-import net.ceedubs.ficus.readers.ValueReader
 
 /**
   * The Guice module which wires all Silhouette dependencies.
