@@ -2,6 +2,8 @@ package controllers
 
 import java.time.{LocalDate, LocalDateTime}
 
+import cats.effect.IO
+import com.fijimf.deepfij.model.schedule.{Season, Team}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{FrontPageData, Game, Quote, Result, Schedule}
@@ -9,9 +11,13 @@ import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject
+import modules.TransactorCtx
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import doobie.implicits._
+import doobie.util.ExecutionContexts
+import utils.PlayIO
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,15 +27,24 @@ class ReactMainController @Inject()(
                                      val cache: AsyncCacheApi,
                                      val userService: UserService,
                                      val silhouette: Silhouette[DefaultEnv],
-                                     val s3BlockController: S3BlockController)(implicit ec: ExecutionContext)
-  extends BaseController with WithDao with UserEnricher with QuoteEnricher with I18nSupport {
+                                     val s3BlockController: S3BlockController,
+                                     val transactorCtx: TransactorCtx)(implicit ec: ExecutionContext)
+  extends BaseController with WithDao with PlayIO with UserEnricher with QuoteEnricher with I18nSupport {
 
   import controllers.Utils._
 
   val NO_GAMES = List.empty[(Game, Option[Result])]
+  val xa = transactorCtx.xa
 
-  def index(): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>
-    frontPageForDate(LocalDate.now())
+  def supercool(): Action[AnyContent] = Action.io(ExecutionContexts.synchronous) { request =>
+    Season.Dao(xa).select.query[Season].to[List].transact(xa).map(_.mkString(",")).map(Ok(_))
+  }
+
+  def index(): Action[AnyContent] = silhouette.UserAwareAction.io { implicit rs =>
+    IO.fromFuture(IO {
+      frontPageForDate(LocalDate.now())
+    })
+
   }
 
   def dateIndex(d: String): Action[AnyContent] = silhouette.UserAwareAction.async { implicit rs =>

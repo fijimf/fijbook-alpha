@@ -28,7 +28,7 @@ import ModelDao._
   checkModelDao[Team, Long](Team.Dao(transactor), "Team", 0L)
   checkModelDao[TournamentData, Long](TournamentData.Dao(transactor), "TournamentData", 0L)
   checkModelDao[Game, Long](Game.Dao(transactor), "Game", 0L)
-   checkModelDao[User, UUID](User.Dao(transactor), "User", UUID.randomUUID())
+  checkModelDao[User, UUID](User.Dao(transactor), "User", UUID.randomUUID())
 
 
   def checkModelDao[K, ID](dao: ModelDao[K, ID], name: String, id: ID)(implicit ID: Put[ID], K: Read[K]): Unit = {
@@ -47,5 +47,6 @@ import ModelDao._
     test(s"$name delete by id ") {
       check((dao.delete ++ dao.idPredicate(id)).update)
     }
+
   }
 }

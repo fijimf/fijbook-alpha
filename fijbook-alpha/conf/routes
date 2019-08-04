@@ -1,6 +1,7 @@
 ########### INDEX
 GET         /                                                   controllers.IndexController.redirect
 GET         /deepfij                                            controllers.ReactMainController.index()
+GET         /holyshit                                           controllers.ReactMainController.supercool()
 GET         /deepfij/index                                      controllers.ReactMainController.index()
 GET         /deepfij/$d<\d{8}>                                  controllers.ReactMainController.dateIndex(d:String)
 
