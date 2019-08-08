@@ -5,11 +5,12 @@ import java.util.UUID
 import cats.effect.Bracket
 import cats.implicits._
 import com.fijimf.deepfij.model.ModelDao
-import com.mohiva.play.silhouette.api.{Identity}
+import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import doobie.util.{Get, Put, fragment}
 import org.apache.commons.lang3.StringUtils
+
 
 
 final case class User
@@ -77,22 +78,59 @@ object User {
 
     override def delete: fragment.Fragment = fr"""DELETE FROM "user" """
 
-
     override def idPredicate(id: UUID)(implicit uuidPut: Put[UUID]): fragment.Fragment = fr"""WHERE user_id=$id """
 
 
-    //    def saveUser(u: User): doobie.ConnectionIO[User] = {
-    //      import ModelDao._
-    //
-    //      sql"""
-    //          INSERT INTO
-    //           "user" (user_id, provider_id, provider_key, first_name, last_name, full_name, email, avatar_url, activated )
-    //           VALUES (${u.userID.toString},${u.providerId},${u.providerKey},${u.firstName},${u.lastName},${u.fullName},${u.email},${u.avatarURL}, ${u.activated})
-    //           RETURNING user_id, provider_id, provider_key, first_name, last_name, full_name, email, avatar_url, activated
-    //        """.updateWithUniqueGeneratedKeys[User]("user_id", "provider_id", "provider_key", "first_name", "last_name", "full_name", "email", "avatar_url", "activated")
-    //
-    //
-    //    }
+    def findById(id: UUID): doobie.Query0[User] = {
+      (select ++ idPredicate(id)).query[User]
+    }
+
+    def findByLoginInfo(loginInfo: LoginInfo): doobie.Query0[User] = {
+      (select ++ fr""" WHERE provider_id = ${loginInfo.providerID} AND provider_key = ${loginInfo.providerKey}""").query[User]
+    }
+
+    def save(user: User): doobie.Update0 = {
+      sql"""
+        INSERT INTO "user" (
+          user_id,
+          provider_id,
+          provider_key,
+          first_name,
+          last_name,
+          full_name,
+          email,
+          avatar_url,
+          activated
+        ) VALUES(
+          ${user.userID},
+          ${user.providerId},
+          ${user.providerKey},
+          ${user.firstName},
+          ${user.lastName},
+          ${user.fullName},
+          ${user.email},
+          ${user.avatarURL},
+          ${user.activated}
+        ) ON CONFLICT (user_id) DO UPDATE SET
+          provider_id=${user.providerId},
+          provider_key=${user.providerKey},
+          first_name=${user.firstName},
+          last_name=${user.lastName},
+          full_name=${user.fullName},
+          email=${user.email},
+          avatar_url=${user.avatarURL},
+          activated=${user.activated}
+        RETURNING user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated"""
+        .update
+        //.withUniqueGeneratedKeys[User]("user_id", "provider_id", "provider_key", "first_name", "last_name", "full_name", "email", "avatar_url", "activated")
+    }
+
+
+
+    def list: doobie.Query0[User] = {
+      select.query[User]
+    }
+
   }
 
 }

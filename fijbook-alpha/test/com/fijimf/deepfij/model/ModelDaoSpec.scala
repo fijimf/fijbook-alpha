@@ -1,10 +1,8 @@
-package com.fijimf.deepfij
-
+package com.fijimf.deepfij.model
 
 import java.util.UUID
 
 import cats.effect.IO
-import com.fijimf.deepfij.model._
 import com.fijimf.deepfij.model.auth.User
 import com.fijimf.deepfij.model.schedule._
 import doobie.util.transactor.Transactor
