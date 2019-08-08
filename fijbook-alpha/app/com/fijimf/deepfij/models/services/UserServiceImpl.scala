@@ -2,79 +2,44 @@ package com.fijimf.deepfij.models.services
 
 import java.util.UUID
 
-import com.fijimf.deepfij.models.User
-import com.fijimf.deepfij.models.dao.silhouette.UserDAO
+import cats.effect.IO
+import com.fijimf.deepfij.model.auth.User
 import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
+import doobie.implicits._
+import doobie.util.{Get, transactor}
 import javax.inject.Inject
+import modules.TransactorCtx
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-/**
-  * Handles actions to users.
-  *
-  * @param userDAO The user DAO implementation.
-  */
-class UserServiceImpl @Inject() (userDAO: UserDAO) extends UserService {
 
-  /**
-    * Retrieves a user that matches the specified ID.
-    *
-    * @param id The ID to retrieve a user.
-    * @return The retrieved user or None if no user could be retrieved for the given ID.
-    */
-  def retrieve(id: UUID) = userDAO.find(id)
+class UserServiceImpl @Inject()(transactorCtx: TransactorCtx) extends UserService {
 
-  /**
-    * Retrieves a user that matches the specified login info.
-    *
-    * @param loginInfo The login info to retrieve a user.
-    * @return The retrieved user or None if no user could be retrieved for the given login info.
-    */
-  def retrieve(loginInfo: LoginInfo): Future[Option[User]] = userDAO.find(loginInfo)
+  implicit val natGet: Get[UUID] = Get[String].map(UUID.fromString)
+  val xa: transactor.Transactor[IO] = transactorCtx.xa
+  val dao: User.Dao[IO] = User.Dao(xa)
 
-  /**
-    * Saves a user.
-    *
-    * @param user The user to save.
-    * @return The saved user.
-    */
-  def save(user: User) = userDAO.save(user)
-
-  /**
-    * Saves the social profile for a user.
-    *
-    * If a user exists for this profile then update the user, otherwise create a new user with the given profile.
-    *
-    * @param profile The social profile to save.
-    * @return The user for whom the profile was saved.
-    */
-  def save(profile: CommonSocialProfile) = {
-    userDAO.find(profile.loginInfo).flatMap {
-      case Some(user) => // Update user with profile
-        userDAO.save(user.copy(
-          firstName = profile.firstName,
-          lastName = profile.lastName,
-          fullName = profile.fullName,
-          email = profile.email,
-          avatarURL = profile.avatarURL
-        ))
-        userDAO.save(User(
-          userID = UUID.randomUUID(),
-          loginInfo = profile.loginInfo,
-          firstName = profile.firstName,
-          lastName = profile.lastName,
-          fullName = profile.fullName,
-          email = profile.email,
-          avatarURL = profile.avatarURL,
-          activated = true
-        ))
-      case _=> throw new IllegalArgumentException
-    }
+  import com.fijimf.deepfij.model.ModelDao._
+  override def retrieve(id: UUID):Future[Option[User]] = {
+    (dao.select ++ dao.idPredicate(id)).query[User].option.transact(xa).unsafeToFuture()
   }
 
-  override def list: Future[List[User]] = {
-    userDAO.list
+  override def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
+    (dao.select ++ fr""" WHERE = ${loginInfo.providerID} AND   = ${loginInfo.providerKey}""").query[User].option.transact(xa).unsafeToFuture()
+  }
+
+  override def save(user: User): Future[User] = {
+    sql"""INSERT INTO user( user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated
+        ) VALUES(
+          ${user.userID}, ${user.providerId}, ${user.providerKey}, ${user.firstName}, ${user.lastName}, ${user.fullName}, ${user.email},${user.avatarURL},${user.activated}
+        ) RETURNING user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated"""
+      .update
+      .withUniqueGeneratedKeys[User]("user_id", "provider_id", "provider_key", "first_name", "last_name", "full_name", "email", "avatar_url", "activated")
+      .transact(xa)
+      .unsafeToFuture()
+  }
+
+   override def list: Future[List[User]] = {
+    dao.select.query[User].to[List].transact(xa).unsafeToFuture()
   }
 }

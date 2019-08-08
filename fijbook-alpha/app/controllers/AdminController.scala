@@ -1,8 +1,9 @@
 package controllers
 
+import com.fijimf.deepfij.model.auth.User
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{ScheduleSerializer, UserService}
-import com.fijimf.deepfij.models.{Schedule, ScheduleRepository, User}
+import com.fijimf.deepfij.models.{Schedule, ScheduleRepository}
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject

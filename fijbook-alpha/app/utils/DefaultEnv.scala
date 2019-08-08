@@ -1,6 +1,6 @@
 package utils
 
-import com.fijimf.deepfij.models.User
+import com.fijimf.deepfij.model.auth.User
 import com.mohiva.play.silhouette.api.Env
 import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
 

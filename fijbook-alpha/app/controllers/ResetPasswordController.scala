@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
+import com.mohiva.play.silhouette.api
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, PasswordInfo}
@@ -62,9 +63,9 @@ class ResetPasswordController @Inject()(
             BadRequest(views.html.resetPassword(du, qw, form, token))
           },
           password => userService.retrieve(authToken.userID).flatMap {
-            case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
+            case Some(user) if user.providerId == CredentialsProvider.ID =>
               val passwordInfo = passwordHasherRegistry.current.hash(password)
-              authInfoRepository.update[PasswordInfo](user.loginInfo, passwordInfo).map { _ =>
+              authInfoRepository.update[PasswordInfo](new api.LoginInfo(user.providerId, user.providerKey), passwordInfo).map { _ =>
                 Redirect(routes.SignInController.view()).flashing("success" -> Messages("password.reset"))
               }
             case _ => Future.successful(Redirect(routes.SignInController.view()).flashing("error" -> Messages("invalid.reset.link")))

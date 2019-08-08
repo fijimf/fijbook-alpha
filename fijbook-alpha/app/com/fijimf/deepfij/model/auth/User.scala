@@ -5,10 +5,10 @@ import java.util.UUID
 import cats.effect.Bracket
 import cats.implicits._
 import com.fijimf.deepfij.model.ModelDao
-import com.mohiva.play.silhouette.api.Identity
+import com.mohiva.play.silhouette.api.{Identity}
 import doobie.implicits._
-import doobie.util.{Get, Put, fragment}
 import doobie.util.transactor.Transactor
+import doobie.util.{Get, Put, fragment}
 import org.apache.commons.lang3.StringUtils
 
 
@@ -42,17 +42,15 @@ final case class User
     }).getOrElse(false)
   }
 
-  val AdminUser = "admin.user"
-
 }
 
 object User {
   val adminUser = "admin.user"
-  implicit val natGet: Get[UUID] = Get[String].map(UUID.fromString)
-  implicit val natPut: Put[UUID] = Put[String].contramap(_.toString)
+  implicit val uuidGet: Get[UUID] = Get[String].map(UUID.fromString)
+  implicit val uuidPut: Put[UUID] = Put[String].contramap(_.toString)
 
   case class Dao[M[_]](xa: Transactor[M])(implicit M: Bracket[M, Throwable])  extends ModelDao[User, UUID] {
-    import ModelDao._
+
     override def createDdl: doobie.ConnectionIO[Int] =
       sql"""
         CREATE TABLE "user" (
@@ -79,7 +77,22 @@ object User {
 
     override def delete: fragment.Fragment = fr"""DELETE FROM "user" """
 
-    override def idPredicate(id: UUID)(implicit ID: Put[UUID]): fragment.Fragment = fr"""WHERE user_id=$id """
+
+    override def idPredicate(id: UUID)(implicit uuidPut: Put[UUID]): fragment.Fragment = fr"""WHERE user_id=$id """
+
+
+    //    def saveUser(u: User): doobie.ConnectionIO[User] = {
+    //      import ModelDao._
+    //
+    //      sql"""
+    //          INSERT INTO
+    //           "user" (user_id, provider_id, provider_key, first_name, last_name, full_name, email, avatar_url, activated )
+    //           VALUES (${u.userID.toString},${u.providerId},${u.providerKey},${u.firstName},${u.lastName},${u.fullName},${u.email},${u.avatarURL}, ${u.activated})
+    //           RETURNING user_id, provider_id, provider_key, first_name, last_name, full_name, email, avatar_url, activated
+    //        """.updateWithUniqueGeneratedKeys[User]("user_id", "provider_id", "provider_key", "first_name", "last_name", "full_name", "email", "avatar_url", "activated")
+    //
+    //
+    //    }
   }
 
 }

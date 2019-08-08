@@ -1,6 +1,7 @@
 package controllers
 
-import com.fijimf.deepfij.models.{QuoteVote, User}
+import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.models.QuoteVote
 import com.fijimf.deepfij.models.react.{DisplayLink, DisplayUser}
 import com.mohiva.play.silhouette.api.actions.{SecuredAction, SecuredRequest, UserAwareRequest}
 import controllers.silhouette.utils.DefaultEnv

@@ -2,7 +2,7 @@ package controllers
 
 import java.util.UUID
 
-import com.fijimf.deepfij.models.User
+import com.fijimf.deepfij.model.auth.User
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
@@ -65,7 +65,8 @@ class SignUpController @Inject() (
             val authInfo = passwordHasherRegistry.current.hash(data.password)
             val user = User(
               userID = UUID.randomUUID(),
-              loginInfo = loginInfo,
+              providerId = CredentialsProvider.ID,
+              providerKey = data.email,
               firstName = Some(data.firstName),
               lastName = Some(data.lastName),
               fullName = Some(data.firstName + " " + data.lastName),

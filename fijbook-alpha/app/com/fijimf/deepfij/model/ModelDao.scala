@@ -36,12 +36,12 @@ trait ModelDao[K, ID] {
 
   def delete: Fragment
 
-  def idPredicate(id: ID)(implicit ID:Put[ID]): Fragment = fr"""WHERE id=$id"""
+  def idPredicate(id: ID)(implicit putId:Put[ID]): Fragment = fr"""WHERE id=$id"""
 
   def list(implicit K:Get[K]): doobie.ConnectionIO[List[K]] = select.query[K].to[List]
 
-  def findById(id: ID)(implicit ID:Put[ID], K:Read[K]): doobie.ConnectionIO[Option[K]] = (select ++ idPredicate(id)).query[K].option
+  def findById(id: ID)(implicit putId:Put[ID], readK:Read[K]): doobie.ConnectionIO[Option[K]] = (select ++ idPredicate(id)).query[K].option
 
-  def deleteById(id: ID)(implicit ID:Put[ID]): doobie.ConnectionIO[Int] = (delete ++ idPredicate(id)).update.run
+  def deleteById(id: ID)(implicit putId:Put[ID]): doobie.ConnectionIO[Int] = (delete ++ idPredicate(id)).update.run
 
 }

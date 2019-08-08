@@ -1,6 +1,6 @@
 package utils
 
-import com.fijimf.deepfij.models.User
+import com.fijimf.deepfij.model.auth.User
 import com.mohiva.play.silhouette.api.{Authenticator, Authorization}
 import play.api.mvc.Request
 
@@ -28,6 +28,6 @@ final case class WithProvider[A <: Authenticator](provider: String) extends Auth
     implicit
     request: Request[B]): Future[Boolean] = {
 
-    Future.successful(user.loginInfo.providerID === provider)
+    Future.successful(user.providerId === provider)
   }
 }
