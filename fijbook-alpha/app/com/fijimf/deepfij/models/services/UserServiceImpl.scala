@@ -25,14 +25,41 @@ class UserServiceImpl @Inject()(transactorCtx: TransactorCtx) extends UserServic
   }
 
   override def retrieve(loginInfo: LoginInfo): Future[Option[User]] = {
-    (dao.select ++ fr""" WHERE = ${loginInfo.providerID} AND   = ${loginInfo.providerKey}""").query[User].option.transact(xa).unsafeToFuture()
+    (dao.select ++ fr""" WHERE provider_id = ${loginInfo.providerID} AND provider_key = ${loginInfo.providerKey}""").query[User].option.transact(xa).unsafeToFuture()
   }
 
   override def save(user: User): Future[User] = {
-    sql"""INSERT INTO user( user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated
+    sql"""
+        INSERT INTO "user" (
+          user_id,
+          provider_id,
+          provider_key,
+          first_name,
+          last_name,
+          full_name,
+          email,
+          avatar_url,
+          activated
         ) VALUES(
-          ${user.userID}, ${user.providerId}, ${user.providerKey}, ${user.firstName}, ${user.lastName}, ${user.fullName}, ${user.email},${user.avatarURL},${user.activated}
-        ) RETURNING user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated"""
+          ${user.userID},
+          ${user.providerId},
+          ${user.providerKey},
+          ${user.firstName},
+          ${user.lastName},
+          ${user.fullName},
+          ${user.email},
+          ${user.avatarURL},
+          ${user.activated}
+        ) ON CONFLICT (user_id) DO UPDATE SET
+          provider_id=${user.providerId},
+          provider_key=${user.providerKey},
+          first_name=${user.firstName},
+          last_name=${user.lastName},
+          full_name=${user.fullName},
+          email=${user.email},
+          avatar_url=${user.avatarURL},
+          activated=${user.activated}
+        RETURNING user_id, provider_id, provider_key, first_name, last_name , full_name , email , avatar_url, activated"""
       .update
       .withUniqueGeneratedKeys[User]("user_id", "provider_id", "provider_key", "first_name", "last_name", "full_name", "email", "avatar_url", "activated")
       .transact(xa)

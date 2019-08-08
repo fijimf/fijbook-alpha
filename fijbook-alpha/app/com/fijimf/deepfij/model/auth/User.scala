@@ -54,7 +54,7 @@ object User {
     override def createDdl: doobie.ConnectionIO[Int] =
       sql"""
         CREATE TABLE "user" (
-           user_id VARCHAR(24) NOT NULL PRIMARY KEY,
+           user_id VARCHAR(36) NOT NULL PRIMARY KEY,
            provider_id VARCHAR(36) NOT NULL,
            provider_key VARCHAR(36) NOT NULL,
            first_name VARCHAR(64) NULL,

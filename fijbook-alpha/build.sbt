@@ -13,6 +13,10 @@ buildInfoOptions += BuildInfoOption.BuildTime
 
 scalacOptions += "-Ypartial-unification"
 
+lazy val AWS_ACCESS_KEY_ID = sys.env.getOrElse("AWS_ACCESS_KEY_ID", "")
+lazy val AWS_SECRET_KEY = sys.env.getOrElse("AWS_SECRET_KEY", "")
+lazy val AWS_SMTP_USERNAME = sys.env.getOrElse("AWS_SMTP_USERNAME", "")
+lazy val AWS_SMTP_PASSWORD = sys.env.getOrElse("AWS_SMTP_PASSWORD", "")
 
 routesGenerator := InjectedRoutesGenerator
 
@@ -117,13 +121,13 @@ dockerEntrypoint := Seq(
   "-J-Xms1G",
   "-Dhttp.port=80",
   "-Dplay.http.secret.key='QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n'",
-  "-Dplay.mailer.user=AKIAJA3YYE3R7HP7FFXA ",
-  "-Dplay.mailer.password='AiaidxRsYJrzcUm9RLQzIlbec0m5cpB9xQUERnOmq2at'",
+  s"-Dplay.mailer.user=$AWS_SMTP_USERNAME",
+  s"-Dplay.mailer.password='$AWS_SMTP_PASSWORD'",
   "-Dplay.mailer.from=deepfij@gmail.com",
   "-Dadmin.user=fijimf@gmail.com",
   "-Daws.region=us-east-1",
-  "-Daws.accessKeyId=AKIAJYMRDEXFED3D6UEQ ",
-  "-Daws.secretKey=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",
+  s"-Daws.accessKeyId=$AWS_ACCESS_KEY_ID ",
+  s"-Daws.secretKey=$AWS_SECRET_KEY",
   "-Duser.timezone=America/New_York",
   "-Duser.home=/home/ec2-user",
   "-Dlogger.resource=prod-logback.xml")
