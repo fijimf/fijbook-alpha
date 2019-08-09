@@ -89,6 +89,8 @@ object User {
       (select ++ fr""" WHERE provider_id = ${loginInfo.providerID} AND provider_key = ${loginInfo.providerKey}""").query[User]
     }
 
+    //TODO SQL injection here ###########
+    // or maybe not
     def save(user: User): doobie.Update0 = {
       sql"""
         INSERT INTO "user" (
