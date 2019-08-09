@@ -5,6 +5,7 @@ import doobie.implicits._
 import cats._
 import cats.effect._
 import cats.implicits._
+import com.fijimf.deepfij.model.auth
 import com.fijimf.deepfij.model.schedule._
 import com.fijimf.deepfij.model.auth._
 import doobie.util.transactor.Transactor.Aux
@@ -22,7 +23,8 @@ object Repo {
       Season.Dao(xa),
       Team.Dao(xa),
       TournamentData.Dao(xa),
-      User.Dao(xa)
+      User.Dao(xa),
+      PasswordInfo.Dao(xa)
     )
     (daos.map(_.dropDdl)++daos.map(_.createDdl)).sequence
   }
