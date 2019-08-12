@@ -2,7 +2,7 @@ package com.fijimf.deepfij.model
 
 
 import cats.effect.{ContextShift, IO}
-import com.fijimf.deepfij.auth.model.Password
+import com.fijimf.deepfij.auth.services.PasswordOps
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import doobie.util.{Colors, ExecutionContexts}
@@ -17,7 +17,7 @@ class PasswordInfoDaoSpec extends FunSuite with Matchers with doobie.scalatest.I
   val transactor: Aux[IO, Unit] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver", "jdbc:postgresql:deepfijdb", "fijuser", "mut()mb()"
   )
-  private val dao = Password.Dao(transactor)
+  private val dao = PasswordOps.Dao(transactor)
 
   test("Test findByLoginInfo") {
     check(dao.findByLoginInfo(new LoginInfo("credentials", "jimf@abc.com")))

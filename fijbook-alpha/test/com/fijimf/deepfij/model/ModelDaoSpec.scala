@@ -3,7 +3,8 @@ package com.fijimf.deepfij.model
 import java.util.UUID
 
 import cats.effect.IO
-import com.fijimf.deepfij.auth.model.{Password, User}
+import com.fijimf.deepfij.auth.model.User
+import com.fijimf.deepfij.auth.services.PasswordOps
 import com.fijimf.deepfij.schedule.model.{Alias, Conference, ConferenceMap, Game, Quote, Result, Season, Team, TournamentData}
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import doobie.util.transactor.Transactor
@@ -28,7 +29,7 @@ import ModelDao._
   checkModelDao[TournamentData, Long](TournamentData.Dao(transactor), "TournamentData", 0L)
   checkModelDao[Game, Long](Game.Dao(transactor), "Game", 0L)
   checkModelDao[User, UUID](User.Dao(transactor), "User", UUID.randomUUID())
-  checkModelDao[PasswordInfo, Long](Password.Dao(transactor), "PasswordInfo", 0L)
+  checkModelDao[PasswordInfo, Long](PasswordOps.Dao(transactor), "PasswordInfo", 0L)
 
 
   def checkModelDao[K, ID](dao: ModelDao[K, ID], name: String, id: ID)(implicit ID: Put[ID], K: Read[K]): Unit = {

@@ -1,7 +1,6 @@
 package com.fijimf.deepfij.auth.services
 
 import cats.effect.IO
-import com.fijimf.deepfij.auth.model.Password
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
@@ -16,7 +15,7 @@ class PasswordInfoServiceImpl @Inject()(transactorCtx: TransactorCtx) extends De
 
   implicit val piRead:Read[PasswordInfo]=Read[(String, String, Option[String])].map(t=>new PasswordInfo(t._1, t._2,t._3))
   val xa: transactor.Transactor[IO] = transactorCtx.xa
-  val passwordDao: Password.Dao[IO] = Password.Dao(xa)
+  val passwordDao: PasswordOps.Dao[IO] = PasswordOps.Dao(xa)
 
   override def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] =
     passwordDao.findByLoginInfo(loginInfo).option.transact(xa).unsafeToFuture()

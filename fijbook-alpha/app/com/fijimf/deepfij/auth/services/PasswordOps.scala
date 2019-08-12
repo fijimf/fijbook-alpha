@@ -1,15 +1,13 @@
-package com.fijimf.deepfij.auth.model
+package com.fijimf.deepfij.auth.services
 
 import cats.effect.Bracket
 import com.fijimf.deepfij.model.ModelDao
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
-import doobie.implicits._
-import doobie.util._
+import doobie.util.fragment
 import doobie.util.transactor.Transactor
 
-
-object Password {
+object PasswordOps {
 
   case class Dao[M[_]](xa: Transactor[M])(implicit M: Bracket[M, Throwable]) extends ModelDao[PasswordInfo, Long] {
     override def createDdl: doobie.ConnectionIO[Int] =
@@ -81,6 +79,3 @@ object Password {
   }
 
 }
-
-
-
