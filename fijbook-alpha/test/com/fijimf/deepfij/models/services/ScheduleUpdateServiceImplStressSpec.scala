@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.schedule.services.{ScheduleUpdateService, ScheduleUpdateServiceImpl}
 import controllers.{GameMapping, MappedGame, MappedGameAndResult}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec

@@ -6,8 +6,8 @@ import java.util.Base64
 
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
-import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Schedule, XPrediction}
+import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import play.api.Logger
 import smile.classification._
 

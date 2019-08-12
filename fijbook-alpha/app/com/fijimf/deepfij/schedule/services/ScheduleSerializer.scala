@@ -1,9 +1,8 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.schedule.services
 
 import java.io.ByteArrayInputStream
-import java.security.MessageDigest
 import java.sql.Timestamp
-import java.time._
+import java.time.{LocalDate, LocalDateTime, ZoneId}
 import java.util.UUID
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
@@ -12,11 +11,11 @@ import com.amazonaws.services.s3.model._
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.amazonaws.util.IOUtils
 import com.fijimf.deepfij.BuildInfo
-import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.{Alias, Conference, Quote, Team}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.Logger
-import play.api.libs.json.{Json, _}
+import play.api.libs.json.{Format, Json}
 
 import scala.concurrent.Future
 

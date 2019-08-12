@@ -5,8 +5,8 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{RebuildDatabaseMixin, Schedule, Team}
+import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}

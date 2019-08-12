@@ -1,11 +1,11 @@
 package utils
 
-import com.fijimf.deepfij.model.auth.User
 import com.mohiva.play.silhouette.api.{Authenticator, Authorization}
 import play.api.mvc.Request
 
 import scala.concurrent.Future
 import cats.implicits._
+import com.fijimf.deepfij.auth.model.User
 
 /**
   * Grants only access if a user has authenticated with the given provider.

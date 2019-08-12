@@ -1,7 +1,8 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.schedule.services
+
+import com.fijimf.deepfij.models.services.{ScheduleUpdateRequest, ScheduleUpdateResult}
 
 import scala.concurrent.Future
-import scala.language.postfixOps
 
 trait ScheduleUpdateService {
 

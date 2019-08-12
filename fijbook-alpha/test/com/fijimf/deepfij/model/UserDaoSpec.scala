@@ -3,7 +3,7 @@ package com.fijimf.deepfij.model
 import java.util.UUID
 
 import cats.effect.IO
-import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.auth.model.User
 import com.mohiva.play.silhouette.api.LoginInfo
 import doobie.util.ExecutionContexts
 import doobie.util.transactor.Transactor

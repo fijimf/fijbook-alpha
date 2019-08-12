@@ -4,7 +4,6 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.react.QuoteWrapper
-import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{Quote, QuoteVote, _}
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.{SecuredRequest, UserAwareRequest}
@@ -14,6 +13,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import cats.implicits._
+import com.fijimf.deepfij.auth.services.UserService
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}

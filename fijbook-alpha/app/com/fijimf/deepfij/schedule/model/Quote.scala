@@ -1,4 +1,4 @@
-package com.fijimf.deepfij.model.schedule
+package com.fijimf.deepfij.schedule.model
 
 import cats.effect.Bracket
 import com.fijimf.deepfij.model.ModelDao

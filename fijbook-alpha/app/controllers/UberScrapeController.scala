@@ -7,7 +7,8 @@ import akka.contrib.throttle.Throttler
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService}
+import com.fijimf.deepfij.models.services.ComputedStatisticService
+import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
 import com.fijimf.deepfij.scraping.UberScraper
 import com.google.inject.Inject
 import com.google.inject.name.Named

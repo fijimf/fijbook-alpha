@@ -3,8 +3,8 @@ package com.fijimf.deepfij.models.nstats.predictors
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
-import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Schedule, XPrediction}
+import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global

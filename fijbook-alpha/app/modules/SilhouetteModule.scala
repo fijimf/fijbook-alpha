@@ -1,17 +1,17 @@
 package modules
 
-import com.fijimf.deepfij.models.dao.silhouette._
-import com.fijimf.deepfij.models.services.{AuthTokenService, AuthTokenServiceImpl, UserService, UserServiceImpl}
+import com.fijimf.deepfij.auth.services._
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}
 import com.mohiva.play.silhouette.api.crypto._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services._
-import com.mohiva.play.silhouette.api.util._
-import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, SilhouetteProvider}
+import com.mohiva.play.silhouette.api.util.{CacheLayer, Clock, FingerprintGenerator, HTTPLayer, IDGenerator, PasswordHasher, PasswordHasherRegistry, PasswordInfo, PlayHTTPLayer}
+import com.mohiva.play.silhouette.api.{Environment, EventBus, LoginInfo, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators._
+import com.mohiva.play.silhouette.impl.providers.PasswordProvider.{HasherIsNotRegistered, PasswordDoesNotMatch, PasswordInfoNotFound}
 import com.mohiva.play.silhouette.impl.providers._
 import com.mohiva.play.silhouette.impl.services._
 import com.mohiva.play.silhouette.impl.util._
@@ -28,6 +28,8 @@ import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Cookie, CookieHeaderEncoding}
 import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler}
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * The Guice module which wires all Silhouette dependencies.
@@ -73,7 +75,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Clock].toInstance(Clock())
 
     // Replace this with the bindings to your concrete DAOs
-    bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDAO]
+    bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoServiceImpl]
   }
 
   /**
@@ -181,7 +183,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
   @Provides
   def providePasswordHasherRegistry(passwordHasher: PasswordHasher): PasswordHasherRegistry = {
-    new PasswordHasherRegistry(passwordHasher)
+    PasswordHasherRegistry(passwordHasher)
   }
 
   /**
@@ -198,4 +200,26 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new CredentialsProvider(authInfoRepository, passwordHasherRegistry)
   }
 
+}
+
+class MyCredentialsProvider (authInfoRepository:AuthInfoRepository, passwordHasherRegistry:PasswordHasherRegistry)(implicit ec:ExecutionContext) extends CredentialsProvider(authInfoRepository, passwordHasherRegistry) {
+ override def authenticate(loginInfo: LoginInfo, password: String): Future[State] = {
+    authInfoRepository.find[PasswordInfo](loginInfo).flatMap {
+      case Some(passwordInfo) => passwordHasherRegistry.find(passwordInfo) match {
+        case Some(hasher) if hasher.matches(passwordInfo, password) =>
+          if (passwordHasherRegistry.isDeprecated(hasher) || hasher.isDeprecated(passwordInfo).contains(true)) {
+            authInfoRepository.update(loginInfo, passwordHasherRegistry.current.hash(password)).map { _ =>
+              Authenticated
+            }
+          } else {
+            Future.successful(Authenticated)
+          }
+        case Some(hasher) => Future.successful(InvalidPassword(PasswordDoesNotMatch.format(id)))
+        case None => Future.successful(UnsupportedHasher(HasherIsNotRegistered.format(
+          id, passwordInfo.hasher, passwordHasherRegistry.all.map(_.id).mkString(", ")
+        )))
+      }
+      case None => Future.successful(NotFound(PasswordInfoNotFound.format(id, loginInfo)))
+    }
+  }
 }

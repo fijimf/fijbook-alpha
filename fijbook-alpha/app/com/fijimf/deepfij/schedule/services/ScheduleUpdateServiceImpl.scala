@@ -1,4 +1,4 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.schedule.services
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, ZoneId}
@@ -8,6 +8,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.models.services.{ScheduleUpdateControl, ScheduleUpdateRequest, ScheduleUpdateResult}
 import com.fijimf.deepfij.scraping._
 import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
 import com.google.inject.name.Named

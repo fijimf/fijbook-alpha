@@ -6,8 +6,8 @@ import java.time.LocalDateTime
 import cats.data.OptionT
 import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ScheduleSerializer
 import com.fijimf.deepfij.models.{Game, Schedule, XPrediction, XPredictionModel}
+import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import play.api.{Configuration, Logger}
 
 import scala.concurrent.ExecutionContext.Implicits.global

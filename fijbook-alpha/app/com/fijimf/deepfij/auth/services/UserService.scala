@@ -1,8 +1,8 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.auth.services
 
 import java.util.UUID
 
-import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.auth.model.User
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.IdentityService
 
@@ -14,4 +14,3 @@ trait UserService extends IdentityService[User] {
   def retrieve(loginInfo:LoginInfo):Future[Option[User]]
   def list:Future[List[User]]
 }
-

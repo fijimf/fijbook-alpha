@@ -1,10 +1,10 @@
 package jobs
 
 import akka.actor._
-import com.fijimf.deepfij.models.services.AuthTokenService
 import com.mohiva.play.silhouette.api.util.Clock
 import javax.inject.Inject
 import cats.implicits._
+import com.fijimf.deepfij.auth.services.AuthTokenService
 import play.api.Logger
 
 import scala.concurrent.ExecutionContext.Implicits.global

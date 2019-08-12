@@ -3,20 +3,20 @@ package controllers
 import java.time.{LocalDate, LocalDateTime}
 
 import cats.effect.IO
-import com.fijimf.deepfij.model.schedule.{Season, Team}
+import com.fijimf.deepfij.auth.services.UserService
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.UserService
 import com.fijimf.deepfij.models.{FrontPageData, Game, Quote, Result, Schedule}
+import com.fijimf.deepfij.schedule.model.Season
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import controllers.silhouette.utils.DefaultEnv
+import doobie.implicits._
+import doobie.util.{ExecutionContexts, transactor}
 import javax.inject.Inject
 import modules.TransactorCtx
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
-import doobie.implicits._
-import doobie.util.ExecutionContexts
 import utils.PlayIO
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +34,7 @@ class ReactMainController @Inject()(
   import controllers.Utils._
 
   val NO_GAMES = List.empty[(Game, Option[Result])]
-  val xa = transactorCtx.xa
+  val xa: transactor.Transactor[IO] = transactorCtx.xa
 
   def supercool(): Action[AnyContent] = Action.io(ExecutionContexts.synchronous) { request =>
     Season.Dao(xa).select.query[Season].to[List].transact(xa).map(_.mkString(",")).map(Ok(_))
@@ -78,7 +78,7 @@ class ReactMainController @Inject()(
   }
 
   private def gamesForDate(today: LocalDate, sched: Schedule): List[(Game, Option[Result])] = {
-    sched.gameResults.filter(_._1.date == today).groupBy(_._1.datetime).toList.sortBy(_._1.toMillis).map(_._2).flatten
+    sched.gameResults.filter(_._1.date == today).groupBy(_._1.datetime).toList.sortBy(_._1.toMillis).flatMap(_._2)
   }
 
   private def loadSchedules: Future[List[Schedule]] = {

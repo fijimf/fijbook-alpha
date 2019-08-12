@@ -1,9 +1,9 @@
-package com.fijimf.deepfij.models.services
+package com.fijimf.deepfij.auth.services
 
 import java.util.UUID
 
 import cats.effect.IO
-import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.auth.model.User
 import com.mohiva.play.silhouette.api.LoginInfo
 import doobie.implicits._
 import doobie.util.{Get, transactor}
@@ -18,8 +18,6 @@ class UserServiceImpl @Inject()(transactorCtx: TransactorCtx) extends UserServic
   implicit val natGet: Get[UUID] = Get[String].map(UUID.fromString)
   val xa: transactor.Transactor[IO] = transactorCtx.xa
   val dao: User.Dao[IO] = User.Dao(xa)
-
-  import com.fijimf.deepfij.model.ModelDao._
   override def retrieve(id: UUID):Future[Option[User]] = {
     dao.findById(id).option.transact(xa).unsafeToFuture()
   }

@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 import javax.inject.Inject
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
 import jobs.ScheduleUpdater.Update
 import play.api.Logger
 

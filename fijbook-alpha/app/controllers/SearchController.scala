@@ -1,8 +1,8 @@
 package controllers
 
+import com.fijimf.deepfij.auth.services.UserService
 import com.fijimf.deepfij.models.{Conference, Quote, RssFeed, RssItem, Team}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import javax.inject.Inject

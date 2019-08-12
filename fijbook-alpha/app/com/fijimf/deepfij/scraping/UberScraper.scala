@@ -9,7 +9,8 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.models.services.{ComputedStatisticService, ScheduleUpdateService, WholeSeasonUpdate}
+import com.fijimf.deepfij.models.services.{ComputedStatisticService, WholeSeasonUpdate}
+import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
 import play.api.Logger
 
 import scala.concurrent.Future

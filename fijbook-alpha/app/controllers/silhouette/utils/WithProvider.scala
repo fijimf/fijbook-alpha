@@ -1,9 +1,10 @@
 package controllers.silhouette.utils
 
-import com.fijimf.deepfij.model.auth.User
 import com.mohiva.play.silhouette.api.{Authenticator, Authorization}
 import play.api.mvc.Request
 import cats.implicits._
+import com.fijimf.deepfij.auth.model.User
+
 import scala.concurrent.Future
 
 /**

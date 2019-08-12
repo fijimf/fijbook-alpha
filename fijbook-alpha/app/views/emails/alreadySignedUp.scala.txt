@@ -1,4 +1,4 @@
-@(user: com.fijimf.deepfij.model.auth.User, url: String)(implicit messages: Messages)
+@(user: com.fijimf.deepfij.auth.model.User, url: String)(implicit messages: Messages)
 @messages("email.already.signed.up.hello", user.name)
 
 @messages("email.already.signed.up.txt.text", url)

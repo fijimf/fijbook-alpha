@@ -4,7 +4,7 @@ import java.io.InputStream
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
+import com.fijimf.deepfij.models.services.ScheduleSerializerSpec
 import com.fijimf.deepfij.models.{Game, RebuildDatabaseMixin, Result}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -21,7 +21,7 @@ class NSTatsTesterSpec extends PlaySpec with GuiceOneAppPerTest with BeforeAndAf
 
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
 
-  import ScheduleSerializer._
+  import com.fijimf.deepfij.schedule.services.ScheduleSerializer._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

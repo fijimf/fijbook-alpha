@@ -5,6 +5,7 @@ import akka.contrib.throttle.Throttler.Rate
 import akka.contrib.throttle.TimerBasedThrottler
 import com.fijimf.deepfij.models.dao.schedule.{ScheduleDAO, ScheduleDAOImpl}
 import com.fijimf.deepfij.models.services._
+import com.fijimf.deepfij.schedule.services.{ScheduleUpdateService, ScheduleUpdateServiceImpl}
 import com.fijimf.deepfij.scraping.ScrapingActor
 import com.fijimf.deepfij.scraping.nextgen.SuperScrapeActor
 import com.google.inject.AbstractModule

@@ -3,8 +3,8 @@ package controllers
 import java.net.URLDecoder
 import java.util.UUID
 
+import com.fijimf.deepfij.auth.services.{AuthTokenService, UserService}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{AuthTokenService, UserService}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import controllers.silhouette.utils.DefaultEnv

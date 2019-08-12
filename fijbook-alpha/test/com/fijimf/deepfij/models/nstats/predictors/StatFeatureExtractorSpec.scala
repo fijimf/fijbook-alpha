@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import com.fijimf.deepfij.models.RebuildDatabaseMixin
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats._
-import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
+import com.fijimf.deepfij.models.services.ScheduleSerializerSpec
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -24,7 +24,7 @@ class StatFeatureExtractorSpec extends PlaySpec with GuiceOneAppPerTest with Bef
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
   val actorSystem: ActorSystem = Injector.inject[ActorSystem]
 
-  import ScheduleSerializer._
+  import com.fijimf.deepfij.schedule.services.ScheduleSerializer._
 
   val isS3Json: InputStream = classOf[ScheduleSerializerSpec].getResourceAsStream("/test-data/s3Sched.json")
   val s3Sched: Array[Byte] = Source.fromInputStream(isS3Json).mkString.getBytes

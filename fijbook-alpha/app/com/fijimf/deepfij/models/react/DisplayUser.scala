@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.models.react
 
-import com.fijimf.deepfij.model.auth.User
+import com.fijimf.deepfij.auth.model.User
 
 final case class DisplayUser
 (

@@ -1,5 +1,5 @@
-@import com.fijimf.deepfij.models.{Schedule, Conference,ConferenceStandings}
-@import com.fijimf.deepfij.model.auth.User
+@import com.fijimf.deepfij.auth.model.User
+@import com.fijimf.deepfij.models.{Conference, ConferenceStandings, Schedule}
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
 @(du: DisplayUser, qw:QuoteWrapper, cmap: List[(Conference,ConferenceStandings)])(implicit request: RequestHeader, flash: Flash)

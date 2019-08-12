@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.fijimf.deepfij.models.ScheduleRepository
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ScheduleUpdateService
+import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
 import com.fijimf.deepfij.scraping.nextgen.ScrapingManagerActor
 import com.google.inject.Inject
 import com.google.inject.name.Named

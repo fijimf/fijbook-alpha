@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Alias, Quote, RebuildDatabaseMixin, Team}
+import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import org.apache.commons.lang3.StringUtils
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
@@ -46,7 +47,7 @@ class ScheduleSerializerSpec extends PlaySpec with GuiceOneAppPerTest with Befor
 
   )
   "ScheduleSerializer " should {
-    import ScheduleSerializer._
+    import com.fijimf.deepfij.schedule.services.ScheduleSerializer._
 
     "format a Team to JSON" in {
       listTeamTestData.foreach {

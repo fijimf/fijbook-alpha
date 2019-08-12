@@ -1,4 +1,4 @@
-package com.fijimf.deepfij.model.auth
+package com.fijimf.deepfij.auth.model
 
 import java.util.UUID
 

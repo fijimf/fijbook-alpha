@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models
 import java.io.InputStream
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{ScheduleSerializer, ScheduleSerializerSpec}
+import com.fijimf.deepfij.models.services.ScheduleSerializerSpec
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.{OneAppPerTest, PlaySpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -19,7 +19,7 @@ class ConferenceStandingsSpec extends PlaySpec with GuiceOneAppPerTest with Befo
 
   val dao: ScheduleDAO = Injector.inject[ScheduleDAO]
 
-  import ScheduleSerializer._
+  import com.fijimf.deepfij.schedule.services.ScheduleSerializer._
 
   val isS3Json: InputStream = classOf[ScheduleSerializerSpec].getResourceAsStream("/test-data/s3Sched.json")
   val s3Sched: Array[Byte] = Source.fromInputStream(isS3Json).mkString.getBytes

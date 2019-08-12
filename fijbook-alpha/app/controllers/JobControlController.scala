@@ -3,9 +3,9 @@ package controllers
 import java.time.LocalDateTime
 
 import akka.actor.ActorSystem
+import com.fijimf.deepfij.auth.services.UserService
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.UserService
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv
 import forms.EditJobForm
