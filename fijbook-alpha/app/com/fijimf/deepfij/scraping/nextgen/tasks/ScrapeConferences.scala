@@ -8,9 +8,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models.Conference
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.scraping.TestUrl
 import com.fijimf.deepfij.scraping.nextgen.{SSTask, SSTaskProgress}
 import cats.implicits._
+import com.fijimf.deepfij.scraping.model.TestUrl
 
 import scala.concurrent.Future
 import scala.concurrent.duration._

@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.scraping
 
+import com.fijimf.deepfij.scraping.model.{HtmlUtil, SagarinRow, SagarinScraper}
 import org.apache.commons.lang3.StringUtils
 import org.scalatest.FlatSpec
 

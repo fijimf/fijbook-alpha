@@ -13,6 +13,7 @@ import com.amazonaws.util.IOUtils
 import com.fijimf.deepfij.BuildInfo
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Alias, Conference, Quote, Team}
+import com.fijimf.deepfij.schedule.model.Schedule
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.Logger
 import play.api.libs.json.{Format, Json}

@@ -9,7 +9,7 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.util.IOUtils
 import com.fijimf.deepfij.auth.services.UserService
-import com.fijimf.deepfij.models.{S3BlogMetaData, S3BlogPost, S3StaticAsset}
+import com.fijimf.deepfij.models.S3StaticAsset
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.mohiva.play.silhouette.api.Silhouette
 import forms.EditBlogPostForm

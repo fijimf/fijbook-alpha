@@ -8,9 +8,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.{ScheduleUpdateControl, ScheduleUpdateRequest, ScheduleUpdateResult}
-import com.fijimf.deepfij.scraping._
-import com.fijimf.deepfij.scraping.modules.scraping.model.{GameData, ResultData}
+import com.fijimf.deepfij.models.services.ScheduleUpdateResult
+import com.fijimf.deepfij.schedule.model.{Schedule, WonLostRecord}
+import com.fijimf.deepfij.scraping.model._
 import com.google.inject.name.Named
 import controllers._
 import javax.inject.Inject

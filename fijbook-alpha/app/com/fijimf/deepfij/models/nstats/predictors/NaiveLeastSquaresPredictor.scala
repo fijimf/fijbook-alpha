@@ -4,6 +4,7 @@ import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.schedule.StatValueDAO
 import com.fijimf.deepfij.models.{Schedule, XPrediction}
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import play.api.Logger
 

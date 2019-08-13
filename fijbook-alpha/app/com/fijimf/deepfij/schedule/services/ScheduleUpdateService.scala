@@ -1,6 +1,6 @@
 package com.fijimf.deepfij.schedule.services
 
-import com.fijimf.deepfij.models.services.{ScheduleUpdateRequest, ScheduleUpdateResult}
+import com.fijimf.deepfij.models.services.ScheduleUpdateResult
 
 import scala.concurrent.Future
 

@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.nstats
 
 import cats.data.State
-import com.fijimf.deepfij.models.Schedule
+import com.fijimf.deepfij.schedule.model.Schedule
 
 trait Analysis[B] {
 

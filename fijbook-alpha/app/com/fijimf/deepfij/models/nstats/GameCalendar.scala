@@ -2,7 +2,7 @@ package com.fijimf.deepfij.models.nstats
 
 import java.time.LocalDate
 
-import com.fijimf.deepfij.models.Schedule
+import com.fijimf.deepfij.schedule.model.Schedule
 
 final case class GameCalendar(schedule: Schedule, date: Option[LocalDate]) {
   def next(): GameCalendar = {

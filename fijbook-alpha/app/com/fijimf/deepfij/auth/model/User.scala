@@ -4,7 +4,7 @@ import java.util.UUID
 
 import cats.effect.Bracket
 import cats.implicits._
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import doobie.implicits._
 import doobie.util.transactor.Transactor

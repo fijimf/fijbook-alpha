@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models
 
 import java.time.{LocalDate, LocalDateTime}
 
+import com.fijimf.deepfij.schedule.model.Schedule
 import controllers.Utils._
 final case class FrontPageData
 (

@@ -7,8 +7,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.fijimf.deepfij.models.Team
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.scraping.model.{ScrapingResponse, TeamDetail}
 import com.fijimf.deepfij.scraping.nextgen._
-import com.fijimf.deepfij.scraping.{ScrapingResponse, TeamDetail}
 import play.api.Logger
 
 import scala.concurrent.Future

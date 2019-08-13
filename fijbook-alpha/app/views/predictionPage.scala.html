@@ -2,13 +2,15 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 @import controllers.Utils._
 @import java.time.LocalDate
-@import com.fijimf.deepfij.models.Schedule
+
 @import com.fijimf.deepfij.models.Game
 @import com.fijimf.deepfij.models.Result
 @import com.fijimf.deepfij.models.XPrediction
 @import com.fijimf.deepfij.models.XPredictionModel
 @import java.time.LocalDateTime
+
 @import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
+@import com.fijimf.deepfij.schedule.model.Schedule
 @(du: DisplayUser, qw:QuoteWrapper,  key:String, today:LocalDate, model:XPredictionModel, trainedAt:Option[LocalDateTime], ps:List[PredictionResult])(implicit sch:Schedule, request: RequestHeader, flash: Flash)
 @main3000(displayUser = du, quoteWrapper = qw) {
    <div class="row">

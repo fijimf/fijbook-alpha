@@ -4,8 +4,8 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
 import com.fijimf.deepfij.models.dao.DAOSlick
-import com.fijimf.deepfij.models.services.ScheduleUpdateResult
 import com.fijimf.deepfij.models.{Game, Result, ScheduleRepository}
+import com.fijimf.deepfij.schedule.services.ScheduleUpdateResult
 import controllers.{GameMapping, MappedGame, MappedGameAndResult, UnmappedGame}
 import play.api.db.slick.DatabaseConfigProvider
 

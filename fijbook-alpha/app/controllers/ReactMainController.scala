@@ -5,8 +5,8 @@ import java.time.{LocalDate, LocalDateTime}
 import cats.effect.IO
 import com.fijimf.deepfij.auth.services.UserService
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.{FrontPageData, Game, Quote, Result, Schedule}
-import com.fijimf.deepfij.schedule.model.Season
+import com.fijimf.deepfij.models.{FrontPageData, Game, Quote, Result}
+import com.fijimf.deepfij.schedule.model.{Schedule, Season}
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.UserAwareRequest
 import controllers.silhouette.utils.DefaultEnv

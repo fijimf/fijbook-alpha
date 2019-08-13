@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 import cats.effect._
 import cats.implicits._
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update

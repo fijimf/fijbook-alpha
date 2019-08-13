@@ -3,7 +3,8 @@ package controllers
 import com.fijimf.deepfij.auth.model.User
 import com.fijimf.deepfij.auth.services.UserService
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.{Schedule, ScheduleRepository}
+import com.fijimf.deepfij.models.ScheduleRepository
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv

@@ -1,8 +1,9 @@
 package com.fijimf.deepfij.scraping
 
-import java.time.{ZoneId, LocalDateTime}
+import java.time.{LocalDateTime, ZoneId}
 import java.util
 
+import com.fijimf.deepfij.scraping.model.NcaaComGameScraper
 import org.scalatest.FlatSpec
 import play.api.libs.json.{JsArray, JsValue, Json}
 

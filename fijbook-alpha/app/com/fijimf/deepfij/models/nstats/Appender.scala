@@ -4,6 +4,7 @@ import breeze.linalg.{DenseVector, max, min}
 import breeze.stats.{mean, median, variance}
 import com.fijimf.deepfij.models.nstats.Appender.ResultValue
 import com.fijimf.deepfij.models.{Game, Result, Schedule}
+import com.fijimf.deepfij.schedule.model.Schedule
 
 object Appender {
 

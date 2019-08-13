@@ -3,7 +3,7 @@ package com.fijimf.deepfij.models
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.{LocalDate, LocalDateTime}
 
-import com.fijimf.deepfij.scraping.ScoreboardByDateReq
+import com.fijimf.deepfij.scraping.model.ScoreboardByDateReq
 
 import scala.util.control.Exception._
 

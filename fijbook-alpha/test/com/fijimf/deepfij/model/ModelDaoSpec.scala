@@ -3,6 +3,7 @@ package com.fijimf.deepfij.model
 import java.util.UUID
 
 import cats.effect.IO
+import com.fijimf.deepfij.ModelDao
 import com.fijimf.deepfij.auth.model.User
 import com.fijimf.deepfij.auth.services.PasswordOps
 import com.fijimf.deepfij.schedule.model.{Alias, Conference, ConferenceMap, Game, Quote, Result, Season, Team, TournamentData}

@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.models.nstats
 
-import com.fijimf.deepfij.models.Schedule
 import cats.implicits._
+import com.fijimf.deepfij.schedule.model.Schedule
 
 object HigherOrderCounters {
 

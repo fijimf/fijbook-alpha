@@ -3,6 +3,8 @@ package com.fijimf.deepfij.models.dao.schedule
 import akka.actor.ActorSystem
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.DAOSlick
+import com.fijimf.deepfij.schedule.model
+import com.fijimf.deepfij.schedule.model.Schedule
 import javax.inject.Inject
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -32,7 +34,7 @@ class ScheduleDAOImpl @Inject()(val dbConfigProvider: DatabaseConfigProvider, va
       results <- fResults
 
     } yield {
-      Schedule(s, teams, conferences, conferenceMap, results)
+      model.Schedule(s, teams, conferences, conferenceMap, results)
     }
   }
   override def loadSchedules(): Future[List[Schedule]] = {

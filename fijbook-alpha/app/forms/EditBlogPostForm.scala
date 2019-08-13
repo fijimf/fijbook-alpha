@@ -3,7 +3,7 @@ package forms
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import com.fijimf.deepfij.models.S3BlogPost
+import com.fijimf.deepfij.staticpages.model.S3BlogPost
 import play.api.data.Form
 import play.api.data.Forms._
 

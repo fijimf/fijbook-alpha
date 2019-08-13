@@ -4,10 +4,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import cats.implicits._
+import com.fijimf.deepfij.schedule.model.{Schedule, WonLostRecord}
 
 import scala.util.Try
 
-final case class TeamPredictionView(t:Team, ps:List[PredictionView]){
+final case class TeamPredictionView(t:com.fijimf.deepfij.schedule.model.Team, ps:List[PredictionView]){
   def numPredicted:Int = ps.count(pv=> pv.isResultCorrect.isDefined)
   def numCorrect:Int = ps.count(pv=>pv.isResultCorrect.getOrElse(false))
   def pctCorrect:Double = if (numPredicted>0){
@@ -55,16 +56,16 @@ val wl = recordDistribution.maxBy(_._2)._1
 
 final case class PredictionView(s: Schedule, pred: XPrediction) {
   require(s.gameMap.contains(pred.gameId), s"Predicted game ${pred.gameId} unknown in schedule ${s.season.year}")
-  val game: Game = s.gameMap(pred.gameId)
+  val game: com.fijimf.deepfij.schedule.model.Game = s.gameMap(pred.gameId)
   require(s.teamsMap.contains(game.homeTeamId), s"Home team ${game.homeTeamId} unknown in schedule ${s.season.year}")
   require(s.teamsMap.contains(game.awayTeamId), s"Away team ${game.awayTeamId} unknown in schedule ${s.season.year}")
   if (pred.favoriteId.isDefined) {
     require(game.homeTeamId === pred.favoriteId.getOrElse(-1) || game.awayTeamId === pred.favoriteId.getOrElse(-1), s"Favorite team ${pred.favoriteId.getOrElse(-1)} unknown in game ${pred.gameId}")
   }
 
-  def result: Option[Result] = s.resultMap.get(game.id)
+  def result: Option[com.fijimf.deepfij.schedule.model.Result] = s.resultMap.get(game.id)
 
-  def homeTeam: Team = s.teamsMap(game.homeTeamId)
+  def homeTeam: com.fijimf.deepfij.schedule.model.Team = s.teamsMap(game.homeTeamId)
 
   def homeProb: Option[Double] = pred.probability.flatMap(x => {
     pred.favoriteId match {
@@ -74,7 +75,7 @@ final case class PredictionView(s: Schedule, pred: XPrediction) {
     }
   })
 
-  def awayTeam: Team = s.teamsMap(game.awayTeamId)
+  def awayTeam: com.fijimf.deepfij.schedule.model.Team = s.teamsMap(game.awayTeamId)
 
   def awayProb: Option[Double] = pred.probability.flatMap(x => {
     pred.favoriteId match {
@@ -84,11 +85,11 @@ final case class PredictionView(s: Schedule, pred: XPrediction) {
     }
   })
 
-  def isWinner(t: Team): Boolean = {
+  def isWinner(t: com.fijimf.deepfij.schedule.model.Team): Boolean = {
     s.isWinner(t, game)
   }
 
-  def isLoser(t: Team): Boolean = {
+  def isLoser(t: com.fijimf.deepfij.schedule.model.Team): Boolean = {
     s.isLoser(t, game)
   }
 
@@ -100,11 +101,11 @@ final case class PredictionView(s: Schedule, pred: XPrediction) {
 
   def isResultCorrect: Option[Boolean] = s.winner(game).flatMap(w => pred.favoriteId.map(f => f === w.id))
 
-  def isFavorite(t: Team): Boolean = pred.favoriteId.contains(t.id)
+  def isFavorite(t: com.fijimf.deepfij.schedule.model.Team): Boolean = pred.favoriteId.contains(t.id)
 
-  def isUnderdog(t: Team): Boolean = (game.homeTeamId === t.id || game.awayTeamId === t.id) && !isFavorite(t)
+  def isUnderdog(t: com.fijimf.deepfij.schedule.model.Team): Boolean = (game.homeTeamId === t.id || game.awayTeamId === t.id) && !isFavorite(t)
 
-  def odds(t:Team):Option[Double] = if (isFavorite(t)) {
+  def odds(t:com.fijimf.deepfij.schedule.model.Team):Option[Double] = if (isFavorite(t)) {
     pred.odds
   } else if (isUnderdog(t)){
     pred.odds.map(x=>1/x)

@@ -7,9 +7,10 @@ import akka.contrib.throttle.Throttler
 import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ComputedStatisticService
 import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
-import com.fijimf.deepfij.scraping.UberScraper
+import com.fijimf.deepfij.scraping.model
+import com.fijimf.deepfij.scraping.model.UberScraper
+import com.fijimf.deepfij.statistics.services.ComputedStatisticService
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -40,7 +41,7 @@ class UberScrapeController @Inject()(
   throttler ! Throttler.SetTarget(Some(teamLoad))
 
   def uberScrape(): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
-    val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
+    val us = model.UberScraper(dao, repo, schSvc, statSvc, throttler)
 //    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
     val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
     f.onComplete{
@@ -50,7 +51,7 @@ class UberScrapeController @Inject()(
     Future.successful(Redirect(routes.AdminController.index()).flashing("info" -> "Performing uber scrape"))
   }
   def markNcaaGames(filename:String): Action[AnyContent] = silhouette.SecuredAction.async { implicit rs =>
-    val us = UberScraper(dao, repo, schSvc, statSvc, throttler)
+    val us = model.UberScraper(dao, repo, schSvc, statSvc, throttler)
 //    val f = us.masterRebuild(UUID.randomUUID().toString, 2014, 2018)
     val f = us.updateForTournament("/"+filename)
     f.onComplete{

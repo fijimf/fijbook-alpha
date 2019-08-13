@@ -1,5 +1,5 @@
 @import com.fijimf.deepfij.models.Team
-@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.schedule.model.Schedule
 @(teamId:Long, linkClass:Option[String]=None)(implicit sch:Schedule)
     @{
         sch.teamsMap.get(teamId) match {

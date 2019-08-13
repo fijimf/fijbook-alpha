@@ -4,8 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.WholeSeasonUpdate
-import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
+import com.fijimf.deepfij.schedule.services.{ScheduleUpdateService, WholeSeasonUpdate}
 import com.fijimf.deepfij.scraping.nextgen.tasks.TourneyUpdater
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette

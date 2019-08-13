@@ -1,7 +1,7 @@
 package jobs
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.RssFeedUpdateService
+import com.fijimf.deepfij.news.services.RssFeedUpdateService
 import javax.inject.Inject
 import play.api.Logger
 

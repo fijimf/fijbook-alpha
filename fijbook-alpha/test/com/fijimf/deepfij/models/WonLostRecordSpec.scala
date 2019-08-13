@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.models
 
+import com.fijimf.deepfij.schedule.model.WonLostRecord
 import org.scalatest.FlatSpec
 
 class WonLostRecordSpec extends FlatSpec {

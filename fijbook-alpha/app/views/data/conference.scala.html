@@ -1,8 +1,11 @@
 @import com.fijimf.deepfij.auth.model.User
-@import com.fijimf.deepfij.models.{Conference, ConferenceStandings, Game, Schedule, Team, WonLostRecord}
+@import com.fijimf.deepfij.models.{Conference, Game, Team}
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
 
+@import com.fijimf.deepfij.schedule.model.ConferenceStandings
+@import com.fijimf.deepfij.schedule.model.WonLostRecord
+@import com.fijimf.deepfij.schedule.model.Schedule
 @(du: DisplayUser, qw:QuoteWrapper, c: Conference, cs:ConferenceStandings,rec:List[(Conference, WonLostRecord)], nonConf:List[Game], conf:List[Game], curr:Schedule)(implicit request: RequestHeader, flash: Flash)
 
 @main3000(du, qw) {

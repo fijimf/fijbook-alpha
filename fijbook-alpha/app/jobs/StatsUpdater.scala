@@ -2,7 +2,7 @@ package jobs
 
 import javax.inject.Inject
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.ComputedStatisticService
+import com.fijimf.deepfij.statistics.services.ComputedStatisticService
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}

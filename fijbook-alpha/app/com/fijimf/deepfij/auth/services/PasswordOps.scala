@@ -1,9 +1,10 @@
 package com.fijimf.deepfij.auth.services
 
 import cats.effect.Bracket
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
+import doobie.implicits._
 import doobie.util.fragment
 import doobie.util.transactor.Transactor
 

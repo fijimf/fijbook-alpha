@@ -1,6 +1,7 @@
 package com.fijimf.deepfij.models.dao.schedule
 
 import com.fijimf.deepfij.models._
+import com.fijimf.deepfij.schedule.model.Schedule
 
 import scala.concurrent.Future
 

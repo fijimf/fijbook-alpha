@@ -3,7 +3,7 @@ package com.fijimf.deepfij.schedule.model
 import java.time.LocalDateTime
 
 import cats.effect.Bracket
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 case class ConferenceMap(id: Long, seasonId: Long, conferenceId: Long, teamId: Long, updatedAt: LocalDateTime, updatedBy: String) {

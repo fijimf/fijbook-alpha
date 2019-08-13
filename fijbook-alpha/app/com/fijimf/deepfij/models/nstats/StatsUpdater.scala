@@ -9,6 +9,7 @@ import cats.implicits._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.actor.SnapshotBuffer
 import com.fijimf.deepfij.models.{CalcStatus, Schedule, Season, Team, XStat}
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.fijimf.deepfij.schedule.services.ScheduleSerializer
 import play.api.Logger
 

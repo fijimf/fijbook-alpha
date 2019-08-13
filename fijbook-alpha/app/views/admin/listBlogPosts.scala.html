@@ -1,9 +1,9 @@
 @import com.fijimf.deepfij.auth.model.User
 @import com.fijimf.deepfij.models.Quote
 @import com.fijimf.deepfij.models.S3StaticAsset
-@import com.fijimf.deepfij.models.S3BlogMetaData
 @import com.fijimf.deepfij.models.react.DisplayUser
 @import com.fijimf.deepfij.models.react.QuoteWrapper
+@import com.fijimf.deepfij.staticpages.model.S3BlogMetaData
 @(displayUser: DisplayUser, quoteWrapper: QuoteWrapper,  metas: List[S3BlogMetaData])(implicit request: RequestHeader, flash: Flash)
 @main3000(displayUser,quoteWrapper) {
     <div class="row">

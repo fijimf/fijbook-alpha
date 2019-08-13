@@ -3,6 +3,7 @@ package com.fijimf.deepfij.scraping.nextgen.tasks
 import akka.actor.ActorRef
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.{Game, Schedule}
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.fijimf.deepfij.scraping.nextgen.SSTask
 
 import scala.concurrent.Future

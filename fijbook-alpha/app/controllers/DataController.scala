@@ -5,7 +5,9 @@ import java.time.{LocalDateTime, ZoneId, ZoneOffset}
 import cats.implicits._
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.RssFeedUpdateService
+import com.fijimf.deepfij.news.model
+import com.fijimf.deepfij.news.model.RSSFeedStatus
+import com.fijimf.deepfij.news.services.RssFeedUpdateService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
@@ -595,7 +597,7 @@ class DataController @Inject()(
 
         feedItems match {
           case Nil => RSSFeedStatus(f, None, None, 0, 0)
-          case _ => RSSFeedStatus(f,
+          case _ => model.RSSFeedStatus(f,
             Some(feedItems.maxBy(_.publishTime.atZone(ZoneId.systemDefault()).toInstant.toEpochMilli()).publishTime),
             Some(feedItems.maxBy(_.recordedAt.atZone(ZoneId.systemDefault()).toInstant.toEpochMilli()).recordedAt),
             feedItems.size,

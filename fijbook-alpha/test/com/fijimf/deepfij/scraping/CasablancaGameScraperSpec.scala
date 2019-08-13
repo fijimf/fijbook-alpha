@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fijimf.deepfij.scraping.model.CasablancaGameScraper
 import org.apache.commons.lang3.StringUtils
 import org.scalatest.FlatSpec
 import play.api.libs.json.{JsArray, JsValue, Json}

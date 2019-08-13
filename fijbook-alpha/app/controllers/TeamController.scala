@@ -8,6 +8,7 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.Analysis
 import com.fijimf.deepfij.models.react.DisplayLink
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv

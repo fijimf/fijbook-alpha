@@ -1,7 +1,7 @@
 @import views.html.data.blocks.date._
 @import views.html.data.blocks.team._
-@import com.fijimf.deepfij.models.{Team, Game, Result}
-@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.models.{Game, Result, Team}
+@import com.fijimf.deepfij.schedule.model.Schedule
 @(t:Team,g:Game, or:Option[Result])(implicit sch:Schedule)
 <tr>
     <td>@dateLink(g.date,"MMM-dd-yyyy")</td>

@@ -1,6 +1,6 @@
 @import com.fijimf.deepfij.models.Game
 @import com.fijimf.deepfij.models.Result
-@import com.fijimf.deepfij.models.Schedule
+@import com.fijimf.deepfij.schedule.model.Schedule
 @import controllers.Utils.LocalDateTimeWrapper
 @(ms:List[(Game,Option[Result])], os:Option[Schedule])
 @if(ms.isEmpty || os.isEmpty) {

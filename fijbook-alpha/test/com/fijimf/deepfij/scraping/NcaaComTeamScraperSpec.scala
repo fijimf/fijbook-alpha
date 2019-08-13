@@ -1,5 +1,6 @@
 package com.fijimf.deepfij.scraping
 
+import com.fijimf.deepfij.scraping.model.{HtmlUtil, NcaaComTeamScraper}
 import org.scalatest.FlatSpec
 
 import scala.io.Source

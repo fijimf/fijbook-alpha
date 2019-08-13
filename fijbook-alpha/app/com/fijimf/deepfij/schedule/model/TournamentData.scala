@@ -2,7 +2,7 @@ package com.fijimf.deepfij.schedule.model
 
 import java.time.LocalDateTime
 
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 

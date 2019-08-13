@@ -1,9 +1,9 @@
 @import com.fijimf.deepfij.models.Game
 @import com.fijimf.deepfij.models.Result
-@import com.fijimf.deepfij.models.Schedule
 @import controllers.Utils.LocalDateTimeWrapper
 @import com.fijimf.deepfij.models.XPrediction
 @import com.fijimf.deepfij.models.nstats.predictors.PredictionResult
+@import com.fijimf.deepfij.schedule.model.Schedule
 @import views.html.data.blocks.team.idNameLink
 @(ps:List[PredictionResult])(implicit sch:Schedule)
 @if(ps.isEmpty) {

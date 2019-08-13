@@ -1,7 +1,7 @@
 package com.fijimf.deepfij.schedule.model
 
 import cats.effect.Bracket
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 

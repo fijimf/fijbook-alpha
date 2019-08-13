@@ -1,6 +1,7 @@
 @import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
-@import com.fijimf.deepfij.models.{Schedule, Team}
+@import com.fijimf.deepfij.models.Team
 @import com.fijimf.deepfij.models.react.DisplayLink
+@import com.fijimf.deepfij.schedule.model.Schedule
 @(du: DisplayUser, qw:QuoteWrapper,  t: Team,  stats:List[ModelTeamContext], seasonKeys:List[Int], fav:DisplayLink)(implicit curr: Schedule, request: RequestHeader, flash: Flash)
 @main3000(du, qw, Some(fav)) {
 

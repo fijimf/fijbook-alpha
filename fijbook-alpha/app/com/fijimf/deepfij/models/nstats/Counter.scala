@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models.nstats
 
 import com.fijimf.deepfij.models.nstats.Counter.ResultTest
 import com.fijimf.deepfij.models.{Game, Result, Schedule}
+import com.fijimf.deepfij.schedule.model.Schedule
 
 object Counter {
   type ResultTest = (Game, Result) => Boolean

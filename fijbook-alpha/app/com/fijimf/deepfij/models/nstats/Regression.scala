@@ -2,6 +2,7 @@ package com.fijimf.deepfij.models.nstats
 
 import com.fijimf.deepfij.models.{Game, Result, Schedule}
 import cats.implicits._
+import com.fijimf.deepfij.schedule.model.Schedule
 
 //TODO **** Single line per game with no constant coefficient is unstable, so
 //  we will keep double line per game but also add

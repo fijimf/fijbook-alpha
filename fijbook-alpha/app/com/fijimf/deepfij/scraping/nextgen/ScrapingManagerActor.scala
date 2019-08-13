@@ -10,7 +10,8 @@ import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.schedule.services.ScheduleUpdateService
 import com.fijimf.deepfij.scraping.nextgen.ScrapeManagingActor.ScrapeThrottler
-import com.fijimf.deepfij.scraping.{FormatDuration, ScrapingActor}
+import com.fijimf.deepfij.scraping.FormatDuration
+import com.fijimf.deepfij.scraping.model.ScrapingActor
 import com.fijimf.deepfij.scraping.nextgen.tasks._
 import play.api.Logger
 import play.api.libs.json.Json

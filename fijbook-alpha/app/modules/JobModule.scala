@@ -1,6 +1,6 @@
 package modules
 
-import com.fijimf.deepfij.models.RSSFeedStatus
+import com.fijimf.deepfij.news.model.RSSFeedStatus
 import jobs._
 import net.codingwell.scalaguice.ScalaModule
 import play.api.libs.concurrent.AkkaGuiceSupport

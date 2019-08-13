@@ -9,7 +9,6 @@ import akka.util.Timeout
 import com.fijimf.deepfij.models._
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.dao.schedule.util.ScheduleUtil
-import com.fijimf.deepfij.scraping.{ShortNameAndKeyByStatAndPage, TeamDetail, TestUrl}
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.mohiva.play.silhouette.api.Silhouette
@@ -19,6 +18,8 @@ import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import cats.implicits._
+import com.fijimf.deepfij.schedule.model.Schedule
+import com.fijimf.deepfij.scraping.model.{ShortNameAndKeyByStatAndPage, TeamDetail, TestUrl}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}

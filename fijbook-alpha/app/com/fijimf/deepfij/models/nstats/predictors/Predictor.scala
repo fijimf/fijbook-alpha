@@ -3,6 +3,7 @@ package com.fijimf.deepfij.models.nstats.predictors
 import cats.data.OptionT
 import com.fijimf.deepfij.models.dao.schedule.{ScheduleDAO, StatValueDAO}
 import com.fijimf.deepfij.models.{Schedule, XPrediction, XPredictionModel}
+import com.fijimf.deepfij.schedule.model.Schedule
 import play.api.Logger
 
 import scala.concurrent.Future

@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import com.fijimf.deepfij.models.FavoriteLink
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
-import com.fijimf.deepfij.models.services.ComputedStatisticService
+import com.fijimf.deepfij.statistics.services.ComputedStatisticService
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.silhouette.utils.DefaultEnv

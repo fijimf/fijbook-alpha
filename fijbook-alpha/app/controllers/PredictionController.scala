@@ -7,6 +7,7 @@ import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
 import com.fijimf.deepfij.models.nstats.predictors.{PredictionResult, Predictor, PredictorContext}
 import com.fijimf.deepfij.models.react.{DisplayUser, QuoteWrapper}
 import com.fijimf.deepfij.models.{Schedule, XPrediction}
+import com.fijimf.deepfij.schedule.model.Schedule
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest

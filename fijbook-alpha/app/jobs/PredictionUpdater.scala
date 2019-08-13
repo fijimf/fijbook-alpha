@@ -1,7 +1,7 @@
 package jobs
 
 import akka.actor.Actor
-import com.fijimf.deepfij.models.services.GamePredictionService
+import com.fijimf.deepfij.predictions.services.GamePredictionService
 import javax.inject.Inject
 
 import scala.concurrent.duration._

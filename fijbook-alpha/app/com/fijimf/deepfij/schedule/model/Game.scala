@@ -3,7 +3,7 @@ package com.fijimf.deepfij.schedule.model
 import java.time.{LocalDate, LocalDateTime}
 
 import cats.effect.Bracket
-import com.fijimf.deepfij.model.ModelDao
+import com.fijimf.deepfij.ModelDao
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 
@@ -21,6 +21,7 @@ case class Game
   updatedAt: LocalDateTime,
   updatedBy: String
 ) {
+  def tourneyKey: Option[TournamentData] = ???
 
 
 }

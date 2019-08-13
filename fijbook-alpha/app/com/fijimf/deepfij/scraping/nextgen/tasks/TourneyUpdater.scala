@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import com.fijimf.deepfij.models.{Game, Schedule}
 import com.fijimf.deepfij.models.dao.schedule.ScheduleDAO
+import com.fijimf.deepfij.schedule.model.Schedule
 import play.api.Logger
 
 import scala.collection.immutable
